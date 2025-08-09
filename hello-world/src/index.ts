@@ -15,10 +15,14 @@ import './index.css';
 // Добавлено: импорт локалей Blockly
 import * as EnLocale from 'blockly/msg/en';
 import * as RuLocale from 'blockly/msg/ru';
+// Добавлено: регистрация плагина угла
+import {registerFieldAngle} from '@blockly/field-angle';
+
+// Регистрируем поле угла до того, как начнём создавать блоки
+registerFieldAngle();
 
 // Register the blocks and generator with Blockly
-Blockly.common.defineBlocks(blocks);
-Object.assign(javascriptGenerator.forBlock, forBlock);
+// Регистрация будет выполнена после применения локали, чтобы подтянуть правильные строки
 
 // Настройки локализации приложения
 const APP_LANG_KEY = 'app_language';
@@ -27,6 +31,20 @@ const defaultLang = (localStorage.getItem(APP_LANG_KEY) || 'ru') as 'ru' | 'en';
 function setLanguage(lang: 'ru' | 'en') {
   // Применяем локаль Blockly
   Blockly.setLocale(lang === 'ru' ? (RuLocale as any) : (EnLocale as any));
+  
+  // Добавляем кастомные переводы для наших блоков (ключи без префикса BKY_)
+  if (lang === 'ru') {
+    (Blockly as any).Msg.ADD_TEXT = 'Добавить текст %1';
+    (Blockly as any).Msg.ANGLE_DEMO = 'Установить угол %1 градусов';
+    (Blockly as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
+    (Blockly as any).Msg.DEGREES = 'градусов';
+  } else {
+    (Blockly as any).Msg.ADD_TEXT = 'Add text %1';
+    (Blockly as any).Msg.ANGLE_DEMO = 'Set angle to %1 degrees';
+    (Blockly as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
+    (Blockly as any).Msg.DEGREES = 'degrees';
+  }
+  
   localStorage.setItem(APP_LANG_KEY, lang);
   updateHeaderText(lang);
 }
@@ -51,12 +69,16 @@ function updateHeaderText(lang: 'ru' | 'en') {
 }
 
 // Инициализируем язык до создания рабочей области
-setLanguage(defaultLang);
+ setLanguage(defaultLang);
+
+// Теперь, когда локаль установлена, регистрируем блоки и генераторы
+Blockly.common.defineBlocks(blocks);
+Object.assign(javascriptGenerator.forBlock, forBlock);
 
 function localizedToolbox(lang: 'ru' | 'en') {
   const t = {
-    en: { Logic: 'Logic', Loops: 'Loops', Math: 'Math', Text: 'Text', Lists: 'Lists', Variables: 'Variables', Functions: 'Functions' },
-    ru: { Logic: 'Логика', Loops: 'Циклы', Math: 'Математика', Text: 'Текст', Lists: 'Списки', Variables: 'Переменные', Functions: 'Функции' },
+    en: { Logic: 'Logic', Loops: 'Loops', Math: 'Math', Text: 'Text', Lists: 'Lists', Variables: 'Variables', Functions: 'Functions', Custom: 'Custom blocks' },
+    ru: { Logic: 'Логика', Loops: 'Циклы', Math: 'Математика', Text: 'Текст', Lists: 'Списки', Variables: 'Переменные', Functions: 'Функции', Custom: 'Кастомные блоки' },
   }[lang];
   const tb = JSON.parse(JSON.stringify(originalToolbox));
   for (const cat of tb.contents) {
@@ -95,6 +117,9 @@ if (!blocklyDiv) {
     
     setLanguage(lang);
 
+    // Переопределяем блоки под новую локаль
+    Blockly.common.defineBlocks(blocks);
+ 
     const currentState = ws ? Blockly.serialization.workspaces.save(ws as Blockly.Workspace) : null;
 
     if (ws) {

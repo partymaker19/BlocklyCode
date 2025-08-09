@@ -32,3 +32,34 @@ forBlock['add_text'] = function (
   const code = `${addText}(${text});\n`;
   return code;
 };
+
+// Генератор для блока angle_demo
+forBlock['angle_demo'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const angle = (block as any).getFieldValue('ANGLE') || 0;
+  const addText = generator.provideFunction_(
+    'addText',
+    `function ${generator.FUNCTION_NAME_PLACEHOLDER_}(text) {
+
+  // Add text to the output area.
+  const outputDiv = document.getElementById('output');
+  const textEl = document.createElement('p');
+  textEl.innerText = text;
+  outputDiv.appendChild(textEl);
+}`,
+  );
+  const code = `${addText}('Angle: ' + String(${angle}));\n`;
+  return code;
+};
+
+// Генератор для блока-выражения angle_value
+forBlock['angle_value'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const angle = (block as any).getFieldValue('ANGLE') || 0;
+  // Возвращаем код и порядок операций (атомарное значение)
+  return [String(angle), Order.ATOMIC];
+};

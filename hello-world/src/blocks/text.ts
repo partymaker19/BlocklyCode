@@ -5,6 +5,7 @@
  */
 
 import * as Blockly from 'blockly/core';
+import {FieldAngle} from '@blockly/field-angle';
 
 // Create a custom block called 'add_text' that adds
 // text to the output div on the sample app.
@@ -12,8 +13,8 @@ import * as Blockly from 'blockly/core';
 // own custom blocks.
 const addText = {
   type: 'add_text',
-  // Используем Blockly.Msg для локализации, или fallback
-  message0: 'Add text %1',
+  // Используем ключ локализации
+  message0: '%{BKY_ADD_TEXT}',
   args0: [
     {
       type: 'input_value',
@@ -35,11 +36,59 @@ const addText = {
     this.setTooltip('Add text to the output area');
     this.setHelpUrl('');
     
-    // Динамически применяем локализацию текста
-    const message = ((Blockly as any).Msg && (Blockly as any).Msg.ADD_TEXT) || 'Add text %1';
-    this.appendValueInput('TEXT')
-      .setCheck('String')
-      .appendField(message.replace('%1', ''));
+    // Оставляем логику без дополнительных надписей, JSON уже задает поля
+  }
+};
+
+// Блок для демонстрации поля угла
+const angleDemo = {
+  type: 'angle_demo',
+  message0: '%{BKY_ANGLE_DEMO}',
+  args0: [
+    {
+      type: 'field_angle',
+      name: 'ANGLE',
+      angle: 90,
+    },
+  ],
+  previousStatement: null,
+  nextStatement: null,
+  colour: 20,
+  tooltip: 'Demonstrates angle field usage',
+  helpUrl: '',
+  
+  init: function(this: Blockly.Block) {
+    this.setColour(20);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip('Demonstrates angle field usage');
+    this.setHelpUrl('');
+    // JSON уже формирует содержимое блока через message0/args0
+  }
+};
+
+// Блок-выражение: угол как число градусов
+const angleValue = {
+  type: 'angle_value',
+  message0: '%{BKY_ANGLE_VALUE}',
+  args0: [
+    {
+      type: 'field_angle',
+      name: 'ANGLE',
+      angle: 90,
+    },
+  ],
+  output: 'Number',
+  colour: 20,
+  tooltip: 'Angle value in degrees',
+  helpUrl: '',
+
+  init: function(this: Blockly.Block) {
+    this.setColour(20);
+    this.setOutput(true, 'Number');
+    this.setTooltip('Angle value in degrees');
+    this.setHelpUrl('');
+    // JSON уже формирует содержимое блока через message0/args0
   }
 };
 
@@ -48,4 +97,6 @@ const addText = {
 // This file has no side effects!
 export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   addText,
+  angleDemo,
+  angleValue,
 ]);

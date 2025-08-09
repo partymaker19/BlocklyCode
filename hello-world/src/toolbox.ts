@@ -237,6 +237,11 @@ export function getLocalizedToolbox() {
             kind: 'block',
             type: 'math_random_float',
           },
+          // Добавляем наш новый блок-выражение угла
+          {
+            kind: 'block',
+            type: 'angle_value',
+          },
         ],
       },
       {
@@ -336,6 +341,8 @@ export function getLocalizedToolbox() {
           },
         ],
       },
+      // Новая категория: Кастомные перенесена в самый низ
+      { kind: 'sep' },
       {
         kind: 'category',
         name: 'Lists',
@@ -425,6 +432,16 @@ export function getLocalizedToolbox() {
         name: 'Functions',
         categorystyle: 'procedure_category',
         custom: 'PROCEDURE',
+      },
+      // Категория "Custom" перенесена в самый низ
+      {
+        kind: 'category',
+        name: 'Custom',
+        colour: '#a55eea',
+        contents: [
+          { kind: 'block', type: 'angle_demo' },
+          { kind: 'block', type: 'angle_value' },
+        ],
       },
     ],
   };

@@ -1,0 +1,13 @@
+{
+  "name": "blockly-demo",
+  "version": "1.0.0",
+  "description": "A sample app using Blockly",
+  "scripts": {
+    "build": "cd hello-world && npm run build",
+    "start": "cd hello-world && npm start",
+    "install": "cd hello-world && npm install"
+  },
+  "dependencies": {
+    "blockly": "^12.2.0"
+  }
+}

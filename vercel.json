@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd hello-world && npm run build",
+  "outputDirectory": "hello-world/dist",
+  "installCommand": "cd hello-world && npm install",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

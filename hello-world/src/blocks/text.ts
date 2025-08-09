@@ -12,6 +12,7 @@ import * as Blockly from 'blockly/core';
 // own custom blocks.
 const addText = {
   type: 'add_text',
+  // Используем Blockly.Msg для локализации, или fallback
   message0: 'Add text %1',
   args0: [
     {
@@ -25,6 +26,21 @@ const addText = {
   colour: 160,
   tooltip: '',
   helpUrl: '',
+  
+  // Инициализация блока - здесь мы можем динамически менять текст
+  init: function(this: Blockly.Block) {
+    this.setColour(160);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip('Add text to the output area');
+    this.setHelpUrl('');
+    
+    // Динамически применяем локализацию текста
+    const message = ((Blockly as any).Msg && (Blockly as any).Msg.ADD_TEXT) || 'Add text %1';
+    this.appendValueInput('TEXT')
+      .setCheck('String')
+      .appendField(message.replace('%1', ''));
+  }
 };
 
 // Create the block definitions for the JSON-only blocks.

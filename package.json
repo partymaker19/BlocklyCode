@@ -8,6 +8,6 @@
     "install": "cd hello-world && npm install"
   },
   "dependencies": {
-    "blockly": "^12.2.0"
+    "blockly": "12.2.0"
   }
 }

@@ -61,6 +61,33 @@
       gap: 12px;
     }
 
+    /* Import button styles */
+    .import-button {
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .import-button:hover {
+      background: rgba(255,255,255,0.3);
+      border-color: rgba(255,255,255,0.5);
+      transform: translateY(-2px);
+    }
+
+    .import-button svg {
+      width: 16px;
+      height: 16px;
+    }
+
     /* Language switch styles */
     .language-switch {
       display: flex;
@@ -166,6 +193,262 @@
       border-radius: 3px;
       border-left: 3px solid #2196f3;
     }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 0;
+      border: none;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: slideIn 0.3s;
+      box-sizing: border-box;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .close-button {
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.3s;
+    }
+
+    .close-button:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+      resize: vertical;
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+      max-width: 100%;
+      display: block;
+    }
+
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #6c757d;
+      border: 1px solid #dee2e6;
+    }
+
+    .btn-secondary:hover {
+      background: #e9ecef;
+    }
+
+    .import-info {
+      background: #f0f7ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #0066cc;
+    }
+
+    /* Generator language selector */
+    .generator-language-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .lang-tab {
+      padding: 8px 16px;
+      border: 2px solid #e0e0e0;
+      background: #f8f9fa;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .lang-tab:hover {
+      border-color: #667eea;
+      background: #f0f7ff;
+    }
+
+    .lang-tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+    }
+
+    /* Presets styling */
+    .presets-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-preset {
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      color: #495057;
+      padding: 6px 12px;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .btn-preset:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .btn-preset:disabled {
+      background: #f8f9fa;
+      color: #6c757d;
+      border-color: #dee2e6;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    /* Validation styles */
+    .validation-error {
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      color: #c53030;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .validation-success {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      color: #22543d;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* Enhanced textarea with syntax highlighting support */
+    .code-editor {
+      position: relative;
+    }
+
+    .code-editor textarea {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+      line-height: 1.4;
+      tab-size: 2;
+    }
+
+    .code-editor.error textarea {
+      border-color: #e53e3e;
+    }
+
+    .code-editor.success textarea {
+      border-color: #38a169;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   </style>
 </head>
 
@@ -179,6 +462,12 @@
       </div>
     </div>
     <div class="header-right">
+      <button id="importBlockBtn" class="import-button">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+        </svg>
+        <span id="importBtnText">Импорт блоков</span>
+      </button>
       <div class="language-switch">
         <span class="lang-label" id="lang-ru">RU</span>
         <label class="switch">
@@ -195,6 +484,66 @@
     <div id="outputPane">
       <pre id="generatedCode"><code></code></pre>
       <div id="output"></div>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div id="importModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Импорт пользовательских блоков</h2>
+        <span class="close-button" id="closeModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="import-info" id="importInfo">
+          Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".
+        </div>
+        <div class="form-group">
+          <label for="blockJson" id="jsonLabel">JSON определение блока:</label>
+          <textarea id="blockJson" placeholder='Пример:
+{
+  "type": "my_custom_block",
+  "message0": "Мой блок %1",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "INPUT"
+    }
+  ],
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 230,
+  "tooltip": "Мой кастомный блок",
+  "helpUrl": ""
+}'></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label id="presetsLabel">Быстрые пресеты блоков:</label>
+          <div class="generator-language-selector" id="generatorLangTabs">
+            <button type="button" class="lang-tab active" data-lang="javascript" id="genLangJs">JavaScript</button>
+            <button type="button" class="lang-tab" data-lang="python" id="genLangPy">Python</button>
+            <button type="button" class="lang-tab" data-lang="lua" id="genLangLua">Lua</button>
+          </div>
+          <div class="presets-container">
+            <button type="button" class="btn btn-preset" id="presetLet">let переменная</button>
+            <button type="button" class="btn btn-preset" id="presetConst">const переменная</button>
+            <button type="button" class="btn btn-preset" id="presetVar">var переменная</button>
+          </div>
+          <div class="validation-error" id="presetNotice" style="display:none"></div>
+        </div>
+        
+        <div class="form-group code-editor">
+          <label for="blockGenerator" id="generatorLabel">Генератор кода (опционально):</label>
+          <textarea id="blockGenerator"></textarea>
+          <div class="validation-error" id="generatorError"></div>
+          <div class="validation-success" id="generatorOk"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelImport" class="btn btn-secondary">Отмена</button>
+        <button id="confirmImport" class="btn btn-primary">Импортировать</button>
+      </div>
     </div>
   </div>
 </body>

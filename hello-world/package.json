@@ -56,6 +56,8 @@
 
     "@blockly/field-angle": "^6.0.2",
 
+    "@blockly/theme-dark": "^8.0.1",
+
     "blockly": "12.2.0"
 
   }

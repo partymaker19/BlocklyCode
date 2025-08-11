@@ -9,15 +9,19 @@ import * as Blockly from 'blockly';
 import 'blockly/blocks';
 import {blocks} from './blocks/text';
 import {forBlock} from './generators/javascript';
+import {forBlock as forBlockPython} from './generators/python';
+import {forBlock as forBlockLua} from './generators/lua';
 import {javascriptGenerator} from 'blockly/javascript';
+import {pythonGenerator} from 'blockly/python';
+import {luaGenerator} from 'blockly/lua';
 import {save, load} from './serialization';
-import {toolbox as originalToolbox} from './toolbox';
 import './index.css';
-import { registerCustomBlocks, importBlockFromJson, getCustomBlocksToolboxCategory, removeCustomBlock, getCustomBlocks } from './customBlocks';
+import { registerCustomBlocks, importBlockFromJson, removeCustomBlock, getCustomBlocks } from './customBlocks';
+import { setAppLang, localizedToolbox, localizeImportUI, getAppLang } from './localization';
+import { runCode as runCodeExec } from './codeExecution';
+// Import dark theme
+import DarkTheme from '@blockly/theme-dark';
 
-// Добавлено: импорт локалей Blockly
-import * as EnLocale from 'blockly/msg/en';
-import * as RuLocale from 'blockly/msg/ru';
 // Добавлено: регистрация плагина угла
 import {registerFieldAngle} from '@blockly/field-angle';
 
@@ -28,51 +32,10 @@ registerFieldAngle();
 // Регистрация будет выполнена после применения локали, чтобы подтянуть правильные строки
 
 // Настройки локализации приложения
-const APP_LANG_KEY = 'app_language';
-const defaultLang = (localStorage.getItem(APP_LANG_KEY) || 'ru') as 'ru' | 'en';
-
-function setLanguage(lang: 'ru' | 'en') {
-  // Применяем локаль Blockly
-  Blockly.setLocale(lang === 'ru' ? (RuLocale as any) : (EnLocale as any));
-  
-  // Добавляем кастомные переводы для наших блоков (ключи без префикса BKY_)
-  if (lang === 'ru') {
-    (Blockly as any).Msg.ADD_TEXT = 'Добавить текст %1';
-    (Blockly as any).Msg.ANGLE_DEMO = 'Установить угол %1 градусов';
-    (Blockly as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
-    (Blockly as any).Msg.DEGREES = 'градусов';
-  } else {
-    (Blockly as any).Msg.ADD_TEXT = 'Add text %1';
-    (Blockly as any).Msg.ANGLE_DEMO = 'Set angle to %1 degrees';
-    (Blockly as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
-    (Blockly as any).Msg.DEGREES = 'degrees';
-  }
-  
-  localStorage.setItem(APP_LANG_KEY, lang);
-  updateHeaderText(lang);
-}
-
-// Функция для обновления текста в шапке
-function updateHeaderText(lang: 'ru' | 'en') {
-  const subtitle = document.querySelector('.header-subtitle');
-  const ruLabel = document.getElementById('lang-ru');
-  const enLabel = document.getElementById('lang-en');
-  
-  if (subtitle) {
-    subtitle.textContent = lang === 'ru' ? 
-      'Создавайте программы с помощью блоков' : 
-      'Create programs using blocks';
-  }
-  
-  // Обновляем активные состояния меток языков
-  if (ruLabel && enLabel) {
-    ruLabel.className = lang === 'ru' ? 'lang-label active' : 'lang-label';
-    enLabel.className = lang === 'en' ? 'lang-label active' : 'lang-label';
-  }
-}
+const defaultLang = getAppLang();
 
 // Инициализируем язык до создания рабочей области
- setLanguage(defaultLang);
+setAppLang(defaultLang);
 
 // Объявляем флаг регистрации контекстного меню до первого вызова
 let customBlockContextRegistered = false;
@@ -80,30 +43,12 @@ let customBlockContextRegistered = false;
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
 Object.assign(javascriptGenerator.forBlock, forBlock);
+Object.assign(pythonGenerator.forBlock, forBlockPython);
+Object.assign(luaGenerator.forBlock, forBlockLua);
 // Регистрируем пользовательские блоки и контекстное меню удаления
 registerCustomBlocks();
 setupCustomBlockContextMenu();
 
-function localizedToolbox(lang: 'ru' | 'en') {
-  const t = {
-    en: { Logic: 'Logic', Loops: 'Loops', Math: 'Math', Text: 'Text', Lists: 'Lists', Variables: 'Variables', Functions: 'Functions', Custom: 'Custom blocks', MyBlocks: 'My Blocks', ImportBlocks: 'Import blocks', ImportModalTitle: 'Import custom blocks', JsonLabel: 'Block definition (JSON):', ImportInfo: 'Paste the block JSON definition below. The block will be added to "My Blocks" category.', Cancel: 'Cancel', Import: 'Import' },
-    ru: { Logic: 'Логика', Loops: 'Циклы', Math: 'Математика', Text: 'Текст', Lists: 'Списки', Variables: 'Переменные', Functions: 'Функции', Custom: 'Кастомные блоки', MyBlocks: 'Мои блоки', ImportBlocks: 'Импорт блоков', ImportModalTitle: 'Импорт пользовательских блоков', JsonLabel: 'JSON определение блока:', ImportInfo: 'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".', Cancel: 'Отмена', Import: 'Импортировать' },
-  }[lang];
-  const tb = JSON.parse(JSON.stringify(originalToolbox));
-  for (const cat of tb.contents) {
-    if (cat.kind === 'category' && t[cat.name as keyof typeof t]) {
-      cat.name = t[cat.name as keyof typeof t];
-    }
-  }
-  // Добавляем динамическую категорию "Мои блоки" в самый низ, если есть пользовательские блоки
-  const customCat = getCustomBlocksToolboxCategory();
-  if (customCat) {
-    customCat.name = t.MyBlocks;
-    tb.contents.push({ kind: 'sep' });
-    tb.contents.push(customCat);
-  }
-  return tb;
-}
 
 // Set up UI elements and inject Blockly
 const codeDiv = document.getElementById('generatedCode')?.firstChild as ChildNode | null;
@@ -123,51 +68,103 @@ const generatorLabel = document.getElementById('generatorLabel');
 const importInfo = document.getElementById('importInfo');
 const presetLetBtn = document.getElementById('presetLet') as HTMLButtonElement | null;
 const presetConstBtn = document.getElementById('presetConst') as HTMLButtonElement | null;
-const presetVarBtn = document.getElementById('presetVar') as HTMLButtonElement | null;
+// удалено: presetVarBtn
 const presetsLabelEl = document.getElementById('presetsLabel');
 // Новые элементы модалки
 const genLangTabs = document.getElementById('generatorLangTabs') as HTMLDivElement | null;
 const genLangJsBtn = document.getElementById('genLangJs') as HTMLButtonElement | null;
 const genLangPyBtn = document.getElementById('genLangPy') as HTMLButtonElement | null;
 const genLangLuaBtn = document.getElementById('genLangLua') as HTMLButtonElement | null;
+// Кнопки выбора языка генератора в шапке
+const genLangHeaderSelect = document.getElementById('genLangHeaderSelect') as HTMLSelectElement | null;
 const presetNotice = document.getElementById('presetNotice') as HTMLDivElement | null;
 const generatorErrorEl = document.getElementById('generatorError') as HTMLDivElement | null;
 const generatorOkEl = document.getElementById('generatorOk') as HTMLDivElement | null;
 
-let selectedGeneratorLanguage: 'javascript' | 'python' | 'lua' = 'javascript';
+// Theme elements
+const themeSwitchInput = document.getElementById('themeSwitchInput') as HTMLInputElement | null;
+const themeLabelLight = document.getElementById('theme-light') as HTMLSpanElement | null;
+const themeLabelDark = document.getElementById('theme-dark') as HTMLSpanElement | null;
+
+let selectedGeneratorLanguage: 'javascript' | 'python' | 'lua' = 
+  (localStorage.getItem('generator_language') as 'javascript' | 'python' | 'lua') || 'javascript';
+
+// Theme state
+type AppTheme = 'light' | 'dark';
+const APP_THEME_KEY = 'app_theme';
+let appTheme: AppTheme = (localStorage.getItem(APP_THEME_KEY) as AppTheme) || 'light';
 
 // Объявление рабочей области Blockly
 let ws: Blockly.WorkspaceSvg;
 
+// Helper: get active Blockly theme
+function getBlocklyTheme() {
+  return appTheme === 'dark' ? (DarkTheme as any) : Blockly.Themes.Classic;
+}
+
+function setAppTheme(next: AppTheme) {
+  appTheme = next;
+  localStorage.setItem(APP_THEME_KEY, appTheme);
+  // update labels state
+  if (themeLabelLight && themeLabelDark) {
+    themeLabelLight.classList.toggle('active', appTheme === 'light');
+    themeLabelDark.classList.toggle('active', appTheme === 'dark');
+  }
+  // Add data attribute for CSS chrome
+  document.documentElement.setAttribute('data-theme', appTheme);
+  // Recreate workspace with preserved state
+  refreshWorkspaceWithCustomToolbox();
+}
+
+function initThemeSwitchUI() {
+  if (!themeSwitchInput) return;
+  themeSwitchInput.checked = appTheme === 'dark';
+  if (themeLabelLight && themeLabelDark) {
+    themeLabelLight.classList.toggle('active', appTheme === 'light');
+    themeLabelDark.classList.toggle('active', appTheme === 'dark');
+  }
+  themeSwitchInput.addEventListener('change', (e: Event) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    setAppTheme(checked ? 'dark' : 'light');
+  });
+}
+
 function setActiveGenLangButton(lang: 'javascript' | 'python' | 'lua') {
   [genLangJsBtn, genLangPyBtn, genLangLuaBtn].forEach(btn => btn && btn.classList.remove('active'));
-  if (lang === 'javascript' && genLangJsBtn) genLangJsBtn.classList.add('active');
-  if (lang === 'python' && genLangPyBtn) genLangPyBtn.classList.add('active');
-  if (lang === 'lua' && genLangLuaBtn) genLangLuaBtn.classList.add('active');
+  if (lang === 'javascript') {
+    if (genLangJsBtn) genLangJsBtn.classList.add('active');
+  }
+  if (lang === 'python') {
+    if (genLangPyBtn) genLangPyBtn.classList.add('active');
+  }
+  if (lang === 'lua') {
+    if (genLangLuaBtn) genLangLuaBtn.classList.add('active');
+  }
+  if (genLangHeaderSelect) genLangHeaderSelect.value = lang;
 }
 
 function updatePresetsByGenLang() {
   const lang = selectedGeneratorLanguage;
   const letBtn = presetLetBtn;
   const constBtn = presetConstBtn;
-  const varBtn = presetVarBtn;
-  if (!letBtn || !constBtn || !varBtn) return;
+  if (!letBtn || !constBtn) return;
+
+  const currentLang = getAppLang();
 
   if (lang === 'javascript') {
-    letBtn.disabled = false; letBtn.textContent = 'let переменная';
-    constBtn.disabled = false; constBtn.textContent = 'const переменная';
-    varBtn.disabled = false; varBtn.textContent = 'var переменная';
+    letBtn.disabled = false; letBtn.textContent = currentLang === 'ru' ? 'let переменная' : 'let variable';
+    constBtn.disabled = false; constBtn.textContent = currentLang === 'ru' ? 'константа' : 'constant';
     if (presetNotice) { presetNotice.style.display = 'none'; presetNotice.textContent = ''; }
   } else if (lang === 'python') {
-    letBtn.disabled = false; letBtn.textContent = 'переменная';
-    constBtn.disabled = true; constBtn.textContent = 'const (недоступно в Python)';
-    varBtn.disabled = true; varBtn.textContent = 'var (недоступно в Python)';
-    if (presetNotice) { presetNotice.style.display = 'block'; presetNotice.textContent = 'В Python нет let/const/var. Доступен пресет простой присваивания переменной.'; }
+    // Два пресета: переменная и print
+    letBtn.disabled = false; letBtn.textContent = currentLang === 'ru' ? 'переменная' : 'variable';
+    constBtn.disabled = false; constBtn.textContent = 'print(...)';
+    if (presetNotice) { presetNotice.style.display = 'none'; presetNotice.textContent = ''; }
   } else { // lua
-    letBtn.disabled = false; letBtn.textContent = 'local переменная';
-    constBtn.disabled = true; constBtn.textContent = 'const (недоступно в Lua)';
-    varBtn.disabled = true; varBtn.textContent = 'var (недоступно в Lua)';
-    if (presetNotice) { presetNotice.style.display = 'block'; presetNotice.textContent = 'В Lua используются local/глобальные переменные. Доступен пресет local переменной.'; }
+    // Два пресета: local переменная и print
+    letBtn.disabled = false; letBtn.textContent = currentLang === 'ru' ? 'local переменная' : 'local variable';
+    constBtn.disabled = false; constBtn.textContent = 'print(...)';
+    if (presetNotice) { presetNotice.style.display = 'none'; presetNotice.textContent = ''; }
   }
 }
 
@@ -180,7 +177,8 @@ function validateGeneratorUI() {
       new Function('block', 'javascriptGenerator', 'Order', code);
       generatorErrorEl.style.display = 'none';
       generatorOkEl.style.display = 'block';
-      generatorOkEl.textContent = '✓ Генератор корректен';
+      const t = (window as any)._currentLocalizedStrings;
+      generatorOkEl.textContent = (t && t.GeneratorValid) ? t.GeneratorValid : '✓ Генератор корректен';
     } catch (error) {
       const msg = (error && (error as any).message) ? (error as any).message : String(error);
       generatorErrorEl.style.display = 'block';
@@ -202,12 +200,12 @@ function setGeneratorPlaceholder(lang: 'ru' | 'en') {
       en: 'Example:\nconst value = javascriptGenerator.valueToCode(block, \'VALUE\', Order.NONE) || \'0\';\nreturn `console.log(${value});\\n`;'
     },
     python: {
-      ru: 'Например:\n# value = получить значение входа VALUE\nreturn f\'print({value})\\n\'',
-      en: 'Example:\n# value = get input VALUE\nreturn f\'print({value})\\n\''
+      ru: 'Например:\nconst value = pythonGenerator.valueToCode(block, \'VALUE\', Order.NONE) || "\'0\'";\\nreturn `print(${value})\\n`;',
+      en: 'Example:\nconst value = pythonGenerator.valueToCode(block, \'VALUE\', Order.NONE) || "\'0\'";\\nreturn `print(${value})\\n`;'
     },
     lua: {
-      ru: 'Например:\n-- local value = получить значение входа VALUE\nreturn string.format(\'print(%s)\\n\', value)',
-      en: 'Example:\n-- local value = get input VALUE\nreturn string.format(\'print(%s)\\n\', value)'
+      ru: 'Например:\nconst value = luaGenerator.valueToCode(block, \'VALUE\', Order.NONE) || "\'0\'";\\nreturn `print(${value})\\n`;',
+      en: 'Example:\nconst value = luaGenerator.valueToCode(block, \'VALUE\', Order.NONE) || "\'0\'";\\nreturn `print(${value})\\n`;'
     }
   };
   const placeholder = placeholders[selectedGeneratorLanguage][lang];
@@ -216,58 +214,32 @@ function setGeneratorPlaceholder(lang: 'ru' | 'en') {
 
 function setGenLang(lang: 'javascript' | 'python' | 'lua') {
   selectedGeneratorLanguage = lang;
+  localStorage.setItem('generator_language', lang);
   setActiveGenLangButton(lang);
   updatePresetsByGenLang();
   validateGeneratorUI();
-  const currentLang = (localStorage.getItem(APP_LANG_KEY) || 'ru') as 'ru' | 'en';
+  const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
+  // Обновляем панель сгенерированного кода и вывод
+  runCode();
 }
 
 // Функция для генерации и запуска кода
 function runCode() {
   if (!ws) return;
   
-  try {
-    const code = javascriptGenerator.workspaceToCode(ws);
-    if (codeDiv && codeDiv.parentNode) {
-      codeDiv.textContent = code;
-    }
-    
-    // Очищаем область вывода перед выполнением
-    if (outputDiv) {
-      outputDiv.innerHTML = '';
-    }
-    
-    // Выполняем сгенерированный код
-    if (code.trim()) {
-      try {
-        // Создаем IIFE для изоляции кода
-        const executableCode = `(function() {\n${code}\n})();`;
-        eval(executableCode);
-      } catch (error) {
-        console.error('Runtime error:', error);
-        if (outputDiv) {
-          const errorEl = document.createElement('p');
-          errorEl.style.color = 'red';
-          errorEl.textContent = `Ошибка выполнения: ${(error as any).message || error}`;
-          outputDiv.appendChild(errorEl);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Code generation error:', error);
-    if (outputDiv) {
-      const errorEl = document.createElement('p');
-      errorEl.style.color = 'red';
-      errorEl.textContent = `Ошибка генерации кода: ${(error as any).message || error}`;
-      outputDiv.appendChild(errorEl);
-    }
-  }
+  // Делегируем в модуль выполнения кода
+  runCodeExec(ws, selectedGeneratorLanguage, codeDiv, outputDiv as HTMLElement | null);
 }
 
 if (genLangJsBtn) genLangJsBtn.addEventListener('click', () => setGenLang('javascript'));
 if (genLangPyBtn) genLangPyBtn.addEventListener('click', () => setGenLang('python'));
 if (genLangLuaBtn) genLangLuaBtn.addEventListener('click', () => setGenLang('lua'));
+// Обработчик выбора языка в шапке (dropdown)
+if (genLangHeaderSelect) genLangHeaderSelect.addEventListener('change', (e) => {
+  const value = (e.target as HTMLSelectElement).value as 'javascript' | 'python' | 'lua';
+  setGenLang(value);
+});
 
 if (blockGeneratorTextarea) {
   blockGeneratorTextarea.addEventListener('input', () => validateGeneratorUI());
@@ -277,7 +249,8 @@ if (blockGeneratorTextarea) {
 function openImportModal() {
   if (!importModal) return;
   importModal.style.display = 'block';
-  setGenLang('javascript');
+  // В модалке по умолчанию активируем JS, но общий выбор не меняем
+  setActiveGenLangButton(selectedGeneratorLanguage);
 }
 
 function closeImportModal() {
@@ -287,29 +260,9 @@ function closeImportModal() {
   if (blockGeneratorTextarea) blockGeneratorTextarea.value = '';
 }
 
-function localizeImportUI(lang: 'ru' | 'en') {
-  const t = {
-    en: { ImportBlocks: 'Import blocks', ImportModalTitle: 'Import custom blocks', JsonLabel: 'Block definition (JSON):', GeneratorLabel: 'Code generator (optional):', ImportInfo: 'Paste the block JSON definition below. The block will be added to "My Blocks" category. You may also provide a custom code generator below.', Cancel: 'Cancel', Import: 'Import', PresetsLabel: 'Quick block presets:', PresetLet: 'let variable', PresetConst: 'const variable', PresetVar: 'var variable' },
-    ru: { ImportBlocks: 'Импорт блоков', ImportModalTitle: 'Импорт пользовательских блоков', JsonLabel: 'JSON определение блока:', GeneratorLabel: 'Генератор кода (опционально):', ImportInfo: 'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки". Дополнительно можно указать генератор кода ниже.', Cancel: 'Отмена', Import: 'Импортировать', PresetsLabel: 'Быстрые пресеты блоков:', PresetLet: 'let переменная', PresetConst: 'const переменная', PresetVar: 'var переменная' },
-  }[lang];
-  if (importBtnText) importBtnText.textContent = t.ImportBlocks;
-  if (modalTitle) modalTitle.textContent = t.ImportModalTitle;
-  if (jsonLabel) jsonLabel.textContent = t.JsonLabel;
-  if (generatorLabel) generatorLabel.textContent = t.GeneratorLabel;
-  if (importInfo) importInfo.textContent = t.ImportInfo;
-  const cancelBtn = document.getElementById('cancelImport');
-  const confirmBtn = document.getElementById('confirmImport');
-  if (cancelBtn) (cancelBtn as HTMLButtonElement).textContent = t.Cancel;
-  if (confirmBtn) (confirmBtn as HTMLButtonElement).textContent = t.Import;
-  if (presetsLabelEl) presetsLabelEl.textContent = t.PresetsLabel;
-  if (presetLetBtn) presetLetBtn.textContent = t.PresetLet;
-  if (presetConstBtn) presetConstBtn.textContent = t.PresetConst;
-  if (presetVarBtn) presetVarBtn.textContent = t.PresetVar;
-  setGeneratorPlaceholder(lang);
-}
 
 function refreshWorkspaceWithCustomToolbox() {
-  const lang = (localStorage.getItem(APP_LANG_KEY) || 'ru') as 'ru' | 'en';
+  const lang = getAppLang();
   const currentState = ws ? Blockly.serialization.workspaces.save(ws as Blockly.Workspace) : null;
   if (ws) ws.dispose();
   const newWs = Blockly.inject(blocklyDiv!, {
@@ -327,7 +280,7 @@ function refreshWorkspaceWithCustomToolbox() {
     maxInstances: { 'controls_if': 10, 'controls_repeat_ext': 5 },
     scrollbars: true,
     renderer: 'thrasos',
-    theme: Blockly.Themes.Classic,
+    theme: getBlocklyTheme(),
     media: 'https://unpkg.com/blockly/media/',
     horizontalLayout: false,
     toolboxPosition: 'start',
@@ -386,7 +339,7 @@ if (confirmImportBtn) {
         ws.dispose();
       }
       
-      const currentLang = localStorage.getItem(APP_LANG_KEY) as 'ru' | 'en' || 'ru';
+      const currentLang = getAppLang();
       ws = Blockly.inject(blocklyDiv!, {
       toolbox: localizedToolbox(currentLang),
       grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
@@ -490,7 +443,7 @@ function setupCustomBlockContextMenu() {
       const lang = (localStorage.getItem('app_language') || 'ru') as 'ru' | 'en';
       const name = type;
       const question = lang === 'ru'
-        ? `Удалить пользовательский блок «${name}» из раздела «Мои блоки»?\nЭкземпляры на рабочем поле не будут удалены.`
+        ? `Удалить пользовательский блок «${name}» из раздела «Моих блоки»?\nЭкземпляры на рабочем поле не будут удалены.`
         : `Remove custom block "${name}" from "My Blocks"?\nInstances already on the workspace will not be removed.`;
       if (!confirm(question)) return;
 
@@ -502,7 +455,7 @@ function setupCustomBlockContextMenu() {
         if (out) {
           const p = document.createElement('p');
           p.textContent = (lang === 'ru') ? `Удалён блок: ${type}` : `Removed block: ${type}`;
-          out.appendChild(p);
+          (out as HTMLElement).appendChild(p);
         }
       } else {
         alert(lang === 'ru' ? 'Не удалось удалить блок.' : 'Failed to remove block.');
@@ -510,7 +463,7 @@ function setupCustomBlockContextMenu() {
     },
     scopeType: (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK,
     weight: 200,
-  };
+  } as any;
 
   try {
     registry.register(item);
@@ -521,80 +474,145 @@ function setupCustomBlockContextMenu() {
   }
 }
 
-function applyPreset(kind: 'let' | 'const' | 'var') {
+function applyPreset(kind: 'let' | 'const' | 'print') {
   if (!blockJsonTextarea) return;
   const lang = selectedGeneratorLanguage;
 
   if (lang === 'javascript') {
-    const blockType = `${kind}_variable`;
-    const color = kind === 'let' ? 180 : kind === 'const' ? 200 : 160;
-    const jsonDef = {
-      type: blockType,
-      message0: `${kind} %1 = %2`,
-      args0: [
-        { type: 'field_input', name: 'NAME', text: 'x' },
-        { type: 'input_value', name: 'VALUE' }
-      ],
-      previousStatement: null,
-      nextStatement: null,
-      colour: color,
-      tooltip: `${kind} variable declaration`,
-      helpUrl: ''
-    } as any;
-    blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
-    if (blockGeneratorTextarea) {
-      const lastLine = 'return `' + kind + ' ${name} = ${value};\\n`;';
-      blockGeneratorTextarea.value = [
-        "const name = block.getFieldValue('NAME') || 'x';",
-        "const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.ASSIGNMENT) || '0';",
-        lastLine
-      ].join('\n');
+    if (kind === 'let') {
+      const blockType = `let_variable`;
+      const jsonDef = {
+        type: blockType,
+        message0: 'let %1 = %2',
+        args0: [
+          { type: 'field_input', name: 'NAME', text: 'x' },
+          { type: 'input_value', name: 'VALUE' }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        colour: 180,
+        tooltip: 'let variable declaration',
+        helpUrl: ''
+      } as any;
+      blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
+      if (blockGeneratorTextarea) {
+        blockGeneratorTextarea.value = [
+          "const name = block.getFieldValue('NAME') || 'x';",
+          "const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.ASSIGNMENT) || '0';",
+          "return 'let ' + name + ' = ' + value + ';\\n';"
+        ].join('\n');
+      }
+    } else if (kind === 'const') {
+      const blockType = `const_constant`;
+      const jsonDef = {
+        type: blockType,
+        message0: 'const %1 = %2',
+        args0: [
+          { type: 'field_input', name: 'NAME', text: 'PI' },
+          { type: 'input_value', name: 'VALUE' }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        colour: 200,
+        tooltip: 'constant declaration',
+        helpUrl: ''
+      } as any;
+      blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
+      if (blockGeneratorTextarea) {
+        blockGeneratorTextarea.value = [
+          "const name = block.getFieldValue('NAME') || 'PI';",
+          "const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.ASSIGNMENT) || '0';",
+          "return 'const ' + name + ' = ' + value + ';\\n';"
+        ].join('\n');
+      }
     }
   } else if (lang === 'python') {
-    const blockType = `py_variable`;
-    const jsonDef = {
-      type: blockType,
-      message0: '%1 = %2',
-      args0: [
-        { type: 'field_input', name: 'NAME', text: 'x' },
-        { type: 'input_value', name: 'VALUE' }
-      ],
-      previousStatement: null,
-      nextStatement: null,
-      colour: 180,
-      tooltip: 'Присваивание переменной (Python)',
-      helpUrl: ''
-    } as any;
-    blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
-    if (blockGeneratorTextarea) {
-      blockGeneratorTextarea.value = [
-        "name = block.getFieldValue('NAME') or 'x'",
-        "value = '0'  # TODO: получить значение входа по аналогии с pythonGenerator",
-        "return f'{name} = {value}\n'"
-      ].join('\n');
+    if (kind === 'let') {
+      const blockType = `py_variable`;
+      const jsonDef = {
+        type: blockType,
+        message0: '%1 = %2',
+        args0: [
+          { type: 'field_input', name: 'NAME', text: 'x' },
+          { type: 'input_value', name: 'VALUE' }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        colour: 180,
+        tooltip: 'Присваивание переменной (Python)',
+        helpUrl: ''
+      } as any;
+      blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
+      if (blockGeneratorTextarea) {
+        blockGeneratorTextarea.value = [
+          "const name = block.getFieldValue('NAME') || 'x';",
+          "const value = pythonGenerator.valueToCode(block, 'VALUE', Order.NONE) || \"'0'\";",
+          "return name + ' = ' + value + '\\n';"
+        ].join('\n');
+      }
+    } else if (kind === 'print') {
+      const blockType = `py_print`;
+      const jsonDef = {
+        type: blockType,
+        message0: 'print(%1)',
+        args0: [ { type: 'input_value', name: 'VALUE' } ],
+        previousStatement: null,
+        nextStatement: null,
+        colour: 210,
+        tooltip: 'Печать значения (Python)',
+        helpUrl: ''
+      } as any;
+      blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
+      if (blockGeneratorTextarea) {
+        blockGeneratorTextarea.value = [
+          "const value = pythonGenerator.valueToCode(block, 'VALUE', Order.NONE) || \"'0'\";",
+          "return `print(${value})\\n`;"
+        ].join('\n');
+      }
     }
   } else { // lua
-    const blockType = `lua_local_variable`;
-    const jsonDef = {
-      type: blockType,
-      message0: 'local %1 = %2',
-      args0: [
-        { type: 'field_input', name: 'NAME', text: 'x' },
-        { type: 'input_value', name: 'VALUE' }
-      ],
-      previousStatement: null,
-      nextStatement: null,
-      colour: 180,
-      tooltip: 'Локальная переменная (Lua)',
-      helpUrl: ''
-    } as any;
-    blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
-    if (blockGeneratorTextarea) {
-      blockGeneratorTextarea.value = [
-        "local name = block:getFieldValue('NAME') or 'x'",
-        "local value = '0' -- TODO: получить значение входа с luaGenerator",
-        "return string.format('local %s = %s\\n', name, value)"
-      ].join('\n');
+    if (kind === 'let') {
+      const blockType = `lua_local_variable`;
+      const jsonDef = {
+        type: blockType,
+        message0: 'local %1 = %2',
+        args0: [
+          { type: 'field_input', name: 'NAME', text: 'x' },
+          { type: 'input_value', name: 'VALUE' }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        colour: 180,
+        tooltip: 'Локальная переменная (Lua)',
+        helpUrl: ''
+      } as any;
+      blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
+      if (blockGeneratorTextarea) {
+        blockGeneratorTextarea.value = [
+          "const name = block.getFieldValue('NAME') || 'x';",
+          "const value = luaGenerator.valueToCode(block, 'VALUE', Order.NONE) || \"'0'\";",
+          "return 'local ' + name + ' = ' + value + '\\n';"
+        ].join('\n');
+      }
+    } else if (kind === 'print') {
+      const blockType = `lua_print`;
+      const jsonDef = {
+        type: blockType,
+        message0: 'print(%1)',
+        args0: [ { type: 'input_value', name: 'VALUE' } ],
+        previousStatement: null,
+        nextStatement: null,
+        colour: 210,
+        tooltip: 'Вывод значения (Lua)',
+        helpUrl: ''
+      } as any;
+      blockJsonTextarea.value = JSON.stringify(jsonDef, null, 2);
+      if (blockGeneratorTextarea) {
+        blockGeneratorTextarea.value = [
+          "const value = luaGenerator.valueToCode(block, 'VALUE', Order.NONE) || \"'0'\";",
+          "return 'print(' + value + ')\\n';"
+        ].join('\n');
+      }
     }
   }
 
@@ -602,11 +620,28 @@ function applyPreset(kind: 'let' | 'const' | 'var') {
   validateGeneratorUI();
 }
 if (presetLetBtn) presetLetBtn.addEventListener('click', () => applyPreset('let'));
-if (presetConstBtn) presetConstBtn.addEventListener('click', () => applyPreset('const'));
-if (presetVarBtn) presetVarBtn.addEventListener('click', () => applyPreset('var'));
+if (presetConstBtn) presetConstBtn.addEventListener('click', () => {
+  const lang = selectedGeneratorLanguage;
+  if (lang === 'javascript') return applyPreset('const');
+  return applyPreset('print');
+});
+// удалено: presetVarBtn listener
 
 // Инициализация состояний при загрузке
+setActiveGenLangButton(selectedGeneratorLanguage);
 updatePresetsByGenLang();
+validateGeneratorUI();
+{
+  const currentLang = getAppLang();
+  setGeneratorPlaceholder(currentLang);
+}
+
+// Инициализация темы
+document.documentElement.setAttribute('data-theme', appTheme);
+initThemeSwitchUI();
+
+// Инициализация UI локализации
+localizeImportUI(defaultLang);
 
 // Инициализация рабочей области при загрузке страницы
 refreshWorkspaceWithCustomToolbox();
@@ -619,7 +654,7 @@ if (langSwitchInput) {
   
   langSwitchInput.addEventListener('change', () => {
     const newLang = langSwitchInput.checked ? 'en' : 'ru';
-    setLanguage(newLang);
+    setAppLang(newLang);
     refreshWorkspaceWithCustomToolbox();
     localizeImportUI(newLang);
   });

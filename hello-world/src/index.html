@@ -88,12 +88,16 @@
       height: 16px;
     }
 
-    /* Language switch styles */
-    .language-switch {
+    /* Language and Theme switch styles */
+    .language-switch, .theme-switch {
       display: flex;
       align-items: center;
       gap: 12px;
       font-size: 14px;
+    }
+    
+    .theme-switch {
+      margin-left: 8px;
     }
 
     .switch {
@@ -142,15 +146,111 @@
       transform: translateX(20px);
     }
 
-    .lang-label {
+    .lang-label, .theme-label {
       font-weight: 500;
-      min-width: 30px;
+      min-width: 24px;
       text-align: center;
+      opacity: 0.85;
+      transition: opacity .2s;
+    }
+    
+    .lang-label {
+      min-width: 30px;
     }
 
-    .lang-label.active {
+    .lang-label.active, .theme-label.active {
+      opacity: 1;
       font-weight: 700;
     }
+
+    /* Generator language selector in header: dropdown */
+    .gen-lang-dropdown select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 6px 34px 6px 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      position: relative;
+    }
+    .gen-lang-dropdown select:hover {
+      background: rgba(255,255,255,0.28);
+      border-color: rgba(255,255,255,0.5);
+    }
+    .gen-lang-dropdown select option, .gen-lang-dropdown select optgroup {
+      color: #2d3748;
+      background-color: #ffffff;
+    }
+    .gen-lang-dropdown select option:checked {
+      color: #2d3748;
+      background-color: #e6eaff;
+    }
+    .gen-lang-dropdown {
+      position: relative;
+    }
+    .gen-lang-dropdown:after {
+      content: "▾";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.9);
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    /* Dark theme chrome using attribute selector */
+    html[data-theme='dark'] #header {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    html[data-theme='dark'] .logo {
+      background: #111827;
+      color: #93c5fd;
+      border: 1px solid #374151;
+    }
+    html[data-theme='dark'] .import-button {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+      color: #e5e7eb;
+    }
+    html[data-theme='dark'] .import-button:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.2);
+    }
+    html[data-theme='dark'] #outputPane {
+      background: #0f172a;
+      border-left-color: #1f2937;
+      color: #e5e7eb;
+    }
+    html[data-theme='dark'] #generatedCode {
+      background: #0b1020;
+      color: #e5e7eb;
+    }
+    html[data-theme='dark'] .gen-lang-dropdown select {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.18);
+      color: #e5e7eb;
+    }
+    html[data-theme='dark'] .gen-lang-dropdown:after { color: rgba(255,255,255,0.9); }
+    html[data-theme='dark'] .gen-lang-dropdown select:hover {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.28);
+    }
+    html[data-theme='dark'] .modal-content {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+    html[data-theme='dark'] .modal-header { border-bottom: 1px solid #374151; }
+    html[data-theme='dark'] .modal-footer { border-top: 1px solid #374151; }
 
     #pageContainer {
       display: flex;
@@ -178,277 +278,73 @@
       margin: 0;
       padding: 10px;
       overflow: auto;
-      border-bottom: 1px solid #ddd;
     }
     #output {
       flex: 1;
       padding: 10px;
-      overflow: auto;
       background: white;
-    }
-    #output p {
-      margin: 5px 0;
-      padding: 5px;
-      background: #e8f4fd;
-      border-radius: 3px;
-      border-left: 3px solid #2196f3;
+      overflow: auto;
     }
 
     /* Modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-      animation: fadeIn 0.3s;
-    }
+    .modal { display: none; position: fixed; z-index: 1000; padding-top: 40px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+    .modal-content { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); margin: auto; padding: 0; border: none; width: 85%; max-width: 950px; border-radius: 20px; overflow: hidden; animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 10px 20px rgba(0,0,0,0.15); }
+    .modal-header { padding: 20px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid rgba(255,255,255,0.2); }
+    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
+    .modal-body { padding: 24px; background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(248,250,252,0.9)); }
+    .modal-footer { display: flex; gap: 12px; justify-content: flex-end; padding: 20px 24px; background: linear-gradient(to right, #f7fafc, #edf2f7); border-top: 1px solid #e2e8f0; }
+    
+    .close-button { color: white; font-size: 32px; font-weight: 300; cursor: pointer; transition: transform 0.2s ease; opacity: 0.9; }
+    .close-button:hover { transform: scale(1.1); opacity: 1; }
 
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 0;
-      border: none;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      animation: slideIn 0.3s;
-      box-sizing: border-box;
-    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; font-size: 14px; }
+    .form-group textarea { width: 100%; min-height: 130px; resize: vertical; padding: 12px 16px; border-radius: 12px; border: 2px solid #e2e8f0; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; box-sizing: border-box; background: #ffffff; transition: all 0.3s ease; font-size: 13px; line-height: 1.5; }
+    .form-group textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #fdfdff; }
+    .form-group textarea::placeholder { color: #a0aec0; font-style: italic; }
 
-    .modal-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px 24px;
-      border-radius: 12px 12px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .import-info { background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%); border: 1px solid #9ae6b4; border-radius: 12px; padding: 16px; margin-bottom: 20px; color: #2f855a; font-size: 14px; position: relative; padding-left: 44px; }
+    .import-info::before { content: "ℹ️"; position: absolute; top: 16px; left: 16px; font-size: 16px; }
 
-    .modal-header h2 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 600;
-    }
+    /* Enhanced Buttons */
+    .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 14px; position: relative; overflow: hidden; }
+    .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+    .btn:hover::before { left: 100%; }
+    
+    .btn.primary, .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+    .btn.primary:hover, .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6); }
+    
+    .btn.secondary, .btn-secondary { background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); color: #4a5568; border: 2px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .btn.secondary:hover, .btn-secondary:hover { background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
-    .close-button {
-      color: white;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background-color 0.3s;
-    }
+    .generator-language-selector { display: inline-flex; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border: 2px solid #e2e8f0; padding: 6px; border-radius: 12px; gap: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
+    .lang-tab { border: none; background: transparent; padding: 8px 14px; border-radius: 8px; cursor: pointer; color: #4a5568; font-size: 13px; font-weight: 500; transition: all 0.3s ease; position: relative; }
+    .lang-tab:hover { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+    .lang-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
 
-    .close-button:hover {
-      background-color: rgba(255,255,255,0.2);
-    }
+    .presets-container { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .btn-preset { background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%); border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #2d3748; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    .btn-preset:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 
-    .modal-body {
-      padding: 24px;
-      overflow-x: hidden;
-    }
+    .validation-error { color: #e53e3e; font-size: 12px; margin-top: 8px; padding: 8px 12px; background: rgba(245, 101, 101, 0.1); border-radius: 8px; border-left: 3px solid #e53e3e; }
+    .validation-success { color: #38a169; font-size: 12px; margin-top: 8px; margin-bottom: 12px; padding: 8px 12px; background: rgba(56, 161, 105, 0.1); border-radius: 8px; border-left: 3px solid #38a169; font-weight: 500; }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+    .code-editor { border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #ffffff; }
+    .code-editor .toolbar { background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-bottom: 2px solid #e2e8f0; padding: 12px; display: flex; align-items: center; gap: 12px; }
+    .code-editor .toolbar .tab { padding: 8px 14px; cursor: pointer; border-radius: 8px; border: 2px solid transparent; font-weight: 500; transition: all 0.3s ease; }
+    .code-editor .toolbar .tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
+    .code-editor .content { padding: 0; }
+    .code-editor .content textarea { width: 100%; height: 240px; border: none; outline: none; padding: 16px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.6; background: #fdfdff; transition: background 0.3s ease; }
+    .code-editor .content textarea:focus { background: #ffffff; }
+    .code-editor.error textarea { border-color: #e53e3e; background: rgba(245, 101, 101, 0.02); }
+    .code-editor.success textarea { border-color: #38a169; background: rgba(56, 161, 105, 0.02); }
 
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #333;
-    }
+    .notice { margin-top: 12px; font-size: 12px; color: #718096; font-style: italic; }
+    .code-editor .toolbar .preset-btn { background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%); border: 1px solid #cbd5e0; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; transition: all 0.3s ease; }
+    .code-editor .toolbar .preset-btn:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 
-    .form-group textarea {
-      width: 100%;
-      min-height: 200px;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 14px;
-      resize: vertical;
-      transition: border-color 0.3s;
-      box-sizing: border-box;
-      max-width: 100%;
-      display: block;
-    }
-
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .modal-footer {
-      padding: 16px 24px;
-      border-top: 1px solid #e0e0e0;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-secondary {
-      background: #f8f9fa;
-      color: #6c757d;
-      border: 1px solid #dee2e6;
-    }
-
-    .btn-secondary:hover {
-      background: #e9ecef;
-    }
-
-    .import-info {
-      background: #f0f7ff;
-      border: 1px solid #b3d9ff;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      color: #0066cc;
-    }
-
-    /* Generator language selector */
-    .generator-language-selector {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .lang-tab {
-      padding: 8px 16px;
-      border: 2px solid #e0e0e0;
-      background: #f8f9fa;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s;
-      font-size: 14px;
-    }
-
-    .lang-tab:hover {
-      border-color: #667eea;
-      background: #f0f7ff;
-    }
-
-    .lang-tab.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-color: #667eea;
-    }
-
-    /* Presets styling */
-    .presets-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .btn-preset {
-      background: #e9ecef;
-      border: 1px solid #ced4da;
-      color: #495057;
-      padding: 6px 12px;
-      font-size: 13px;
-      transition: all 0.3s;
-    }
-
-    .btn-preset:hover {
-      background: #667eea;
-      color: white;
-      border-color: #667eea;
-    }
-
-    .btn-preset:disabled {
-      background: #f8f9fa;
-      color: #6c757d;
-      border-color: #dee2e6;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-
-    /* Validation styles */
-    .validation-error {
-      background: #fff5f5;
-      border: 1px solid #feb2b2;
-      color: #c53030;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      margin-top: 8px;
-      display: none;
-    }
-
-    .validation-success {
-      background: #f0fff4;
-      border: 1px solid #9ae6b4;
-      color: #22543d;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      margin-top: 8px;
-      display: none;
-    }
-
-    /* Enhanced textarea with syntax highlighting support */
-    .code-editor {
-      position: relative;
-    }
-
-    .code-editor textarea {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
-      line-height: 1.4;
-      tab-size: 2;
-    }
-
-    .code-editor.error textarea {
-      border-color: #e53e3e;
-    }
-
-    .code-editor.success textarea {
-      border-color: #38a169;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideIn {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 
@@ -468,13 +364,28 @@
         </svg>
         <span id="importBtnText">Импорт блоков</span>
       </button>
-      <div class="language-switch">
+      <div class="language-switch" title="Язык приложения">
         <span class="lang-label" id="lang-ru">RU</span>
         <label class="switch">
           <input type="checkbox" id="langSwitchInput">
           <span class="slider"></span>
         </label>
         <span class="lang-label" id="lang-en">EN</span>
+      </div>
+      <div class="theme-switch" title="Тема приложения">
+        <span class="theme-label" id="theme-light">☀️</span>
+        <label class="switch">
+          <input type="checkbox" id="themeSwitchInput">
+          <span class="slider"></span>
+        </label>
+        <span class="theme-label" id="theme-dark">🌙</span>
+      </div>
+      <div class="gen-lang-dropdown" title="Язык генерации кода">
+        <select id="genLangHeaderSelect">
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="lua">Lua</option>
+        </select>
       </div>
     </div>
   </div>
@@ -527,8 +438,7 @@
           </div>
           <div class="presets-container">
             <button type="button" class="btn btn-preset" id="presetLet">let переменная</button>
-            <button type="button" class="btn btn-preset" id="presetConst">const переменная</button>
-            <button type="button" class="btn btn-preset" id="presetVar">var переменная</button>
+            <button type="button" class="btn btn-preset" id="presetConst">константа</button>
           </div>
           <div class="validation-error" id="presetNotice" style="display:none"></div>
         </div>

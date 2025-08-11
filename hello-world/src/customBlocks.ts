@@ -6,7 +6,11 @@
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator } from 'blockly/javascript';
+import { pythonGenerator } from 'blockly/python';
+import { luaGenerator } from 'blockly/lua';
 import {Order} from 'blockly/javascript';
+import {Order as PythonOrder} from 'blockly/python';
+import {Order as LuaOrder} from 'blockly/lua';
 
 export interface CustomBlock {
   definition: any;
@@ -134,57 +138,115 @@ export function registerCustomBlocks() {
     // Регистрируем генератор, если он есть
     if (block.generator) {
       try {
-        console.log(`Registering generator for block ${block.definition.type}:`, block.generator);
+        console.log(`Registering generator for block ${block.definition.type} (${block.generatorLanguage || 'javascript'}):`, block.generator);
         
         // Очищаем код генератора от TypeScript конструкций и экранируем шаблоны
         let cleanGenerator = stripTypeScriptFromJs(block.generator || '');
         
+        // Определяем целевой генератор и Order в зависимости от языка
+        let targetGenerator: any;
+        let targetOrder: any;
+        
+        switch (block.generatorLanguage) {
+          case 'python':
+            targetGenerator = pythonGenerator;
+            targetOrder = PythonOrder;
+            break;
+          case 'lua':
+            targetGenerator = luaGenerator;
+            targetOrder = LuaOrder;
+            break;
+          case 'javascript':
+          default:
+            targetGenerator = javascriptGenerator;
+            targetOrder = Order;
+            break;
+        }
+        
         // Создаем функцию генератора через Function constructor с лучшей обработкой ошибок
-        (javascriptGenerator.forBlock as any)[block.definition.type] = function(block: any) {
-          console.log(`Executing generator for block ${block.type}`);
+        (targetGenerator.forBlock as any)[block.definition.type] = function(blockInstance: any) {
+          console.log(`Executing generator for block ${blockInstance.type} (${block.generatorLanguage || 'javascript'})`);
           try {
-            // Создаем локальный контекст для выполнения пользовательского кода
-            const generatorFunction = new Function('block', 'javascriptGenerator', 'Order', `
-              try {
-                ${cleanGenerator}
-              } catch (error) {
-                const msg = (error && error.message) ? error.message : String(error);
-                console.error('Error in user generator:', error);
-                return '// Error in generator: ' + msg + '\\n';
-              }
-            `);
-            const result = generatorFunction(block, javascriptGenerator, Order);
-            console.log(`Generator result for ${block.type}:`, result);
-            return result || `// Custom block: ${block.type}\n`;
+            // Создаем тело функции генератора без использования шаблонных литералов,
+            // чтобы не ломать пользовательский код с бэктиками и ${}
+            const body =
+              'try {\n' +
+              cleanGenerator +
+              '\n} catch (error) {\n' +
+              "  const msg = (error && error.message) ? error.message : String(error);\n" +
+              "  console.error('Error in user generator:', error);\n" +
+              "  return '// Error in generator: ' + msg + '\\n';\n" +
+              '}';
+            
+            // Создаем функцию генератора, предоставляя доступ к генераторам через глобальные объекты
+            // Это позволяет пользовательскому коду использовать `pythonGenerator`, `luaGenerator` и `javascriptGenerator`
+            const generatorFunction = new Function(
+              'block', 
+              'Order', 
+              'javascriptGenerator', 
+              'pythonGenerator', 
+              'luaGenerator',
+              body
+            );
+            const result = generatorFunction(
+              blockInstance, 
+              targetOrder, 
+              javascriptGenerator, 
+              pythonGenerator, 
+              luaGenerator
+            );
+            console.log(`Generator result for ${blockInstance.type}:`, result);
+            return result || `// Custom block: ${blockInstance.type}\n`;
           } catch (error) {
             const msg = (error && (error as any).message) ? (error as any).message : String(error);
-            console.error(`Runtime error in generator for ${block.type}:`, error);
+            console.error(`Runtime error in generator for ${blockInstance.type}:`, error);
             return `// Runtime error in generator: ${msg}\n`;
           }
         };
         console.log(`Successfully registered generator for ${block.definition.type}`);
       } catch (error) {
         console.error(`Error registering generator for block ${block.definition.type}:`, error);
-        // Создаем простой генератор по умолчанию
-        (javascriptGenerator.forBlock as any)[block.definition.type] = function(block: any) {
+        // Создаем простой генератор по умолчанию для всех трех языков
+        const fallbackGenerator = function(block: any) {
           return `// Custom block: ${block.type}\n`;
         };
+        (javascriptGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
+        (pythonGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
+        (luaGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
       }
     } else {
       // Встроенные генераторы для некоторых типов блоков
       if (block.definition.type === 'return_value') {
         // Генератор для блока return - теперь использует настоящий return, совместимый с IIFE
-        (javascriptGenerator.forBlock as any)[block.definition.type] = function(block: any) {
-          // Получаем значение из входа VALUE
-          const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
-          // Используем настоящий return для совместимости с остальными блоками
-          return `return ${value};\n`;
-        };
-      } else {
-        // Генератор по умолчанию для остальных блоков
-        (javascriptGenerator.forBlock as any)[block.definition.type] = function(block: any) {
+        const returnGenerator = function(block: any) {
+          // JavaScript
+          if (block.generatorLanguage === 'javascript') {
+            const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
+            return `return ${value};\n`;
+          }
+          // Python  
+          else if (block.generatorLanguage === 'python') {
+            const value = pythonGenerator.valueToCode(block, 'VALUE', PythonOrder.NONE) || 'None';
+            return `return ${value}\n`;
+          }
+          // Lua
+          else if (block.generatorLanguage === 'lua') {
+            const value = luaGenerator.valueToCode(block, 'VALUE', LuaOrder.NONE) || 'nil';
+            return `return ${value}\n`;
+          }
           return `// Custom block: ${block.type}\n`;
         };
+        (javascriptGenerator.forBlock as any)[block.definition.type] = returnGenerator;
+        (pythonGenerator.forBlock as any)[block.definition.type] = returnGenerator;
+        (luaGenerator.forBlock as any)[block.definition.type] = returnGenerator;
+      } else {
+        // Генератор по умолчанию для остальных блоков
+        const defaultGenerator = function(block: any) {
+          return `// Custom block: ${block.type}\n`;
+        };
+        (javascriptGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
+        (pythonGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
+        (luaGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
       }
     }
   });
@@ -319,7 +381,6 @@ function stripTypeScriptFromJs(code: string): string {
   out = out.replace(/:\s*[\w\.\[\]<>\|\s,?]+/g, '');
   // Remove generic type params in simple cases
   out = out.replace(/<[^>]+>/g, '');
-  // Escape backticks and ${ to keep template literal safe inside new Function body
-  out = out.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+  // Не экранируем бэктики и подстановки, чтобы дать пользователю использовать шаблонные строки
   return out;
 }

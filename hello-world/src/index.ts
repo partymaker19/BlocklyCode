@@ -39,6 +39,7 @@ setAppLang(defaultLang);
 
 // Объявляем флаг регистрации контекстного меню до первого вызова
 let customBlockContextRegistered = false;
+let modalDragInitialized = false;
 
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
@@ -68,7 +69,9 @@ const generatorLabel = document.getElementById('generatorLabel');
 const importInfo = document.getElementById('importInfo');
 const presetLetBtn = document.getElementById('presetLet') as HTMLButtonElement | null;
 const presetConstBtn = document.getElementById('presetConst') as HTMLButtonElement | null;
-// удалено: presetVarBtn
+// Добавляем ссылки на элементы модального окна для перетаскивания
+const modalContent = importModal?.querySelector('.modal-content') as HTMLDivElement | null;
+const modalHeader = importModal?.querySelector('.modal-header') as HTMLDivElement | null;
 const presetsLabelEl = document.getElementById('presetsLabel');
 // Новые элементы модалки
 const genLangTabs = document.getElementById('generatorLangTabs') as HTMLDivElement | null;
@@ -76,7 +79,9 @@ const genLangJsBtn = document.getElementById('genLangJs') as HTMLButtonElement |
 const genLangPyBtn = document.getElementById('genLangPy') as HTMLButtonElement | null;
 const genLangLuaBtn = document.getElementById('genLangLua') as HTMLButtonElement | null;
 // Кнопки выбора языка генератора в шапке
-const genLangHeaderSelect = document.getElementById('genLangHeaderSelect') as HTMLSelectElement | null;
+const genLangHeaderContainer = document.getElementById('genLangHeaderSelect') as HTMLDivElement | null;
+const genLangHeaderSelectedOption = document.getElementById('selectedOption') as HTMLDivElement | null;
+const genLangHeaderDropdownOptions = document.getElementById('dropdownOptions') as HTMLDivElement | null;
 const presetNotice = document.getElementById('presetNotice') as HTMLDivElement | null;
 const generatorErrorEl = document.getElementById('generatorError') as HTMLDivElement | null;
 const generatorOkEl = document.getElementById('generatorOk') as HTMLDivElement | null;
@@ -140,7 +145,16 @@ function setActiveGenLangButton(lang: 'javascript' | 'python' | 'lua') {
   if (lang === 'lua') {
     if (genLangLuaBtn) genLangLuaBtn.classList.add('active');
   }
-  if (genLangHeaderSelect) genLangHeaderSelect.value = lang;
+  // sync custom header dropdown label and selected state
+  if (genLangHeaderSelectedOption) {
+    const label = lang === 'javascript' ? 'JavaScript' : lang === 'python' ? 'Python' : 'Lua';
+    genLangHeaderSelectedOption.textContent = label;
+  }
+  if (genLangHeaderDropdownOptions) {
+    Array.from(genLangHeaderDropdownOptions.querySelectorAll('.option')).forEach(opt => {
+      opt.classList.toggle('selected', (opt as HTMLElement).dataset.value === lang);
+    });
+  }
 }
 
 function updatePresetsByGenLang() {
@@ -235,11 +249,34 @@ function runCode() {
 if (genLangJsBtn) genLangJsBtn.addEventListener('click', () => setGenLang('javascript'));
 if (genLangPyBtn) genLangPyBtn.addEventListener('click', () => setGenLang('python'));
 if (genLangLuaBtn) genLangLuaBtn.addEventListener('click', () => setGenLang('lua'));
-// Обработчик выбора языка в шапке (dropdown)
-if (genLangHeaderSelect) genLangHeaderSelect.addEventListener('change', (e) => {
-  const value = (e.target as HTMLSelectElement).value as 'javascript' | 'python' | 'lua';
-  setGenLang(value);
-});
+// Обработчики для кастомного dropdown в шапке
+if (genLangHeaderContainer && genLangHeaderSelectedOption && genLangHeaderDropdownOptions) {
+  // Открыть/закрыть список по клику на выбранной области
+  genLangHeaderContainer.addEventListener('click', (e) => {
+    const isOpen = genLangHeaderContainer.classList.contains('open');
+    genLangHeaderContainer.classList.toggle('open', !isOpen);
+    genLangHeaderDropdownOptions.style.display = isOpen ? 'none' : 'block';
+  });
+
+  // Выбор опции
+  genLangHeaderDropdownOptions.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const value = (opt as HTMLElement).dataset.value as 'javascript' | 'python' | 'lua';
+      setGenLang(value);
+      genLangHeaderContainer.classList.remove('open');
+      genLangHeaderDropdownOptions.style.display = 'none';
+    });
+  });
+
+  // Закрытие по клику вне
+  document.addEventListener('click', (evt) => {
+    if (!genLangHeaderContainer.contains(evt.target as Node)) {
+      genLangHeaderContainer.classList.remove('open');
+      genLangHeaderDropdownOptions.style.display = 'none';
+    }
+  });
+}
 
 if (blockGeneratorTextarea) {
   blockGeneratorTextarea.addEventListener('input', () => validateGeneratorUI());
@@ -249,7 +286,18 @@ if (blockGeneratorTextarea) {
 function openImportModal() {
   if (!importModal) return;
   importModal.style.display = 'block';
-  // В модалке по умолчанию активируем JS, но общий выбор не меняем
+  // Центрируем окно по умолчанию каждый раз при открытии
+  if (modalContent) {
+    const rect = modalContent.getBoundingClientRect();
+    const centerLeft = Math.max(0, Math.round(window.innerWidth / 2 - rect.width / 2));
+    const centerTop = Math.max(0, Math.round(window.innerHeight / 2 - rect.height / 2));
+    modalContent.style.left = `${centerLeft}px`;
+    modalContent.style.top = `${centerTop}px`;
+    modalContent.style.transform = '';
+  }
+  // Инициализируем перетаскивание один раз
+  initImportModalDrag();
+  // В модалке по умолчанию активируем выбранный ранее язык
   setActiveGenLangButton(selectedGeneratorLanguage);
 }
 
@@ -260,6 +308,75 @@ function closeImportModal() {
   if (blockGeneratorTextarea) blockGeneratorTextarea.value = '';
 }
 
+// Включает перетаскивание модального окна за заголовок
+function initImportModalDrag() {
+  if (modalDragInitialized) return;
+  if (!modalHeader || !modalContent) return;
+
+  // После проверок сохраняем не-null ссылки для замыкания
+  const content = modalContent as HTMLDivElement;
+  const header = modalHeader as HTMLDivElement;
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  function onMouseDown(ev: MouseEvent) {
+    // Начинаем drag только левой кнопкой
+    if (ev.button !== 0) return;
+    // Если клик по кнопке закрытия — не перетаскиваем
+    const target = ev.target as HTMLElement | null;
+    if (target && target.closest('#closeModal')) return;
+    isDragging = true;
+    
+    // Получаем текущие координаты окна
+    const rect = content.getBoundingClientRect();
+    
+    // Если окно центрировано через transform, переводим его в абсолютные координаты
+    if (content.style.transform.includes('translate')) {
+      content.style.transform = '';
+      content.style.left = rect.left + 'px';
+      content.style.top = rect.top + 'px';
+    }
+    
+    // Вычисляем смещение курсора относительно левого верхнего угла окна
+    offsetX = ev.clientX - rect.left;
+    offsetY = ev.clientY - rect.top;
+    
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  function onMouseMove(ev: MouseEvent) {
+    if (!isDragging) return;
+    const rect = content.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    let nextLeft = ev.clientX - offsetX;
+    let nextTop = ev.clientY - offsetY;
+
+    // Ограничиваем в пределах окна
+    const maxLeft = window.innerWidth - width;
+    const maxTop = window.innerHeight - height;
+    if (nextLeft < 0) nextLeft = 0; else if (nextLeft > maxLeft) nextLeft = maxLeft;
+    if (nextTop < 0) nextTop = 0; else if (nextTop > maxTop) nextTop = maxTop;
+
+    content.style.left = `${nextLeft}px`;
+    content.style.top = `${nextTop}px`;
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    document.body.style.userSelect = '';
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+  }
+
+  header.addEventListener('mousedown', onMouseDown);
+  modalDragInitialized = true;
+}
 
 function refreshWorkspaceWithCustomToolbox() {
   const lang = getAppLang();
@@ -634,6 +751,14 @@ validateGeneratorUI();
 {
   const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
+}
+// Синхронизируем кастомный dropdown с выбранным языком при старте
+if (genLangHeaderSelectedOption && genLangHeaderDropdownOptions) {
+  const label = selectedGeneratorLanguage === 'javascript' ? 'JavaScript' : selectedGeneratorLanguage === 'python' ? 'Python' : 'Lua';
+  genLangHeaderSelectedOption.textContent = label;
+  Array.from(genLangHeaderDropdownOptions.querySelectorAll('.option')).forEach(opt => {
+    opt.classList.toggle('selected', (opt as HTMLElement).dataset.value === selectedGeneratorLanguage);
+  });
 }
 
 // Инициализация темы

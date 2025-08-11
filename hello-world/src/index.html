@@ -163,46 +163,93 @@
       font-weight: 700;
     }
 
-    /* Generator language selector in header: dropdown */
-    .gen-lang-dropdown select {
+    /* Generator language selector in header: custom dropdown */
+    .gen-lang-dropdown .custom-select {
+      position: relative;
+      cursor: pointer;
+    }
+    .gen-lang-dropdown .selected-option {
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.15);
       color: #fff;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 10px;
-      padding: 6px 34px 6px 10px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 8px 36px 8px 14px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      transition: background .2s, border-color .2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      min-width: 130px;
+      user-select: none;
     }
-    .gen-lang-dropdown select:hover {
-      background: rgba(255,255,255,0.28);
-      border-color: rgba(255,255,255,0.5);
+    .gen-lang-dropdown .custom-select:hover .selected-option {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
-    .gen-lang-dropdown select option, .gen-lang-dropdown select optgroup {
-      color: #2d3748;
-      background-color: #ffffff;
+    .gen-lang-dropdown .custom-select.open .selected-option {
+      background: rgba(255,255,255,0.3);
+      border-color: rgba(255,255,255,0.7);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2), 0 4px 16px rgba(0, 0, 0, 0.2);
     }
-    .gen-lang-dropdown select option:checked {
-      color: #2d3748;
-      background-color: #e6eaff;
-    }
-    .gen-lang-dropdown {
-      position: relative;
-    }
-    .gen-lang-dropdown:after {
-      content: "▾";
+    .gen-lang-dropdown .dropdown-arrow {
       position: absolute;
-      right: 10px;
+      right: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.85);
       pointer-events: none;
-      font-size: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .gen-lang-dropdown .custom-select:hover .dropdown-arrow {
+      color: rgba(255,255,255,1);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .gen-lang-dropdown .custom-select.open .dropdown-arrow {
+      transform: translateY(-50%) rotate(180deg);
+    }
+    .gen-lang-dropdown .dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      margin-top: 4px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .gen-lang-dropdown .option {
+      padding: 12px 14px;
+      color: #334155;
+      background-color: #ffffff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .gen-lang-dropdown .option:last-child {
+      border-bottom: none;
+    }
+    .gen-lang-dropdown .option:hover {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+    }
+    .gen-lang-dropdown .option.selected {
+      color: #6366f1;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      font-weight: 700;
     }
 
     /* Dark theme chrome using attribute selector */
@@ -234,23 +281,167 @@
       background: #0b1020;
       color: #e5e7eb;
     }
-    html[data-theme='dark'] .gen-lang-dropdown select {
+    html[data-theme='dark'] .gen-lang-dropdown .selected-option {
       background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.2);
       color: #e5e7eb;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
     }
-    html[data-theme='dark'] .gen-lang-dropdown:after { color: rgba(255,255,255,0.9); }
-    html[data-theme='dark'] .gen-lang-dropdown select:hover {
-      background: rgba(255,255,255,0.16);
-      border-color: rgba(255,255,255,0.28);
+    html[data-theme='dark'] .gen-lang-dropdown .custom-select:hover .selected-option {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    }
+    html[data-theme='dark'] .gen-lang-dropdown .dropdown-arrow { color: rgba(255,255,255,0.85); }
+    html[data-theme='dark'] .gen-lang-dropdown .custom-select:hover .dropdown-arrow { color: rgba(255,255,255,1); }
+
+    html[data-theme='dark'] .gen-lang-dropdown .dropdown-options {
+      background: #111827;
+      border-color: #374151;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    html[data-theme='dark'] .gen-lang-dropdown .option {
+      color: #e5e7eb;
+      background-color: #111827;
+      border-bottom-color: #1f2937;
+    }
+    html[data-theme='dark'] .gen-lang-dropdown .option:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+    }
+    html[data-theme='dark'] .gen-lang-dropdown .option.selected {
+      color: #c7d2fe;
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      font-weight: 700;
+    }
+    /* Dark theme modal styles */
+    html[data-theme='dark'] .modal {
+      background: rgba(0,0,0,0.8);
     }
     html[data-theme='dark'] .modal-content {
-      background: #111827;
+      background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
       color: #e5e7eb;
       border: 1px solid #374151;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
     }
-    html[data-theme='dark'] .modal-header { border-bottom: 1px solid #374151; }
-    html[data-theme='dark'] .modal-footer { border-top: 1px solid #374151; }
+    html[data-theme='dark'] .modal-header { 
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      border-bottom: 1px solid #4b5563;
+    }
+    html[data-theme='dark'] .modal-body { 
+      background: linear-gradient(to bottom, rgba(17,24,39,0.9), rgba(15,23,42,0.9));
+    }
+    html[data-theme='dark'] .modal-footer { 
+      background: linear-gradient(to right, #0f172a, #111827);
+      border-top: 1px solid #374151;
+    }
+    
+    /* Dark theme form elements */
+    html[data-theme='dark'] .form-group label {
+      color: #d1d5db;
+    }
+    html[data-theme='dark'] .form-group textarea {
+      background: #1f2937;
+      color: #e5e7eb;
+      border-color: #4b5563;
+    }
+    html[data-theme='dark'] .form-group textarea:focus {
+      border-color: #6366f1;
+      background: #111827;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    html[data-theme='dark'] .form-group textarea::placeholder {
+      color: #6b7280;
+    }
+    
+    /* Dark theme buttons */
+    html[data-theme='dark'] .btn.secondary, 
+    html[data-theme='dark'] .btn-secondary {
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      color: #d1d5db;
+      border-color: #4b5563;
+    }
+    html[data-theme='dark'] .btn.secondary:hover, 
+    html[data-theme='dark'] .btn-secondary:hover {
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      border-color: #6b7280;
+    }
+    
+    /* Dark theme preset buttons */
+    html[data-theme='dark'] .btn-preset {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: #d1d5db;
+      border-color: #4b5563;
+    }
+    html[data-theme='dark'] .btn-preset:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+    }
+    
+    /* Dark theme language tabs */
+    html[data-theme='dark'] .generator-language-selector {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-color: #4b5563;
+    }
+    html[data-theme='dark'] .lang-tab {
+      color: #9ca3af;
+    }
+    html[data-theme='dark'] .lang-tab:hover {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+    }
+    
+    /* Dark theme info box */
+    html[data-theme='dark'] .import-info {
+      background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+      border-color: #059669;
+      color: #a7f3d0;
+    }
+    
+    /* Dark theme code editor */
+    html[data-theme='dark'] .code-editor {
+      border-color: #4b5563;
+      background: #1f2937;
+    }
+    html[data-theme='dark'] .code-editor .toolbar {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-bottom-color: #4b5563;
+    }
+    html[data-theme='dark'] .code-editor .content textarea {
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    html[data-theme='dark'] .code-editor .content textarea:focus {
+      background: #111827;
+    }
+    html[data-theme='dark'] .code-editor.error textarea {
+      border-color: #dc2626;
+      background: rgba(220, 38, 38, 0.1);
+    }
+    html[data-theme='dark'] .code-editor.success textarea {
+      border-color: #059669;
+      background: rgba(5, 150, 105, 0.1);
+    }
+    
+    /* Dark theme validation messages */
+    html[data-theme='dark'] .validation-error {
+      color: #fca5a5;
+      background: rgba(220, 38, 38, 0.2);
+      border-left-color: #dc2626;
+    }
+    html[data-theme='dark'] .validation-success {
+      color: #86efac;
+      background: rgba(5, 150, 105, 0.2);
+      border-left-color: #059669;
+    }
+    
+    /* Dark theme notices */
+    html[data-theme='dark'] .notice {
+      color: #9ca3af;
+    }
 
     #pageContainer {
       display: flex;
@@ -287,9 +478,9 @@
     }
 
     /* Modal styles */
-    .modal { display: none; position: fixed; z-index: 1000; padding-top: 40px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
-    .modal-content { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); margin: auto; padding: 0; border: none; width: 85%; max-width: 950px; border-radius: 20px; overflow: hidden; animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 10px 20px rgba(0,0,0,0.15); }
-    .modal-header { padding: 20px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid rgba(255,255,255,0.2); }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+    .modal-content { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); position: absolute; top: 50%; left: 50%; /* transform: translate(-50%, -50%); */ padding: 0; border: none; width: 85%; max-width: 950px; border-radius: 20px; overflow: hidden; animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 10px 20px rgba(0,0,0,0.15); }
+    .modal-header { padding: 20px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid rgba(255,255,255,0.2); cursor: move; user-select: none; }
     .modal-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
     .modal-body { padding: 24px; background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(248,250,252,0.9)); }
     .modal-footer { display: flex; gap: 12px; justify-content: flex-end; padding: 20px 24px; background: linear-gradient(to right, #f7fafc, #edf2f7); border-top: 1px solid #e2e8f0; }
@@ -381,11 +572,15 @@
         <span class="theme-label" id="theme-dark">🌙</span>
       </div>
       <div class="gen-lang-dropdown" title="Язык генерации кода">
-        <select id="genLangHeaderSelect">
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="lua">Lua</option>
-        </select>
+        <div class="custom-select" id="genLangHeaderSelect">
+          <div class="selected-option" id="selectedOption">JavaScript</div>
+          <div class="dropdown-arrow">▾</div>
+          <div class="dropdown-options" id="dropdownOptions" style="display: none;">
+            <div class="option" data-value="javascript">JavaScript</div>
+            <div class="option" data-value="python">Python</div>
+            <div class="option" data-value="lua">Lua</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -63,3 +63,24 @@ forBlock['angle_value'] = function (
   // Возвращаем код и порядок операций (атомарное значение)
   return [String(angle), Order.ATOMIC];
 };
+
+// Генератор для блока bitmap_demo
+forBlock['bitmap_demo'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const bitmapData = String((block as any).getFieldValue('FIELDNAME') || '');
+  const addText = generator.provideFunction_(
+    'addText',
+    `function ${generator.FUNCTION_NAME_PLACEHOLDER_}(text) {
+
+  // Add text to the output area.
+  const outputDiv = document.getElementById('output');
+  const textEl = document.createElement('p');
+  textEl.innerText = text;
+  outputDiv.appendChild(textEl);
+}`,
+  );
+  const code = `${addText}('Bitmap data: ' + ${JSON.stringify(bitmapData)});\n`;
+  return code;
+};

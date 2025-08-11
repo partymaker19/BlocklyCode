@@ -441,6 +441,7 @@ export function getLocalizedToolbox() {
         contents: [
           { kind: 'block', type: 'angle_demo' },
           { kind: 'block', type: 'angle_value' },
+          { kind: 'block', type: 'bitmap_demo' },
         ],
       },
     ],

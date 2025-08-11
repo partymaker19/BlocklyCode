@@ -6,6 +6,7 @@
 
 import * as Blockly from 'blockly/core';
 import {FieldAngle} from '@blockly/field-angle';
+import '@blockly/field-bitmap';
 
 // Create a custom block called 'add_text' that adds
 // text to the output div on the sample app.
@@ -92,6 +93,31 @@ const angleValue = {
   }
 };
 
+// Блок с плагином field_bitmap
+const bitmapDemo = {
+  type: 'bitmap_demo',
+  message0: '%{BKY_BITMAP_DEMO}',
+  args0: [
+    {
+      type: 'field_bitmap',
+      name: 'FIELDNAME',
+      width: 8,
+      height: 8,
+    },
+  ],
+  previousStatement: null,
+  nextStatement: null,
+  colour: 260,
+  tooltip: 'Bitmap editor field',
+  helpUrl: '',
+  init: function(this: Blockly.Block) {
+    this.setColour(260);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip('Bitmap editor field');
+  }
+};
+
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
 // This file has no side effects!
@@ -99,4 +125,5 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   addText,
   angleDemo,
   angleValue,
+  bitmapDemo,
 ]);

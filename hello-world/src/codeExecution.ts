@@ -14,7 +14,7 @@ export type SupportedLanguage = 'javascript' | 'python' | 'lua';
 /**
  * Generates code from a Blockly workspace based on the selected language
  */
-export function generateCode(
+function generateCode(
   workspace: Blockly.WorkspaceSvg, 
   language: SupportedLanguage
 ): string {
@@ -37,7 +37,7 @@ export function generateCode(
 /**
  * Executes generated JavaScript code and handles output
  */
-export function executeJavaScriptCode(
+function executeJavaScriptCode(
   code: string, 
   outputElement: HTMLElement | null
 ): void {
@@ -65,7 +65,7 @@ export function executeJavaScriptCode(
 /**
  * Displays information message for non-executable languages
  */
-export function showNonExecutableMessage(
+function showNonExecutableMessage(
   language: SupportedLanguage,
   outputElement: HTMLElement | null,
   hasCode: boolean

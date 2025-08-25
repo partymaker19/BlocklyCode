@@ -375,12 +375,8 @@ export function importCustomBlocks(jsonString: string): { success: boolean; impo
 // Helper to strip TypeScript constructs from user-supplied JS generator code
 function stripTypeScriptFromJs(code: string): string {
   let out = code ?? '';
-  // Remove TS "as Type" assertions (e.g., expr as string)
   out = out.replace(/\s+as\s+[\w\.\[\]<>\|]+/g, '');
-  // Remove simple type annotations like ": string", ": Array<string>"
   out = out.replace(/:\s*[\w\.\[\]<>\|\s,?]+/g, '');
-  // Remove generic type params in simple cases
   out = out.replace(/<[^>]+>/g, '');
-  // Не экранируем бэктики и подстановки, чтобы дать пользователю использовать шаблонные строки
   return out;
 }

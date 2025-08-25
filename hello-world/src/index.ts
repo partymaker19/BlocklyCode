@@ -62,17 +62,12 @@ const cancelImportBtn = document.getElementById('cancelImport') as HTMLButtonEle
 const confirmImportBtn = document.getElementById('confirmImport') as HTMLButtonElement | null;
 const blockJsonTextarea = document.getElementById('blockJson') as HTMLTextAreaElement | null;
 const blockGeneratorTextarea = document.getElementById('blockGenerator') as HTMLTextAreaElement | null;
-const importBtnText = document.getElementById('importBtnText');
-const modalTitle = document.getElementById('modalTitle');
-const jsonLabel = document.getElementById('jsonLabel');
-const generatorLabel = document.getElementById('generatorLabel');
-const importInfo = document.getElementById('importInfo');
+
 const presetLetBtn = document.getElementById('presetLet') as HTMLButtonElement | null;
 const presetConstBtn = document.getElementById('presetConst') as HTMLButtonElement | null;
 // Добавляем ссылки на элементы модального окна для перетаскивания
 const modalContent = importModal?.querySelector('.modal-content') as HTMLDivElement | null;
 const modalHeader = importModal?.querySelector('.modal-header') as HTMLDivElement | null;
-const presetsLabelEl = document.getElementById('presetsLabel');
 // Новые элементы модалки
 const genLangTabs = document.getElementById('generatorLangTabs') as HTMLDivElement | null;
 const genLangJsBtn = document.getElementById('genLangJs') as HTMLButtonElement | null;
@@ -235,16 +230,10 @@ function setGenLang(lang: 'javascript' | 'python' | 'lua') {
   const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
   // Обновляем панель сгенерированного кода и вывод
-  runCode();
-}
-
-// Функция для генерации и запуска кода
-function runCode() {
-  if (!ws) return;
-  
-  // Делегируем в модуль выполнения кода
   runCodeExec(ws, selectedGeneratorLanguage, codeDiv, outputDiv as HTMLElement | null);
 }
+
+// Функция для генерации и запуска кода выполняется через runCodeExec без локальной обертки
 
 if (genLangJsBtn) genLangJsBtn.addEventListener('click', () => setGenLang('javascript'));
 if (genLangPyBtn) genLangPyBtn.addEventListener('click', () => setGenLang('python'));
@@ -398,7 +387,7 @@ function refreshWorkspaceWithCustomToolbox() {
     scrollbars: true,
     renderer: 'thrasos',
     theme: getBlocklyTheme(),
-    media: 'https://unpkg.com/blockly/media/',
+    media: 'media/',
     horizontalLayout: false,
     toolboxPosition: 'start',
     css: true,
@@ -418,10 +407,10 @@ function refreshWorkspaceWithCustomToolbox() {
       if (e.isUiEvent || e.type == Blockly.Events.FINISHED_LOADING || ws.isDragging()) {
         return;
       }
-      runCode();
+      runCodeExec(ws, selectedGeneratorLanguage, codeDiv, outputDiv as HTMLElement | null);
     });
   }
-  runCode();
+  runCodeExec(ws, selectedGeneratorLanguage, codeDiv, outputDiv as HTMLElement | null);
 }
 
 if (importBtn) {
@@ -438,78 +427,15 @@ if (confirmImportBtn) {
     if (!blockJsonTextarea) return;
     const json = blockJsonTextarea.value;
     const gen = blockGeneratorTextarea?.value?.trim() || undefined;
-    // Если JS и есть ошибка валидации — блокируем импорт
     if (selectedGeneratorLanguage === 'javascript' && generatorErrorEl && generatorErrorEl.style.display !== 'none') {
       alert('Исправьте ошибки в генераторе JavaScript перед импортом');
       return;
     }
     const { success, error, blockType } = importBlockFromJson(json, gen, selectedGeneratorLanguage as any);
     if (success) {
-      // Зарегистрировать новые блоки 
       registerCustomBlocks();
-      
-      // Сохраняем текущее состояние рабочей области
-      const currentState = ws ? Blockly.serialization.workspaces.save(ws as Blockly.Workspace) : null;
-      
-      // Пересоздаем рабочую область с обновленным тулбоксом
-      if (ws) {
-        ws.dispose();
-      }
-      
-      const currentLang = getAppLang();
-      ws = Blockly.inject(blocklyDiv!, {
-      toolbox: localizedToolbox(currentLang),
-      grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
-      zoom: { controls: true, wheel: true, startScale: 1.0, maxScale: 3, minScale: 0.3, scaleSpeed: 1.2, pinch: true },
-      move: { scrollbars: { horizontal: true, vertical: true }, drag: true, wheel: true },
-      trashcan: true,
-      maxTrashcanContents: 32,
-      comments: true,
-      collapse: true,
-      disable: true,
-      sounds: true,
-      maxBlocks: Infinity,
-      maxInstances: { 'controls_if': 10, 'controls_repeat_ext': 5 },
-      scrollbars: true,
-      renderer: 'thrasos',
-      theme: Blockly.Themes.Classic,
-      media: 'https://unpkg.com/blockly/media/',
-      horizontalLayout: false,
-      toolboxPosition: 'start',
-      css: true,
-      rtl: false,
-      oneBasedIndex: true,
-      modalInputs: true,
-      readOnly: false
-      });
-      
-      // Восстанавливаем состояние рабочей области
-      if (currentState) {
-        try {
-          Blockly.serialization.workspaces.load(currentState, ws as Blockly.Workspace);
-        } catch (e) {
-          console.warn('Could not restore workspace state after block import:', e);
-        }
-      }
-      
-      // Настраиваем обработчики событий для новой рабочей области
-      if (ws) {
-        load(ws);
-        ws.addChangeListener((e: Blockly.Events.Abstract) => {
-          if (e.isUiEvent) return;
-          save(ws);
-        });
-        ws.addChangeListener((e: Blockly.Events.Abstract) => {
-          if (e.isUiEvent || e.type == Blockly.Events.FINISHED_LOADING || ws.isDragging()) {
-            return;
-          }
-          runCode();
-        });
-      }
-      
+      refreshWorkspaceWithCustomToolbox();
       closeImportModal();
-      
-      // Вывести сообщение пользователю в output
       if (outputDiv) {
         const p = document.createElement('p');
         p.textContent = `Импортирован блок: ${blockType}`;

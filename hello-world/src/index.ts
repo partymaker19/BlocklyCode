@@ -289,6 +289,8 @@ function openImportModal() {
     modalContent.style.left = `${centerLeft}px`;
     modalContent.style.top = `${centerTop}px`;
     modalContent.style.transform = '';
+    // Важно: включаем анимацию только при открытии, чтобы она не мешала drag
+    modalContent.style.animation = '';
   }
   // Инициализируем перетаскивание один раз
   initImportModalDrag();
@@ -322,17 +324,18 @@ function initImportModalDrag() {
     // Если клик по кнопке закрытия — не перетаскиваем
     const target = ev.target as HTMLElement | null;
     if (target && target.closest('#closeModal')) return;
+    ev.preventDefault();
     isDragging = true;
     
     // Получаем текущие координаты окна
     const rect = content.getBoundingClientRect();
-    
-    // Если окно центрировано через transform, переводим его в абсолютные координаты
-    if (content.style.transform.includes('translate')) {
-      content.style.transform = '';
-      content.style.left = rect.left + 'px';
-      content.style.top = rect.top + 'px';
-    }
+
+    // Фикс: отключаем анимацию/трансформации и фиксируем текущие координаты,
+    // чтобы вертикальный drag не блокировался CSS-анимацией translateY
+    content.style.left = rect.left + 'px';
+    content.style.top = rect.top + 'px';
+    content.style.transform = 'none';
+    content.style.animation = 'none';
     
     // Вычисляем смещение курсора относительно левого верхнего угла окна
     offsetX = ev.clientX - rect.left;

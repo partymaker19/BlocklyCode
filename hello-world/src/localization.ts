@@ -81,6 +81,7 @@ export function localizeImportUI(lang: AppLang) {
       PresetsLabel: 'Quick block presets:', 
       PresetLet: 'let variable', 
       PresetConst: 'constant',
+      PresetReturn: 'return value',
       JsonPlaceholder: `Example:
 {
   "type": "my_custom_block",
@@ -110,6 +111,7 @@ export function localizeImportUI(lang: AppLang) {
       PresetsLabel: 'Быстрые пресеты блоков:', 
       PresetLet: 'let переменная', 
       PresetConst: 'константа',
+      PresetReturn: 'return значение',
       JsonPlaceholder: `Пример:
 {
   "type": "my_custom_block",
@@ -138,6 +140,7 @@ export function localizeImportUI(lang: AppLang) {
   const presetsLabelEl = document.getElementById('presetsLabel');
   const presetLetBtn = document.getElementById('presetLet') as HTMLButtonElement | null;
   const presetConstBtn = document.getElementById('presetConst') as HTMLButtonElement | null;
+  const presetReturnBtn = document.getElementById('presetReturn') as HTMLButtonElement | null;
   const blockJsonTextarea = document.getElementById('blockJson') as HTMLTextAreaElement | null;
 
   if (importBtnText) importBtnText.textContent = t.ImportBlocks;
@@ -154,6 +157,7 @@ export function localizeImportUI(lang: AppLang) {
   if (presetsLabelEl) presetsLabelEl.textContent = t.PresetsLabel;
   if (presetLetBtn) presetLetBtn.textContent = t.PresetLet;
   if (presetConstBtn) presetConstBtn.textContent = t.PresetConst;
+  if (presetReturnBtn) presetReturnBtn.textContent = t.PresetReturn;
 
   // Store localized strings for use in other functions
   (window as any)._currentLocalizedStrings = t;

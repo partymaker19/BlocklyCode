@@ -1,1 +1,8 @@
-/* no changes */
+/* Annotation overlay and toolbar */
+#annotationOverlay { position: fixed; left: 0; right: 0; bottom: 0; top: 0; display: none; z-index: 998; }
+.annot-toolbar { position: fixed; right: 16px; bottom: 16px; display: none; z-index: 999; background: rgba(255,255,255,0.95); border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 8px; gap: 6px; flex-direction: column; }
+html[data-theme='dark'] .annot-toolbar { background: rgba(26, 32, 44, 0.95); border-color: #2d3748; }
+.annot-toolbar button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #cbd5e0; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); color: #2d3748; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.annot-toolbar button:hover, .annot-toolbar button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: #667eea; }
+.icon-button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #cbd5e0; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); color: #2d3748; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; }
+.icon-button:hover, .icon-button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: #667eea; }

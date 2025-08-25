@@ -583,6 +583,7 @@
         </div>
       </div>
     </div>
+    <button id="annotateToggleBtn" class="icon-button" title="Аннотация" aria-pressed="false">✎</button>
   </div>
   
   <div id="pageContainer">
@@ -591,6 +592,19 @@
       <pre id="generatedCode"><code></code></pre>
       <div id="output"></div>
     </div>
+  </div>
+
+  <div id="annotationOverlay" aria-hidden="true"></div>
+  <div class="annot-toolbar" id="annotToolbar" aria-hidden="true" role="toolbar">
+    <button id="annotBrush" title="Кисть">🖌️</button>
+    <button id="annotLine" title="Линия">/</button>
+    <button id="annotArrow" title="Стрелка">➤</button>
+    <button id="annotRect" title="Прямоугольник">▭</button>
+    <button id="annotColor" title="Цвет">🎨</button>
+    <button id="annotSize" title="Толщина">⦿</button>
+    <button id="annotUndo" title="Отменить">↶</button>
+    <button id="annotRedo" title="Повторить">↷</button>
+    <button id="annotClear" title="Очистить">🗑️</button>
   </div>
 
   <!-- Import Modal -->
@@ -633,7 +647,8 @@
           </div>
           <div class="presets-container">
             <button type="button" class="btn btn-preset" id="presetLet">let переменная</button>
-            <button type="button" class="btn btn-preset" id="presetConst">константа</button>
+            <button type="button" class="btn btn-preset" id="presetConst">константа/print</button>
+            <button type="button" class="btn btn-preset" id="presetReturn">return значение</button>
           </div>
           <div class="validation-error" id="presetNotice" style="display:none"></div>
         </div>

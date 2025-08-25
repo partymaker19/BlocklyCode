@@ -62,7 +62,11 @@
 
     "@blockly/theme-dark": "^8.0.1",
 
-    "blockly": "12.2.0"
+    "blockly": "12.2.0",
+
+    "konva": "^9.3.22",
+
+    "perfect-freehand": "^1.2.2"
 
   }
 

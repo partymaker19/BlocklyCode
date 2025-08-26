@@ -42,6 +42,8 @@ const config = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'node_modules/blockly/media', to: 'media' },
+        // Copy Ace Editor "src-noconflict" distribution for dynamic loading of modes, themes, and workers
+        { from: 'node_modules/ace-builds/src-noconflict', to: 'ace' },
       ],
     }),
   ],

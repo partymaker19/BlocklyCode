@@ -62,6 +62,8 @@
 
     "@blockly/theme-dark": "^8.0.1",
 
+    "ace-builds": "^1.34.2",
+
     "blockly": "12.2.0",
 
     "konva": "^9.3.22",

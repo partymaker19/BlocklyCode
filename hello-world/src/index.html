@@ -16,7 +16,7 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 12px 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -63,8 +63,8 @@
 
     /* Import button styles */
     .import-button {
-      background: rgba(255,255,255,0.2);
-      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       color: white;
       padding: 8px 16px;
       border-radius: 8px;
@@ -78,8 +78,8 @@
     }
 
     .import-button:hover {
-      background: rgba(255,255,255,0.3);
-      border-color: rgba(255,255,255,0.5);
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
       transform: translateY(-2px);
     }
 
@@ -89,13 +89,14 @@
     }
 
     /* Language and Theme switch styles */
-    .language-switch, .theme-switch {
+    .language-switch,
+    .theme-switch {
       display: flex;
       align-items: center;
       gap: 12px;
       font-size: 14px;
     }
-    
+
     .theme-switch {
       margin-left: 8px;
     }
@@ -120,10 +121,10 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(255,255,255,0.3);
+      background-color: rgba(255, 255, 255, 0.3);
       transition: .3s;
       border-radius: 15px;
-      border: 2px solid rgba(255,255,255,0.4);
+      border: 2px solid rgba(255, 255, 255, 0.4);
     }
 
     .slider:before {
@@ -138,27 +139,29 @@
       border-radius: 50%;
     }
 
-    input:checked + .slider {
-      background-color: rgba(255,255,255,0.5);
+    input:checked+.slider {
+      background-color: rgba(255, 255, 255, 0.5);
     }
 
-    input:checked + .slider:before {
+    input:checked+.slider:before {
       transform: translateX(20px);
     }
 
-    .lang-label, .theme-label {
+    .lang-label,
+    .theme-label {
       font-weight: 500;
       min-width: 24px;
       text-align: center;
       opacity: 0.85;
       transition: opacity .2s;
     }
-    
+
     .lang-label {
       min-width: 30px;
     }
 
-    .lang-label.active, .theme-label.active {
+    .lang-label.active,
+    .theme-label.active {
       opacity: 1;
       font-weight: 700;
     }
@@ -168,13 +171,14 @@
       position: relative;
       cursor: pointer;
     }
+
     .gen-lang-dropdown .selected-option {
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.15);
       color: #fff;
-      border: 2px solid rgba(255,255,255,0.25);
+      border: 2px solid rgba(255, 255, 255, 0.25);
       border-radius: 12px;
       padding: 8px 36px 8px 14px;
       font-size: 14px;
@@ -187,35 +191,41 @@
       min-width: 130px;
       user-select: none;
     }
+
     .gen-lang-dropdown .custom-select:hover .selected-option {
-      background: rgba(255,255,255,0.25);
-      border-color: rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.6);
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
+
     .gen-lang-dropdown .custom-select.open .selected-option {
-      background: rgba(255,255,255,0.3);
-      border-color: rgba(255,255,255,0.7);
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.7);
       box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2), 0 4px 16px rgba(0, 0, 0, 0.2);
     }
+
     .gen-lang-dropdown .dropdown-arrow {
       position: absolute;
       right: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.85);
+      color: rgba(255, 255, 255, 0.85);
       pointer-events: none;
       font-size: 14px;
       font-weight: 600;
       transition: all 0.3s ease;
     }
+
     .gen-lang-dropdown .custom-select:hover .dropdown-arrow {
-      color: rgba(255,255,255,1);
+      color: rgba(255, 255, 255, 1);
       transform: translateY(-50%) scale(1.1);
     }
+
     .gen-lang-dropdown .custom-select.open .dropdown-arrow {
       transform: translateY(-50%) rotate(180deg);
     }
+
     .gen-lang-dropdown .dropdown-options {
       position: absolute;
       top: 100%;
@@ -230,6 +240,7 @@
       overflow: hidden;
       backdrop-filter: blur(10px);
     }
+
     .gen-lang-dropdown .option {
       padding: 12px 14px;
       color: #334155;
@@ -239,13 +250,16 @@
       transition: all 0.2s ease;
       border-bottom: 1px solid #f1f5f9;
     }
+
     .gen-lang-dropdown .option:last-child {
       border-bottom: none;
     }
+
     .gen-lang-dropdown .option:hover {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       color: white;
     }
+
     .gen-lang-dropdown .option.selected {
       color: #6366f1;
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
@@ -256,188 +270,217 @@
     html[data-theme='dark'] #header {
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       color: #e5e7eb;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
+
     html[data-theme='dark'] .logo {
       background: #111827;
       color: #93c5fd;
       border: 1px solid #374151;
     }
+
     html[data-theme='dark'] .import-button {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
       color: #e5e7eb;
     }
+
     html[data-theme='dark'] .import-button:hover {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
     }
+
     html[data-theme='dark'] #outputPane {
       background: #0f172a;
       border-left-color: #1f2937;
       color: #e5e7eb;
     }
-    html[data-theme='dark'] #generatedCode {
-      background: #0b1020;
-      color: #e5e7eb;
-    }
+
     html[data-theme='dark'] .gen-lang-dropdown .selected-option {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
       color: #e5e7eb;
       backdrop-filter: blur(10px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
     }
+
     html[data-theme='dark'] .gen-lang-dropdown .custom-select:hover .selected-option {
-      background: rgba(255,255,255,0.14);
-      border-color: rgba(255,255,255,0.35);
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.35);
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     }
-    html[data-theme='dark'] .gen-lang-dropdown .dropdown-arrow { color: rgba(255,255,255,0.85); }
-    html[data-theme='dark'] .gen-lang-dropdown .custom-select:hover .dropdown-arrow { color: rgba(255,255,255,1); }
+
+    html[data-theme='dark'] .gen-lang-dropdown .dropdown-arrow {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    html[data-theme='dark'] .gen-lang-dropdown .custom-select:hover .dropdown-arrow {
+      color: rgba(255, 255, 255, 1);
+    }
 
     html[data-theme='dark'] .gen-lang-dropdown .dropdown-options {
       background: #111827;
       border-color: #374151;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
+
     html[data-theme='dark'] .gen-lang-dropdown .option {
       color: #e5e7eb;
       background-color: #111827;
       border-bottom-color: #1f2937;
     }
+
     html[data-theme='dark'] .gen-lang-dropdown .option:hover {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
     }
+
     html[data-theme='dark'] .gen-lang-dropdown .option.selected {
       color: #c7d2fe;
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       font-weight: 700;
     }
+
     /* Dark theme modal styles */
     html[data-theme='dark'] .modal {
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
     }
+
     html[data-theme='dark'] .modal-content {
       background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
       color: #e5e7eb;
       border: 1px solid #374151;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 10px 20px rgba(0, 0, 0, 0.3);
     }
-    html[data-theme='dark'] .modal-header { 
+
+    html[data-theme='dark'] .modal-header {
       background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
       border-bottom: 1px solid #4b5563;
     }
-    html[data-theme='dark'] .modal-body { 
-      background: linear-gradient(to bottom, rgba(17,24,39,0.9), rgba(15,23,42,0.9));
+
+    html[data-theme='dark'] .modal-body {
+      background: linear-gradient(to bottom, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.9));
     }
-    html[data-theme='dark'] .modal-footer { 
+
+    html[data-theme='dark'] .modal-footer {
       background: linear-gradient(to right, #0f172a, #111827);
       border-top: 1px solid #374151;
     }
-    
+
     /* Dark theme form elements */
     html[data-theme='dark'] .form-group label {
       color: #d1d5db;
     }
+
     html[data-theme='dark'] .form-group textarea {
       background: #1f2937;
       color: #e5e7eb;
       border-color: #4b5563;
     }
+
     html[data-theme='dark'] .form-group textarea:focus {
       border-color: #6366f1;
       background: #111827;
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
+
     html[data-theme='dark'] .form-group textarea::placeholder {
       color: #6b7280;
     }
-    
+
     /* Dark theme buttons */
-    html[data-theme='dark'] .btn.secondary, 
+    html[data-theme='dark'] .btn.secondary,
     html[data-theme='dark'] .btn-secondary {
       background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
       color: #d1d5db;
       border-color: #4b5563;
     }
-    html[data-theme='dark'] .btn.secondary:hover, 
+
+    html[data-theme='dark'] .btn.secondary:hover,
     html[data-theme='dark'] .btn-secondary:hover {
       background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
       border-color: #6b7280;
     }
-    
+
     /* Dark theme preset buttons */
     html[data-theme='dark'] .btn-preset {
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       color: #d1d5db;
       border-color: #4b5563;
     }
+
     html[data-theme='dark'] .btn-preset:hover {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border-color: #667eea;
     }
-    
+
     /* Dark theme language tabs */
     html[data-theme='dark'] .generator-language-selector {
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       border-color: #4b5563;
     }
+
     html[data-theme='dark'] .lang-tab {
       color: #9ca3af;
     }
+
     html[data-theme='dark'] .lang-tab:hover {
       background: rgba(99, 102, 241, 0.2);
       color: #a5b4fc;
     }
-    
+
     /* Dark theme info box */
     html[data-theme='dark'] .import-info {
       background: linear-gradient(135deg, #065f46 0%, #047857 100%);
       border-color: #059669;
       color: #a7f3d0;
     }
-    
+
     /* Dark theme code editor */
     html[data-theme='dark'] .code-editor {
       border-color: #4b5563;
       background: #1f2937;
     }
+
     html[data-theme='dark'] .code-editor .toolbar {
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       border-bottom-color: #4b5563;
     }
+
     html[data-theme='dark'] .code-editor .content textarea {
       background: #0f172a;
       color: #e5e7eb;
     }
+
     html[data-theme='dark'] .code-editor .content textarea:focus {
       background: #111827;
     }
+
     html[data-theme='dark'] .code-editor.error textarea {
       border-color: #dc2626;
       background: rgba(220, 38, 38, 0.1);
     }
+
     html[data-theme='dark'] .code-editor.success textarea {
       border-color: #059669;
       background: rgba(5, 150, 105, 0.1);
     }
-    
+
     /* Dark theme validation messages */
     html[data-theme='dark'] .validation-error {
       color: #fca5a5;
       background: rgba(220, 38, 38, 0.2);
       border-left-color: #dc2626;
     }
+
     html[data-theme='dark'] .validation-success {
       color: #86efac;
       background: rgba(5, 150, 105, 0.2);
       border-left-color: #059669;
     }
-    
+
     /* Dark theme notices */
     html[data-theme='dark'] .notice {
       color: #9ca3af;
@@ -448,10 +491,12 @@
       height: calc(100vh - 84px);
       flex-direction: row;
     }
+
     #blocklyDiv {
       flex: 2;
       height: 100%;
     }
+
     #outputPane {
       flex: 1;
       background: #f5f5f5;
@@ -460,16 +505,7 @@
       flex-direction: column;
       min-width: 300px;
     }
-    #generatedCode {
-      flex: 1;
-      background: #2d2d2d;
-      color: #f8f8f2;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 13px;
-      margin: 0;
-      padding: 10px;
-      overflow: auto;
-    }
+
     #output {
       flex: 1;
       padding: 10px;
@@ -478,64 +514,496 @@
     }
 
     /* Modal styles */
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-    .modal-content { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); position: absolute; top: 50%; left: 50%; /* transform: translate(-50%, -50%); */ padding: 0; border: none; width: 85%; max-width: 950px; border-radius: 20px; overflow: hidden; animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 10px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; box-sizing: border-box; max-height: calc(100vh - 64px); }
-    .modal-header { padding: 20px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid rgba(255,255,255,0.2); cursor: move; user-select: none; }
-    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
-    .modal-body { padding: 24px; background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(248,250,252,0.9)); flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; }
-    .modal-footer { display: flex; gap: 12px; justify-content: flex-end; padding: 20px 24px; background: linear-gradient(to right, #f7fafc, #edf2f7); border-top: 1px solid #e2e8f0; }
-    
-    .close-button { color: white; font-size: 32px; font-weight: 300; cursor: pointer; transition: transform 0.2s ease; opacity: 0.9; }
-    .close-button:hover { transform: scale(1.1); opacity: 1; }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+    }
 
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; font-size: 14px; }
-    .form-group textarea { width: 100%; min-height: 130px; resize: vertical; padding: 12px 16px; border-radius: 12px; border: 2px solid #e2e8f0; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; box-sizing: border-box; background: #ffffff; transition: all 0.3s ease; font-size: 13px; line-height: 1.5; max-height: calc(100vh - 220px); }
-    .form-group textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #fdfdff; }
-    .form-group textarea::placeholder { color: #a0aec0; font-style: italic; }
+    .modal-content {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      /* transform: translate(-50%, -50%); */
+      padding: 0;
+      border: none;
+      width: 85%;
+      max-width: 950px;
+      border-radius: 20px;
+      overflow: hidden;
+      animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      max-height: calc(100vh - 64px);
+    }
 
-    .import-info { background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%); border: 1px solid #9ae6b4; border-radius: 12px; padding: 16px; margin-bottom: 20px; color: #2f855a; font-size: 14px; position: relative; padding-left: 44px; }
-    .import-info::before { content: "ℹ️"; position: absolute; top: 16px; left: 16px; font-size: 16px; }
+    .modal-header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+      cursor: move;
+      user-select: none;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 24px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+      flex: 1 1 auto;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding: 20px 24px;
+      background: linear-gradient(to right, #f7fafc, #edf2f7);
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .close-button {
+      color: white;
+      font-size: 32px;
+      font-weight: 300;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      opacity: 0.9;
+    }
+
+    .close-button:hover {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      box-sizing: border-box;
+      background: #ffffff;
+      transition: all 0.3s ease;
+      font-size: 13px;
+      line-height: 1.5;
+      max-height: calc(100vh - 220px);
+    }
+
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: #fdfdff;
+    }
+
+    .form-group textarea::placeholder {
+      color: #a0aec0;
+      font-style: italic;
+    }
+
+    .import-info {
+      background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%);
+      border: 1px solid #9ae6b4;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      color: #2f855a;
+      font-size: 14px;
+      position: relative;
+      padding-left: 44px;
+    }
+
+    .import-info::before {
+      content: "ℹ️";
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-size: 16px;
+    }
 
     /* Enhanced Buttons */
-    .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 14px; position: relative; overflow: hidden; }
-    .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
-    .btn:hover::before { left: 100%; }
-    
-    .btn.primary, .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
-    .btn.primary:hover, .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6); }
-    
-    .btn.secondary, .btn-secondary { background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); color: #4a5568; border: 2px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .btn.secondary:hover, .btn-secondary:hover { background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      font-size: 14px;
+      position: relative;
+      overflow: hidden;
+    }
 
-    .generator-language-selector { display: inline-flex; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border: 2px solid #e2e8f0; padding: 6px; border-radius: 12px; gap: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
-    .lang-tab { border: none; background: transparent; padding: 8px 14px; border-radius: 8px; cursor: pointer; color: #4a5568; font-size: 13px; font-weight: 500; transition: all 0.3s ease; position: relative; }
-    .lang-tab:hover { background: rgba(102, 126, 234, 0.1); color: #667eea; }
-    .lang-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
 
-    .presets-container { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-    .btn-preset { background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%); border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #2d3748; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
-    .btn-preset:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .btn:hover::before {
+      left: 100%;
+    }
 
-    .validation-error { color: #e53e3e; font-size: 12px; margin-top: 8px; padding: 8px 12px; background: rgba(245, 101, 101, 0.1); border-radius: 8px; border-left: 3px solid #e53e3e; }
-    .validation-success { color: #38a169; font-size: 12px; margin-top: 8px; margin-bottom: 12px; padding: 8px 12px; background: rgba(56, 161, 105, 0.1); border-radius: 8px; border-left: 3px solid #38a169; font-weight: 500; }
+    .btn.primary,
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
 
-    .code-editor { border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #ffffff; }
-    .code-editor .toolbar { background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-bottom: 2px solid #e2e8f0; padding: 12px; display: flex; align-items: center; gap: 12px; }
-    .code-editor .toolbar .tab { padding: 8px 14px; cursor: pointer; border-radius: 8px; border: 2px solid transparent; font-weight: 500; transition: all 0.3s ease; }
-    .code-editor .toolbar .tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
-    .code-editor .content { padding: 0; }
-    .code-editor .content textarea { width: 100%; height: 240px; border: none; outline: none; padding: 16px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.6; background: #fdfdff; transition: background 0.3s ease; }
-    .code-editor .content textarea:focus { background: #ffffff; }
-    .code-editor.error textarea { border-color: #e53e3e; background: rgba(245, 101, 101, 0.02); }
-    .code-editor.success textarea { border-color: #38a169; background: rgba(56, 161, 105, 0.02); }
+    .btn.primary:hover,
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    }
 
-    .notice { margin-top: 12px; font-size: 12px; color: #718096; font-style: italic; }
-    .code-editor .toolbar .preset-btn { background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%); border: 1px solid #cbd5e0; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; transition: all 0.3s ease; }
-    .code-editor .toolbar .preset-btn:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn.secondary,
+    .btn-secondary {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .btn.secondary:hover,
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .generator-language-selector {
+      display: inline-flex;
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      border: 2px solid #e2e8f0;
+      padding: 6px;
+      border-radius: 12px;
+      gap: 4px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .lang-tab {
+      border: none;
+      background: transparent;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #4a5568;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .lang-tab:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+
+    .lang-tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .presets-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-preset {
+      background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #2d3748;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-preset:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .validation-error {
+      color: #e53e3e;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(245, 101, 101, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #e53e3e;
+    }
+
+    .validation-success {
+      color: #38a169;
+      font-size: 12px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background: rgba(56, 161, 105, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #38a169;
+      font-weight: 500;
+    }
+
+    .code-editor {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+    }
+
+    .code-editor .toolbar {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      border-bottom: 2px solid #e2e8f0;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .code-editor .toolbar .tab {
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .code-editor .toolbar .tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .code-editor .content {
+      padding: 0;
+    }
+
+    .code-editor .content textarea {
+      width: 100%;
+      height: 240px;
+      border: none;
+      outline: none;
+      padding: 16px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      background: #fdfdff;
+      transition: background 0.3s ease;
+    }
+
+    .code-editor .content textarea:focus {
+      background: #ffffff;
+    }
+
+    .code-editor.error textarea {
+      border-color: #e53e3e;
+      background: rgba(245, 101, 101, 0.02);
+    }
+
+    .code-editor.success textarea {
+      border-color: #38a169;
+      background: rgba(56, 161, 105, 0.02);
+    }
+
+    .notice {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #718096;
+      font-style: italic;
+    }
+
+    .code-editor .toolbar .preset-btn {
+      background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .code-editor .toolbar .preset-btn:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Ace editor layout */
+    #codePane {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 160px;
+    }
+
+    .editor-toolbar {
+      padding: 6px 8px;
+      border-bottom: 1px solid #ddd;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+    }
+
+    .editor-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* New: compact toolbar styles */
+    .editor-controls.compact {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .editor-controls .separator {
+      width: 1px;
+      height: 26px;
+      background: rgba(0,0,0,0.1);
+      margin: 0 4px;
+    }
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      min-width: 28px;
+      padding: 0 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.15);
+      background: #fff;
+      color: #111827;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background .2s, transform .1s, border-color .2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .icon-btn:hover { background: #f3f4f6; border-color: rgba(0,0,0,0.25); }
+    .icon-btn:active { transform: translateY(1px); }
+
+    .settings { position: relative; }
+    .dropdown-panel {
+      position: absolute;
+      right: 0;
+      top: 36px;
+      z-index: 50;
+      width: 420px;
+      max-width: calc(100vw - 24px);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 12px;
+      display: none;
+    }
+    .dropdown-panel.open { display: block; }
+    .panel-section { margin-bottom: 10px; }
+    .panel-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .panel-row label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; }
+    .panel-row input[type='number'] { width: 64px; }
+
+    .editor-statusbar {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-top: 1px solid #e5e7eb;
+      color: #4b5563;
+      background: #f9fafb;
+    }
+
+    #editor {
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .ace-editor {
+      width: 100%;
+      height: 100%;
+    }
+
+    html[data-theme='dark'] .editor-toolbar {
+      background: #1f2937;
+      border-bottom-color: #374151;
+    }
+    html[data-theme='dark'] .icon-btn { background: #111827; color: #e5e7eb; border-color: #374151; }
+    html[data-theme='dark'] .icon-btn:hover { background: #0f172a; }
+    html[data-theme='dark'] .dropdown-panel { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
+    html[data-theme='dark'] .editor-statusbar { background: #0f172a; border-top-color: #1f2937; color: #9ca3af; }
   </style>
 </head>
 
@@ -585,87 +1053,137 @@
     </div>
     <button id="annotateToggleBtn" class="icon-button" title="Аннотация" aria-pressed="false">✎</button>
   </div>
-  
+
   <div id="pageContainer">
     <div id="blocklyDiv"></div>
     <div id="outputPane">
-      <pre id="generatedCode"><code></code></pre>
+      <div id="codePane">
+        <div id="editorToolbar" class="editor-toolbar">
+          <div class="editor-controls compact">
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button id="aceSearchBtn" class="icon-btn" title="Поиск (Ctrl+F)" aria-label="Поиск">🔎</button>
+              <button id="aceReplaceBtn" class="icon-btn" title="Замена (Ctrl+H)" aria-label="Замена">⇄</button>
+              <button id="aceGotoBtn" class="icon-btn" title="Перейти к строке (Ctrl+L)" aria-label="Перейти к строке">#</button>
+              <button id="aceFormatBtn" class="icon-btn" title="Форматировать код" aria-label="Форматировать">⎚</button>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button id="copyCodeBtn" class="icon-btn" title="Копировать код" aria-label="Копировать">⧉</button>
+              <button id="downloadCodeBtn" class="icon-btn" title="Скачать файл" aria-label="Скачать">⬇</button>
+              <button id="aceShortcutsBtn" class="icon-btn" title="Сочетания клавиш" aria-label="Сочетания клавиш">⌘</button>
+              <div class="settings">
+                <button id="aceSettingsToggle" class="icon-btn" aria-expanded="false" aria-controls="aceSettingsPanel" title="Настройки" aria-label="Настройки">⚙</button>
+                <div id="aceSettingsPanel" class="dropdown-panel" role="dialog" aria-label="Настройки редактора">
+                  <div class="panel-section">
+                    <label style="display:flex; gap:8px; align-items:center;">Тема
+                      <select id="aceThemeSelect" aria-label="Ace Theme">
+                        <option value="ace/theme/chrome">Светлая</option>
+                        <option value="ace/theme/monokai">Монокаи</option>
+                        <option value="ace/theme/github">GitHub</option>
+                        <option value="ace/theme/dracula">Dracula</option>
+                        <option value="ace/theme/twilight">Twilight</option>
+                        <option value="ace/theme/cobalt">Cobalt</option>
+                        <option value="ace/theme/xcode">Xcode</option>
+                        <option value="ace/theme/terminal">Terminal</option>
+                        <option value="ace/theme/solarized_dark">Solarized Dark</option>
+                        <option value="ace/theme/solarized_light">Solarized Light</option>
+                        <option value="ace/theme/tomorrow_night">Tomorrow Night</option>
+                        <option value="ace/theme/textmate">TextMate</option>
+                        <option value="ace/theme/ambiance">Ambiance</option>
+                        <option value="ace/theme/chaos">Chaos</option>
+                        <option value="ace/theme/dawn">Dawn</option>
+                        <option value="ace/theme/eclipse">Eclipse</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="panel-row">
+                    <label>Шрифт <input type="number" id="aceFontSize" min="10" max="24" step="1" value="13" /></label>
+                    <label>Табуляция <input type="number" id="aceTabSize" min="2" max="8" step="1" value="2" /></label>
+                  </div>
+                  <div class="panel-row">
+                    <label><input type="checkbox" id="aceWrap" checked /> Перенос строк</label>
+                    <label><input type="checkbox" id="aceInvisibles" /> Непечатаемые</label>
+                    <label><input type="checkbox" id="aceActiveLine" checked /> Подсветка строки</label>
+                  </div>
+                  <div class="panel-row">
+                    <label><input type="checkbox" id="acePrintMargin" /> Поле печати</label>
+                    <label><input type="checkbox" id="aceGutter" checked /> Нумерация строк</label>
+                    <label><input type="checkbox" id="aceSoftTabs" checked /> Пробелы вместо табов</label>
+                  </div>
+                  <div class="panel-row">
+                    <label><input type="checkbox" id="aceFoldWidgets" checked /> Сворачивание кода</label>
+                    <label>Клавиши
+                      <select id="aceKeybinding" aria-label="Режим клавиш">
+                        <option value="default">По умолчанию</option>
+                        <option value="vim">Vim</option>
+                        <option value="emacs">Emacs</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="editor" class="ace-editor" role="region" aria-label="Сгенерированный код"></div>
+        <div id="editorStatusbar" class="editor-statusbar" aria-live="polite"></div>
+      </div>
       <div id="output"></div>
     </div>
   </div>
 
-  <div id="annotationOverlay" aria-hidden="true"></div>
-  <div class="annot-toolbar" id="annotToolbar" aria-hidden="true" role="toolbar">
-    <button id="annotBrush" title="Кисть">🖌️</button>
-    <button id="annotLine" title="Линия">/</button>
-    <button id="annotArrow" title="Стрелка">➤</button>
-    <button id="annotRect" title="Прямоугольник">▭</button>
-    <button id="annotColor" title="Цвет">🎨</button>
-    <button id="annotSize" title="Толщина">⦿</button>
-    <button id="annotUndo" title="Отменить">↶</button>
-    <button id="annotRedo" title="Повторить">↷</button>
-    <button id="annotClear" title="Очистить">🗑️</button>
-  </div>
-
-  <!-- Import Modal -->
-  <div id="importModal" class="modal">
+  <div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="modalTitle">Импорт пользовательских блоков</h2>
-        <span class="close-button" id="closeModal">&times;</span>
+        <h2 id="modalTitle">Импорт пользовательского блока</h2>
+        <span id="closeModal" class="close-button" aria-label="Close">&times;</span>
       </div>
       <div class="modal-body">
-        <div class="import-info" id="importInfo">
-          Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".
+        <div class="import-info">
+          Вставьте JSON-описание блока и код генератора для выбранного языка.
+        </div>
+        <div class="generator-language-selector" id="generatorLangTabs">
+          <button id="genLangJs" class="lang-tab active">JavaScript</button>
+          <button id="genLangPy" class="lang-tab">Python</button>
+          <button id="genLangLua" class="lang-tab">Lua</button>
+        </div>
+        <div class="presets-container">
+          <button id="presetLet" class="btn-preset">let x = 42</button>
+          <button id="presetConst" class="btn-preset">const str = 'hello'</button>
+          <button id="presetReturn" class="btn-preset">return x + 1</button>
+        </div>
+        <div id="presetNotice" class="notice">Выберите пресет, чтобы начать быстрее</div>
+        <div class="form-group">
+          <label for="blockJson">JSON описания блока</label>
+          <textarea id="blockJson" placeholder="{\n  \" type\": \"example\",\n ...\n}"></textarea>
         </div>
         <div class="form-group">
-          <label for="blockJson" id="jsonLabel">JSON определение блока:</label>
-          <textarea id="blockJson" placeholder='Пример:
-{
-  "type": "my_custom_block",
-  "message0": "Мой блок %1",
-  "args0": [
-    {
-      "type": "input_value",
-      "name": "INPUT"
-    }
-  ],
-  "previousStatement": null,
-  "nextStatement": null,
-  "colour": 230,
-  "tooltip": "Мой кастомный блок",
-  "helpUrl": ""
-}'></textarea>
+          <label for="blockGenerator">Код генератора</label>
+          <textarea id="blockGenerator" placeholder="function(block) {\n  // ...\n}"></textarea>
         </div>
-        
-        <div class="form-group">
-          <label id="presetsLabel">Быстрые пресеты блоков:</label>
-          <div class="generator-language-selector" id="generatorLangTabs">
-            <button type="button" class="lang-tab active" data-lang="javascript" id="genLangJs">JavaScript</button>
-            <button type="button" class="lang-tab" data-lang="python" id="genLangPy">Python</button>
-            <button type="button" class="lang-tab" data-lang="lua" id="genLangLua">Lua</button>
-          </div>
-          <div class="presets-container">
-            <button type="button" class="btn btn-preset" id="presetLet">let переменная</button>
-            <button type="button" class="btn btn-preset" id="presetConst">константа/print</button>
-            <button type="button" class="btn btn-preset" id="presetReturn">return значение</button>
-          </div>
-          <div class="validation-error" id="presetNotice" style="display:none"></div>
-        </div>
-        
-        <div class="form-group code-editor">
-          <label for="blockGenerator" id="generatorLabel">Генератор кода (опционально):</label>
-          <textarea id="blockGenerator"></textarea>
-          <div class="validation-error" id="generatorError"></div>
-          <div class="validation-success" id="generatorOk"></div>
-        </div>
+        <div id="generatorError" class="validation-error" style="display:none"></div>
+        <div id="generatorOk" class="validation-success" style="display:none"></div>
       </div>
       <div class="modal-footer">
-        <button id="cancelImport" class="btn btn-secondary">Отмена</button>
-        <button id="confirmImport" class="btn btn-primary">Импортировать</button>
+        <button id="cancelImport" class="btn secondary">Отмена</button>
+        <button id="confirmImport" class="btn primary">Импортировать</button>
       </div>
     </div>
   </div>
+
+  <!-- Annotation overlay and toolbar -->
+  <div id="annotationOverlay"></div>
+  <div id="annotToolbar" class="annot-toolbar" role="toolbar" aria-label="Инструменты аннотаций">
+    <button id="annotBrush" title="Кисть">🖌️</button>
+    <button id="annotLine" title="Линия">─</button>
+    <button id="annotArrow" title="Стрелка">➤</button>
+    <button id="annotRect" title="Прямоугольник">▭</button>
+    <button id="annotColor" title="Цвет">🎨</button>
+    <button id="annotSize" title="Толщина">≋</button>
+    <button id="annotUndo" title="Отменить">↶</button>
+    <button id="annotRedo" title="Повторить">↷</button>
+    <button id="annotClear" title="Очистить">🧹</button>
+  </div>
+
 </body>
 
 </html>

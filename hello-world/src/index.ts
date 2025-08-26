@@ -1374,69 +1374,75 @@ import "ace-builds/src-noconflict/keybinding-emacs";
   const settingsPanel = document.getElementById(
     "aceSettingsPanel"
   ) as HTMLDivElement | null;
+  const aceSaveBtn = document.getElementById(
+    "aceSaveSettings"
+  ) as HTMLButtonElement | null;
 
   const statusBar = document.getElementById(
     "editorStatusbar"
   ) as HTMLDivElement | null;
 
   // Apply saved Ace settings on init
-  try {
-    const saved = loadAceSettings();
-    if (aceEditor) {
-      if (saved.theme) {
-        aceEditor.setTheme(saved.theme);
-        if (themeSelect) themeSelect.value = saved.theme;
+  // Important: defer to next tick to ensure module-level consts are initialized
+  setTimeout(() => {
+    try {
+      const saved = loadAceSettings();
+      if (aceEditor) {
+        if (saved.theme) {
+          aceEditor.setTheme(saved.theme);
+          if (themeSelect) themeSelect.value = saved.theme;
+        }
+        if (typeof saved.fontSize === "number") {
+          aceEditor.setFontSize(saved.fontSize);
+          if (fontSizeInput) fontSizeInput.value = String(saved.fontSize);
+        }
+        if (typeof saved.tabSize === "number") {
+          aceEditor.session.setTabSize(saved.tabSize);
+          if (tabSizeInput) tabSizeInput.value = String(saved.tabSize);
+        }
+        if (typeof saved.wrap === "boolean") {
+          aceEditor.session.setUseWrapMode(saved.wrap);
+          if (wrapCheckbox) wrapCheckbox.checked = saved.wrap;
+        }
+        if (typeof saved.showInvisibles === "boolean") {
+          aceEditor.setShowInvisibles(saved.showInvisibles);
+          if (invisiblesCheckbox)
+            invisiblesCheckbox.checked = saved.showInvisibles;
+        }
+        if (typeof saved.highlightActiveLine === "boolean") {
+          aceEditor.setHighlightActiveLine(saved.highlightActiveLine);
+          if (activeLineCheckbox)
+            activeLineCheckbox.checked = saved.highlightActiveLine;
+        }
+        if (typeof saved.showPrintMargin === "boolean") {
+          aceEditor.setShowPrintMargin(saved.showPrintMargin);
+          if (printMarginCheckbox)
+            printMarginCheckbox.checked = saved.showPrintMargin;
+        }
+        if (typeof saved.showGutter === "boolean") {
+          aceEditor.setOption("showGutter", saved.showGutter);
+          if (gutterCheckbox) gutterCheckbox.checked = saved.showGutter;
+        }
+        if (typeof saved.useSoftTabs === "boolean") {
+          aceEditor.session.setUseSoftTabs(saved.useSoftTabs);
+          if (softTabsCheckbox) softTabsCheckbox.checked = saved.useSoftTabs;
+        }
+        if (typeof saved.showFoldWidgets === "boolean") {
+          aceEditor.setShowFoldWidgets(saved.showFoldWidgets);
+          if (foldWidgetsCheckbox)
+            foldWidgetsCheckbox.checked = saved.showFoldWidgets;
+        }
+        if (saved.keybinding) {
+          if (saved.keybinding === "vim")
+            aceEditor.setKeyboardHandler("ace/keyboard/vim");
+          else if (saved.keybinding === "emacs")
+            aceEditor.setKeyboardHandler("ace/keyboard/emacs");
+          else aceEditor.setKeyboardHandler(null as any);
+          if (keybindingSelect) keybindingSelect.value = saved.keybinding;
+        }
       }
-      if (typeof saved.fontSize === "number") {
-        aceEditor.setFontSize(saved.fontSize);
-        if (fontSizeInput) fontSizeInput.value = String(saved.fontSize);
-      }
-      if (typeof saved.tabSize === "number") {
-        aceEditor.session.setTabSize(saved.tabSize);
-        if (tabSizeInput) tabSizeInput.value = String(saved.tabSize);
-      }
-      if (typeof saved.wrap === "boolean") {
-        aceEditor.session.setUseWrapMode(saved.wrap);
-        if (wrapCheckbox) wrapCheckbox.checked = saved.wrap;
-      }
-      if (typeof saved.showInvisibles === "boolean") {
-        aceEditor.setShowInvisibles(saved.showInvisibles);
-        if (invisiblesCheckbox)
-          invisiblesCheckbox.checked = saved.showInvisibles;
-      }
-      if (typeof saved.highlightActiveLine === "boolean") {
-        aceEditor.setHighlightActiveLine(saved.highlightActiveLine);
-        if (activeLineCheckbox)
-          activeLineCheckbox.checked = saved.highlightActiveLine;
-      }
-      if (typeof saved.showPrintMargin === "boolean") {
-        aceEditor.setShowPrintMargin(saved.showPrintMargin);
-        if (printMarginCheckbox)
-          printMarginCheckbox.checked = saved.showPrintMargin;
-      }
-      if (typeof saved.showGutter === "boolean") {
-        aceEditor.setOption("showGutter", saved.showGutter);
-        if (gutterCheckbox) gutterCheckbox.checked = saved.showGutter;
-      }
-      if (typeof saved.useSoftTabs === "boolean") {
-        aceEditor.session.setUseSoftTabs(saved.useSoftTabs);
-        if (softTabsCheckbox) softTabsCheckbox.checked = saved.useSoftTabs;
-      }
-      if (typeof saved.showFoldWidgets === "boolean") {
-        aceEditor.setShowFoldWidgets(saved.showFoldWidgets);
-        if (foldWidgetsCheckbox)
-          foldWidgetsCheckbox.checked = saved.showFoldWidgets;
-      }
-      if (saved.keybinding) {
-        if (saved.keybinding === "vim")
-          aceEditor.setKeyboardHandler("ace/keyboard/vim");
-        else if (saved.keybinding === "emacs")
-          aceEditor.setKeyboardHandler("ace/keyboard/emacs");
-        else aceEditor.setKeyboardHandler(null as any);
-        if (keybindingSelect) keybindingSelect.value = saved.keybinding;
-      }
-    }
-  } catch {}
+    } catch {}
+  }, 0);
 
   if (themeSelect)
     themeSelect.addEventListener("change", () => {
@@ -1571,8 +1577,128 @@ import "ace-builds/src-noconflict/keybinding-emacs";
   if (shortcutsBtn)
     shortcutsBtn.addEventListener("click", () => {
       if (!aceEditor) return;
-      aceEditor.execCommand("showKeyboardShortcuts");
+      try {
+        const kb = (ace as any).require("ace/ext/keybinding_menu");
+        if (kb && typeof kb.init === "function") {
+          kb.init(aceEditor);
+        }
+        aceEditor.execCommand("showKeyboardShortcuts");
+      } catch {}
     });
+
+  if (aceSaveBtn)
+    aceSaveBtn.addEventListener("click", () => {
+      const next: Partial<AceSettings> = {};
+      if (themeSelect && themeSelect.value) {
+        next.theme = themeSelect.value;
+        if (aceEditor) aceEditor.setTheme(themeSelect.value);
+      }
+      if (fontSizeInput && fontSizeInput.value) {
+        const v = Math.max(10, Math.min(24, parseInt(fontSizeInput.value, 10)));
+        next.fontSize = v;
+        if (aceEditor) aceEditor.setFontSize(v);
+      }
+      if (tabSizeInput && tabSizeInput.value) {
+        const v = Math.max(2, Math.min(8, parseInt(tabSizeInput.value, 10)));
+        next.tabSize = v;
+        if (aceEditor) aceEditor.session.setTabSize(v);
+      }
+      if (wrapCheckbox) {
+        next.wrap = !!wrapCheckbox.checked;
+        if (aceEditor) aceEditor.session.setUseWrapMode(!!wrapCheckbox.checked);
+      }
+      if (invisiblesCheckbox) {
+        next.showInvisibles = !!invisiblesCheckbox.checked;
+        if (aceEditor) aceEditor.setShowInvisibles(!!invisiblesCheckbox.checked);
+      }
+      if (activeLineCheckbox) {
+        next.highlightActiveLine = !!activeLineCheckbox.checked;
+        if (aceEditor)
+          aceEditor.setHighlightActiveLine(!!activeLineCheckbox.checked);
+      }
+      if (printMarginCheckbox) {
+        next.showPrintMargin = !!printMarginCheckbox.checked;
+        if (aceEditor)
+          aceEditor.setShowPrintMargin(!!printMarginCheckbox.checked);
+      }
+      if (gutterCheckbox) {
+        next.showGutter = !!gutterCheckbox.checked;
+        if (aceEditor) aceEditor.setOption("showGutter", !!gutterCheckbox.checked);
+      }
+      if (softTabsCheckbox) {
+        next.useSoftTabs = !!softTabsCheckbox.checked;
+        if (aceEditor) aceEditor.session.setUseSoftTabs(!!softTabsCheckbox.checked);
+      }
+      if (foldWidgetsCheckbox) {
+        next.showFoldWidgets = !!foldWidgetsCheckbox.checked;
+        if (aceEditor) aceEditor.setShowFoldWidgets(!!foldWidgetsCheckbox.checked);
+      }
+      if (keybindingSelect && keybindingSelect.value) {
+        const val = keybindingSelect.value;
+        next.keybinding = val;
+        if (aceEditor) {
+          if (val === "vim") aceEditor.setKeyboardHandler("ace/keyboard/vim");
+          else if (val === "emacs") aceEditor.setKeyboardHandler("ace/keyboard/emacs");
+          else aceEditor.setKeyboardHandler(null as any);
+        }
+      }
+      saveAceSettings(next);
+
+      if (settingsPanel && settingsToggle && settingsPanel.classList.contains("open")) {
+        settingsPanel.classList.remove("open");
+        settingsToggle.setAttribute("aria-expanded", "false");
+        settingsToggle.focus();
+      }
+
+      const prev = aceSaveBtn.textContent;
+      aceSaveBtn.textContent = "Сохранено";
+      setTimeout(() => {
+        aceSaveBtn.textContent = prev || "Сохранить";
+      }, 1200);
+    });
+
+  // Ace Settings panel toggle open/close and accessibility
+  if (settingsToggle && settingsPanel) {
+    const isOpen = () => settingsPanel.classList.contains("open");
+    const openPanel = () => {
+      settingsPanel.classList.add("open");
+      settingsToggle.setAttribute("aria-expanded", "true");
+      const firstFocusable = settingsPanel.querySelector(
+        'input, select, button, [href], [tabindex]:not([tabindex="-1"])'
+      ) as HTMLElement | null;
+      if (firstFocusable) firstFocusable.focus();
+    };
+    const closePanel = () => {
+      settingsPanel.classList.remove("open");
+      settingsToggle.setAttribute("aria-expanded", "false");
+    };
+
+    settingsToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (isOpen()) {
+        closePanel();
+      } else {
+        openPanel();
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!isOpen()) return;
+      const target = e.target as Node | null;
+      if (!target) return;
+      if (settingsPanel.contains(target) || settingsToggle.contains(target))
+        return;
+      closePanel();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen()) {
+        e.stopPropagation();
+        closePanel();
+        settingsToggle.focus();
+      }
+    });
+  }
 
   // Statusbar updates (line, col, lines, mode)
   function updateStatusBar() {

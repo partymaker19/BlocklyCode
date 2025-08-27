@@ -162,3 +162,137 @@ export function localizeImportUI(lang: AppLang) {
   // Store localized strings for use in other functions
   (window as any)._currentLocalizedStrings = t;
 }
+
+// Added: localize tooltips and aria-labels across the app
+export function localizeTooltips(lang: AppLang) {
+  const setAttrs = (
+    el: Element | null,
+    attrs: Record<string, string | undefined>
+  ) => {
+    if (!el) return;
+    Object.entries(attrs).forEach(([k, v]) => {
+      if (typeof v === 'string') el.setAttribute(k, v);
+    });
+  };
+
+  const t = {
+    en: {
+      appLang: 'Application language',
+      appTheme: 'Application theme',
+      genLang: 'Code generation language',
+      annotate: 'Annotation',
+      search: 'Search (Ctrl+F)',
+      replace: 'Replace (Ctrl+H)',
+      goto: 'Go to line (Ctrl+L)',
+      format: 'Format code',
+      copy: 'Copy code',
+      download: 'Download file',
+      shortcuts: 'Keyboard shortcuts',
+      settings: 'Settings',
+      settingsPanel: 'Editor settings',
+      keybinding: 'Keybinding mode',
+      aceTheme: 'Ace Theme',
+      editorRegion: 'Generated code',
+      close: 'Close',
+      annotTools: 'Annotation tools',
+      brush: 'Brush',
+      line: 'Line',
+      arrow: 'Arrow',
+      rect: 'Rectangle',
+      color: 'Color',
+      size: 'Thickness',
+      undo: 'Undo',
+      redo: 'Redo',
+      clear: 'Clear',
+    },
+    ru: {
+      appLang: 'Язык приложения',
+      appTheme: 'Тема приложения',
+      genLang: 'Язык генерации кода',
+      annotate: 'Аннотация',
+      search: 'Поиск (Ctrl+F)',
+      replace: 'Замена (Ctrl+H)',
+      goto: 'Перейти к строке (Ctrl+L)',
+      format: 'Форматировать код',
+      copy: 'Копировать код',
+      download: 'Скачать файл',
+      shortcuts: 'Сочетания клавиш',
+      settings: 'Настройки',
+      settingsPanel: 'Настройки редактора',
+      keybinding: 'Режим клавиш',
+      aceTheme: 'Тема Ace',
+      editorRegion: 'Сгенерированный код',
+      close: 'Закрыть',
+      annotTools: 'Инструменты аннотаций',
+      brush: 'Кисть',
+      line: 'Линия',
+      arrow: 'Стрелка',
+      rect: 'Прямоугольник',
+      color: 'Цвет',
+      size: 'Толщина',
+      undo: 'Отменить',
+      redo: 'Повторить',
+      clear: 'Очистить',
+    },
+  }[lang];
+
+  // Header tooltips
+  setAttrs(document.querySelector('.language-switch'), { title: t.appLang });
+  setAttrs(document.querySelector('.theme-switch'), { title: t.appTheme });
+  setAttrs(document.querySelector('.gen-lang-dropdown'), { title: t.genLang });
+
+  // Ace toolbar buttons
+  const byId = (id: string) => document.getElementById(id);
+  const setBtn = (id: string, text: string) => {
+    const el = byId(id);
+    setAttrs(el, { title: text, 'aria-label': text });
+  };
+
+  setBtn('aceSearchBtn', t.search);
+  setBtn('aceReplaceBtn', t.replace);
+  setBtn('aceGotoBtn', t.goto);
+  setBtn('aceFormatBtn', t.format);
+  setBtn('copyCodeBtn', t.copy);
+  setBtn('downloadCodeBtn', t.download);
+  setBtn('aceShortcutsBtn', t.shortcuts);
+  setBtn('aceSettingsToggle', t.settings);
+
+  setAttrs(byId('aceSettingsPanel'), { 'aria-label': t.settingsPanel });
+  setAttrs(byId('aceKeybinding'), { 'aria-label': t.keybinding });
+  setAttrs(byId('aceThemeSelect'), { 'aria-label': t.aceTheme });
+  setAttrs(byId('editor'), { 'aria-label': t.editorRegion });
+  setAttrs(byId('closeModal'), { 'aria-label': t.close });
+
+  // Annotation toolbar
+  setAttrs(byId('annotToolbar'), { 'aria-label': t.annotTools });
+  setAttrs(byId('annotateToggleBtn'), { title: t.annotate });
+  setAttrs(byId('annotBrush'), { title: t.brush });
+  setAttrs(byId('annotLine'), { title: t.line });
+  setAttrs(byId('annotArrow'), { title: t.arrow });
+  setAttrs(byId('annotRect'), { title: t.rect });
+  setAttrs(byId('annotColor'), { title: t.color });
+  setAttrs(byId('annotSize'), { title: t.size });
+  setAttrs(byId('annotUndo'), { title: t.undo });
+  setAttrs(byId('annotRedo'), { title: t.redo });
+  setAttrs(byId('annotClear'), { title: t.clear });
+}
+
+// Added: strings for Ace runtime UI (statusbar, toasts)
+export function getAceUIStrings(lang: AppLang) {
+  if (lang === 'en') {
+    return {
+      copySuccess: 'Copied',
+      save: 'Save',
+      saved: 'Saved',
+      statusLine: (mode: string, row: number, col: number, total: number) =>
+        `${mode}  |  Line ${row}, Column ${col}  |  Total: ${total}`,
+    } as const;
+  }
+  return {
+    copySuccess: 'Скопировано',
+    save: 'Сохранить',
+    saved: 'Сохранено',
+    statusLine: (mode: string, row: number, col: number, total: number) =>
+      `${mode}  |  Строка ${row}, Столбец ${col}  |  Всего: ${total}`,
+  } as const;
+}

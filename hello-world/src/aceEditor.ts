@@ -3,6 +3,7 @@ import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
 import type { SupportedLanguage } from "./codeExecution";
+import { getAppLang, getAceUIStrings } from "./localization";
 
 // Ace imports and configuration
 import ace from "ace-builds/src-noconflict/ace";
@@ -313,7 +314,8 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       const text = aceEditor.getValue();
       try {
         await navigator.clipboard.writeText(text);
-        copyBtn.textContent = "Скопировано";
+        const { copySuccess } = getAceUIStrings(getAppLang());
+        copyBtn.textContent = copySuccess;
         setTimeout(() => {
           copyBtn.textContent = "⧉";
         }, 1200);
@@ -435,9 +437,10 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       }
 
       const prev = aceSaveBtn.textContent;
-      aceSaveBtn.textContent = "Сохранено";
+      const ui = getAceUIStrings(getAppLang());
+      aceSaveBtn.textContent = ui.saved;
       setTimeout(() => {
-        aceSaveBtn.textContent = prev || "Сохранить";
+        aceSaveBtn.textContent = ui.save;
       }, 1200);
     });
 
@@ -492,7 +495,8 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     const col = pos.column + 1;
     const total = aceEditor.session.getLength();
     const mode = aceEditor.session.getMode()?.$id?.split("/").pop() || "";
-    statusBar.textContent = `${mode}  |  Строка ${row}, Столбец ${col}  |  Всего: ${total}`;
+    const { statusLine } = getAceUIStrings(getAppLang());
+    statusBar.textContent = statusLine(mode, row, col, total);
   }
   if (statusBar && aceEditor) {
     aceEditor.session.on("change", updateStatusBar);
@@ -526,5 +530,27 @@ export function updateAceEditorFromWorkspace(
     aceEditor.setValue(code || "", -1);
   } catch (e) {
     // ignore for now
+  }
+}
+
+export function refreshAceUILanguage() {
+  // Ensure the Ace settings save button text is localized to the current language
+  const aceSaveBtn = document.getElementById("aceSaveSettings") as HTMLButtonElement | null;
+  const ui = getAceUIStrings(getAppLang());
+  if (aceSaveBtn) {
+    aceSaveBtn.textContent = ui.save;
+  }
+  // Update statusbar text with the current language
+  const statusBar = document.getElementById("editorStatusbar") as HTMLDivElement | null;
+  if (aceEditor && statusBar) {
+    try {
+      const pos = aceEditor.getCursorPosition();
+      const row = pos.row + 1;
+      const col = pos.column + 1;
+      const total = aceEditor.session.getLength();
+      const mode = aceEditor.session.getMode()?.$id?.split("/").pop() || "";
+      const { statusLine } = getAceUIStrings(getAppLang());
+      statusBar.textContent = statusLine(mode, row, col, total);
+    } catch {}
   }
 }

@@ -25,6 +25,7 @@ import {
   localizedToolbox,
   localizeImportUI,
   getAppLang,
+  localizeTooltips,
 } from "./localization";
 import { runCode as runCodeExec } from "./codeExecution";
 import { setupAceEditor, updateAceEditorFromWorkspace } from "./aceEditor";
@@ -953,6 +954,7 @@ initThemeSwitchUI();
 
 // Инициализация UI локализации
 localizeImportUI(defaultLang);
+localizeTooltips(defaultLang);
 
 // Инициализация рабочей области при загрузке страницы
 refreshWorkspaceWithCustomToolbox();
@@ -970,6 +972,12 @@ if (langSwitchInput) {
     setAppLang(newLang);
     refreshWorkspaceWithCustomToolbox();
     localizeImportUI(newLang);
+    localizeTooltips(newLang);
+    // ensure Ace UI (statusbar, save button) reflects selected language
+    try {
+      const { refreshAceUILanguage } = require("./aceEditor");
+      if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
+    } catch {}
   });
 }
 
@@ -1264,3 +1272,9 @@ setupAnnotationUI();
 
 // Initialize external Ace Editor module
 setupAceEditor(() => selectedGeneratorLanguage);
+
+// After Ace is initialized, sync UI strings with current app language
+try {
+  const { refreshAceUILanguage } = require("./aceEditor");
+  if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
+} catch {}

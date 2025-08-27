@@ -66,9 +66,13 @@
 
     "blockly": "12.2.0",
 
+    "fengari": "^0.1.4",
+
     "konva": "^9.3.22",
 
-    "perfect-freehand": "^1.2.2"
+    "perfect-freehand": "^1.2.2",
+
+    "pyodide": "^0.28.2"
 
   }
 

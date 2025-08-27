@@ -38,6 +38,8 @@ const config = {
     // created above added in a script tag.
     new HtmlWebpackPlugin({
       template: 'src/index.html',
+      // Disable html-minifier-terser which currently fails on our complex template
+      minify: false,
     }),
     new CopyWebpackPlugin({
       patterns: [

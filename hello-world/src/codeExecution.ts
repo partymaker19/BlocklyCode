@@ -48,7 +48,6 @@ function executeJavaScriptCode(
   }
   
   try {
-    // Создаем IIFE для изоляции кода
     const executableCode = `(function() {\n${code}\n})();`;
     eval(executableCode);
   } catch (error) {
@@ -85,40 +84,57 @@ function showNonExecutableMessage(
 /**
  * Main function to run code generation and execution
  */
-export function runCode(
+export async function runCode(
   workspace: Blockly.WorkspaceSvg | null,
   language: SupportedLanguage,
   codeDisplayElement: ChildNode | null,
   outputElement: HTMLElement | null
-): void {
+): Promise<void> {
   if (!workspace) return;
   
   try {
     const code = generateCode(workspace, language);
     
-    // Update code display
     if (codeDisplayElement && codeDisplayElement.parentNode) {
       codeDisplayElement.textContent = code;
     }
     
-    // Clear output area
     if (outputElement) {
       outputElement.innerHTML = '';
     }
-    
-    // Execute or show info based on language
+
     if (language === 'javascript') {
       executeJavaScriptCode(code, outputElement);
-    } else {
-      showNonExecutableMessage(language, outputElement, code.trim().length > 0);
+    } else if (language === 'python') {
+      const py = await ensurePythonRuntime();
+      await py.runPython(code, outputElement);
+    } else if (language === 'lua') {
+      const lua = await ensureLuaRuntime();
+      await lua.runLua(code, outputElement);
     }
   } catch (error) {
     console.error('Code execution error:', error);
     if (outputElement) {
       const errorEl = document.createElement('p');
       errorEl.style.color = 'red';
-      errorEl.textContent = `Ошибка генерации кода: ${(error as any).message || error}`;
+      errorEl.textContent = `Ошибка генерации/выполнения: ${(error as any).message || error}`;
       outputElement.appendChild(errorEl);
     }
   }
+}
+
+// Lazy imports for runtimes
+let _pyRuntime: null | (typeof import('./pythonRuntime')) = null;
+let _luaRuntime: null | (typeof import('./luaRuntime')) = null;
+
+async function ensurePythonRuntime() {
+  if (_pyRuntime) return _pyRuntime;
+  _pyRuntime = await import('./pythonRuntime');
+  return _pyRuntime;
+}
+
+async function ensureLuaRuntime() {
+  if (_luaRuntime) return _luaRuntime;
+  _luaRuntime = await import('./luaRuntime');
+  return _luaRuntime;
 }

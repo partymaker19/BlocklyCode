@@ -340,15 +340,15 @@ function setGenLang(lang: "javascript" | "python" | "lua") {
   setGeneratorPlaceholder(currentLang);
   // Sync ACE editor and output
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-  runCodeExec(
-    ws,
-    selectedGeneratorLanguage,
-    null,
-    outputDiv as HTMLElement | null
-  );
+  (async () => {
+    await runCodeExec(
+      ws,
+      selectedGeneratorLanguage,
+      null,
+      outputDiv as HTMLElement | null
+    );
+  })();
 }
-
-// Функция для генерации и запуска кода выполняется через runCodeExec без локальной обертки
 
 if (genLangJsBtn)
   genLangJsBtn.addEventListener("click", () => setGenLang("javascript"));
@@ -568,22 +568,26 @@ function refreshWorkspaceWithCustomToolbox() {
       }
       // Keep ACE editor content in sync and re-run execution/output
       updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-      runCodeExec(
-        ws,
-        selectedGeneratorLanguage,
-        null,
-        outputDiv as HTMLElement | null
-      );
+      (async () => {
+        await runCodeExec(
+          ws,
+          selectedGeneratorLanguage,
+          null,
+          outputDiv as HTMLElement | null
+        );
+      })();
     });
   }
   // Initial sync after workspace init
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-  runCodeExec(
-    ws,
-    selectedGeneratorLanguage,
-    null,
-    outputDiv as HTMLElement | null
-  );
+  (async () => {
+    await runCodeExec(
+      ws,
+      selectedGeneratorLanguage,
+      null,
+      outputDiv as HTMLElement | null
+    );
+  })();
 }
 
 if (importBtn) {

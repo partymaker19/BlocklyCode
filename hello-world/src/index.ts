@@ -27,8 +27,8 @@ import {
   getAppLang,
   localizeTooltips,
 } from "./localization";
-import { runCode as runCodeExec } from "./codeExecution";
 import { setupAceEditor, updateAceEditorFromWorkspace } from "./aceEditor";
+import { clearOutput } from "./codeExecution";
 import Konva from "konva";
 // Import dark theme
 import DarkTheme from "@blockly/theme-dark";
@@ -338,16 +338,9 @@ function setGenLang(lang: "javascript" | "python" | "lua") {
   validateGeneratorUI();
   const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
-  // Sync ACE editor and output
+  // Sync ACE editor (без авто-выполнения)
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-  (async () => {
-    await runCodeExec(
-      ws,
-      selectedGeneratorLanguage,
-      null,
-      outputDiv as HTMLElement | null
-    );
-  })();
+
 }
 
 if (genLangJsBtn)
@@ -566,28 +559,20 @@ function refreshWorkspaceWithCustomToolbox() {
       ) {
         return;
       }
-      // Keep ACE editor content in sync and re-run execution/output
+      // Keep ACE editor content in sync (без авто-выполнения)
       updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-      (async () => {
-        await runCodeExec(
-          ws,
-          selectedGeneratorLanguage,
-          null,
-          outputDiv as HTMLElement | null
-        );
-      })();
+
+      // Если блок был удален, очищаем окно вывода
+      // Тип события удаления может называться 'BLOCK_DELETE' в текущих версиях Blockly
+      if ((e as any).type === (Blockly as any).Events?.BLOCK_DELETE || (e as any).type === 'block_delete') {
+        const out = document.getElementById('output') as HTMLElement | null;
+        clearOutput(out);
+      }
     });
   }
-  // Initial sync after workspace init
+  // Initial sync after workspace init (без авто-выполнения)
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-  (async () => {
-    await runCodeExec(
-      ws,
-      selectedGeneratorLanguage,
-      null,
-      outputDiv as HTMLElement | null
-    );
-  })();
+
 }
 
 if (importBtn) {

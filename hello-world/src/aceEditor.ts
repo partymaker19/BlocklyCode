@@ -150,6 +150,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
   const formatBtn = document.getElementById(
     "aceFormatBtn"
   ) as HTMLButtonElement | null;
+  const runBtn = document.getElementById("aceRunBtn") as HTMLButtonElement | null;
   const shortcutsBtn = document.getElementById(
     "aceShortcutsBtn"
   ) as HTMLButtonElement | null;
@@ -358,6 +359,19 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         beautify.beautify(aceEditor.session);
       } catch (e) {
         // silently ignore
+      }
+    });
+  if (runBtn)
+    runBtn.addEventListener("click", async () => {
+      if (!aceEditor) return;
+      const code = aceEditor.getValue();
+      const lang = getSelectedLanguage();
+      const output = document.getElementById("output") as HTMLElement | null;
+      try {
+        const mod = await import("./codeExecution");
+        await mod.runCodeString(lang, code, output);
+      } catch (e) {
+        console.error(e);
       }
     });
   if (shortcutsBtn)

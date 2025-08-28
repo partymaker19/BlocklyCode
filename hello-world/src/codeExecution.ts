@@ -42,14 +42,47 @@ function executeJavaScriptCode(
   outputElement: HTMLElement | null
 ): void {
   if (!code.trim()) return;
-  
+
   if (outputElement) {
     outputElement.innerHTML = '';
   }
-  
+
+  const appendLine = (text: string, color?: string) => {
+    if (!outputElement) return;
+    const p = document.createElement('p');
+    if (color) p.style.color = color;
+    p.textContent = text;
+    outputElement.appendChild(p);
+  };
+
+  // Preserve original console methods to restore later
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const originalError = console.error;
+
   try {
-    const executableCode = `(function() {\n${code}\n})();`;
-    eval(executableCode);
+    if (outputElement) {
+      console.log = (...args: any[]) => {
+        try { originalLog.apply(console, args); } catch {}
+        appendLine(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' '));
+      };
+      console.warn = (...args: any[]) => {
+        try { originalWarn.apply(console, args); } catch {}
+        appendLine(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' '), '#b58900');
+      };
+      console.error = (...args: any[]) => {
+        try { originalError.apply(console, args); } catch {}
+        appendLine(args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' '), 'red');
+      };
+    }
+
+    // Provide a print function to match Python/Lua UX
+    const jsPrint = (s: any) => appendLine(String(s ?? ''));
+
+    // Wrap code so it can access the print function
+    const wrapper = `(function(print){\n${code}\n})`;
+    const fn = eval(wrapper) as (print: (s: any) => void) => void;
+    fn(jsPrint);
   } catch (error) {
     console.error('Runtime error:', error);
     if (outputElement) {
@@ -58,6 +91,11 @@ function executeJavaScriptCode(
       errorEl.textContent = `Ошибка выполнения: ${(error as any).message || error}`;
       outputElement.appendChild(errorEl);
     }
+  } finally {
+    // Restore console methods
+    console.log = originalLog;
+    console.warn = originalWarn;
+    console.error = originalError;
   }
 }
 
@@ -123,6 +161,37 @@ export async function runCode(
   }
 }
 
+// Execute raw source code by language (used by Ace Run button)
+export async function runCodeString(
+  language: SupportedLanguage,
+  sourceCode: string,
+  outputElement: HTMLElement | null
+): Promise<void> {
+  try {
+    if (outputElement) outputElement.innerHTML = '';
+    const code = sourceCode || '';
+    if (!code.trim()) return;
+
+    if (language === 'javascript') {
+      executeJavaScriptCode(code, outputElement);
+    } else if (language === 'python') {
+      const py = await ensurePythonRuntime();
+      await py.runPython(code, outputElement);
+    } else if (language === 'lua') {
+      const lua = await ensureLuaRuntime();
+      await lua.runLua(code, outputElement);
+    }
+  } catch (error) {
+    console.error('Code execution error:', error);
+    if (outputElement) {
+      const errorEl = document.createElement('p');
+      errorEl.style.color = 'red';
+      errorEl.textContent = `Ошибка выполнения: ${(error as any).message || error}`;
+      outputElement.appendChild(errorEl);
+    }
+  }
+}
+
 // Lazy imports for runtimes
 let _pyRuntime: null | (typeof import('./pythonRuntime')) = null;
 let _luaRuntime: null | (typeof import('./luaRuntime')) = null;
@@ -137,4 +206,13 @@ async function ensureLuaRuntime() {
   if (_luaRuntime) return _luaRuntime;
   _luaRuntime = await import('./luaRuntime');
   return _luaRuntime;
+}
+
+/**
+ * Clears the output area
+ */
+export function clearOutput(outputElement: HTMLElement | null): void {
+  if (outputElement) {
+    outputElement.innerHTML = '';
+  }
 }

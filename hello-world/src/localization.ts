@@ -204,6 +204,7 @@ export function localizeTooltips(lang: AppLang) {
       undo: 'Undo',
       redo: 'Redo',
       clear: 'Clear',
+      run: 'Run code',
     },
     ru: {
       appLang: 'Язык приложения',
@@ -220,7 +221,7 @@ export function localizeTooltips(lang: AppLang) {
       settings: 'Настройки',
       settingsPanel: 'Настройки редактора',
       keybinding: 'Режим клавиш',
-      aceTheme: 'Тема Ace',
+      aceTheme: 'Ace Theme',
       editorRegion: 'Сгенерированный код',
       close: 'Закрыть',
       annotTools: 'Инструменты аннотаций',
@@ -233,6 +234,7 @@ export function localizeTooltips(lang: AppLang) {
       undo: 'Отменить',
       redo: 'Повторить',
       clear: 'Очистить',
+      run: 'Запустить код',
     },
   }[lang];
 
@@ -256,6 +258,7 @@ export function localizeTooltips(lang: AppLang) {
   setBtn('downloadCodeBtn', t.download);
   setBtn('aceShortcutsBtn', t.shortcuts);
   setBtn('aceSettingsToggle', t.settings);
+  setBtn('aceRunBtn', t.run);
 
   setAttrs(byId('aceSettingsPanel'), { 'aria-label': t.settingsPanel });
   setAttrs(byId('aceKeybinding'), { 'aria-label': t.keybinding });

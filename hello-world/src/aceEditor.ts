@@ -56,8 +56,158 @@ function saveAceSettings(settings: Partial<AceSettings>) {
   }
 }
 
+// Brace highlighting state
+let braceHighlightEnabled = false;
+let braceMarkerIds: number[] = [];
+// Отложенное содержимое для Ace до инициализации редактора
+let pendingAceInit: { code: string; mode: string } | null = null;
+
+function clearBraceMarkers() {
+  if (!aceEditor) return;
+  const session = aceEditor.session;
+  for (const id of braceMarkerIds) {
+    try { session.removeMarker(id); } catch {}
+  }
+  braceMarkerIds = [];
+}
+
+function updateBraceMarkers() {
+  if (!aceEditor) return;
+  clearBraceMarkers();
+  if (!braceHighlightEnabled) return;
+
+  const session = aceEditor.session;
+  const doc = session.getDocument();
+  const lines: string[] = doc.getAllLines();
+  const Range = (ace as any).require("ace/range").Range;
+
+  type Open = { row: number; col: number; depth: number };
+  const stack: Open[] = [];
+  let depth = 0;
+
+  let inBlockComment = false;
+  let inString: '"' | "'" | '`' | null = null;
+  let stringEscape = false;
+
+  for (let row = 0; row < lines.length; row++) {
+    const line = lines[row];
+    let inLineComment = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      const prev = i > 0 ? line[i - 1] : '';
+      const next = i + 1 < line.length ? line[i + 1] : '';
+
+      // Handle end of block comment
+      if (inBlockComment) {
+        if (prev === '*' && ch === '/' && i > 0) {
+          inBlockComment = false;
+        }
+        continue;
+      }
+
+      // Handle line comments //
+      if (!inString && !inLineComment && ch === '/' && next === '/') {
+        inLineComment = true; // rest of line ignored
+        break;
+      }
+      // Handle start of block comment /* */
+      if (!inString && ch === '/' && next === '*') {
+        inBlockComment = true;
+        i++; // skip '*'
+        continue;
+      }
+
+      // Handle strings ' " ` with escapes
+      if (inString) {
+        if (stringEscape) {
+          stringEscape = false;
+          continue;
+        }
+        if (ch === '\\') {
+          stringEscape = true;
+          continue;
+        }
+        if (ch === inString) {
+          inString = null;
+        }
+        continue;
+      } else {
+        if (ch === '"' || ch === '\'' || ch === '`') {
+          inString = ch as any;
+          stringEscape = false;
+          continue;
+        }
+      }
+
+      if (ch === '{') {
+        depth += 1;
+        stack.push({ row, col: i, depth });
+        // Добавляем маркер для самой открывающей скобки
+        const level = ((depth - 1) % 6) + 1; // 1..6
+        const openRange = new Range(row, i, row, i + 1);
+        try {
+          const idOpen = session.addMarker(openRange, `brace-level-${level}`, 'text', true);
+          braceMarkerIds.push(idOpen);
+        } catch {}
+      } else if (ch === '}') {
+        const open = stack.pop();
+        const level = open ? (((open.depth - 1) % 6) + 1) : (((depth - 1) % 6) + 1);
+        // Добавляем маркер для закрывающей скобки
+        const closeRange = new Range(row, i, row, i + 1);
+        try {
+          const idClose = session.addMarker(closeRange, `brace-level-${level}`, 'text', true);
+          braceMarkerIds.push(idClose);
+        } catch {}
+        if (depth > 0) depth -= 1;
+      }
+    }
+  }
+}
+
 export function getAceEditor() {
   return aceEditor;
+}
+
+// Синхронизация ACE редактора с текущей рабочей областью Blockly
+export function updateAceEditorFromWorkspace(
+  workspace: Blockly.Workspace | Blockly.WorkspaceSvg,
+  lang: SupportedLanguage
+) {
+  // Определяем генератор и режим подсветки
+  let code = "";
+  let mode = "ace/mode/javascript";
+  try {
+    if (lang === "python") {
+      code = pythonGenerator.workspaceToCode(workspace);
+      mode = "ace/mode/python";
+    } else if (lang === "lua") {
+      code = luaGenerator.workspaceToCode(workspace);
+      mode = "ace/mode/lua";
+    } else {
+      code = javascriptGenerator.workspaceToCode(workspace);
+      mode = "ace/mode/javascript";
+    }
+  } catch (e) {
+    // На случай ошибок генерации — не прерываем выполнение
+    code = "" + (code || "");
+  }
+
+  // Если редактор ещё не инициализирован — запомним и применим позже
+  if (!aceEditor) {
+    pendingAceInit = { code, mode };
+    return;
+  }
+
+  // Применяем режим и содержимое, избегая лишних обновлений
+  try {
+    const session = aceEditor.session;
+    if (session) session.setMode(mode);
+    const current = aceEditor.getValue?.() ?? "";
+    if (current !== code) {
+      // -1 чтобы не прыгал курсор к концу
+      aceEditor.setValue(code, -1);
+    }
+  } catch {}
 }
 
 export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
@@ -168,6 +318,11 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
   const statusBar = document.getElementById(
     "editorStatusbar"
   ) as HTMLDivElement | null;
+
+  // Also resolve braces button
+  const bracesBtn = document.getElementById(
+    "aceBracesBtn"
+  ) as HTMLButtonElement | null;
 
   // Apply saved Ace settings on init (deferred)
   setTimeout(() => {
@@ -458,6 +613,15 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       }, 1200);
     });
 
+  // Brace highlighting toggle
+  if (bracesBtn)
+    bracesBtn.addEventListener("click", () => {
+      braceHighlightEnabled = !braceHighlightEnabled;
+      bracesBtn.classList.toggle("active", braceHighlightEnabled);
+      bracesBtn.setAttribute("aria-pressed", String(braceHighlightEnabled));
+      updateBraceMarkers();
+    });
+
   // Settings panel toggle and accessibility
   if (settingsToggle && settingsPanel) {
     const isOpen = () => settingsPanel.classList.contains("open");
@@ -517,54 +681,43 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     aceEditor.selection.on("changeCursor", updateStatusBar);
     updateStatusBar();
   }
-}
 
-export function updateAceEditorFromWorkspace(
-  ws: Blockly.WorkspaceSvg | null,
-  selectedLanguage: SupportedLanguage
-) {
-  if (!aceEditor || !ws) return;
-  try {
-    let code = "";
-    switch (selectedLanguage) {
-      case "python":
-        code = pythonGenerator.workspaceToCode(ws);
-        aceEditor.session.setMode("ace/mode/python");
-        break;
-      case "lua":
-        code = luaGenerator.workspaceToCode(ws);
-        aceEditor.session.setMode("ace/mode/lua");
-        break;
-      case "javascript":
-      default:
-        code = javascriptGenerator.workspaceToCode(ws);
-        aceEditor.session.setMode("ace/mode/javascript");
-        break;
-    }
-    aceEditor.setValue(code || "", -1);
-  } catch (e) {
-    // ignore for now
+  // Update brace markers on content changes if enabled
+  if (aceEditor) {
+    aceEditor.session.on("change", () => {
+      if (braceHighlightEnabled) updateBraceMarkers();
+    });
+    // Also update on mode change or fold changes that might reflow rendering
+    aceEditor.on("changeMode", () => {
+      if (braceHighlightEnabled) updateBraceMarkers();
+    });
+  }
+  // Применяем отложенное содержимое, если было рассчитано до инициализации ACE
+  if (aceEditor && pendingAceInit) {
+    try {
+      aceEditor.session.setMode(pendingAceInit.mode);
+      aceEditor.setValue(pendingAceInit.code, -1);
+    } catch {}
+    pendingAceInit = null;
   }
 }
 
 export function refreshAceUILanguage() {
-  // Ensure the Ace settings save button text is localized to the current language
-  const aceSaveBtn = document.getElementById("aceSaveSettings") as HTMLButtonElement | null;
-  const ui = getAceUIStrings(getAppLang());
-  if (aceSaveBtn) {
-    aceSaveBtn.textContent = ui.save;
-  }
-  // Update statusbar text with the current language
-  const statusBar = document.getElementById("editorStatusbar") as HTMLDivElement | null;
-  if (aceEditor && statusBar) {
-    try {
+  try {
+    const ui = getAceUIStrings(getAppLang());
+    // Обновить текст кнопки сохранения настроек
+    const saveBtn = document.getElementById("aceSaveSettings") as HTMLButtonElement | null;
+    if (saveBtn) saveBtn.textContent = ui.save;
+
+    // Обновить статус-бар редактора
+    const statusBar = document.getElementById("editorStatusbar") as HTMLDivElement | null;
+    if (statusBar && aceEditor) {
       const pos = aceEditor.getCursorPosition();
       const row = pos.row + 1;
       const col = pos.column + 1;
       const total = aceEditor.session.getLength();
       const mode = aceEditor.session.getMode()?.$id?.split("/").pop() || "";
-      const { statusLine } = getAceUIStrings(getAppLang());
-      statusBar.textContent = statusLine(mode, row, col, total);
-    } catch {}
-  }
+      statusBar.textContent = ui.statusLine(mode, row, col, total);
+    }
+  } catch {}
 }

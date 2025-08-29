@@ -6,3 +6,20 @@ html[data-theme='dark'] .annot-toolbar { background: rgba(26, 32, 44, 0.95); bor
 .annot-toolbar button:hover, .annot-toolbar button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: #667eea; }
 .icon-button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #cbd5e0; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); color: #2d3748; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; }
 .icon-button:hover, .icon-button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: #667eea; }
+
+/* Brace level colors for Ace markers */
+/* Base (light) theme) */
+.ace_editor .ace_marker-layer .brace-level-1, .ace_editor .ace_text-layer .brace-level-1 { position: absolute; background: rgba(66, 153, 225, 0.50); border-radius: 3px; box-shadow: 0 0 0 1px rgba(66,153,225,0.55) inset; pointer-events: none; }
+.ace_editor .ace_marker-layer .brace-level-2, .ace_editor .ace_text-layer .brace-level-2 { position: absolute; background: rgba(56, 161, 105, 0.50); border-radius: 3px; box-shadow: 0 0 0 1px rgba(56,161,105,0.55) inset; pointer-events: none; }
+.ace_editor .ace_marker-layer .brace-level-3, .ace_editor .ace_text-layer .brace-level-3 { position: absolute; background: rgba(237, 137, 54, 0.50); border-radius: 3px; box-shadow: 0 0 0 1px rgba(237,137,54,0.55) inset; pointer-events: none; }
+.ace_editor .ace_marker-layer .brace-level-4, .ace_editor .ace_text-layer .brace-level-4 { position: absolute; background: rgba(236, 201, 75, 0.50); border-radius: 3px; box-shadow: 0 0 0 1px rgba(236,201,75,0.55) inset; pointer-events: none; }
+.ace_editor .ace_marker-layer .brace-level-5, .ace_editor .ace_text-layer .brace-level-5 { position: absolute; background: rgba(213, 63, 140, 0.50); border-radius: 3px; box-shadow: 0 0 0 1px rgba(213,63,140,0.55) inset; pointer-events: none; }
+.ace_editor .ace_marker-layer .brace-level-6, .ace_editor .ace_text-layer .brace-level-6 { position: absolute; background: rgba(159, 122, 234, 0.50); border-radius: 3px; box-shadow: 0 0 0 1px rgba(159,122,234,0.55) inset; pointer-events: none; }
+
+/* Dark theme: much stronger contrast for Monokai and similar */
+html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-1, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-1 { background: rgba(66, 153, 225, 0.82); box-shadow: 0 0 0 1px rgba(66,153,225,0.95) inset, 0 0 4px rgba(66,153,225,0.35); }
+html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-2, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-2 { background: rgba(56, 161, 105, 0.82); box-shadow: 0 0 0 1px rgba(56,161,105,0.95) inset, 0 0 4px rgba(56,161,105,0.35); }
+html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-3, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-3 { background: rgba(237, 137, 54, 0.82); box-shadow: 0 0 0 1px rgba(237,137,54,0.95) inset, 0 0 4px rgba(237,137,54,0.35); }
+html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-4, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-4 { background: rgba(236, 201, 75, 0.82); box-shadow: 0 0 0 1px rgba(236,201,75,0.95) inset, 0 0 4px rgba(236,201,75,0.35); }
+html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-5, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-5 { background: rgba(213, 63, 140, 0.82); box-shadow: 0 0 0 1px rgba(213,63,140,0.95) inset, 0 0 4px rgba(213,63,140,0.35); }
+html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-6, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-6 { background: rgba(159, 122, 234, 0.82); box-shadow: 0 0 0 1px rgba(159,122,234,0.95) inset, 0 0 4px rgba(159,122,234,0.35); }

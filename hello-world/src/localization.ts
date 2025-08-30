@@ -82,6 +82,7 @@ export function localizeImportUI(lang: AppLang) {
       PresetLet: 'let variable', 
       PresetConst: 'constant',
       PresetReturn: 'return value',
+      PresetNotice: 'Choose a preset to start faster',
       JsonPlaceholder: `Example:
 {
   "type": "my_custom_block",
@@ -98,7 +99,11 @@ export function localizeImportUI(lang: AppLang) {
   "tooltip": "My custom block",
   "helpUrl": ""
 }`,
-      GeneratorValid: '✓ Generator is valid'
+      GeneratorValid: '✓ Generator is valid',
+      GeneratorErrorPrefix: 'Error:',
+      FixJsGenerator: 'Please fix errors in the JavaScript generator before creating',
+      ImportedBlock: 'Imported block:',
+      ImportErrorPrefix: 'Import error:'
     },
     ru: { 
       ImportBlocks: 'Создать блок', 
@@ -112,6 +117,7 @@ export function localizeImportUI(lang: AppLang) {
       PresetLet: 'let переменная', 
       PresetConst: 'константа',
       PresetReturn: 'return значение',
+      PresetNotice: 'Выберите пресет, чтобы начать быстрее',
       JsonPlaceholder: `Пример:
 {
   "type": "my_custom_block",
@@ -128,7 +134,11 @@ export function localizeImportUI(lang: AppLang) {
   "tooltip": "Мой кастомный блок",
   "helpUrl": ""
 }`,
-      GeneratorValid: '✓ Генератор корректен'
+      GeneratorValid: '✓ Генератор корректен',
+      GeneratorErrorPrefix: 'Ошибка:',
+      FixJsGenerator: 'Исправьте ошибки в генераторе JavaScript перед созданием',
+      ImportedBlock: 'Импортирован блок:',
+      ImportErrorPrefix: 'Ошибка импорта:'
     },
   }[lang as AppLang];
 
@@ -138,6 +148,7 @@ export function localizeImportUI(lang: AppLang) {
   const generatorLabel = document.getElementById('generatorLabel');
   const importInfo = document.getElementById('importInfo');
   const presetsLabelEl = document.getElementById('presetsLabel');
+  const presetNoticeEl = document.getElementById('presetNotice');
   const presetLetBtn = document.getElementById('presetLet') as HTMLButtonElement | null;
   const presetConstBtn = document.getElementById('presetConst') as HTMLButtonElement | null;
   const presetReturnBtn = document.getElementById('presetReturn') as HTMLButtonElement | null;
@@ -149,15 +160,16 @@ export function localizeImportUI(lang: AppLang) {
   if (generatorLabel) generatorLabel.textContent = t.GeneratorLabel;
   if (importInfo) importInfo.textContent = t.ImportInfo;
   if (blockJsonTextarea) blockJsonTextarea.placeholder = t.JsonPlaceholder;
-  
+  if (presetsLabelEl) presetsLabelEl.textContent = t.PresetsLabel;
+  if (presetNoticeEl) presetNoticeEl.textContent = t.PresetNotice;
+  if (presetLetBtn) presetLetBtn.textContent = t.PresetLet;
+  if (presetConstBtn) presetConstBtn.textContent = t.PresetConst;
+  if (presetReturnBtn) presetReturnBtn.textContent = t.PresetReturn;
+
   const cancelBtn = document.getElementById('cancelImport');
   const confirmBtn = document.getElementById('confirmImport');
   if (cancelBtn) (cancelBtn as HTMLButtonElement).textContent = t.Cancel;
   if (confirmBtn) (confirmBtn as HTMLButtonElement).textContent = t.Import;
-  if (presetsLabelEl) presetsLabelEl.textContent = t.PresetsLabel;
-  if (presetLetBtn) presetLetBtn.textContent = t.PresetLet;
-  if (presetConstBtn) presetConstBtn.textContent = t.PresetConst;
-  if (presetReturnBtn) presetReturnBtn.textContent = t.PresetReturn;
 
   // Store localized strings for use in other functions
   (window as any)._currentLocalizedStrings = t;

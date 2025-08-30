@@ -1145,7 +1145,7 @@
         <span id="closeModal" class="close-button" aria-label="Close">&times;</span>
       </div>
       <div class="modal-body">
-        <div class="import-info">
+        <div id="importInfo" class="import-info">
           Вставьте JSON-описание блока и код генератора для выбранного языка.
         </div>
         <div class="generator-language-selector" id="generatorLangTabs">
@@ -1153,6 +1153,7 @@
           <button id="genLangPy" class="lang-tab">Python</button>
           <button id="genLangLua" class="lang-tab">Lua</button>
         </div>
+        <div id="presetsLabel" class="presets-label"></div>
         <div class="presets-container">
           <button id="presetLet" class="btn-preset">let x = 42</button>
           <button id="presetConst" class="btn-preset">const str = 'hello'</button>
@@ -1160,11 +1161,11 @@
         </div>
         <div id="presetNotice" class="notice">Выберите пресет, чтобы начать быстрее</div>
         <div class="form-group">
-          <label for="blockJson">JSON описания блока</label>
+          <label id="jsonLabel" for="blockJson">JSON описания блока</label>
           <textarea id="blockJson" placeholder="{\n  \" type\": \"example\",\n ...\n}"></textarea>
         </div>
         <div class="form-group">
-          <label for="blockGenerator">Код генератора</label>
+          <label id="generatorLabel" for="blockGenerator">Код генератора</label>
           <textarea id="blockGenerator" placeholder="function(block) {\n  // ...\n}"></textarea>
         </div>
         <div id="generatorError" class="validation-error" style="display:none"></div>

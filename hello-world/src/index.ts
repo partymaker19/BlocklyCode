@@ -302,8 +302,9 @@ function validateGeneratorUI() {
         error && (error as any).message
           ? (error as any).message
           : String(error);
+      const t = (window as any)._currentLocalizedStrings;
       generatorErrorEl.style.display = "block";
-      generatorErrorEl.textContent = `Ошибка: ${msg}`;
+      generatorErrorEl.textContent = `${t?.GeneratorErrorPrefix || 'Ошибка:'} ${msg}`;
       generatorOkEl.style.display = "none";
     }
   } else {
@@ -592,12 +593,13 @@ if (confirmImportBtn) {
     if (!blockJsonTextarea) return;
     const json = blockJsonTextarea.value;
     const gen = blockGeneratorTextarea?.value?.trim() || undefined;
+    const t = (window as any)._currentLocalizedStrings;
     if (
       selectedGeneratorLanguage === "javascript" &&
       generatorErrorEl &&
       generatorErrorEl.style.display !== "none"
     ) {
-      alert("Исправьте ошибки в генераторе JavaScript перед импортом");
+      alert(t?.FixJsGenerator || "Исправьте ошибки в генераторе JavaScript перед импортом");
       return;
     }
     const { success, error, blockType } = importBlockFromJson(
@@ -611,11 +613,11 @@ if (confirmImportBtn) {
       closeImportModal();
       if (outputDiv) {
         const p = document.createElement("p");
-        p.textContent = `Импортирован блок: ${blockType}`;
+        p.textContent = `${t?.ImportedBlock || 'Импортирован блок:'} ${blockType}`;
         outputDiv.appendChild(p);
       }
     } else {
-      alert("Ошибка импорта: " + error);
+      alert(`${t?.ImportErrorPrefix || 'Ошибка импорта:'} ` + error);
     }
   });
 }

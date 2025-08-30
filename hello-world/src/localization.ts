@@ -205,6 +205,7 @@ export function localizeTooltips(lang: AppLang) {
       redo: 'Redo',
       clear: 'Clear',
       run: 'Run code',
+      braces: 'Highlight curly braces',
     },
     ru: {
       appLang: 'Язык приложения',
@@ -235,6 +236,7 @@ export function localizeTooltips(lang: AppLang) {
       redo: 'Повторить',
       clear: 'Очистить',
       run: 'Запустить код',
+      braces: 'Подсветка фигурных скобок',
     },
   }[lang];
 
@@ -254,6 +256,7 @@ export function localizeTooltips(lang: AppLang) {
   setBtn('aceReplaceBtn', t.replace);
   setBtn('aceGotoBtn', t.goto);
   setBtn('aceFormatBtn', t.format);
+  setBtn('aceBracesBtn', t.braces);
   setBtn('copyCodeBtn', t.copy);
   setBtn('downloadCodeBtn', t.download);
   setBtn('aceShortcutsBtn', t.shortcuts);

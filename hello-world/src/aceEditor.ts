@@ -13,6 +13,9 @@ import "ace-builds/src-noconflict/ext-beautify";
 import "ace-builds/src-noconflict/ext-keybinding_menu";
 import "ace-builds/src-noconflict/keybinding-vim";
 import "ace-builds/src-noconflict/keybinding-emacs";
+import "ace-builds/src-noconflict/snippets/javascript";
+import "ace-builds/src-noconflict/snippets/python";
+import "ace-builds/src-noconflict/snippets/lua";
 
 (ace as any).config.set("basePath", "/ace");
 (ace as any).config.set("modePath", "/ace");
@@ -250,6 +253,83 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     });
     aceEditor.setShowFoldWidgets(true);
     aceEditor.setShowInvisibles(false);
+
+    // Register popular snippets and custom completers
+    try {
+      const langTools = (ace as any).require("ace/ext/language_tools");
+      const snippetManager = (ace as any).require("ace/snippets").snippetManager;
+
+      // Helper to register snippet objects for a language
+      const registerSnippets = (lang: string, snippets: Array<{ name: string; tabTrigger: string; content: string }>) => {
+        const list = snippets.map(s => ({
+          content: s.content,
+          name: s.name,
+          tabTrigger: s.tabTrigger,
+          scope: lang,
+        }));
+        snippetManager.register(list, lang);
+      };
+
+      // JavaScript snippets (including console.log)
+      registerSnippets("javascript", [
+        { name: "console.log", tabTrigger: "clg", content: "console.log(${1});" },
+        { name: "console.error", tabTrigger: "cle", content: "console.error(${1});" },
+        { name: "console.warn", tabTrigger: "clw", content: "console.warn(${1});" },
+        { name: "function", tabTrigger: "fn", content: "function ${1:name}(${2:args}) {\n\t${3}// body\n}" },
+        { name: "arrow function", tabTrigger: "afn", content: "const ${1:name} = (${2:args}) => {\n\t${3}// body\n};" },
+        { name: "for index", tabTrigger: "fori", content: "for (let ${1:i} = 0; ${1} < ${2:arr}.length; ${1}++) {\n\t${3}// body\n}" },
+        { name: "try/catch", tabTrigger: "tryc", content: "try {\n\t${1}// body\n} catch (${2:e}) {\n\tconsole.error(${2});\n}" },
+        { name: "import", tabTrigger: "imp", content: "import ${1:what} from '${2:module}';" },
+        { name: "export default", tabTrigger: "expd", content: "export default ${1:name};" },
+      ]);
+
+      // Python snippets
+      registerSnippets("python", [
+        { name: "print", tabTrigger: "pr", content: "print(${1})" },
+        { name: "def", tabTrigger: "def", content: "def ${1:name}(${2:args}):\n\t${3:pass}" },
+        { name: "for range", tabTrigger: "forr", content: "for ${1:i} in range(${2:n}):\n\t${3:pass}" },
+        { name: "if __name__ == '__main__'", tabTrigger: "ifmain", content: "if __name__ == '__main__':\n\t${1}" },
+        { name: "with", tabTrigger: "with", content: "with ${1:expr} as ${2:var}:\n\t${3:pass}" },
+        { name: "class", tabTrigger: "class", content: "class ${1:Name}:\n\tdef __init__(self, ${2:args}):\n\t\t${3:pass}" },
+        { name: "try/except", tabTrigger: "trye", content: "try:\n\t${1:pass}\nexcept ${2:Exception} as ${3:e}:\n\tprint(${3})" },
+      ]);
+
+      // Lua snippets
+      registerSnippets("lua", [
+        { name: "print", tabTrigger: "pr", content: "print(${1})" },
+        { name: "function", tabTrigger: "fn", content: "function ${1:name}(${2:args})\n\t${3} \nend" },
+        { name: "for i", tabTrigger: "fori", content: "for ${1:i}=1, ${2:n} do\n\t${3}\nend" },
+        { name: "pairs", tabTrigger: "pairs", content: "for ${1:k}, ${2:v} in pairs(${3:t}) do\n\t${4}\nend" },
+        { name: "ipairs", tabTrigger: "ipairs", content: "for ${1:i}, ${2:v} in ipairs(${3:t}) do\n\t${4}\nend" },
+        { name: "local", tabTrigger: "loc", content: "local ${1:name} = ${2:value}" },
+      ]);
+
+      // Custom completer for JavaScript console.* helpers
+      const consoleCompleter = {
+        getCompletions(editor: any, session: any, pos: any, prefix: string, cb: Function) {
+          const id = session.getMode()?.$id || "";
+          if (!/javascript$/.test(id)) return cb(null, []);
+          const items = [
+            { caption: "console.log()", snippet: "console.log(${1});", meta: "console", score: 10000 },
+            { caption: "console.error()", snippet: "console.error(${1});", meta: "console", score: 9999 },
+            { caption: "console.warn()", snippet: "console.warn(${1});", meta: "console", score: 9998 },
+            { caption: "console.table()", snippet: "console.table(${1});", meta: "console", score: 9997 },
+          ];
+          cb(null, items);
+        },
+        insertMatch(editor: any, data: any) {
+          const sm = (ace as any).require("ace/snippets").snippetManager;
+          sm.insertSnippet(editor, data.snippet);
+        },
+      } as any;
+
+      // Ensure our completer is active in addition to defaults
+      if (langTools && typeof langTools.addCompleter === "function") {
+        langTools.addCompleter(consoleCompleter);
+      }
+    } catch {
+      // non-fatal if snippets/completer cannot be registered
+    }
   }
 
   const currentTheme = document.documentElement.getAttribute("data-theme");

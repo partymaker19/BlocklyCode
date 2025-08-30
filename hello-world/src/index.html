@@ -1078,7 +1078,7 @@
                 <button id="aceSettingsToggle" class="icon-btn" aria-expanded="false" aria-controls="aceSettingsPanel" title="Настройки" aria-label="Настройки">⚙</button>
                 <div id="aceSettingsPanel" class="dropdown-panel" role="dialog" aria-label="Настройки редактора">
                   <div class="panel-section">
-                    <label style="display:flex; gap:8px; align-items:center;">Тема
+                    <label style="display:flex; gap:8px; align-items:center;"><span id="aceThemeLabel">Тема</span>
                       <select id="aceThemeSelect" aria-label="Ace Theme">
                         <option value="ace/theme/chrome">Светлая</option>
                         <option value="ace/theme/monokai">Монокаи</option>
@@ -1100,22 +1100,22 @@
                     </label>
                   </div>
                   <div class="panel-row">
-                    <label>Шрифт <input type="number" id="aceFontSize" min="10" max="24" step="1" value="13" /></label>
-                    <label>Табуляция <input type="number" id="aceTabSize" min="2" max="8" step="1" value="2" /></label>
+                    <label><span id="aceFontSizeLabel">Шрифт</span> <input type="number" id="aceFontSize" min="10" max="24" step="1" value="13" /></label>
+                    <label><span id="aceTabSizeLabel">Табуляция</span> <input type="number" id="aceTabSize" min="2" max="8" step="1" value="2" /></label>
                   </div>
                   <div class="panel-row">
-                    <label><input type="checkbox" id="aceWrap" checked /> Перенос строк</label>
-                    <label><input type="checkbox" id="aceInvisibles" /> Непечатаемые</label>
-                    <label><input type="checkbox" id="aceActiveLine" checked /> Подсветка строки</label>
+                    <label><input type="checkbox" id="aceWrap" checked /> <span id="aceWrapLabel">Перенос строк</span></label>
+                    <label><input type="checkbox" id="aceInvisibles" /> <span id="aceInvisiblesLabel">Непечатаемые</span></label>
+                    <label><input type="checkbox" id="aceActiveLine" checked /> <span id="aceActiveLineLabel">Подсветка строки</span></label>
                   </div>
                   <div class="panel-row">
-                    <label><input type="checkbox" id="acePrintMargin" /> Поле печати</label>
-                    <label><input type="checkbox" id="aceGutter" checked /> Нумерация строк</label>
-                    <label><input type="checkbox" id="aceSoftTabs" checked /> Пробелы вместо табов</label>
+                    <label><input type="checkbox" id="acePrintMargin" /> <span id="acePrintMarginLabel">Поле печати</span></label>
+                    <label><input type="checkbox" id="aceGutter" checked /> <span id="aceGutterLabel">Нумерация строк</span></label>
+                    <label><input type="checkbox" id="aceSoftTabs" checked /> <span id="aceSoftTabsLabel">Пробелы вместо табов</span></label>
                   </div>
                   <div class="panel-row">
-                    <label><input type="checkbox" id="aceFoldWidgets" checked /> Сворачивание кода</label>
-                    <label>Клавиши
+                    <label><input type="checkbox" id="aceFoldWidgets" checked /> <span id="aceFoldWidgetsLabel">Сворачивание кода</span></label>
+                    <label><span id="aceKeybindingLabel">Клавиши</span>
                       <select id="aceKeybinding" aria-label="Режим клавиш">
                         <option value="default">По умолчанию</option>
                         <option value="vim">Vim</option>

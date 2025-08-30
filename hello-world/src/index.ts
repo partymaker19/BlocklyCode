@@ -26,6 +26,7 @@ import {
   localizeImportUI,
   getAppLang,
   localizeTooltips,
+  localizeAceSettingsPanel,
 } from "./localization";
 import { setupAceEditor, updateAceEditorFromWorkspace } from "./aceEditor";
 import { clearOutput } from "./codeExecution";
@@ -47,6 +48,8 @@ const defaultLang = getAppLang();
 
 // Инициализируем язык до создания рабочей области
 setAppLang(defaultLang);
+// Локализуем статические подписи окна настроек Ace при старте
+localizeAceSettingsPanel(defaultLang);
 
 // Объявляем флаг регистрации контекстного меню до первого вызова
 let customBlockContextRegistered = false;
@@ -57,7 +60,7 @@ Blockly.common.defineBlocks(blocks);
 Object.assign(javascriptGenerator.forBlock, forBlock);
 Object.assign(pythonGenerator.forBlock, forBlockPython);
 Object.assign(luaGenerator.forBlock, forBlockLua);
-// Регистрируем пользовательские блоки и контекстное меню удаления
+// Регистрием пользовательские блоки и контекстное меню удаления
 registerCustomBlocks();
 setupCustomBlockContextMenu();
 
@@ -959,14 +962,16 @@ if (langSwitchInput) {
   langSwitchInput.addEventListener("change", () => {
     const newLang = langSwitchInput.checked ? "en" : "ru";
     setAppLang(newLang);
+    // Обновляем рабочую область с локализованным тулбоксом
     refreshWorkspaceWithCustomToolbox();
+    // Локализуем импорт-модалку
     localizeImportUI(newLang);
+    // Локализуем тултипы и окно настроек Ace
     localizeTooltips(newLang);
-    // ensure Ace UI (statusbar, save button) reflects selected language
-    try {
-      const { refreshAceUILanguage } = require("./aceEditor");
-      if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
-    } catch {}
+    localizeAceSettingsPanel(newLang);
+    // ACE специфичные строки (кнопка Save, статусбар)
+    const { refreshAceUILanguage } = require("./aceEditor");
+    if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
   });
 }
 

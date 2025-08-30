@@ -283,6 +283,77 @@ export function localizeTooltips(lang: AppLang) {
   setAttrs(byId('annotClear'), { title: t.clear });
 }
 
+// Added: localize labels and options inside Ace Settings panel
+export function localizeAceSettingsPanel(lang: AppLang) {
+  const t = {
+    en: {
+      theme: 'Theme',
+      themeLight: 'Light',
+      themeMonokai: 'Monokai',
+      fontSize: 'Font size',
+      tabSize: 'Tab size',
+      wrap: 'Word wrap',
+      invisibles: 'Invisible characters',
+      activeLine: 'Highlight active line',
+      printMargin: 'Print margin',
+      gutter: 'Line numbers',
+      softTabs: 'Soft tabs',
+      foldWidgets: 'Code folding',
+      keybinding: 'Keybinding',
+      keybindingDefault: 'Default',
+    },
+    ru: {
+      theme: 'Тема',
+      themeLight: 'Светлая',
+      themeMonokai: 'Монокаи',
+      fontSize: 'Шрифт',
+      tabSize: 'Табуляция',
+      wrap: 'Перенос строк',
+      invisibles: 'Непечатаемые',
+      activeLine: 'Подсветка строки',
+      printMargin: 'Поле печати',
+      gutter: 'Нумерация строк',
+      softTabs: 'Пробелы вместо табов',
+      foldWidgets: 'Сворачивание кода',
+      keybinding: 'Клавиши',
+      keybindingDefault: 'По умолчанию',
+    },
+  }[lang];
+
+  const setText = (id: string, text: string) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  setText('aceThemeLabel', t.theme);
+  setText('aceFontSizeLabel', t.fontSize);
+  setText('aceTabSizeLabel', t.tabSize);
+  setText('aceWrapLabel', t.wrap);
+  setText('aceInvisiblesLabel', t.invisibles);
+  setText('aceActiveLineLabel', t.activeLine);
+  setText('acePrintMarginLabel', t.printMargin);
+  setText('aceGutterLabel', t.gutter);
+  setText('aceSoftTabsLabel', t.softTabs);
+  setText('aceFoldWidgetsLabel', t.foldWidgets);
+  setText('aceKeybindingLabel', t.keybinding);
+
+  // Update keybinding "default" option text
+  const kb = document.getElementById('aceKeybinding') as HTMLSelectElement | null;
+  if (kb) {
+    const opt = Array.from(kb.options).find(o => o.value === 'default');
+    if (opt) opt.textContent = t.keybindingDefault;
+  }
+
+  // Update theme select option names for Light and Monokai
+  const themeSel = document.getElementById('aceThemeSelect') as HTMLSelectElement | null;
+  if (themeSel) {
+    const light = Array.from(themeSel.options).find(o => o.value === 'ace/theme/chrome');
+    if (light) light.textContent = t.themeLight;
+    const monokai = Array.from(themeSel.options).find(o => o.value === 'ace/theme/monokai');
+    if (monokai) monokai.textContent = t.themeMonokai;
+  }
+}
+
 // Added: strings for Ace runtime UI (statusbar, toasts)
 export function getAceUIStrings(lang: AppLang) {
   if (lang === 'en') {

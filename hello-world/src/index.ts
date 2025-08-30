@@ -28,7 +28,7 @@ import {
   localizeTooltips,
   localizeAceSettingsPanel,
 } from "./localization";
-import { setupAceEditor, updateAceEditorFromWorkspace } from "./aceEditor";
+import { setupAceEditor, updateAceEditorFromWorkspace, getAceEditor } from "./aceEditor";
 import { clearOutput } from "./codeExecution";
 import Konva from "konva";
 // Import dark theme
@@ -342,9 +342,8 @@ function setGenLang(lang: "javascript" | "python" | "lua") {
   validateGeneratorUI();
   const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
-  // Sync ACE editor (без авто-выполнения)
+  // sync ACE editor (без авто-выполнения)
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-
 }
 
 if (genLangJsBtn)
@@ -387,196 +386,6 @@ if (
       genLangHeaderDropdownOptions.style.display = "none";
     }
   });
-}
-
-if (blockGeneratorTextarea) {
-  blockGeneratorTextarea.addEventListener("input", () => validateGeneratorUI());
-}
-
-// При открытии модалки — сбрасываем язык генератора на JS по умолчанию
-function openImportModal() {
-  if (!importModal) return;
-  importModal.style.display = "block";
-  // Центрируем окно по умолчанию каждый раз при открытии
-  if (modalContent) {
-    const rect = modalContent.getBoundingClientRect();
-    const centerLeft = Math.max(
-      0,
-      Math.round(window.innerWidth / 2 - rect.width / 2)
-    );
-    const centerTop = Math.max(
-      0,
-      Math.round(window.innerHeight / 2 - rect.height / 2)
-    );
-    modalContent.style.left = `${centerLeft}px`;
-    modalContent.style.top = `${centerTop}px`;
-    modalContent.style.transform = "";
-    // Важно: включаем анимацию только при открытии, чтобы она не мешала drag
-    modalContent.style.animation = "";
-  }
-  // Инициализируем перетаскивание один раз
-  initImportModalDrag();
-  // В модалке по умолчанию активируем выбранный ранее язык
-  setActiveGenLangButton(selectedGeneratorLanguage);
-}
-
-function closeImportModal() {
-  if (!importModal) return;
-  importModal.style.display = "none";
-  if (blockJsonTextarea) blockJsonTextarea.value = "";
-  if (blockGeneratorTextarea) blockGeneratorTextarea.value = "";
-}
-
-// Включает перетаскивание модального окна за заголовок
-function initImportModalDrag() {
-  if (modalDragInitialized) return;
-  if (!modalHeader || !modalContent) return;
-
-  // После проверок сохраняем не-null ссылки для замыкания
-  const content = modalContent as HTMLDivElement;
-  const header = modalHeader as HTMLDivElement;
-
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  function onMouseDown(ev: MouseEvent) {
-    // Начинаем drag только левой кнопкой
-    if (ev.button !== 0) return;
-    // Если клик по кнопке закрытия — не перетаскиваем
-    const target = ev.target as HTMLElement | null;
-    if (target && target.closest("#closeModal")) return;
-    ev.preventDefault();
-    isDragging = true;
-
-    // Получаем текущие координаты окна
-    const rect = content.getBoundingClientRect();
-
-    // Фикс: отключаем анимацию/трансформации и фиксируем текущие координаты,
-    // чтобы вертикальный drag не блокировался CSS-анимацией translateY
-    content.style.left = rect.left + "px";
-    content.style.top = rect.top + "px";
-    content.style.transform = "none";
-    content.style.animation = "none";
-
-    // Вычисляем смещение курсора относительно левого верхнего угла окна
-    offsetX = ev.clientX - rect.left;
-    offsetY = ev.clientY - rect.top;
-
-    document.body.style.userSelect = "none";
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  }
-
-  function onMouseMove(ev: MouseEvent) {
-    if (!isDragging) return;
-    const rect = content.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    let nextLeft = ev.clientX - offsetX;
-    let nextTop = ev.clientY - offsetY;
-
-    // Ограничиваем в пределах окна
-    const maxLeft = window.innerWidth - width;
-    const maxTop = window.innerHeight - height;
-    if (nextLeft < 0) nextLeft = 0;
-    else if (nextLeft > maxLeft) nextLeft = maxLeft;
-    if (nextTop < 0) nextTop = 0;
-    else if (nextTop > maxTop) nextTop = maxTop;
-
-    content.style.left = `${nextLeft}px`;
-    content.style.top = `${nextTop}px`;
-  }
-
-  function onMouseUp() {
-    isDragging = false;
-    document.body.style.userSelect = "";
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  }
-
-  header.addEventListener("mousedown", onMouseDown);
-  modalDragInitialized = true;
-}
-
-function refreshWorkspaceWithCustomToolbox() {
-  const lang = getAppLang();
-  const currentState = ws
-    ? Blockly.serialization.workspaces.save(ws as Blockly.Workspace)
-    : null;
-  if (ws) ws.dispose();
-  const newWs = Blockly.inject(blocklyDiv!, {
-    toolbox: localizedToolbox(lang),
-    grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
-    zoom: {
-      controls: true,
-      wheel: true,
-      startScale: 1.0,
-      maxScale: 3,
-      minScale: 0.3,
-      scaleSpeed: 1.2,
-      pinch: true,
-    },
-    move: {
-      scrollbars: { horizontal: true, vertical: true },
-      drag: true,
-      wheel: true,
-    },
-    trashcan: true,
-    maxTrashcanContents: 32,
-    comments: true,
-    collapse: true,
-    disable: true,
-    sounds: true,
-    maxBlocks: Infinity,
-    maxInstances: { controls_if: 10, controls_repeat_ext: 5 },
-    scrollbars: true,
-    renderer: "thrasos",
-    theme: getBlocklyTheme(),
-    media: "media/",
-    horizontalLayout: false,
-    toolboxPosition: "start",
-    css: true,
-    rtl: false,
-    oneBasedIndex: true,
-    modalInputs: true,
-    readOnly: false,
-  });
-  if (currentState)
-    Blockly.serialization.workspaces.load(
-      currentState,
-      newWs as Blockly.Workspace,
-      undefined
-    );
-  ws = newWs as Blockly.WorkspaceSvg;
-  if (ws) {
-    ws.addChangeListener((e: Blockly.Events.Abstract) => {
-      if (e.isUiEvent) return;
-      save(ws);
-    });
-    ws.addChangeListener((e: Blockly.Events.Abstract) => {
-      if (
-        e.isUiEvent ||
-        e.type == Blockly.Events.FINISHED_LOADING ||
-        ws.isDragging()
-      ) {
-        return;
-      }
-      // Keep ACE editor content in sync (без авто-выполнения)
-      updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-
-      // Если блок был удален, очищаем окно вывода
-      // Тип события удаления может называться 'BLOCK_DELETE' в текущих версиях Blockly
-      if ((e as any).type === (Blockly as any).Events?.BLOCK_DELETE || (e as any).type === 'block_delete') {
-        const out = document.getElementById('output') as HTMLElement | null;
-        clearOutput(out);
-      }
-    });
-  }
-  // Initial sync after workspace init (без авто-выполнения)
-  updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-
 }
 
 if (importBtn) {
@@ -1274,3 +1083,336 @@ try {
   const { refreshAceUILanguage } = require("./aceEditor");
   if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
 } catch {}
+
+// Split layout elements
+const pageContainer = document.getElementById("pageContainer") as HTMLDivElement | null;
+const outputPaneEl = document.getElementById("outputPane") as HTMLDivElement | null;
+const codePaneEl = document.getElementById("codePane") as HTMLDivElement | null;
+const verticalResizer = document.getElementById("verticalResizer") as HTMLDivElement | null;
+const horizontalResizer = document.getElementById("horizontalResizer") as HTMLDivElement | null;
+
+(function initSplitters() {
+  if (!pageContainer || !blocklyDiv || !outputPaneEl) return;
+
+  const V_KEY = "layout.split.v";
+  const H_KEY = "layout.split.h";
+  const RESIZER_W = Math.max(4, verticalResizer?.offsetWidth || 6);
+  const RESIZER_H = Math.max(4, horizontalResizer?.offsetHeight || 6);
+
+  function resizeAceSoon() {
+    const ed = getAceEditor?.();
+    if (ed && typeof ed.resize === "function") {
+      // Use rAF to avoid layout thrash
+      requestAnimationFrame(() => ed.resize(true));
+    }
+  }
+
+  function applyVerticalByRatio(ratio: number) {
+    // Clamp ratio by min widths
+    const total = (pageContainer as HTMLDivElement).clientWidth;
+    const minLeft = 320; // blockly min width
+    const minRight = 300; // outputPane min width
+    const minRatio = minLeft / total;
+    const maxRatio = 1 - (minRight + RESIZER_W) / total;
+    const r = Math.max(minRatio, Math.min(maxRatio, ratio));
+
+    const leftPx = Math.round(r * total);
+    const rightPx = Math.max(minRight, total - leftPx - RESIZER_W);
+
+    (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${leftPx}px`;
+    (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${rightPx}px`;
+
+    // Resize dependent widgets
+    try { (Blockly as any).svgResize?.(ws); } catch {}
+    resizeAceSoon();
+  }
+
+  function applyHorizontalByRatio(ratio: number) {
+    if (!codePaneEl || !outputPaneEl) return;
+    const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
+    const minTop = 140; // codePane min height (toolbar+editor)
+    const minBottom = 80; // output min height
+    const minR = minTop / totalH;
+    const maxR = 1 - (minBottom + RESIZER_H) / totalH;
+    const r = Math.max(minR, Math.min(maxR, ratio));
+
+    const topPx = Math.round(r * totalH);
+    const bottomPx = Math.max(minBottom, totalH - topPx - RESIZER_H);
+
+    codePaneEl.style.flex = `0 0 ${topPx}px`;
+    (outputDiv as HTMLDivElement).style.flex = `0 0 ${bottomPx}px`;
+    resizeAceSoon();
+  }
+
+  function getPointerPosX(e: MouseEvent | TouchEvent) {
+    if (e instanceof MouseEvent) return e.clientX;
+    const t = e.touches[0] || (e as any).changedTouches?.[0];
+    return t ? t.clientX : 0;
+  }
+  function getPointerPosY(e: MouseEvent | TouchEvent) {
+    if (e instanceof MouseEvent) return e.clientY;
+    const t = e.touches[0] || (e as any).changedTouches?.[0];
+    return t ? t.clientY : 0;
+  }
+
+  // Vertical drag
+  if (verticalResizer) {
+    const startV = (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
+      const rect = pageContainer.getBoundingClientRect();
+      const onMove = (ev: MouseEvent | TouchEvent) => {
+        const x = getPointerPosX(ev) - rect.left;
+        const ratio = x / rect.width;
+        applyVerticalByRatio(ratio);
+      };
+      const onUp = () => {
+        window.removeEventListener("mousemove", onMove as any);
+        window.removeEventListener("touchmove", onMove as any, { passive: false } as any);
+        window.removeEventListener("mouseup", onUp);
+        window.removeEventListener("touchend", onUp);
+        // Save ratio
+        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect().width;
+        const total = (pageContainer as HTMLDivElement).clientWidth;
+        localStorage.setItem(V_KEY, String(left / total));
+      };
+      window.addEventListener("mousemove", onMove as any);
+      window.addEventListener("touchmove", onMove as any, { passive: false } as any);
+      window.addEventListener("mouseup", onUp);
+      window.addEventListener("touchend", onUp);
+    };
+    verticalResizer.addEventListener("mousedown", startV);
+    verticalResizer.addEventListener("touchstart", startV, { passive: false });
+  }
+
+  // Horizontal drag
+  if (horizontalResizer && codePaneEl) {
+    const startH = (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
+      const rect = (outputPaneEl as HTMLDivElement).getBoundingClientRect();
+      const onMove = (ev: MouseEvent | TouchEvent) => {
+        const y = getPointerPosY(ev) - rect.top;
+        const ratio = y / rect.height;
+        applyHorizontalByRatio(ratio);
+      };
+      const onUp = () => {
+        window.removeEventListener("mousemove", onMove as any);
+        window.removeEventListener("touchmove", onMove as any, { passive: false } as any);
+        window.removeEventListener("mouseup", onUp);
+        window.removeEventListener("touchend", onUp);
+        // Save ratio
+        const h = (codePaneEl as HTMLDivElement).getBoundingClientRect().height;
+        const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
+        localStorage.setItem(H_KEY, String(h / totalH));
+      };
+      window.addEventListener("mousemove", onMove as any);
+      window.addEventListener("touchmove", onMove as any, { passive: false } as any);
+      window.addEventListener("mouseup", onUp);
+      window.addEventListener("touchend", onUp);
+    };
+    horizontalResizer.addEventListener("mousedown", startH);
+    horizontalResizer.addEventListener("touchstart", startH, { passive: false });
+  }
+
+  // Apply saved ratios or sensible defaults
+  const savedV = parseFloat(localStorage.getItem(V_KEY) || "0");
+  if (savedV > 0 && savedV < 1) applyVerticalByRatio(savedV);
+  const savedH = parseFloat(localStorage.getItem(H_KEY) || "0");
+  if (savedH > 0 && savedH < 1) applyHorizontalByRatio(savedH);
+
+  window.addEventListener("resize", () => {
+    // Reapply ratios on window resize to keep layout consistent
+    const v = parseFloat(localStorage.getItem(V_KEY) || "0");
+    if (v > 0 && v < 1) applyVerticalByRatio(v);
+    const h = parseFloat(localStorage.getItem(H_KEY) || "0");
+    if (h > 0 && h < 1) applyHorizontalByRatio(h);
+  });
+})();
+
+if (blockGeneratorTextarea) {
+  blockGeneratorTextarea.addEventListener("input", () => validateGeneratorUI());
+}
+
+// При открытии модалки — сбрасываем язык генератора на JS по умолчанию
+function openImportModal() {
+  if (!importModal) return;
+  importModal.style.display = "block";
+  // Центрируем окно по умолчанию каждый раз при открытии
+  if (modalContent) {
+    const rect = modalContent.getBoundingClientRect();
+    const centerLeft = Math.max(
+      0,
+      Math.round(window.innerWidth / 2 - rect.width / 2)
+    );
+    const centerTop = Math.max(
+      0,
+      Math.round(window.innerHeight / 2 - rect.height / 2)
+    );
+    modalContent.style.left = `${centerLeft}px`;
+    modalContent.style.top = `${centerTop}px`;
+    modalContent.style.transform = "";
+    // Важно: включаем анимацию только при открытии, чтобы она не мешала drag
+    modalContent.style.animation = "";
+  }
+  // Инициализируем перетаскивание один раз
+  initImportModalDrag();
+  // В модалке по умолчанию активируем выбранный ранее язык
+  setActiveGenLangButton(selectedGeneratorLanguage);
+}
+
+function closeImportModal() {
+  if (!importModal) return;
+  importModal.style.display = "none";
+  if (blockJsonTextarea) blockJsonTextarea.value = "";
+  if (blockGeneratorTextarea) blockGeneratorTextarea.value = "";
+}
+
+// Включает перетаскивание модального окна за заголовок
+function initImportModalDrag() {
+  if (modalDragInitialized) return;
+  if (!modalHeader || !modalContent) return;
+
+  // После проверок сохраняем не-null ссылки для замыкания
+  const content = modalContent as HTMLDivElement;
+  const header = modalHeader as HTMLDivElement;
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  function onMouseDown(ev: MouseEvent) {
+    // Начинаем drag только левой кнопкой
+    if (ev.button !== 0) return;
+    // Если клик по кнопке закрытия — не перетаскиваем
+    const target = ev.target as HTMLElement | null;
+    if (target && target.closest("#closeModal")) return;
+    ev.preventDefault();
+    isDragging = true;
+
+    // Получаем текущие координаты окна
+    const rect = content.getBoundingClientRect();
+
+    // Фикс: отключаем анимацию/трансформации и фиксируем текущие координаты,
+    // чтобы вертикальный drag не блокировался CSS-анимацией translateY
+    content.style.left = rect.left + "px";
+    content.style.top = rect.top + "px";
+    content.style.transform = "none";
+    content.style.animation = "none";
+
+    // Вычисляем смещение курсора относительно левого верхнего угла окна
+    offsetX = ev.clientX - rect.left;
+    offsetY = ev.clientY - rect.top;
+
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+  function onMouseMove(ev: MouseEvent) {
+    if (!isDragging) return;
+    const rect = content.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    let nextLeft = ev.clientX - offsetX;
+    let nextTop = ev.clientY - offsetY;
+
+    // Ограничиваем в пределах окна
+    const maxLeft = window.innerWidth - width;
+    const maxTop = window.innerHeight - height;
+    if (nextLeft < 0) nextLeft = 0;
+    else if (nextLeft > maxLeft) nextLeft = maxLeft;
+    if (nextTop < 0) nextTop = 0;
+    else if (nextTop > maxTop) nextTop = maxTop;
+
+    content.style.left = `${nextLeft}px`;
+    content.style.top = `${nextTop}px`;
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    document.body.style.userSelect = "";
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  }
+
+  header.addEventListener("mousedown", onMouseDown);
+  modalDragInitialized = true;
+}
+
+function refreshWorkspaceWithCustomToolbox() {
+  const lang = getAppLang();
+  const currentState = ws
+    ? Blockly.serialization.workspaces.save(ws as Blockly.Workspace)
+    : null;
+  if (ws) ws.dispose();
+  const newWs = Blockly.inject(blocklyDiv!, {
+    toolbox: localizedToolbox(lang),
+    grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
+    zoom: {
+      controls: true,
+      wheel: true,
+      startScale: 1.0,
+      maxScale: 3,
+      minScale: 0.3,
+      scaleSpeed: 1.2,
+      pinch: true,
+    },
+    move: {
+      scrollbars: { horizontal: true, vertical: true },
+      drag: true,
+      wheel: true,
+    },
+    trashcan: true,
+    maxTrashcanContents: 32,
+    comments: true,
+    collapse: true,
+    disable: true,
+    sounds: true,
+    maxBlocks: Infinity,
+    maxInstances: { controls_if: 10, controls_repeat_ext: 5 },
+    scrollbars: true,
+    renderer: "thrasos",
+    theme: getBlocklyTheme(),
+    media: "media/",
+    horizontalLayout: false,
+    toolboxPosition: "start",
+    css: true,
+    rtl: false,
+    oneBasedIndex: true,
+    modalInputs: true,
+    readOnly: false,
+  });
+  if (currentState)
+    Blockly.serialization.workspaces.load(
+      currentState,
+      newWs as Blockly.Workspace,
+      undefined
+    );
+  ws = newWs as Blockly.WorkspaceSvg;
+  if (ws) {
+    ws.addChangeListener((e: Blockly.Events.Abstract) => {
+      if (e.isUiEvent) return;
+      save(ws);
+    });
+    ws.addChangeListener((e: Blockly.Events.Abstract) => {
+      if (
+        e.isUiEvent ||
+        e.type == Blockly.Events.FINISHED_LOADING ||
+        ws.isDragging()
+      ) {
+        return;
+      }
+      // Keep ACE editor content in sync (без авто-выполнения)
+      updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+
+      // Если блок был удален, очищаем окно вывода
+      // Тип события удаления может называться 'BLOCK_DELETE' в текущих версиях Blockly
+      if ((e as any).type === (Blockly as any).Events?.BLOCK_DELETE || (e as any).type === 'block_delete') {
+        const out = document.getElementById('output') as HTMLElement | null;
+        clearOutput(out);
+      }
+    });
+  }
+  // Initial sync after workspace init (без авто-выполнения)
+  updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+}

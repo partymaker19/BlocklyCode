@@ -5,6 +5,11 @@
   <meta charset="utf-8" />
   <title>Blockly Visual Programming</title>
   <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -495,6 +500,7 @@
       display: flex;
       height: calc(100vh - 84px);
       flex-direction: row;
+      overflow: hidden;
     }
 
     #blocklyDiv {
@@ -915,6 +921,14 @@
       min-height: 160px;
     }
 
+    /* Resizers */
+    .resizer { flex: 0 0 auto; background: rgba(0,0,0,0.06); transition: background .2s; }
+    .resizer.vertical { width: 6px; cursor: col-resize; }
+    .resizer.horizontal { height: 6px; cursor: row-resize; }
+    .resizer:hover { background: rgba(0,0,0,0.12); }
+    html[data-theme='dark'] .resizer { background: rgba(255,255,255,0.08); }
+    html[data-theme='dark'] .resizer:hover { background: rgba(255,255,255,0.16); }
+
     .editor-toolbar {
       padding: 6px 8px;
       border-bottom: 1px solid #ddd;
@@ -1063,6 +1077,7 @@
 
   <div id="pageContainer">
     <div id="blocklyDiv"></div>
+    <div id="verticalResizer" class="resizer vertical" role="separator" aria-orientation="vertical" aria-label="Resize panels"></div>
     <div id="outputPane">
       <div id="codePane">
         <div id="editorToolbar" class="editor-toolbar">
@@ -1139,6 +1154,7 @@
         <div id="editor" class="ace-editor" role="region" aria-label="Сгенерированный код"></div>
         <div id="editorStatusbar" class="editor-statusbar" aria-live="polite"></div>
       </div>
+      <div id="horizontalResizer" class="resizer horizontal" role="separator" aria-orientation="horizontal" aria-label="Resize editor and output"></div>
       <div id="output"></div>
     </div>
   </div>

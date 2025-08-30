@@ -192,6 +192,21 @@ export function updateAceEditorFromWorkspace(
     code = "" + (code || "");
   }
 
+  // Сбрасываем подсветку фигурных скобок для языков без { }
+  if (lang === "python" || lang === "lua") {
+    if (braceHighlightEnabled) {
+      braceHighlightEnabled = false;
+      try {
+        const btn = document.getElementById("aceBracesBtn") as HTMLButtonElement | null;
+        if (btn) {
+          btn.classList.remove("active");
+          btn.setAttribute("aria-pressed", "false");
+        }
+      } catch {}
+      clearBraceMarkers();
+    }
+  }
+
   // Если редактор ещё не инициализирован — запомним и применим позже
   if (!aceEditor) {
     pendingAceInit = { code, mode };

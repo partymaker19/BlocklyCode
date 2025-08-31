@@ -29,7 +29,7 @@ import {
   localizeAceSettingsPanel,
 } from "./localization";
 import { setupAceEditor, updateAceEditorFromWorkspace, getAceEditor } from "./aceEditor";
-import { clearOutput } from "./codeExecution";
+import { clearOutput, runCode } from "./codeExecution";
 import Konva from "konva";
 // Import dark theme
 import DarkTheme from "@blockly/theme-dark";
@@ -90,6 +90,10 @@ const blockGeneratorTextarea = document.getElementById(
   "blockGenerator"
 ) as HTMLTextAreaElement | null;
 
+// Task UI elements: header toggle button and left sidebar
+const taskSolutionBtn = document.getElementById("taskSolutionBtn") as HTMLButtonElement | null;
+const taskSidebar = document.getElementById("taskSidebar") as HTMLDivElement | null;
+
 const presetLetBtn = document.getElementById(
   "presetLet"
 ) as HTMLButtonElement | null;
@@ -138,6 +142,11 @@ const generatorErrorEl = document.getElementById(
 const generatorOkEl = document.getElementById(
   "generatorOk"
 ) as HTMLDivElement | null;
+
+// Task sidebar elements
+const checkTaskBtn = document.getElementById("checkTaskBtn") as HTMLButtonElement | null;
+const taskFeedbackEl = document.getElementById("taskFeedback") as HTMLDivElement | null;
+const taskStarsEl = document.getElementById("taskStars") as HTMLDivElement | null;
 
 // Theme elements
 const themeSwitchInput = document.getElementById(
@@ -264,6 +273,27 @@ function initThemeSwitchUI() {
   themeSwitchInput.addEventListener("change", (e: Event) => {
     const checked = (e.target as HTMLInputElement).checked;
     setAppTheme(checked ? "dark" : "light");
+  });
+}
+
+// Task sidebar toggle
+function toggleTaskSidebar(force?: boolean) {
+  if (!taskSidebar) return;
+  const isOpen = taskSidebar.classList.contains("open");
+  const next = force !== undefined ? force : !isOpen;
+  taskSidebar.classList.toggle("open", next);
+  const pc = document.getElementById("pageContainer") as HTMLDivElement | null;
+  if (pc) pc.classList.toggle("sidebar-open", next);
+  if (taskSolutionBtn) {
+    taskSolutionBtn.setAttribute("aria-pressed", next ? "true" : "false");
+  }
+  // Ensure Blockly recalculates sizes after the sidebar shifts layout
+  try { (Blockly as any).svgResize?.(ws); } catch {}
+}
+if (taskSolutionBtn) {
+  taskSolutionBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleTaskSidebar();
   });
 }
 
@@ -1336,6 +1366,7 @@ function closeImportModal() {
   if (blockGeneratorTextarea) blockGeneratorTextarea.value = "";
 }
 
+
 // Включает перетаскивание модального окна за заголовок
 function initImportModalDrag() {
   if (modalDragInitialized) return;
@@ -1563,3 +1594,104 @@ if (saveXmlBtn) {
             }
         });
       }
+
+
+async function validateHelloWorldTask() {
+  if (!ws) return;
+  // Ensure hidden containers exist
+  let container = document.getElementById("hiddenValidationRoot") as HTMLDivElement | null;
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "hiddenValidationRoot";
+    container.style.position = "absolute";
+    container.style.left = "-99999px";
+    container.style.top = "-99999px";
+    container.style.width = "1px";
+    container.style.height = "1px";
+    container.style.overflow = "hidden";
+    container.setAttribute("aria-hidden", "true");
+
+    const jsOut = document.createElement("div");
+    jsOut.id = "hiddenOutJs";
+    const pyOut = document.createElement("div");
+    pyOut.id = "hiddenOutPy";
+    const luaOut = document.createElement("div");
+    luaOut.id = "hiddenOutLua";
+
+    container.appendChild(jsOut);
+    container.appendChild(pyOut);
+    container.appendChild(luaOut);
+    document.body.appendChild(container);
+  }
+
+  const jsOut = document.getElementById("hiddenOutJs") as HTMLDivElement | null;
+  const pyOut = document.getElementById("hiddenOutPy") as HTMLDivElement | null;
+  const luaOut = document.getElementById("hiddenOutLua") as HTMLDivElement | null;
+
+  if (jsOut) jsOut.innerHTML = "";
+  if (pyOut) pyOut.innerHTML = "";
+  if (luaOut) luaOut.innerHTML = "";
+
+  // Run generated code for each language
+  await runCode(ws, 'javascript', null, jsOut);
+  await runCode(ws, 'python', null, pyOut);
+  await runCode(ws, 'lua', null, luaOut);
+
+  const collectText = (el: HTMLDivElement | null): string[] => {
+    if (!el) return [];
+    return Array.from(el.querySelectorAll('p'))
+      .map(p => (p.textContent || '').trim())
+      .filter(s => s.length > 0);
+  };
+
+  const jsLines = collectText(jsOut);
+  const pyLines = collectText(pyOut);
+  const luaLines = collectText(luaOut);
+
+  const expected = 'Hello World!';
+  const okJs = jsLines.includes(expected);
+  const okPy = pyLines.includes(expected);
+  const okLua = luaLines.includes(expected);
+  const allOk = okJs && okPy && okLua;
+
+  // Stars by block count
+  const count = getWorkspaceBlockCount();
+  let stars = 0;
+  if (allOk) {
+    if (count <= 2) stars = 3;
+    else if (count <= 4) stars = 2;
+    else stars = 1;
+  } else {
+    stars = 0;
+  }
+
+  if (taskStarsEl) {
+    taskStarsEl.innerHTML = '';
+    const total = 3;
+    for (let i = 0; i < total; i++) {
+      const span = document.createElement('span');
+      span.textContent = i < stars ? '★' : '☆';
+      span.style.color = i < stars ? '#f5a623' : '#999';
+      span.style.fontSize = '18px';
+      span.style.marginRight = '2px';
+      taskStarsEl.appendChild(span);
+    }
+  }
+
+  if (taskFeedbackEl) {
+    const t = (window as any)._currentLocalizedStrings;
+    if (allOk) {
+      taskFeedbackEl.style.color = '#2e7d32';
+      taskFeedbackEl.textContent = stars === 3
+        ? (t?.TaskPerfect || 'Отлично! Решение оптимально.')
+        : (t?.TaskPassed || 'Решение верное.');
+    } else {
+      taskFeedbackEl.style.color = '#c62828';
+      taskFeedbackEl.textContent = t?.TaskHelloWorldHint || 'Подсказка: используйте блок печати текста со строкой Hello World!';
+    }
+  }
+}
+
+if (checkTaskBtn) {
+  checkTaskBtn.addEventListener('click', () => { void validateHelloWorldTask(); });
+}

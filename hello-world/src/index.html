@@ -503,6 +503,46 @@
       height: calc(100vh - 84px);
       flex-direction: row;
       overflow: hidden;
+      position: relative; /* allow absolutely positioned sidebar */
+    }
+
+    /* Keep editor/output size; shift only Blockly pane when sidebar is open */
+    #pageContainer.sidebar-open #blocklyDiv {
+      padding-left: 340px; /* equal to sidebar width */
+      box-sizing: border-box; /* ensure width remains fixed */
+    }
+
+    /* Overlay mode: keep content width unchanged when sidebar is open */
+    #pageContainer.sidebar-open {
+      /* no layout shift: sidebar overlays content */
+    }
+
+    /* Sliding task sidebar (hidden by default) */
+    .task-sidebar {
+      position: absolute;
+      top: 0; /* stays within #pageContainer which is below header */
+      left: 0;
+      height: 100%;
+      width: 340px;
+      max-width: 380px;
+      background: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      box-shadow: none;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      z-index: 950;
+      overflow: auto;
+      box-sizing: border-box;
+      padding: 16px 20px;
+    }
+    .task-sidebar.open {
+      transform: translateX(0);
+      box-shadow: 6px 0 16px rgba(0, 0, 0, 0.08);
+    }
+    html[data-theme='dark'] .task-sidebar {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-right: 1px solid #334155;
     }
 
     #blocklyDiv {
@@ -1147,6 +1187,10 @@
           </svg>
           <span id="importBtnText">Импорт блоков</span>
         </button>
+        <!-- New: Task solution button -->
+        <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи">
+          <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
+        </button>
       </div>
       <div class="header-right">
         <input id="loadXmlInput" type="file" accept=".xml" style="display:none" />
@@ -1280,9 +1324,33 @@
         aria-label="Resize editor and output"></div>
       <div id="output"></div>
     </div>
+
+    <!-- Right task sidebar -->
+    <aside id="taskSidebar" class="task-sidebar" aria-label="Панель задач">
+      <div class="task-header">
+        <h2 class="task-title">Задача 1: Hello World</h2>
+      </div>
+      <div class="task-body">
+        <p class="task-desc">Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong></p>
+        <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
+        <div class="task-criteria">
+          Критерии звёзд:
+          <ul>
+            <li>★★★ — оптимально (минимум блоков)</li>
+            <li>★★ — хорошо</li>
+            <li>★ — решение верное</li>
+          </ul>
+        </div>
+        <button id="checkTaskBtn" class="btn primary" style="margin-top:8px;">Проверить решение</button>
+        <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
+        <div id="taskStars" class="task-stars" aria-hidden="true"></div>
+      </div>
+    </aside>
   </div>
 
-  <div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+  <!-- Import modal (restored) -->
+  <div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display:none">
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modalTitle">Импорт пользовательского блока</h2>

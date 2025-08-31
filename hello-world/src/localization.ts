@@ -172,7 +172,30 @@ export function localizeImportUI(lang: AppLang) {
   if (confirmBtn) (confirmBtn as HTMLButtonElement).textContent = t.Import;
 
   // Store localized strings for use in other functions
-  (window as any)._currentLocalizedStrings = t;
+  (window as any)._currentLocalizedStrings = t as any;
+  // Extend with task-related strings
+  const taskStrings = lang === 'ru' ? {
+    TaskPerfect: 'Отлично! Решение оптимально.',
+    TaskPassed: 'Решение верное.',
+    NextTask: 'Следующая задача',
+    TaskSolutions: 'Решение задач',
+    CheckSolution: 'Проверить решение',
+    StarsCriteria: 'Критерии звёзд:',
+    StarsOptimal: 'оптимально (минимум блоков)',
+    StarsGood: 'хорошо',
+    StarsCorrect: 'решение верное',
+  } : {
+    TaskPerfect: 'Great! Optimal solution.',
+    TaskPassed: 'Solution is correct.',
+    NextTask: 'Next task',
+    TaskSolutions: 'Task Solutions',
+    CheckSolution: 'Check solution',
+    StarsCriteria: 'Stars criteria:',
+    StarsOptimal: 'optimal (minimum blocks)',
+    StarsGood: 'good',
+    StarsCorrect: 'solution correct',
+  };
+  (window as any)._currentLocalizedStrings = { ...(window as any)._currentLocalizedStrings, ...taskStrings };
 }
 
 // Added: localize tooltips and aria-labels across the app

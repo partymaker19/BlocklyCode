@@ -573,15 +573,47 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       } catch {}
     });
   if (downloadBtn)
-    downloadBtn.addEventListener("click", () => {
+    downloadBtn.addEventListener("click", async () => {
       if (!aceEditor) return;
       const text = aceEditor.getValue();
       const lang = getSelectedLanguage();
       const ext = lang === "python" ? "py" : lang === "lua" ? "lua" : "js";
+      const suggested = `code.${ext}`;
+      const w: any = window as any;
+      try {
+        if (typeof w.showSaveFilePicker === "function") {
+          const types = [
+            {
+              description: lang === "python" ? "Python" : lang === "lua" ? "Lua" : "JavaScript",
+              accept: { "text/plain": [`.${ext}`] },
+            },
+          ];
+          try {
+            const handle = await w.showSaveFilePicker({ suggestedName: suggested, types });
+            const writable = await handle.createWritable();
+            await writable.write(new Blob([text], { type: "text/plain;charset=utf-8" }));
+            await writable.close();
+          } catch (e: any) {
+            // Если пользователь отменил диалог или запретил доступ — ничего не сохраняем и не делаем фолбэк
+            if (e && (e.name === "AbortError" || e.name === "NotAllowedError" || e.name === "SecurityError")) {
+              return;
+            }
+            // В остальных случаях (например, неподдерживаемый контекст) — попробуем фолбэк ниже
+          }
+          // Если showSaveFilePicker существует, но сохранение не удалось по иной причине — перейдём к фолбэку ниже
+        }
+      } catch {
+        // игнорируем и перейдём к фолбэку ниже
+      }
+      // Фолбэк: обычная загрузка. Если пользователь нажмёт Отмена в prompt — ничего не сохраняем
+      const name = (typeof w?.prompt === "function"
+        ? w.prompt(getAppLang() === "ru" ? "Имя файла:" : "File name:", suggested)
+        : null);
+      if (!name) return;
       const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `code.${ext}`;
+      a.download = name;
       a.click();
       URL.revokeObjectURL(a.href);
     });

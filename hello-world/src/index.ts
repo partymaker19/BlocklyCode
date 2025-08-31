@@ -14,7 +14,7 @@ import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
 import { save, load } from "./serialization";
 import "./index.css";
-import { initTaskValidation } from "./tasks";
+import { initTaskValidation, setActiveTask, getFirstUnsolvedTask } from "./tasks";
 import {
   registerCustomBlocks,
   importBlockFromJson,
@@ -148,6 +148,7 @@ const generatorOkEl = document.getElementById(
 const checkTaskBtn = document.getElementById("checkTaskBtn") as HTMLButtonElement | null;
 const taskFeedbackEl = document.getElementById("taskFeedback") as HTMLDivElement | null;
 const taskStarsEl = document.getElementById("taskStars") as HTMLDivElement | null;
+const nextTaskBtn = document.getElementById("nextTaskBtn") as HTMLButtonElement | null;
 
 // Theme elements
 const themeSwitchInput = document.getElementById(
@@ -859,6 +860,39 @@ initThemeSwitchUI();
 // Инициализация UI локализации
 localizeImportUI(defaultLang);
 localizeTooltips(defaultLang);
+// Установить локализованный текст для кнопки следующей задачи и элементы панели задач
+{
+  const t = (window as any)._currentLocalizedStrings;
+  const nextLabel = t?.NextTask || (defaultLang === 'ru' ? 'Следующая задача' : 'Next task');
+  const btn = document.getElementById('nextTaskBtn');
+  if (btn) btn.textContent = `${nextLabel} →`;
+
+  const solText = document.getElementById('taskSolutionBtnText');
+  if (solText) (solText as HTMLElement).textContent = `ℹ️ ${t?.TaskSolutions || (defaultLang === 'ru' ? 'Решение задач' : 'Task Solutions')}`;
+
+  const checkBtn = document.getElementById('checkTaskBtn');
+  if (checkBtn) (checkBtn as HTMLElement).textContent = t?.CheckSolution || (defaultLang === 'ru' ? 'Проверить решение' : 'Check solution');
+
+  const criteriaEl = document.querySelector('#taskSidebar .task-criteria');
+  if (criteriaEl) {
+    const text = t?.StarsCriteria || (defaultLang === 'ru' ? 'Критерии звёзд:' : 'Stars criteria:');
+    const firstNode = criteriaEl.firstChild;
+    if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
+      (firstNode as Text).textContent = text + '\n';
+    }
+
+    const ul = criteriaEl.querySelector('ul');
+    if (ul) {
+      const items = ul.querySelectorAll('li');
+      const starsOptimal = t?.StarsOptimal || (defaultLang === 'ru' ? 'оптимально (минимум блоков)' : 'optimal (minimum blocks)');
+      const starsGood = t?.StarsGood || (defaultLang === 'ru' ? 'хорошо' : 'good');
+      const starsCorrect = t?.StarsCorrect || (defaultLang === 'ru' ? 'решение верное' : 'solution correct');
+      if (items[0]) (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
+      if (items[1]) (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
+      if (items[2]) (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
+    }
+  }
+}
 
 // Инициализация рабочей области при загрузке страницы
 refreshWorkspaceWithCustomToolbox();
@@ -884,6 +918,39 @@ if (langSwitchInput) {
     // ACE специфичные строки (кнопка Save, статусбар)
     const { refreshAceUILanguage } = require("./aceEditor");
     if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
+    // Обновить текст кнопки следующей задачи и элементы панели задач
+    {
+      const t = (window as any)._currentLocalizedStrings;
+      const nextLabel = t?.NextTask || (newLang === 'ru' ? 'Следующая задача' : 'Next task');
+      const btn = document.getElementById('nextTaskBtn');
+      if (btn) btn.textContent = `${nextLabel} →`;
+
+      const solText = document.getElementById('taskSolutionBtnText');
+      if (solText) (solText as HTMLElement).textContent = `ℹ️ ${t?.TaskSolutions || (newLang === 'ru' ? 'Решение задач' : 'Task Solutions')}`;
+
+      const checkBtn = document.getElementById('checkTaskBtn');
+      if (checkBtn) (checkBtn as HTMLElement).textContent = t?.CheckSolution || (newLang === 'ru' ? 'Проверить решение' : 'Check solution');
+
+      const criteriaEl = document.querySelector('#taskSidebar .task-criteria');
+      if (criteriaEl) {
+        const text = t?.StarsCriteria || (newLang === 'ru' ? 'Критерии звёзд:' : 'Stars criteria:');
+        const firstNode = criteriaEl.firstChild;
+        if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
+          (firstNode as Text).textContent = text + '\n';
+        }
+
+        const ul = criteriaEl.querySelector('ul');
+        if (ul) {
+          const items = ul.querySelectorAll('li');
+          const starsOptimal = t?.StarsOptimal || (newLang === 'ru' ? 'оптимально (минимум блоков)' : 'optimal (minimum blocks)');
+          const starsGood = t?.StarsGood || (newLang === 'ru' ? 'хорошо' : 'good');
+          const starsCorrect = t?.StarsCorrect || (newLang === 'ru' ? 'решение верное' : 'solution correct');
+          if (items[0]) (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
+          if (items[1]) (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
+          if (items[2]) (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
+        }
+      }
+    }
   });
 }
 
@@ -1449,7 +1516,7 @@ function refreshWorkspaceWithCustomToolbox() {
   if (ws) ws.dispose();
   const newWs = Blockly.inject(blocklyDiv!, {
     toolbox: localizedToolbox(lang),
-    grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
+    grid: { spacing: 20, length: 3, colour: appTheme === "dark" ? "#374151" : "#ccc", snap: true },
     zoom: {
       controls: true,
       wheel: true,
@@ -1523,7 +1590,10 @@ function refreshWorkspaceWithCustomToolbox() {
     checkButton: checkTaskBtn,
     feedbackEl: taskFeedbackEl,
     starsEl: taskStarsEl,
+    nextButton: nextTaskBtn,
   });
+  // Активируем первую не решённую задачу
+  setActiveTask(getFirstUnsolvedTask());
   // Initial sync after workspace init (без авто-выполнения)
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
   // Начальная отрисовка счётчика

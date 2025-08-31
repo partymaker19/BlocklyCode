@@ -7,6 +7,14 @@ html[data-theme='dark'] .annot-toolbar { background: rgba(26, 32, 44, 0.95); bor
 .icon-button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #cbd5e0; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); color: #2d3748; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; }
 .icon-button:hover, .icon-button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: #667eea; }
 
+/* Dark theme: annotation toolbar buttons */
+html[data-theme='dark'] .annot-toolbar button { border: 1px solid #374151; background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: #e5e7eb; }
+html[data-theme='dark'] .annot-toolbar button:hover, html[data-theme='dark'] .annot-toolbar button.active { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-color: #4f46e5; }
+
+/* Dark theme: header icon buttons */
+html[data-theme='dark'] .icon-button { border: 1px solid #374151; background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: #e5e7eb; }
+html[data-theme='dark'] .icon-button:hover, html[data-theme='dark'] .icon-button.active { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; border-color: #4f46e5; }
+
 /* Brace level colors for Ace markers */
 /* Base (light) theme) */
 .ace_editor .ace_marker-layer .brace-level-1, .ace_editor .ace_text-layer .brace-level-1 { position: absolute; background: rgba(66, 153, 225, 0.70); border-radius: 3px; box-shadow: 0 0 0 1px rgba(66,153,225,0.65) inset, 0 0 4px rgba(66,153,225,0.30); pointer-events: none; }

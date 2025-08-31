@@ -274,6 +274,9 @@ export function localizeTooltips(lang: AppLang) {
   setBtn('aceShortcutsBtn', t.shortcuts);
   setBtn('aceSettingsToggle', t.settings);
   setBtn('aceRunBtn', t.run);
+  // Header Save/Load XML buttons
+  setBtn('saveXmlBtn', lang === 'ru' ? 'Сохранить (XML)' : 'Save (XML)');
+  setBtn('loadXmlBtn', lang === 'ru' ? 'Загрузить (XML)' : 'Load (XML)');
 
   setAttrs(byId('aceSettingsPanel'), { 'aria-label': t.settingsPanel });
   setAttrs(byId('aceKeybinding'), { 'aria-label': t.keybinding });

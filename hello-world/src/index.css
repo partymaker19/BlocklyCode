@@ -23,3 +23,7 @@ html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-3, html[data-
 html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-4, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-4 { background: rgba(236, 201, 75, 0.82); box-shadow: 0 0 0 1px rgba(236,201,75,0.95) inset, 0 0 4px rgba(236,201,75,0.35); }
 html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-5, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-5 { background: rgba(213, 63, 140, 0.82); box-shadow: 0 0 0 1px rgba(213,63,140,0.95) inset, 0 0 4px rgba(213,63,140,0.35); }
 html[data-theme='dark'] .ace_editor .ace_marker-layer .brace-level-6, html[data-theme='dark'] .ace_editor .ace_text-layer .brace-level-6 { background: rgba(159, 122, 234, 0.82); box-shadow: 0 0 0 1px rgba(159,122,234,0.95) inset, 0 0 4px rgba(159,122,234,0.35); }
+
+/* Theme-aware toolbox counter */
+.toolbox-counter { background: rgba(255, 255, 255, 0.85); color: #1a202c; box-shadow: 0 2px 6px rgba(0,0,0,0.12); border: 1px solid #e2e8f0; }
+html[data-theme='dark'] .toolbox-counter { background: rgba(26, 32, 44, 0.85); color: #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.5); border-color: #2d3748; }

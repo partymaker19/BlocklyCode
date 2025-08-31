@@ -165,6 +165,76 @@ let appTheme: AppTheme =
 // Объявление рабочей области Blockly
 let ws!: Blockly.WorkspaceSvg;
 
+// ===== Блок: счётчик блоков в тулбоксе =====
+function getWorkspaceBlockCount(): number {
+  try {
+    if (!ws) return 0;
+    // Не учитываем теневые блоки
+    return ws.getAllBlocks(false).filter((b: any) => !b.isShadow()).length;
+  } catch {
+    return 0;
+  }
+}
+
+function ensureToolboxBlockCounter(): HTMLDivElement | null {
+  const toolboxDiv = document.querySelector('.blocklyToolboxDiv, .blocklyToolbox') as HTMLDivElement | null;
+  if (!toolboxDiv) { console.debug('[block-counter] toolbox not found'); return null; }
+
+  // Контейнер со списком категорий (разные версии Blockly)
+  const categoriesContainer = (
+    toolboxDiv.querySelector('.blocklyToolboxContents') ||
+    toolboxDiv.querySelector('.blocklyTreeRoot') ||
+    toolboxDiv
+  ) as HTMLElement;
+
+  // Создаём/находим элемент бейджа
+  let el = document.getElementById('toolbox-block-counter') as HTMLDivElement | null;
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toolbox-block-counter';
+  }
+
+  // Стили бейджа
+  el.style.position = 'absolute';
+  el.style.pointerEvents = 'none';
+  el.style.userSelect = 'none';
+  el.style.fontSize = '13px';
+  el.style.fontWeight = '700';
+  el.style.padding = '6px 8px';
+  el.style.borderRadius = '8px';
+  // вместо инлайн-цветов используем CSS-класс для темизации
+  el.classList.add('toolbox-counter');
+  // зачистим возможные старые инлайн-стили
+  el.style.background = '' as any;
+  el.style.color = '' as any;
+  el.style.boxShadow = '' as any;
+  el.style.zIndex = '1';
+  el.style.display = 'block';
+  el.style.margin = '12px 8px 8px 8px';
+  // очистим возможные значения от прежней абсолютной раскладки
+  el.style.left = '' as any;
+  el.style.top = '' as any;
+  el.style.bottom = '' as any;
+
+  // Переместим элемент в контейнер категорий, если он был в другом месте
+  if (el.parentElement !== categoriesContainer) {
+    categoriesContainer.appendChild(el);
+  }
+
+  return el;
+}
+
+function updateToolboxBlockCounterLabel(): void {
+  const el = ensureToolboxBlockCounter();
+  if (!el) return;
+  const lang = getAppLang();
+  const count = getWorkspaceBlockCount();
+  el.textContent = lang === 'ru' ? `Блоков на рабочем поле: ${count}` : `Blocks in workspace: ${count}`;
+  console.debug('[block-counter] updated', { count, lang });
+}
+// ===== конец блока счётчика блоков =====
+
+
 // Helper: get active Blockly theme
 function getBlocklyTheme() {
   return appTheme === "dark" ? (DarkTheme as any) : Blockly.Themes.Classic;
@@ -1232,7 +1302,7 @@ if (blockGeneratorTextarea) {
   blockGeneratorTextarea.addEventListener("input", () => validateGeneratorUI());
 }
 
-// При открытии модалки — сбрасываем язык генератора на JS по умолчанию
+// Функция для открытия модалки — сбрасываем язык генератора на JS по умолчанию
 function openImportModal() {
   if (!importModal) return;
   importModal.style.display = "block";
@@ -1411,8 +1481,85 @@ function refreshWorkspaceWithCustomToolbox() {
         const out = document.getElementById('output') as HTMLElement | null;
         clearOutput(out);
       }
+
+      // Обновляем счётчик блоков
+      updateToolboxBlockCounterLabel();
     });
   }
   // Initial sync after workspace init (без авто-выполнения)
   updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+  // Начальная отрисовка счётчика
+  // На всякий случай немного отложим, чтобы DOM тулбокса гарантированно создался
+  requestAnimationFrame(() => updateToolboxBlockCounterLabel());
 }
+const saveXmlBtn = document.getElementById("saveXmlBtn") as HTMLButtonElement | null;
+const loadXmlBtn = document.getElementById("loadXmlBtn") as HTMLButtonElement | null;
+const loadXmlInput = document.getElementById("loadXmlInput") as HTMLInputElement | null;
+if (saveXmlBtn) {
+        saveXmlBtn.addEventListener("click", async () => {
+          if (!ws) return;
+          try {
+            const xmlDom = Blockly.Xml.workspaceToDom(ws);
+            const xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+            const suggested = `workspace_${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}.xml`;
+            const w: any = window as any;
+            if (typeof w.showSaveFilePicker === "function") {
+              const handle = await w.showSaveFilePicker({
+                suggestedName: suggested,
+                types: [
+                  {
+                    description: "Blockly XML",
+                    accept: { "application/xml": [".xml"] },
+                  },
+                ],
+              });
+              const writable = await handle.createWritable();
+              await writable.write(new Blob([xmlText], { type: "application/xml;charset=utf-8" }));
+              await writable.close();
+            } else {
+              const name = (typeof w?.prompt === "function"
+                ? w.prompt(getAppLang() === "ru" ? "Имя файла:" : "File name:", suggested)
+                : null) || suggested;
+              const blob = new Blob([xmlText], { type: "application/xml;charset=utf-8" });
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = name;
+              a.click();
+              URL.revokeObjectURL(a.href);
+            }
+          } catch (e) {
+            console.error("Save XML failed", e);
+          }
+        });
+      }
+      if (loadXmlBtn) {
+        loadXmlBtn.addEventListener("click", () => {
+          if (!loadXmlInput) return;
+          loadXmlInput.value = "";
+          loadXmlInput.click();
+        });
+      }
+      if (loadXmlInput) {
+        loadXmlInput.addEventListener("change", async () => {
+          if (!ws || !loadXmlInput.files || loadXmlInput.files.length === 0) return;
+          const file = loadXmlInput.files[0];
+          try {
+            const text = await file.text();
+            // Parse XML text via DOMParser instead of Blockly.Xml.textToDom for compatibility
+            const doc = new DOMParser().parseFromString(text, "text/xml");
+            const xml = doc.documentElement as Element;
+            Blockly.Events.disable();
+            ws.clear();
+            Blockly.Xml.domToWorkspace(xml, ws);
+            Blockly.Events.enable();
+            // Sync ACE editor after load
+            updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+            // Обновить счётчик блоков
+            updateToolboxBlockCounterLabel();
+            // Persist to localStorage via existing listener
+            save(ws);
+            } catch (e) {
+            console.error("Load XML failed", e);
+            }
+        });
+      }

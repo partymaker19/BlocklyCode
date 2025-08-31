@@ -1,5 +1,4 @@
 import * as Blockly from "blockly";
-import { runCode } from "./codeExecution";
 import { getAppLang } from "./localization";
 
 export type InitTaskValidationOptions = {
@@ -8,6 +7,8 @@ export type InitTaskValidationOptions = {
   starsEl: HTMLDivElement | null;
   // Кнопка перехода к следующей задаче (опционально)
   nextButton?: HTMLButtonElement | null;
+  // Кнопка перехода к предыдущей задаче (опционально)
+  prevButton?: HTMLButtonElement | null;
 };
 
 // ---------- Прогресс и порядок задач ----------
@@ -93,12 +94,23 @@ export function getNextTaskId(current: TaskId): TaskId | null {
   return idx + 1 < TASKS_ORDER.length ? TASKS_ORDER[idx + 1] : null;
 }
 
+function getPrevTaskId(current: TaskId): TaskId | null {
+  const idx = TASKS_ORDER.indexOf(current);
+  if (idx <= 0) return null;
+  return TASKS_ORDER[idx - 1] || null;
+}
+
 export function getActiveTask(): TaskId { return activeTaskId; }
 
 // ---------- Helpers ----------
 function collectPrintedLines(el: HTMLDivElement | null): string[] {
   if (!el) return [];
   return Array.from(el.querySelectorAll("p")).map((p) => (p.textContent || "").trim()).filter((s) => s.length > 0);
+}
+
+function getVisibleOutputLines(): string[] {
+  const out = document.getElementById("output") as HTMLDivElement | null;
+  return collectPrintedLines(out);
 }
 
 function getBlockCount(ws: Blockly.WorkspaceSvg | null | undefined): number {
@@ -108,79 +120,27 @@ function getBlockCount(ws: Blockly.WorkspaceSvg | null | undefined): number {
   } catch { return 0; }
 }
 
-function ensureHiddenOutputs() {
-  let container = document.getElementById("hiddenValidationRoot") as HTMLDivElement | null;
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "hiddenValidationRoot";
-    container.style.position = "absolute";
-    container.style.left = "-99999px";
-    container.style.top = "-99999px";
-    container.style.width = "1px";
-    container.style.height = "1px";
-    container.style.overflow = "hidden";
-    container.setAttribute("aria-hidden", "true");
-
-    const jsOut = document.createElement("div"); jsOut.id = "hiddenOutJs";
-    const pyOut = document.createElement("div"); pyOut.id = "hiddenOutPy";
-    const luaOut = document.createElement("div"); luaOut.id = "hiddenOutLua";
-
-    container.appendChild(jsOut); container.appendChild(pyOut); container.appendChild(luaOut);
-    document.body.appendChild(container);
-  }
-
-  const jsOut = document.getElementById("hiddenOutJs") as HTMLDivElement | null;
-  const pyOut = document.getElementById("hiddenOutPy") as HTMLDivElement | null;
-  const luaOut = document.getElementById("hiddenOutLua") as HTMLDivElement | null;
-  if (jsOut) jsOut.innerHTML = ""; if (pyOut) pyOut.innerHTML = ""; if (luaOut) luaOut.innerHTML = "";
-  return { jsOut, pyOut, luaOut };
-}
-
 async function validateHelloWorld(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolean; stars: number }> {
-  const { jsOut, pyOut, luaOut } = ensureHiddenOutputs();
-
-  await runCode(ws, "javascript", null, jsOut);
-  await runCode(ws, "python", null, pyOut);
-  await runCode(ws, "lua", null, luaOut);
-
-  const jsLines = collectPrintedLines(jsOut);
-  const pyLines = collectPrintedLines(pyOut);
-  const luaLines = collectPrintedLines(luaOut);
-
+  const lines = getVisibleOutputLines();
   const expected = "Hello World!";
-  const okJs = jsLines.includes(expected);
-  const okPy = pyLines.includes(expected);
-  const okLua = luaLines.includes(expected);
-  const allOk = okJs && okPy && okLua;
+  const ok = lines.includes(expected);
 
   const count = getBlockCount(ws);
   let stars = 0;
-  if (allOk) {
+  if (ok) {
     if (count <= 2) stars = 3; // print + text
     else if (count <= 4) stars = 2;
     else stars = 1;
   } else {
     stars = 0;
   }
-  return { ok: allOk, stars };
+  return { ok, stars };
 }
 
 async function validateAdd2Plus7(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolean; stars: number }> {
-  const { jsOut, pyOut, luaOut } = ensureHiddenOutputs();
-
-  await runCode(ws, "javascript", null, jsOut);
-  await runCode(ws, "python", null, pyOut);
-  await runCode(ws, "lua", null, luaOut);
-
-  const jsLines = collectPrintedLines(jsOut);
-  const pyLines = collectPrintedLines(pyOut);
-  const luaLines = collectPrintedLines(luaOut);
-
-  const expected = "9"; // must print 9 in each language
-  const okJs = jsLines.includes(expected);
-  const okPy = pyLines.includes(expected);
-  const okLua = luaLines.includes(expected);
-  const allOk = okJs && okPy && okLua;
+  const lines = getVisibleOutputLines();
+  const expected = "9"; // must print 9
+  const ok = lines.includes(expected);
 
   // Heuristics for stars: prefer using math_arithmetic with ADD and numbers 2 and 7
   let hasAddition = false;
@@ -205,14 +165,14 @@ async function validateAdd2Plus7(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolea
 
   const count = getBlockCount(ws);
   let stars = 0;
-  if (allOk) {
+  if (ok) {
     if (hasAddition && has2 && has7 && count <= 4) stars = 3; // print + math_arithmetic + 2 numbers
     else if (count <= 6) stars = 2;
     else stars = 1;
   } else {
     stars = 0;
   }
-  return { ok: allOk, stars };
+  return { ok, stars };
 }
 
 // ---------- Rendering ----------
@@ -265,7 +225,7 @@ export function setActiveTask(taskId: TaskId) {
 }
 
 export function initTaskValidation(ws: Blockly.WorkspaceSvg, opts: InitTaskValidationOptions) {
-  const { checkButton, feedbackEl, starsEl, nextButton } = opts;
+  const { checkButton, feedbackEl, starsEl, nextButton, prevButton } = opts;
   if (!checkButton) return;
 
   // Сброс визуального результата
@@ -276,6 +236,15 @@ export function initTaskValidation(ws: Blockly.WorkspaceSvg, opts: InitTaskValid
 
   checkButton.addEventListener("click", () => {
     void (async () => {
+      // Требуем, чтобы пользователь сначала выполнил код через кнопку запуска
+      const currentLines = getVisibleOutputLines();
+      const t = (window as any)._currentLocalizedStrings;
+      if (currentLines.length === 0) {
+        const msg = t?.RunFirst || (getAppLang() === 'ru' ? 'Сначала запустите код' : 'Run the code first');
+        renderResult(feedbackEl, starsEl, false, 0, msg);
+        return;
+      }
+
       const tdef = tasks[activeTaskId];
       const { ok, stars } = await tdef.validate(ws);
       const hint = tdef.hint(getAppLang());
@@ -297,6 +266,21 @@ export function initTaskValidation(ws: Blockly.WorkspaceSvg, opts: InitTaskValid
       setActiveTask(next);
       // после перехода — блокируем кнопку снова, пока новая задача не решена
       nextButton.disabled = !isSolved(next) || getNextTaskId(next) === null;
+      if (prevButton) prevButton.disabled = getPrevTaskId(next) === null;
+      resetResult();
+    });
+  }
+
+  if (prevButton) {
+    // Кнопка предыдущей задачи активна, если есть предыдущая
+    prevButton.disabled = getPrevTaskId(activeTaskId) === null;
+    prevButton.addEventListener("click", () => {
+      const prev = getPrevTaskId(activeTaskId);
+      if (!prev) return;
+      setActiveTask(prev);
+      // после перехода — пересчитываем состояния навигации
+      prevButton.disabled = getPrevTaskId(prev) === null;
+      if (nextButton) nextButton.disabled = !isSolved(prev) || getNextTaskId(prev) === null;
       resetResult();
     });
   }

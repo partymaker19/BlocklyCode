@@ -149,6 +149,7 @@ const checkTaskBtn = document.getElementById("checkTaskBtn") as HTMLButtonElemen
 const taskFeedbackEl = document.getElementById("taskFeedback") as HTMLDivElement | null;
 const taskStarsEl = document.getElementById("taskStars") as HTMLDivElement | null;
 const nextTaskBtn = document.getElementById("nextTaskBtn") as HTMLButtonElement | null;
+const prevTaskBtn = document.getElementById("prevTaskBtn") as HTMLButtonElement | null;
 
 // Theme elements
 const themeSwitchInput = document.getElementById(
@@ -864,8 +865,11 @@ localizeTooltips(defaultLang);
 {
   const t = (window as any)._currentLocalizedStrings;
   const nextLabel = t?.NextTask || (defaultLang === 'ru' ? 'Следующая задача' : 'Next task');
+  const prevLabel = t?.PrevTask || (defaultLang === 'ru' ? 'Предыдущая задача' : 'Previous task');
   const btn = document.getElementById('nextTaskBtn');
   if (btn) btn.textContent = `${nextLabel} →`;
+  const prev = document.getElementById('prevTaskBtn');
+  if (prev) prev.textContent = `← ${prevLabel}`;
 
   const solText = document.getElementById('taskSolutionBtnText');
   if (solText) (solText as HTMLElement).textContent = `ℹ️ ${t?.TaskSolutions || (defaultLang === 'ru' ? 'Решение задач' : 'Task Solutions')}`;
@@ -922,8 +926,11 @@ if (langSwitchInput) {
     {
       const t = (window as any)._currentLocalizedStrings;
       const nextLabel = t?.NextTask || (newLang === 'ru' ? 'Следующая задача' : 'Next task');
+      const prevLabel = t?.PrevTask || (newLang === 'ru' ? 'Предыдущая задача' : 'Previous task');
       const btn = document.getElementById('nextTaskBtn');
       if (btn) btn.textContent = `${nextLabel} →`;
+      const prev = document.getElementById('prevTaskBtn');
+      if (prev) prev.textContent = `← ${prevLabel}`;
 
       const solText = document.getElementById('taskSolutionBtnText');
       if (solText) (solText as HTMLElement).textContent = `ℹ️ ${t?.TaskSolutions || (newLang === 'ru' ? 'Решение задач' : 'Task Solutions')}`;
@@ -1591,6 +1598,7 @@ function refreshWorkspaceWithCustomToolbox() {
     feedbackEl: taskFeedbackEl,
     starsEl: taskStarsEl,
     nextButton: nextTaskBtn,
+    prevButton: prevTaskBtn,
   });
   // Активируем первую не решённую задачу
   setActiveTask(getFirstUnsolvedTask());

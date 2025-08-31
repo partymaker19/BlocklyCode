@@ -766,6 +766,16 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
+    /* Task sidebar navigation buttons */
+    #taskSidebar .task-nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    #taskSidebar .task-nav .btn {
+      flex: 1 1 0;
+    }
+
     .generator-language-selector {
       display: inline-flex;
       background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
@@ -1362,7 +1372,10 @@
           </ul>
         </div>
         <button id="checkTaskBtn" class="btn primary" style="margin-top:8px;">Проверить решение</button>
-        <button id="nextTaskBtn" class="btn secondary" style="margin-top:8px;" disabled>Следующая задача →</button>
+        <div class="task-nav">
+          <button id="prevTaskBtn" class="btn secondary" disabled>← Предыдущая задача</button>
+          <button id="nextTaskBtn" class="btn secondary" disabled>Следующая задача →</button>
+        </div>
         <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
         <div id="taskStars" class="task-stars" aria-hidden="true"></div>
       </div>

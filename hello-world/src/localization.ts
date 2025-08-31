@@ -178,22 +178,26 @@ export function localizeImportUI(lang: AppLang) {
     TaskPerfect: 'Отлично! Решение оптимально.',
     TaskPassed: 'Решение верное.',
     NextTask: 'Следующая задача',
+    PrevTask: 'Предыдущая задача',
     TaskSolutions: 'Решение задач',
     CheckSolution: 'Проверить решение',
     StarsCriteria: 'Критерии звёзд:',
     StarsOptimal: 'оптимально (минимум блоков)',
     StarsGood: 'хорошо',
     StarsCorrect: 'решение верное',
+    RunFirst: 'Сначала запустите код',
   } : {
     TaskPerfect: 'Great! Optimal solution.',
     TaskPassed: 'Solution is correct.',
     NextTask: 'Next task',
+    PrevTask: 'Previous task',
     TaskSolutions: 'Task Solutions',
     CheckSolution: 'Check solution',
     StarsCriteria: 'Stars criteria:',
     StarsOptimal: 'optimal (minimum blocks)',
     StarsGood: 'good',
     StarsCorrect: 'solution correct',
+    RunFirst: 'Run the code first',
   };
   (window as any)._currentLocalizedStrings = { ...(window as any)._currentLocalizedStrings, ...taskStrings };
 }

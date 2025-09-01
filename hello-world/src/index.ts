@@ -34,6 +34,8 @@ import { clearOutput, runCode } from "./codeExecution";
 import Konva from "konva";
 // Import dark theme
 import DarkTheme from "@blockly/theme-dark";
+// Toolbox search plugin (localized)
+import './toolbox_search_localized';
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
@@ -1684,3 +1686,39 @@ if (saveXmlBtn) {
 // Логика проверки задач перенесена в ./tasks и инициализируется через initTaskValidation(ws, ...)
 
 // Обработчик кнопки проверки навешивается в tasks.ts через initTaskValidation
+
+// ===== Предупреждение о потере данных при перезагрузке страницы =====
+/**
+ * Проверяет, есть ли несохранённые данные в рабочей области или редакторе
+ */
+function hasUnsavedChanges(): boolean {
+  // Проверяем блоки в workspace
+  const hasBlocks = ws?.getAllBlocks(false).filter((b: any) => !b.isShadow()).length > 0;
+  
+  // Проверяем код в ACE редакторе
+  const aceEditor = getAceEditor();
+  const hasCode = aceEditor?.getValue()?.trim().length > 0;
+  
+  return hasBlocks || hasCode;
+}
+
+/**
+ * Обработчик события beforeunload для предупреждения о потере данных
+ */
+function handleBeforeUnload(event: BeforeUnloadEvent): string | undefined {
+  if (hasUnsavedChanges()) {
+    const lang = getAppLang();
+    const message = lang === 'ru' 
+      ? 'У вас есть несохранённые изменения. Вы уверены, что хотите покинуть страницу?'
+      : 'You have unsaved changes. Are you sure you want to leave this page?';
+    
+    // Стандартный способ для современных браузеров
+    event.preventDefault();
+    event.returnValue = message;
+    return message;
+  }
+  return undefined;
+}
+
+// Подключаем обработчик предупреждения о потере данных
+window.addEventListener('beforeunload', handleBeforeUnload);

@@ -37,12 +37,20 @@ export function setAppLang(lang: AppLang) {
     (Blockly as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
     (Blockly as any).Msg.DEGREES = 'градусов';
     (Blockly as any).Msg.BITMAP_DEMO = 'Битмап: %1';
+    // Search plugin localization
+    (Blockly as any).Msg.SEARCH_PLACEHOLDER = 'Поиск блоков';
+    (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Введите текст для поиска блоков';
+    (Blockly as any).Msg.SEARCH_NO_MATCHING = 'Блоки не найдены';
   } else {
     (Blockly as any).Msg.ADD_TEXT = 'Add text %1';
     (Blockly as any).Msg.ANGLE_DEMO = 'Set angle to %1 degrees';
     (Blockly as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
     (Blockly as any).Msg.DEGREES = 'degrees';
     (Blockly as any).Msg.BITMAP_DEMO = 'Bitmap: %1';
+    // Search plugin localization
+    (Blockly as any).Msg.SEARCH_PLACEHOLDER = 'Search blocks';
+    (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Type to search for blocks';
+    (Blockly as any).Msg.SEARCH_NO_MATCHING = 'No matching blocks found';
   }
   localStorage.setItem(APP_LANG_KEY, lang);
   updateHeaderText(lang);
@@ -50,13 +58,17 @@ export function setAppLang(lang: AppLang) {
 
 export function localizedToolbox(lang: AppLang) {
   const t = {
-    en: { Logic: 'Logic', Loops: 'Loops', Math: 'Math', Text: 'Text', Lists: 'Lists', Variables: 'Variables', Functions: 'Functions', Custom: 'Custom blocks', MyBlocks: 'My Blocks', ImportBlocks: 'Import blocks', ImportModalTitle: 'Import custom blocks', JsonLabel: 'Block definition (JSON):', ImportInfo: 'Paste the block JSON definition below. The block will be added to "My Blocks" category.', Cancel: 'Cancel', Import: 'Import' },
-    ru: { Logic: 'Логика', Loops: 'Циклы', Math: 'Математика', Text: 'Текст', Lists: 'Списки', Variables: 'Переменные', Functions: 'Функции', Custom: 'Кастомные блоки', MyBlocks: 'Мои блоки', ImportBlocks: 'Импорт блоков', ImportModalTitle: 'Импорт пользовательских блоков', JsonLabel: 'JSON определение блока:', ImportInfo: 'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".', Cancel: 'Отмена', Import: 'Импортировать' },
+    en: { Logic: 'Logic', Loops: 'Loops', Math: 'Math', Text: 'Text', Lists: 'Lists', Variables: 'Variables', Functions: 'Functions', Custom: 'Custom blocks', MyBlocks: 'My Blocks', ImportBlocks: 'Import blocks', ImportModalTitle: 'Import custom blocks', JsonLabel: 'Block definition (JSON):', ImportInfo: 'Paste the block JSON definition below. The block will be added to "My Blocks" category.', Cancel: 'Cancel', Import: 'Import', Search: 'Search' },
+    ru: { Logic: 'Логика', Loops: 'Циклы', Math: 'Математика', Text: 'Текст', Lists: 'Списки', Variables: 'Переменные', Functions: 'Функции', Custom: 'Кастомные блоки', MyBlocks: 'Мои блоки', ImportBlocks: 'Импорт блоков', ImportModalTitle: 'Импорт пользовательских блоков', JsonLabel: 'JSON определение блока:', ImportInfo: 'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".', Cancel: 'Отмена', Import: 'Импортировать', Search: 'Поиск' },
   }[lang as AppLang];
   const tb = JSON.parse(JSON.stringify(originalToolbox));
   for (const cat of tb.contents) {
     if (cat.kind === 'category' && t[cat.name as keyof typeof t]) {
       cat.name = t[cat.name as keyof typeof t];
+    }
+    // Localize the search category name
+    if (cat.kind === 'search') {
+      cat.name = t.Search;
     }
   }
   const customCat = getCustomBlocksToolboxCategory();

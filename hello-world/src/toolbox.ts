@@ -21,6 +21,8 @@ export function getLocalizedToolbox() {
   return {
     kind: 'categoryToolbox',
     contents: [
+      { kind: 'search', name: 'Search', contents: [] },
+      { kind: 'sep' },
       {
         kind: 'category',
         name: 'Logic',

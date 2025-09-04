@@ -283,18 +283,29 @@ function initThemeSwitchUI() {
 
 // Task sidebar toggle
 function toggleTaskSidebar(force?: boolean) {
-  if (!taskSidebar) return;
+  if (!taskSidebar || !pageContainer || !blocklyDiv || !outputPaneEl) return;
+
   const isOpen = taskSidebar.classList.contains("open");
   const next = force !== undefined ? force : !isOpen;
+
   taskSidebar.classList.toggle("open", next);
   const pc = document.getElementById("pageContainer") as HTMLDivElement | null;
   if (pc) pc.classList.toggle("sidebar-open", next);
   if (taskSolutionBtn) {
     taskSolutionBtn.setAttribute("aria-pressed", next ? "true" : "false");
   }
-  // Ensure Blockly recalculates sizes after the sidebar shifts layout
-  try { (Blockly as any).svgResize?.(ws); } catch {}
+
+  // Не изменяем размеры редактора кода и окна вывода
+  // Только обновляем Blockly после изменения макета
+  requestAnimationFrame(() => {
+    try { (Blockly as any).svgResize?.(ws); } catch {}
+    try {
+      const ed = (typeof getAceEditor === "function") ? getAceEditor() : null;
+      ed?.resize?.(true);
+    } catch {}
+  });
 }
+
 if (taskSolutionBtn) {
   taskSolutionBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1267,6 +1278,25 @@ const outputPaneEl = document.getElementById("outputPane") as HTMLDivElement | n
 const codePaneEl = document.getElementById("codePane") as HTMLDivElement | null;
 const verticalResizer = document.getElementById("verticalResizer") as HTMLDivElement | null;
 const horizontalResizer = document.getElementById("horizontalResizer") as HTMLDivElement | null;
+
+// Ensure final resize after flex-basis transition completes
+if (blocklyDiv) {
+  blocklyDiv.addEventListener("transitionend", (e: TransitionEvent) => {
+    if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
+      try { (Blockly as any).svgResize?.(ws); } catch {}
+    }
+  });
+}
+if (outputPaneEl) {
+  outputPaneEl.addEventListener("transitionend", (e: TransitionEvent) => {
+    if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
+      try {
+        const ed = (typeof getAceEditor === "function") ? getAceEditor() : null;
+        ed?.resize?.(true);
+      } catch {}
+    }
+  });
+}
 
 (function initSplitters() {
   if (!pageContainer || !blocklyDiv || !outputPaneEl) return;

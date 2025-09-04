@@ -355,7 +355,9 @@
     }
 
     /* Ensure the wrapper in header stays dark */
-    html[data-theme='dark'] .gen-lang-dropdown-container { color: #e5e7eb; }
+    html[data-theme='dark'] .gen-lang-dropdown-container {
+      color: #e5e7eb;
+    }
 
     /* Dark theme modal styles */
     html[data-theme='dark'] .modal {
@@ -506,24 +508,36 @@
       height: calc(100vh - 84px);
       flex-direction: row;
       overflow: hidden;
-      position: relative; /* allow absolutely positioned sidebar */
+      position: relative;
+      /* allow absolutely positioned sidebar */
     }
 
     /* Keep editor/output size; shift only Blockly pane when sidebar is open */
     #pageContainer.sidebar-open #blocklyDiv {
-      padding-left: 340px; /* equal to sidebar width */
-      box-sizing: border-box; /* ensure width remains fixed */
+      padding-left: 340px;
+      /* equal to sidebar width */
+      box-sizing: border-box;
+      /* ensure width remains fixed */
+    }
+    
+    /* Ensure code editor and output pane don't shift when sidebar opens */
+    #pageContainer.sidebar-open #outputPane,
+    #pageContainer.sidebar-open #codePane,
+    #pageContainer.sidebar-open #editor,
+    #pageContainer.sidebar-open #output {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      /* maintain flex properties */
     }
 
-    /* Overlay mode: keep content width unchanged when sidebar is open */
-    #pageContainer.sidebar-open {
-      /* no layout shift: sidebar overlays content */
-    }
+
 
     /* Sliding task sidebar (hidden by default) */
     .task-sidebar {
       position: absolute;
-      top: 0; /* stays within #pageContainer which is below header */
+      top: 0;
+      /* stays within #pageContainer which is below header */
       left: 0;
       height: 100%;
       width: 340px;
@@ -532,16 +546,18 @@
       border-right: 1px solid #e5e7eb;
       box-shadow: none;
       transform: translateX(-100%);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      /* transition: transform 0.25s ease, box-shadow 0.25s ease; */
       z-index: 950;
       overflow: auto;
       box-sizing: border-box;
       padding: 16px 20px;
     }
+
     .task-sidebar.open {
       transform: translateX(0);
       box-shadow: 6px 0 16px rgba(0, 0, 0, 0.08);
     }
+
     html[data-theme='dark'] .task-sidebar {
       background: #0f172a;
       color: #e2e8f0;
@@ -772,6 +788,7 @@
       gap: 8px;
       margin-top: 10px;
     }
+
     #taskSidebar .task-nav .btn {
       flex: 1 1 0;
     }
@@ -1075,12 +1092,14 @@
       border-color: rgba(255, 255, 255, 0.12);
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       color: #e5e7eb;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
+
     html[data-theme='dark'] .icon-btn:hover {
       background: linear-gradient(135deg, #2a3650 0%, #1b2432 100%);
       border-color: rgba(255, 255, 255, 0.18);
     }
+
     html[data-theme='dark'] .icon-btn.active {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: #fff;

@@ -1,0 +1,293 @@
+[
+  {
+    "definition": {
+      "type": "example_text_block",
+      "message0": "текст %1",
+      "args0": [
+        {
+          "type": "field_input",
+          "name": "TEXT",
+          "text": "привет мир"
+        }
+      ],
+      "output": "String",
+      "colour": 160,
+      "tooltip": "Возвращает текстовую строку",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем значение текстового поля\nconst text = block.getFieldValue('TEXT');\n// Возвращаем код и порядок операций\nreturn [JSON.stringify(text), Order.ATOMIC];",
+    "generatorLanguage": "javascript",
+    "name": "Текстовый блок",
+    "id": "example_text_block"
+  },
+  {
+    "definition": {
+      "type": "example_number_block",
+      "message0": "число %1",
+      "args0": [
+        {
+          "type": "field_number",
+          "name": "NUM",
+          "value": 0,
+          "min": -100,
+          "max": 100,
+          "precision": 0.1
+        }
+      ],
+      "output": "Number",
+      "colour": 230,
+      "tooltip": "Возвращает числовое значение",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем значение числового поля\nconst num = parseFloat(block.getFieldValue('NUM'));\n// Возвращаем код и порядок операций\nreturn [String(num), Order.ATOMIC];",
+    "generatorLanguage": "javascript",
+    "name": "Числовой блок",
+    "id": "example_number_block"
+  },
+  {
+    "definition": {
+      "type": "example_dropdown_block",
+      "message0": "выбрать %1",
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "CHOICE",
+          "options": [
+            ["первый", "FIRST"],
+            ["второй", "SECOND"],
+            ["третий", "THIRD"]
+          ]
+        }
+      ],
+      "output": "String",
+      "colour": 290,
+      "tooltip": "Выбор из списка",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем выбранное значение\nconst choice = block.getFieldValue('CHOICE');\n// Возвращаем код и порядок операций\nreturn [JSON.stringify(choice), Order.ATOMIC];",
+    "generatorLanguage": "javascript",
+    "name": "Блок с выпадающим списком",
+    "id": "example_dropdown_block"
+  },
+  {
+    "definition": {
+      "type": "example_if_block",
+      "message0": "если %1",
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "CONDITION",
+          "check": "Boolean"
+        }
+      ],
+      "message1": "то %1",
+      "args1": [
+        {
+          "type": "input_statement",
+          "name": "DO"
+        }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": 210,
+      "tooltip": "Выполняет код, если условие истинно",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем код условия\nconst condition = generator.valueToCode(block, 'CONDITION', Order.NONE) || 'false';\n// Получаем код для выполнения\nconst doCode = generator.statementToCode(block, 'DO') || '';\n// Формируем JavaScript код\nconst code = `if (${condition}) {\n${doCode}}\n`;\nreturn code;",
+    "generatorLanguage": "javascript",
+    "name": "Блок условия",
+    "id": "example_if_block"
+  },
+  {
+    "definition": {
+      "type": "example_if_else_block",
+      "message0": "если %1",
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "CONDITION",
+          "check": "Boolean"
+        }
+      ],
+      "message1": "то %1",
+      "args1": [
+        {
+          "type": "input_statement",
+          "name": "DO"
+        }
+      ],
+      "message2": "иначе %1",
+      "args2": [
+        {
+          "type": "input_statement",
+          "name": "ELSE"
+        }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": 210,
+      "tooltip": "Выполняет первый блок кода, если условие истинно, иначе выполняет второй блок",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем код условия\nconst condition = generator.valueToCode(block, 'CONDITION', Order.NONE) || 'false';\n// Получаем код для выполнения при истинном условии\nconst doCode = generator.statementToCode(block, 'DO') || '';\n// Получаем код для выполнения при ложном условии\nconst elseCode = generator.statementToCode(block, 'ELSE') || '';\n// Формируем JavaScript код\nconst code = `if (${condition}) {\n${doCode}} else {\n${elseCode}}\n`;\nreturn code;",
+    "generatorLanguage": "javascript",
+    "name": "Блок условия с веткой иначе",
+    "id": "example_if_else_block"
+  },
+  {
+    "definition": {
+      "type": "example_repeat_block",
+      "message0": "повторить %1 раз",
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "TIMES",
+          "check": "Number"
+        }
+      ],
+      "message1": "делать %1",
+      "args1": [
+        {
+          "type": "input_statement",
+          "name": "DO"
+        }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": 120,
+      "tooltip": "Повторяет блок кода указанное количество раз",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем количество повторений\nconst times = generator.valueToCode(block, 'TIMES', Order.ASSIGNMENT) || '0';\n// Получаем код для выполнения\nconst doCode = generator.statementToCode(block, 'DO') || '';\n// Формируем JavaScript код\nconst code = `for (let i = 0; i < ${times}; i++) {\n${doCode}}\n`;\nreturn code;",
+    "generatorLanguage": "javascript",
+    "name": "Блок повторения",
+    "id": "example_repeat_block"
+  },
+  {
+    "definition": {
+      "type": "example_function_block",
+      "message0": "функция %1 %2",
+      "args0": [
+        {
+          "type": "field_input",
+          "name": "NAME",
+          "text": "myFunction"
+        },
+        {
+          "type": "input_dummy"
+        }
+      ],
+      "message1": "параметры %1",
+      "args1": [
+        {
+          "type": "input_statement",
+          "name": "PARAMS",
+          "check": "Parameter"
+        }
+      ],
+      "message2": "содержимое %1",
+      "args2": [
+        {
+          "type": "input_statement",
+          "name": "STACK"
+        }
+      ],
+      "colour": 290,
+      "tooltip": "Создает функцию с указанным именем",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем имя функции\nconst funcName = block.getFieldValue('NAME');\n// Получаем параметры функции\nconst params = generator.statementToCode(block, 'PARAMS') || '';\n// Преобразуем параметры в список через запятую\nconst paramList = params.trim().split('\n').join(', ');\n// Получаем тело функции\nconst stack = generator.statementToCode(block, 'STACK') || '';\n// Формируем JavaScript код\nconst code = `function ${funcName}(${paramList}) {\n${stack}}\n`;\nreturn code;",
+    "generatorLanguage": "javascript",
+    "name": "Блок функции",
+    "id": "example_function_block"
+  },
+  {
+    "definition": {
+      "type": "example_parameter_block",
+      "message0": "параметр %1",
+      "args0": [
+        {
+          "type": "field_input",
+          "name": "NAME",
+          "text": "x"
+        }
+      ],
+      "previousStatement": "Parameter",
+      "nextStatement": "Parameter",
+      "colour": 330,
+      "tooltip": "Параметр функции",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем имя параметра\nconst paramName = block.getFieldValue('NAME');\nreturn paramName + '\n';",
+    "generatorLanguage": "javascript",
+    "name": "Блок параметра",
+    "id": "example_parameter_block"
+  },
+  {
+    "definition": {
+      "type": "example_return_block",
+      "message0": "вернуть %1",
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "VALUE"
+        }
+      ],
+      "previousStatement": null,
+      "colour": 330,
+      "tooltip": "Возвращает значение из функции",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем возвращаемое значение\nconst value = generator.valueToCode(block, 'VALUE', Order.NONE) || 'null';\n// Формируем JavaScript код\nreturn `return ${value};\n`;",
+    "generatorLanguage": "javascript",
+    "name": "Блок возврата значения",
+    "id": "example_return_block"
+  },
+  {
+    "definition": {
+      "type": "example_variable_get",
+      "message0": "получить %1",
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": "item"
+        }
+      ],
+      "output": null,
+      "colour": 330,
+      "tooltip": "Возвращает значение переменной",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем имя переменной\nconst varName = generator.nameDB_.getName(block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);\n// Возвращаем код и порядок операций\nreturn [varName, Order.ATOMIC];",
+    "generatorLanguage": "javascript",
+    "name": "Получить переменную",
+    "id": "example_variable_get"
+  },
+  {
+    "definition": {
+      "type": "example_variable_set",
+      "message0": "присвоить %1 значение %2",
+      "args0": [
+        {
+          "type": "field_variable",
+          "name": "VAR",
+          "variable": "item"
+        },
+        {
+          "type": "input_value",
+          "name": "VALUE"
+        }
+      ],
+      "previousStatement": null,
+      "nextStatement": null,
+      "colour": 330,
+      "tooltip": "Присваивает значение переменной",
+      "helpUrl": ""
+    },
+    "generator": "// Получаем имя переменной\nconst varName = generator.nameDB_.getName(block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);\n// Получаем значение\nconst value = generator.valueToCode(block, 'VALUE', Order.ASSIGNMENT) || '0';\n// Формируем JavaScript код\nreturn `${varName} = ${value};\n`;",
+    "generatorLanguage": "javascript",
+    "name": "Установить переменную",
+    "id": "example_variable_set"
+  }
+]

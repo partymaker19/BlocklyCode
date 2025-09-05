@@ -519,19 +519,6 @@
       box-sizing: border-box;
       /* ensure width remains fixed */
     }
-    
-    /* Ensure code editor and output pane don't shift when sidebar opens */
-    #pageContainer.sidebar-open #outputPane,
-    #pageContainer.sidebar-open #codePane,
-    #pageContainer.sidebar-open #editor,
-    #pageContainer.sidebar-open #output {
-      position: relative;
-      width: 100%;
-      flex: 1;
-      /* maintain flex properties */
-    }
-
-
 
     /* Sliding task sidebar (hidden by default) */
     .task-sidebar {
@@ -563,6 +550,39 @@
       color: #e2e8f0;
       border-right: 1px solid #334155;
     }
+    
+    html[data-theme='dark'] .console-output-info {
+      background: #1e293b;
+      border-left-color: #3b82f6;
+    }
+    
+    html[data-theme='dark'] .console-output-info h4 {
+      color: #60a5fa;
+    }
+    
+    .console-output-info code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.9em;
+    }
+    
+    html[data-theme='dark'] .console-output-info code {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    
+    /* Console output info styles */
+    .console-output-info { margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #60a5fa; word-wrap: break-word; }
+    .console-output-info h4 { margin-top: 0; margin-bottom: 8px; color: #2563eb; }
+    .console-output-info code { background: #e9ecef; color: #1e40af; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+    html[data-theme='dark'] .console-output-info { background: #1e293b; border-left-color: #3b82f6; color: #e2e8f0; }
+    html[data-theme='dark'] .console-output-info h4 { color: #60a5fa; }
+    html[data-theme='dark'] .console-output-info code { background: #0f172a; color: #93c5fd; }
 
     #blocklyDiv {
       flex: 2;
@@ -602,7 +622,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      /* transform: translate(-50%, -50%); */
+      transform: translate(-50%, -50%);
       padding: 0;
       border: none;
       width: 85%;
@@ -641,6 +661,70 @@
       flex: 1 1 auto;
       overflow: auto;
       overscroll-behavior: contain;
+    }
+    
+    /* Стили для markdown-контента */
+    .markdown-content {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+    }
+    
+    .markdown-content h1 {
+      font-size: 24px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+    }
+    
+    .markdown-content h2 {
+      font-size: 20px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: var(--primary-color);
+    }
+    
+    .markdown-content h3 {
+      font-size: 18px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    
+    .markdown-content p {
+      margin-bottom: 16px;
+    }
+    
+    .markdown-content ul, .markdown-content ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+    
+    .markdown-content li {
+      margin-bottom: 6px;
+    }
+    
+    .markdown-content code {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background-color: var(--code-bg);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .markdown-content pre {
+      background-color: var(--code-bg);
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+    
+    .markdown-content pre code {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .modal-footer {
@@ -975,12 +1059,12 @@
 
     @keyframes slideInUp {
       from {
-        transform: translateY(50px);
+        transform: translate(-50%, -50%) scale(0.9);
         opacity: 0;
       }
 
       to {
-        transform: translateY(0);
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
       }
     }
@@ -1236,6 +1320,12 @@
           </svg>
           <span id="importBtnText">Импорт блоков</span>
         </button>
+        <button id="blockHelpBtn" class="import-button" title="Руководство по созданию блоков" aria-label="Руководство по созданию блоков">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
+          </svg>
+          <span id="blockHelpBtnText">Справка</span>
+        </button>
         <!-- New: Task solution button -->
         <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
@@ -1395,6 +1485,37 @@
           <button id="prevTaskBtn" class="btn secondary" disabled>← Предыдущая задача</button>
           <button id="nextTaskBtn" class="btn secondary" disabled>Следующая задача →</button>
         </div>
+        <div class="console-output-info">
+          <h4>Вывод в консоль:</h4>
+          <p>Для вывода информации в консоль используйте следующие функции в зависимости от выбранного языка:</p>
+          <ul>
+            <li><strong>JavaScript:</strong>
+              <ul>
+                <li><code>console.log("текст")</code> — вывод текста</li>
+                <li><code>console.log(число)</code> — вывод числа</li>
+                <li><code>console.log("текст", переменная)</code> — вывод текста и значения</li>
+                <li><code>console.log(`Значение: ${переменная}`)</code> — шаблонные строки</li>
+              </ul>
+            </li>
+            <li><strong>Python:</strong>
+              <ul>
+                <li><code>print("текст")</code> — вывод текста</li>
+                <li><code>print(число)</code> — вывод числа</li>
+                <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
+                <li><code>print(f"Значение: {переменная}")</code> — f-строки для форматирования</li>
+              </ul>
+            </li>
+            <li><strong>Lua:</strong>
+              <ul>
+                <li><code>print("текст")</code> — вывод текста</li>
+                <li><code>print(число)</code> — вывод числа</li>
+                <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
+                <li><code>print(string.format("Значение: %s", переменная))</code> — форматирование строк</li>
+              </ul>
+            </li>
+          </ul>
+          <p style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет отображаться в окне вывода справа внизу.</p>
+        </div>
         <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
         <div id="taskStars" class="task-stars" aria-hidden="true"></div>
       </div>
@@ -1455,6 +1576,20 @@
     <button id="annotUndo" title="Отменить">↶</button>
     <button id="annotRedo" title="Повторить">↷</button>
     <button id="annotClear" title="Очистить">🧹</button>
+  </div>
+
+  <!-- Модальное окно руководства по созданию блоков -->
+  <div id="helpModal" class="modal">
+    <div class="modal-content" id="helpModalContent">
+      <div class="modal-header">
+        <h2>Руководство по созданию блоков</h2>
+        <span id="closeHelpModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="helpModalBody">
+        <!-- Содержимое будет загружено из markdown-файла -->
+        <div id="markdownContent" class="markdown-content"></div>
+      </div>
+    </div>
   </div>
 
 </body>

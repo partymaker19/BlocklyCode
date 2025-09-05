@@ -179,6 +179,12 @@ let appTheme: AppTheme =
 // Объявление рабочей области Blockly
 let ws!: Blockly.WorkspaceSvg;
 
+// Элементы модального окна справки
+const blockHelpBtn = document.getElementById("blockHelpBtn") as HTMLButtonElement | null;
+const helpModal = document.getElementById("helpModal") as HTMLDivElement | null;
+const closeHelpModal = document.getElementById("closeHelpModal") as HTMLSpanElement | null;
+const markdownContent = document.getElementById("markdownContent") as HTMLDivElement | null;
+
 // ===== Блок: счётчик блоков в тулбоксе =====
 function getWorkspaceBlockCount(): number {
   try {
@@ -285,6 +291,9 @@ function initThemeSwitchUI() {
 function toggleTaskSidebar(force?: boolean) {
   if (!taskSidebar || !pageContainer || !blocklyDiv || !outputPaneEl) return;
 
+  const BACKUP_KEY = "layout.split.v.backup";
+  const sidebarWidth = (taskSidebar as HTMLDivElement).getBoundingClientRect().width || 340;
+
   const isOpen = taskSidebar.classList.contains("open");
   const next = force !== undefined ? force : !isOpen;
 
@@ -295,8 +304,32 @@ function toggleTaskSidebar(force?: boolean) {
     taskSolutionBtn.setAttribute("aria-pressed", next ? "true" : "false");
   }
 
-  // Не изменяем размеры редактора кода и окна вывода
-  // Только обновляем Blockly после изменения макета
+  // Shrink only the left workspace when sidebar opens; right pane stays anchored
+  const total = (pageContainer as HTMLDivElement).clientWidth;
+  const RESIZER_W = Math.max(4, verticalResizer?.offsetWidth || 6);
+  const minLeft = 320; // min width for blockly
+  const minRight = 300; // min width for output
+  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+
+  const currentLeft = (blocklyDiv as HTMLDivElement).getBoundingClientRect().width;
+
+  if (next) {
+    // Opening: save previous left width and shrink by sidebar width
+    localStorage.setItem(BACKUP_KEY, String(currentLeft));
+    const targetLeft = clamp(currentLeft - sidebarWidth, minLeft, total - minRight - RESIZER_W);
+    (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${Math.round(targetLeft)}px`;
+    (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${Math.max(minRight, total - targetLeft - RESIZER_W)}px`;
+  } else {
+    // Closing: restore previous left width if saved, else add sidebar width back
+    const saved = parseFloat(localStorage.getItem(BACKUP_KEY) || "0");
+    const restored = saved > 0 ? saved : currentLeft + sidebarWidth;
+    const targetLeft = clamp(restored, minLeft, total - minRight - RESIZER_W);
+    (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${Math.round(targetLeft)}px`;
+    (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${Math.max(minRight, total - targetLeft - RESIZER_W)}px`;
+    localStorage.removeItem(BACKUP_KEY);
+  }
+
+  // Resize after layout change
   requestAnimationFrame(() => {
     try { (Blockly as any).svgResize?.(ws); } catch {}
     try {
@@ -1454,9 +1487,10 @@ function openImportModal() {
       0,
       Math.round(window.innerHeight / 2 - rect.height / 2)
     );
-    modalContent.style.left = `${centerLeft}px`;
-    modalContent.style.top = `${centerTop}px`;
-    modalContent.style.transform = "";
+    // Используем transform для центрирования, как в CSS
+    modalContent.style.left = "50%";
+    modalContent.style.top = "50%";
+    modalContent.style.transform = "translate(-50%, -50%)";
     // Важно: включаем анимацию только при открытии, чтобы она не мешала drag
     modalContent.style.animation = "";
   }
@@ -1527,9 +1561,11 @@ function initImportModalDrag() {
     // Ограничиваем в пределах окна
     const maxLeft = window.innerWidth - width;
     const maxTop = window.innerHeight - height;
+    // Минимальное значение для top, чтобы заголовок всегда был виден
+    const minTop = 10; // Оставляем минимум 10px от верха окна
     if (nextLeft < 0) nextLeft = 0;
     else if (nextLeft > maxLeft) nextLeft = maxLeft;
-    if (nextTop < 0) nextTop = 0;
+    if (nextTop < minTop) nextTop = minTop;
     else if (nextTop > maxTop) nextTop = maxTop;
 
     content.style.left = `${nextLeft}px`;
@@ -1752,3 +1788,270 @@ function handleBeforeUnload(event: BeforeUnloadEvent): string | undefined {
 
 // Подключаем обработчик предупреждения о потере данных
 window.addEventListener('beforeunload', handleBeforeUnload);
+
+// ===== Инициализация модального окна справки по созданию блоков =====
+/**
+ * Инициализирует модальное окно справки по созданию блоков
+ * Добавляет обработчики событий для открытия и закрытия окна
+ * Вставляет содержимое руководства напрямую вместо загрузки MD файла
+ * Добавляет возможность перетаскивания модального окна
+ */
+function initHelpModal() {
+  if (blockHelpBtn && helpModal && closeHelpModal && markdownContent) {
+    // Открытие модального окна при клике на кнопку справки
+    blockHelpBtn.addEventListener("click", () => {
+      if (helpModal) {
+        helpModal.style.display = "block";
+        
+        // Вставляем содержимое руководства напрямую вместо загрузки MD файла
+        markdownContent.innerHTML = `
+<h1>Руководство по созданию пользовательских блоков</h1>
+
+<h2>Структура JSON-описания блока</h2>
+
+<p>Каждый блок определяется JSON-объектом со следующими основными полями:</p>
+
+<h3>Обязательные поля</h3>
+
+<ul>
+<li><strong>type</strong>: Уникальный идентификатор блока (строка)</li>
+<li><strong>message0</strong>: Текст, отображаемый на блоке (может содержать заполнители %1, %2 и т.д.)</li>
+<li><strong>args0</strong>: Массив аргументов, соответствующих заполнителям в message0</li>
+</ul>
+
+<h3>Дополнительные поля</h3>
+
+<ul>
+<li><strong>colour</strong>: Цвет блока (число от 0 до 360 или строка с HEX-кодом)</li>
+<li><strong>tooltip</strong>: Всплывающая подсказка при наведении на блок</li>
+<li><strong>helpUrl</strong>: URL страницы с дополнительной информацией</li>
+<li><strong>inputsInline</strong>: Расположение входов (true - в линию, false - вертикально)</li>
+<li><strong>previousStatement</strong>: Позволяет подключать блок сверху (true или тип соединения)</li>
+<li><strong>nextStatement</strong>: Позволяет подключать блок снизу (true или тип соединения)</li>
+<li><strong>output</strong>: Тип выходного значения блока (строка или null)</li>
+</ul>
+
+<h2>Примеры блоков</h2>
+
+<h3>Блок с текстовым полем ввода</h3>
+
+<pre><code>{
+  "type": "example_input_text",
+  "message0": "текстовое поле: %1",
+  "args0": [
+    {
+      "type": "field_input",
+      "name": "TEXT",
+      "text": "значение по умолчанию"
+    }
+  ],
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 160,
+  "tooltip": "Пример блока с текстовым полем"
+}
+</code></pre>
+
+<h3>Блок с числовым полем ввода</h3>
+
+<pre><code>{
+  "type": "example_input_number",
+  "message0": "число: %1",
+  "args0": [
+    {
+      "type": "field_number",
+      "name": "NUM",
+      "value": 42,
+      "min": 0,
+      "max": 100
+    }
+  ],
+  "output": "Number",
+  "colour": 230,
+  "tooltip": "Возвращает число"
+}
+</code></pre>
+
+<h3>Блок с выпадающим списком</h3>
+
+<pre><code>{
+  "type": "example_dropdown",
+  "message0": "выбрать %1",
+  "args0": [
+    {
+      "type": "field_dropdown",
+      "name": "CHOICE",
+      "options": [
+        ["первый", "FIRST"],
+        ["второй", "SECOND"],
+        ["третий", "THIRD"]
+      ]
+    }
+  ],
+  "output": null,
+  "colour": 290,
+  "tooltip": "Выберите опцию"
+}
+</code></pre>
+
+<h3>Блок с подключаемым значением</h3>
+
+<pre><code>{
+  "type": "example_input_value",
+  "message0": "значение: %1",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "VALUE",
+      "check": "Number"
+    }
+  ],
+  "output": "Number",
+  "colour": 120,
+  "tooltip": "Принимает числовое значение"
+}
+</code></pre>
+
+<h2>Функция init</h2>
+
+<p>Вместо JSON-описания можно использовать функцию <code>init</code>, которая программно настраивает блок:</p>
+
+<pre><code>Blockly.Blocks['example_block'] = {
+  init: function() {
+    this.setColour(120);
+    this.appendDummyInput()
+        .appendField("Мой блок");
+    this.appendValueInput("VALUE")
+        .setCheck("Number")
+        .appendField("со значением");
+    this.setOutput(true, "Number");
+    this.setTooltip("Описание блока");
+  }
+};
+</code></pre>
+
+<h2>Генераторы кода</h2>
+
+<p>Генераторы определяют, какой код будет создан для каждого блока.</p>
+
+<h3>JavaScript генератор</h3>
+
+<pre><code>javascript.forBlock['example_block'] = function(block) {
+  const value = javascript.valueToCode(block, 'VALUE', javascript.ORDER_ATOMIC);
+  const code = \`Math.sqrt(\${value})\`;
+  return [code, javascript.ORDER_FUNCTION_CALL];
+};
+</code></pre>
+
+<h3>Python генератор</h3>
+
+<pre><code>python.forBlock['example_block'] = function(block) {
+  const value = python.valueToCode(block, 'VALUE', python.ORDER_ATOMIC);
+  const code = \`math.sqrt(\${value})\`;
+  return [code, python.ORDER_FUNCTION_CALL];
+};
+</code></pre>
+
+<h3>Lua генератор</h3>
+
+<pre><code>lua.forBlock['example_block'] = function(block) {
+  const value = lua.valueToCode(block, 'VALUE', lua.ORDER_ATOMIC);
+  const code = \`math.sqrt(\${value})\`;
+  return [code, lua.ORDER_FUNCTION_CALL];
+};
+</code></pre>
+
+<h2>Порядок операций</h2>
+
+<p>При генерации кода важно учитывать приоритет операций. Для этого используются константы ORDER_*:</p>
+
+<ul>
+<li>ORDER_ATOMIC: Атомарные значения (числа, строки)</li>
+<li>ORDER_FUNCTION_CALL: Вызов функции</li>
+<li>ORDER_MULTIPLICATIVE: Умножение, деление</li>
+<li>ORDER_ADDITIVE: Сложение, вычитание</li>
+<li>ORDER_RELATIONAL: Сравнения (&lt;, &gt;, &lt;=, &gt;=)</li>
+<li>ORDER_EQUALITY: Равенство (==, !=)</li>
+<li>ORDER_LOGICAL_AND: Логическое И (&amp;&amp;)</li>
+<li>ORDER_LOGICAL_OR: Логическое ИЛИ (||)</li>
+<li>ORDER_NONE: Без приоритета (требуются скобки)</li>
+</ul>
+
+<h2>Советы по созданию блоков</h2>
+
+<ol>
+<li>Используйте понятные названия и описания</li>
+<li>Выбирайте цвета в соответствии с категорией блока</li>
+<li>Добавляйте подробные подсказки (tooltip)</li>
+<li>Проверяйте типы входных значений</li>
+<li>Тестируйте блоки с разными входными данными</li>
+<li>Обрабатывайте краевые случаи в генераторах кода</li>
+</ol>
+`;
+      }
+    });
+    
+    // Закрытие модального окна при клике на крестик
+    closeHelpModal.addEventListener("click", () => {
+      if (helpModal) {
+        helpModal.style.display = "none";
+      }
+    });
+    
+    // Закрытие модального окна при клике вне его содержимого
+    window.addEventListener("click", (event) => {
+      if (event.target === helpModal) {
+        helpModal.style.display = "none";
+      }
+    });
+    
+    // Добавляем возможность перетаскивания модального окна
+    const helpModalContent = document.getElementById("helpModalContent");
+    const helpModalHeader = helpModalContent?.querySelector(".modal-header");
+    
+    if (helpModalContent && helpModalHeader) {
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+      
+      // Начало перетаскивания
+      helpModalHeader.addEventListener("mousedown", (e: Event) => {
+        const mouseEvent = e as MouseEvent;
+        isDragging = true;
+        
+        // Сбрасываем transform для получения правильных координат
+        const computedStyle = window.getComputedStyle(helpModalContent);
+        const matrix = new DOMMatrix(computedStyle.transform);
+        
+        // Устанавливаем начальную позицию в абсолютных координатах
+        helpModalContent.style.top = helpModalContent.offsetTop + matrix.m42 + "px";
+        helpModalContent.style.left = helpModalContent.offsetLeft + matrix.m41 + "px";
+        helpModalContent.style.transform = "none";
+        
+        // Запоминаем смещение курсора относительно окна
+        offsetX = mouseEvent.clientX - helpModalContent.offsetLeft;
+        offsetY = mouseEvent.clientY - helpModalContent.offsetTop;
+        
+        // Предотвращаем выделение текста при перетаскивании
+        e.preventDefault();
+      });
+      
+      // Перетаскивание
+      document.addEventListener("mousemove", (e: Event) => {
+        const mouseEvent = e as MouseEvent;
+        if (isDragging) {
+          helpModalContent.style.left = (mouseEvent.clientX - offsetX) + "px";
+          helpModalContent.style.top = (mouseEvent.clientY - offsetY) + "px";
+        }
+      });
+      
+      // Окончание перетаскивания
+      document.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+    }
+  }
+}
+
+// Вызываем инициализацию модального окна справки
+initHelpModal();

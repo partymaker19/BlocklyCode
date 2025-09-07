@@ -14,7 +14,11 @@ import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
 import { save, load } from "./serialization";
 import "./index.css";
-import { initTaskValidation, setActiveTask, getFirstUnsolvedTask } from "./tasks";
+import {
+  initTaskValidation,
+  setActiveTask,
+  getFirstUnsolvedTask,
+} from "./tasks";
 import {
   registerCustomBlocks,
   importBlockFromJson,
@@ -29,13 +33,17 @@ import {
   localizeTooltips,
   localizeAceSettingsPanel,
 } from "./localization";
-import { setupAceEditor, updateAceEditorFromWorkspace, getAceEditor } from "./aceEditor";
+import {
+  setupAceEditor,
+  updateAceEditorFromWorkspace,
+  getAceEditor,
+} from "./aceEditor";
 import { clearOutput, runCode } from "./codeExecution";
 import Konva from "konva";
 // Import dark theme
 import DarkTheme from "@blockly/theme-dark";
 // Toolbox search plugin (localized)
-import './toolbox_search_localized';
+import "./toolbox_search_localized";
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
@@ -94,8 +102,12 @@ const blockGeneratorTextarea = document.getElementById(
 ) as HTMLTextAreaElement | null;
 
 // Task UI elements: header toggle button and left sidebar
-const taskSolutionBtn = document.getElementById("taskSolutionBtn") as HTMLButtonElement | null;
-const taskSidebar = document.getElementById("taskSidebar") as HTMLDivElement | null;
+const taskSolutionBtn = document.getElementById(
+  "taskSolutionBtn"
+) as HTMLButtonElement | null;
+const taskSidebar = document.getElementById(
+  "taskSidebar"
+) as HTMLDivElement | null;
 
 const presetLetBtn = document.getElementById(
   "presetLet"
@@ -147,11 +159,21 @@ const generatorOkEl = document.getElementById(
 ) as HTMLDivElement | null;
 
 // Task sidebar elements
-const checkTaskBtn = document.getElementById("checkTaskBtn") as HTMLButtonElement | null;
-const taskFeedbackEl = document.getElementById("taskFeedback") as HTMLDivElement | null;
-const taskStarsEl = document.getElementById("taskStars") as HTMLDivElement | null;
-const nextTaskBtn = document.getElementById("nextTaskBtn") as HTMLButtonElement | null;
-const prevTaskBtn = document.getElementById("prevTaskBtn") as HTMLButtonElement | null;
+const checkTaskBtn = document.getElementById(
+  "checkTaskBtn"
+) as HTMLButtonElement | null;
+const taskFeedbackEl = document.getElementById(
+  "taskFeedback"
+) as HTMLDivElement | null;
+const taskStarsEl = document.getElementById(
+  "taskStars"
+) as HTMLDivElement | null;
+const nextTaskBtn = document.getElementById(
+  "nextTaskBtn"
+) as HTMLButtonElement | null;
+const prevTaskBtn = document.getElementById(
+  "prevTaskBtn"
+) as HTMLButtonElement | null;
 
 // Theme elements
 const themeSwitchInput = document.getElementById(
@@ -180,10 +202,16 @@ let appTheme: AppTheme =
 let ws!: Blockly.WorkspaceSvg;
 
 // Элементы модального окна справки
-const blockHelpBtn = document.getElementById("blockHelpBtn") as HTMLButtonElement | null;
+const blockHelpBtn = document.getElementById(
+  "blockHelpBtn"
+) as HTMLButtonElement | null;
 const helpModal = document.getElementById("helpModal") as HTMLDivElement | null;
-const closeHelpModal = document.getElementById("closeHelpModal") as HTMLSpanElement | null;
-const markdownContent = document.getElementById("markdownContent") as HTMLDivElement | null;
+const closeHelpModal = document.getElementById(
+  "closeHelpModal"
+) as HTMLSpanElement | null;
+const markdownContent = document.getElementById(
+  "markdownContent"
+) as HTMLDivElement | null;
 
 // ===== Блок: счётчик блоков в тулбоксе =====
 function getWorkspaceBlockCount(): number {
@@ -197,44 +225,51 @@ function getWorkspaceBlockCount(): number {
 }
 
 function ensureToolboxBlockCounter(): HTMLDivElement | null {
-  const toolboxDiv = document.querySelector('.blocklyToolboxDiv, .blocklyToolbox') as HTMLDivElement | null;
-  if (!toolboxDiv) { console.debug('[block-counter] toolbox not found'); return null; }
+  const toolboxDiv = document.querySelector(
+    ".blocklyToolboxDiv, .blocklyToolbox"
+  ) as HTMLDivElement | null;
+  if (!toolboxDiv) {
+    console.debug("[block-counter] toolbox not found");
+    return null;
+  }
 
   // Контейнер со списком категорий (разные версии Blockly)
-  const categoriesContainer = (
-    toolboxDiv.querySelector('.blocklyToolboxContents') ||
-    toolboxDiv.querySelector('.blocklyTreeRoot') ||
-    toolboxDiv
-  ) as HTMLElement;
+  const categoriesContainer = (toolboxDiv.querySelector(
+    ".blocklyToolboxContents"
+  ) ||
+    toolboxDiv.querySelector(".blocklyTreeRoot") ||
+    toolboxDiv) as HTMLElement;
 
   // Создаём/находим элемент бейджа
-  let el = document.getElementById('toolbox-block-counter') as HTMLDivElement | null;
+  let el = document.getElementById(
+    "toolbox-block-counter"
+  ) as HTMLDivElement | null;
   if (!el) {
-    el = document.createElement('div');
-    el.id = 'toolbox-block-counter';
+    el = document.createElement("div");
+    el.id = "toolbox-block-counter";
   }
 
   // Стили бейджа
-  el.style.position = 'absolute';
-  el.style.pointerEvents = 'none';
-  el.style.userSelect = 'none';
-  el.style.fontSize = '13px';
-  el.style.fontWeight = '700';
-  el.style.padding = '6px 8px';
-  el.style.borderRadius = '8px';
+  el.style.position = "absolute";
+  el.style.pointerEvents = "none";
+  el.style.userSelect = "none";
+  el.style.fontSize = "13px";
+  el.style.fontWeight = "700";
+  el.style.padding = "6px 8px";
+  el.style.borderRadius = "8px";
   // вместо инлайн-цветов используем CSS-класс для темизации
-  el.classList.add('toolbox-counter');
+  el.classList.add("toolbox-counter");
   // зачистим возможные старые инлайн-стили
-  el.style.background = '' as any;
-  el.style.color = '' as any;
-  el.style.boxShadow = '' as any;
-  el.style.zIndex = '1';
-  el.style.display = 'block';
-  el.style.margin = '12px 8px 8px 8px';
+  el.style.background = "" as any;
+  el.style.color = "" as any;
+  el.style.boxShadow = "" as any;
+  el.style.zIndex = "1";
+  el.style.display = "block";
+  el.style.margin = "12px 8px 8px 8px";
   // очистим возможные значения от прежней абсолютной раскладки
-  el.style.left = '' as any;
-  el.style.top = '' as any;
-  el.style.bottom = '' as any;
+  el.style.left = "" as any;
+  el.style.top = "" as any;
+  el.style.bottom = "" as any;
 
   // Переместим элемент в контейнер категорий, если он был в другом месте
   if (el.parentElement !== categoriesContainer) {
@@ -249,11 +284,13 @@ function updateToolboxBlockCounterLabel(): void {
   if (!el) return;
   const lang = getAppLang();
   const count = getWorkspaceBlockCount();
-  el.textContent = lang === 'ru' ? `Блоков на рабочем поле: ${count}` : `Blocks in workspace: ${count}`;
-  console.debug('[block-counter] updated', { count, lang });
+  el.textContent =
+    lang === "ru"
+      ? `Блоков на рабочем поле: ${count}`
+      : `Blocks in workspace: ${count}`;
+  console.debug("[block-counter] updated", { count, lang });
 }
 // ===== конец блока счётчика блоков =====
-
 
 // Helper: get active Blockly theme
 function getBlocklyTheme() {
@@ -292,7 +329,8 @@ function toggleTaskSidebar(force?: boolean) {
   if (!taskSidebar || !pageContainer || !blocklyDiv || !outputPaneEl) return;
 
   const BACKUP_KEY = "layout.split.v.backup";
-  const sidebarWidth = (taskSidebar as HTMLDivElement).getBoundingClientRect().width || 340;
+  const sidebarWidth =
+    (taskSidebar as HTMLDivElement).getBoundingClientRect().width || 340;
 
   const isOpen = taskSidebar.classList.contains("open");
   const next = force !== undefined ? force : !isOpen;
@@ -309,31 +347,39 @@ function toggleTaskSidebar(force?: boolean) {
   const RESIZER_W = Math.max(4, verticalResizer?.offsetWidth || 6);
   const minLeft = 320; // min width for blockly
   const minRight = 300; // min width for output
-  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+  const clamp = (val: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, val));
 
-  const currentLeft = (blocklyDiv as HTMLDivElement).getBoundingClientRect().width;
+  const currentLeft = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
+    .width;
 
   if (next) {
     // Opening: save previous left width and shrink by sidebar width
     localStorage.setItem(BACKUP_KEY, String(currentLeft));
-    const targetLeft = clamp(currentLeft - sidebarWidth, minLeft, total - minRight - RESIZER_W);
-    (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${Math.round(targetLeft)}px`;
-    (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${Math.max(minRight, total - targetLeft - RESIZER_W)}px`;
+    const targetLeft = clamp(
+      currentLeft - sidebarWidth,
+      minLeft,
+      total - minRight - RESIZER_W
+    );
+    // keep left pane width unchanged when toggling sidebar; do not modify its flex here
+    // keep outputPane fixed at 301px via CSS; do not adjust its flex here
   } else {
     // Closing: restore previous left width if saved, else add sidebar width back
     const saved = parseFloat(localStorage.getItem(BACKUP_KEY) || "0");
     const restored = saved > 0 ? saved : currentLeft + sidebarWidth;
     const targetLeft = clamp(restored, minLeft, total - minRight - RESIZER_W);
-    (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${Math.round(targetLeft)}px`;
-    (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${Math.max(minRight, total - targetLeft - RESIZER_W)}px`;
+    // keep left pane width unchanged when toggling sidebar; do not modify its flex here
+    // keep outputPane fixed at 301px via CSS; do not adjust its flex here
     localStorage.removeItem(BACKUP_KEY);
   }
 
   // Resize after layout change
   requestAnimationFrame(() => {
-    try { (Blockly as any).svgResize?.(ws); } catch {}
     try {
-      const ed = (typeof getAceEditor === "function") ? getAceEditor() : null;
+      (Blockly as any).svgResize?.(ws);
+    } catch {}
+    try {
+      const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
       ed?.resize?.(true);
     } catch {}
   });
@@ -453,7 +499,9 @@ function validateGeneratorUI() {
           : String(error);
       const t = (window as any)._currentLocalizedStrings;
       generatorErrorEl.style.display = "block";
-      generatorErrorEl.textContent = `${t?.GeneratorErrorPrefix || 'Ошибка:'} ${msg}`;
+      generatorErrorEl.textContent = `${
+        t?.GeneratorErrorPrefix || "Ошибка:"
+      } ${msg}`;
       generatorOkEl.style.display = "none";
     }
   } else {
@@ -557,7 +605,10 @@ if (confirmImportBtn) {
       generatorErrorEl &&
       generatorErrorEl.style.display !== "none"
     ) {
-      alert(t?.FixJsGenerator || "Исправьте ошибки в генераторе JavaScript перед импортом");
+      alert(
+        t?.FixJsGenerator ||
+          "Исправьте ошибки в генераторе JavaScript перед импортом"
+      );
       return;
     }
     const { success, error, blockType } = importBlockFromJson(
@@ -571,11 +622,13 @@ if (confirmImportBtn) {
       closeImportModal();
       if (outputDiv) {
         const p = document.createElement("p");
-        p.textContent = `${t?.ImportedBlock || 'Импортирован блок:'} ${blockType}`;
+        p.textContent = `${
+          t?.ImportedBlock || "Импортирован блок:"
+        } ${blockType}`;
         outputDiv.appendChild(p);
       }
     } else {
-      alert(`${t?.ImportErrorPrefix || 'Ошибка импорта:'} ` + error);
+      alert(`${t?.ImportErrorPrefix || "Ошибка импорта:"} ` + error);
     }
   });
 }
@@ -910,36 +963,57 @@ localizeTooltips(defaultLang);
 // Установить локализованный текст для кнопки следующей задачи и элементы панели задач
 {
   const t = (window as any)._currentLocalizedStrings;
-  const nextLabel = t?.NextTask || (defaultLang === 'ru' ? 'Следующая задача' : 'Next task');
-  const prevLabel = t?.PrevTask || (defaultLang === 'ru' ? 'Предыдущая задача' : 'Previous task');
-  const btn = document.getElementById('nextTaskBtn');
+  const nextLabel =
+    t?.NextTask || (defaultLang === "ru" ? "Следующая задача" : "Next task");
+  const prevLabel =
+    t?.PrevTask ||
+    (defaultLang === "ru" ? "Предыдущая задача" : "Previous task");
+  const btn = document.getElementById("nextTaskBtn");
   if (btn) btn.textContent = `${nextLabel} →`;
-  const prev = document.getElementById('prevTaskBtn');
+  const prev = document.getElementById("prevTaskBtn");
   if (prev) prev.textContent = `← ${prevLabel}`;
 
-  const solText = document.getElementById('taskSolutionBtnText');
-  if (solText) (solText as HTMLElement).textContent = `ℹ️ ${t?.TaskSolutions || (defaultLang === 'ru' ? 'Решение задач' : 'Task Solutions')}`;
+  const solText = document.getElementById("taskSolutionBtnText");
+  if (solText)
+    (solText as HTMLElement).textContent = `ℹ️ ${
+      t?.TaskSolutions ||
+      (defaultLang === "ru" ? "Решение задач" : "Task Solutions")
+    }`;
 
-  const checkBtn = document.getElementById('checkTaskBtn');
-  if (checkBtn) (checkBtn as HTMLElement).textContent = t?.CheckSolution || (defaultLang === 'ru' ? 'Проверить решение' : 'Check solution');
+  const checkBtn = document.getElementById("checkTaskBtn");
+  if (checkBtn)
+    (checkBtn as HTMLElement).textContent =
+      t?.CheckSolution ||
+      (defaultLang === "ru" ? "Проверить решение" : "Check solution");
 
-  const criteriaEl = document.querySelector('#taskSidebar .task-criteria');
+  const criteriaEl = document.querySelector("#taskSidebar .task-criteria");
   if (criteriaEl) {
-    const text = t?.StarsCriteria || (defaultLang === 'ru' ? 'Критерии звёзд:' : 'Stars criteria:');
+    const text =
+      t?.StarsCriteria ||
+      (defaultLang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
     const firstNode = criteriaEl.firstChild;
     if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
-      (firstNode as Text).textContent = text + '\n';
+      (firstNode as Text).textContent = text + "\n";
     }
 
-    const ul = criteriaEl.querySelector('ul');
+    const ul = criteriaEl.querySelector("ul");
     if (ul) {
-      const items = ul.querySelectorAll('li');
-      const starsOptimal = t?.StarsOptimal || (defaultLang === 'ru' ? 'оптимально (минимум блоков)' : 'optimal (minimum blocks)');
-      const starsGood = t?.StarsGood || (defaultLang === 'ru' ? 'хорошо' : 'good');
-      const starsCorrect = t?.StarsCorrect || (defaultLang === 'ru' ? 'решение верное' : 'solution correct');
-      if (items[0]) (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
+      const items = ul.querySelectorAll("li");
+      const starsOptimal =
+        t?.StarsOptimal ||
+        (defaultLang === "ru"
+          ? "оптимально (минимум блоков)"
+          : "optimal (minimum blocks)");
+      const starsGood =
+        t?.StarsGood || (defaultLang === "ru" ? "хорошо" : "good");
+      const starsCorrect =
+        t?.StarsCorrect ||
+        (defaultLang === "ru" ? "решение верное" : "solution correct");
+      if (items[0])
+        (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
       if (items[1]) (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
-      if (items[2]) (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
+      if (items[2])
+        (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
     }
   }
 }
@@ -971,36 +1045,58 @@ if (langSwitchInput) {
     // Обновить текст кнопки следующей задачи и элементы панели задач
     {
       const t = (window as any)._currentLocalizedStrings;
-      const nextLabel = t?.NextTask || (newLang === 'ru' ? 'Следующая задача' : 'Next task');
-      const prevLabel = t?.PrevTask || (newLang === 'ru' ? 'Предыдущая задача' : 'Previous task');
-      const btn = document.getElementById('nextTaskBtn');
+      const nextLabel =
+        t?.NextTask || (newLang === "ru" ? "Следующая задача" : "Next task");
+      const prevLabel =
+        t?.PrevTask ||
+        (newLang === "ru" ? "Предыдущая задача" : "Previous task");
+      const btn = document.getElementById("nextTaskBtn");
       if (btn) btn.textContent = `${nextLabel} →`;
-      const prev = document.getElementById('prevTaskBtn');
+      const prev = document.getElementById("prevTaskBtn");
       if (prev) prev.textContent = `← ${prevLabel}`;
 
-      const solText = document.getElementById('taskSolutionBtnText');
-      if (solText) (solText as HTMLElement).textContent = `ℹ️ ${t?.TaskSolutions || (newLang === 'ru' ? 'Решение задач' : 'Task Solutions')}`;
+      const solText = document.getElementById("taskSolutionBtnText");
+      if (solText)
+        (solText as HTMLElement).textContent = `ℹ️ ${
+          t?.TaskSolutions ||
+          (newLang === "ru" ? "Решение задач" : "Task Solutions")
+        }`;
 
-      const checkBtn = document.getElementById('checkTaskBtn');
-      if (checkBtn) (checkBtn as HTMLElement).textContent = t?.CheckSolution || (newLang === 'ru' ? 'Проверить решение' : 'Check solution');
+      const checkBtn = document.getElementById("checkTaskBtn");
+      if (checkBtn)
+        (checkBtn as HTMLElement).textContent =
+          t?.CheckSolution ||
+          (newLang === "ru" ? "Проверить решение" : "Check solution");
 
-      const criteriaEl = document.querySelector('#taskSidebar .task-criteria');
+      const criteriaEl = document.querySelector("#taskSidebar .task-criteria");
       if (criteriaEl) {
-        const text = t?.StarsCriteria || (newLang === 'ru' ? 'Критерии звёзд:' : 'Stars criteria:');
+        const text =
+          t?.StarsCriteria ||
+          (newLang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
         const firstNode = criteriaEl.firstChild;
         if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
-          (firstNode as Text).textContent = text + '\n';
+          (firstNode as Text).textContent = text + "\n";
         }
 
-        const ul = criteriaEl.querySelector('ul');
+        const ul = criteriaEl.querySelector("ul");
         if (ul) {
-          const items = ul.querySelectorAll('li');
-          const starsOptimal = t?.StarsOptimal || (newLang === 'ru' ? 'оптимально (минимум блоков)' : 'optimal (minimum blocks)');
-          const starsGood = t?.StarsGood || (newLang === 'ru' ? 'хорошо' : 'good');
-          const starsCorrect = t?.StarsCorrect || (newLang === 'ru' ? 'решение верное' : 'solution correct');
-          if (items[0]) (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
-          if (items[1]) (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
-          if (items[2]) (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
+          const items = ul.querySelectorAll("li");
+          const starsOptimal =
+            t?.StarsOptimal ||
+            (newLang === "ru"
+              ? "оптимально (минимум блоков)"
+              : "optimal (minimum blocks)");
+          const starsGood =
+            t?.StarsGood || (newLang === "ru" ? "хорошо" : "good");
+          const starsCorrect =
+            t?.StarsCorrect ||
+            (newLang === "ru" ? "решение верное" : "solution correct");
+          if (items[0])
+            (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
+          if (items[1])
+            (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
+          if (items[2])
+            (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
         }
       }
     }
@@ -1306,17 +1402,27 @@ try {
 } catch {}
 
 // Split layout elements
-const pageContainer = document.getElementById("pageContainer") as HTMLDivElement | null;
-const outputPaneEl = document.getElementById("outputPane") as HTMLDivElement | null;
+const pageContainer = document.getElementById(
+  "pageContainer"
+) as HTMLDivElement | null;
+const outputPaneEl = document.getElementById(
+  "outputPane"
+) as HTMLDivElement | null;
 const codePaneEl = document.getElementById("codePane") as HTMLDivElement | null;
-const verticalResizer = document.getElementById("verticalResizer") as HTMLDivElement | null;
-const horizontalResizer = document.getElementById("horizontalResizer") as HTMLDivElement | null;
+const verticalResizer = document.getElementById(
+  "verticalResizer"
+) as HTMLDivElement | null;
+const horizontalResizer = document.getElementById(
+  "horizontalResizer"
+) as HTMLDivElement | null;
 
 // Ensure final resize after flex-basis transition completes
 if (blocklyDiv) {
   blocklyDiv.addEventListener("transitionend", (e: TransitionEvent) => {
     if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
-      try { (Blockly as any).svgResize?.(ws); } catch {}
+      try {
+        (Blockly as any).svgResize?.(ws);
+      } catch {}
     }
   });
 }
@@ -1324,7 +1430,7 @@ if (outputPaneEl) {
   outputPaneEl.addEventListener("transitionend", (e: TransitionEvent) => {
     if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
       try {
-        const ed = (typeof getAceEditor === "function") ? getAceEditor() : null;
+        const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
         ed?.resize?.(true);
       } catch {}
     }
@@ -1363,7 +1469,9 @@ if (outputPaneEl) {
     (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${rightPx}px`;
 
     // Resize dependent widgets
-    try { (Blockly as any).svgResize?.(ws); } catch {}
+    try {
+      (Blockly as any).svgResize?.(ws);
+    } catch {}
     resizeAceSoon();
   }
 
@@ -1407,16 +1515,25 @@ if (outputPaneEl) {
       };
       const onUp = () => {
         window.removeEventListener("mousemove", onMove as any);
-        window.removeEventListener("touchmove", onMove as any, { passive: false } as any);
+        window.removeEventListener(
+          "touchmove",
+          onMove as any,
+          { passive: false } as any
+        );
         window.removeEventListener("mouseup", onUp);
         window.removeEventListener("touchend", onUp);
         // Save ratio
-        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect().width;
+        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
+          .width;
         const total = (pageContainer as HTMLDivElement).clientWidth;
         localStorage.setItem(V_KEY, String(left / total));
       };
       window.addEventListener("mousemove", onMove as any);
-      window.addEventListener("touchmove", onMove as any, { passive: false } as any);
+      window.addEventListener(
+        "touchmove",
+        onMove as any,
+        { passive: false } as any
+      );
       window.addEventListener("mouseup", onUp);
       window.addEventListener("touchend", onUp);
     };
@@ -1436,7 +1553,11 @@ if (outputPaneEl) {
       };
       const onUp = () => {
         window.removeEventListener("mousemove", onMove as any);
-        window.removeEventListener("touchmove", onMove as any, { passive: false } as any);
+        window.removeEventListener(
+          "touchmove",
+          onMove as any,
+          { passive: false } as any
+        );
         window.removeEventListener("mouseup", onUp);
         window.removeEventListener("touchend", onUp);
         // Save ratio
@@ -1445,12 +1566,18 @@ if (outputPaneEl) {
         localStorage.setItem(H_KEY, String(h / totalH));
       };
       window.addEventListener("mousemove", onMove as any);
-      window.addEventListener("touchmove", onMove as any, { passive: false } as any);
+      window.addEventListener(
+        "touchmove",
+        onMove as any,
+        { passive: false } as any
+      );
       window.addEventListener("mouseup", onUp);
       window.addEventListener("touchend", onUp);
     };
     horizontalResizer.addEventListener("mousedown", startH);
-    horizontalResizer.addEventListener("touchstart", startH, { passive: false });
+    horizontalResizer.addEventListener("touchstart", startH, {
+      passive: false,
+    });
   }
 
   // Apply saved ratios or sensible defaults
@@ -1506,7 +1633,6 @@ function closeImportModal() {
   if (blockJsonTextarea) blockJsonTextarea.value = "";
   if (blockGeneratorTextarea) blockGeneratorTextarea.value = "";
 }
-
 
 // Включает перетаскивание модального окна за заголовок
 function initImportModalDrag() {
@@ -1591,7 +1717,12 @@ function refreshWorkspaceWithCustomToolbox() {
   if (ws) ws.dispose();
   const newWs = Blockly.inject(blocklyDiv!, {
     toolbox: localizedToolbox(lang),
-    grid: { spacing: 20, length: 3, colour: appTheme === "dark" ? "#374151" : "#ccc", snap: true },
+    grid: {
+      spacing: 20,
+      length: 3,
+      colour: appTheme === "dark" ? "#374151" : "#ccc",
+      snap: true,
+    },
     zoom: {
       controls: true,
       wheel: true,
@@ -1651,8 +1782,11 @@ function refreshWorkspaceWithCustomToolbox() {
 
       // Если блок был удален, очищаем окно вывода
       // Тип события удаления может называться 'BLOCK_DELETE' в текущих версиях Blockly
-      if ((e as any).type === (Blockly as any).Events?.BLOCK_DELETE || (e as any).type === 'block_delete') {
-        const out = document.getElementById('output') as HTMLElement | null;
+      if (
+        (e as any).type === (Blockly as any).Events?.BLOCK_DELETE ||
+        (e as any).type === "block_delete"
+      ) {
+        const out = document.getElementById("output") as HTMLElement | null;
         clearOutput(out);
       }
 
@@ -1676,78 +1810,94 @@ function refreshWorkspaceWithCustomToolbox() {
   // На всякий случай немного отложим, чтобы DOM тулбокса гарантированно создался
   requestAnimationFrame(() => updateToolboxBlockCounterLabel());
 }
-const saveXmlBtn = document.getElementById("saveXmlBtn") as HTMLButtonElement | null;
-const loadXmlBtn = document.getElementById("loadXmlBtn") as HTMLButtonElement | null;
-const loadXmlInput = document.getElementById("loadXmlInput") as HTMLInputElement | null;
+const saveXmlBtn = document.getElementById(
+  "saveXmlBtn"
+) as HTMLButtonElement | null;
+const loadXmlBtn = document.getElementById(
+  "loadXmlBtn"
+) as HTMLButtonElement | null;
+const loadXmlInput = document.getElementById(
+  "loadXmlInput"
+) as HTMLInputElement | null;
 if (saveXmlBtn) {
-        saveXmlBtn.addEventListener("click", async () => {
-          if (!ws) return;
-          try {
-            const xmlDom = Blockly.Xml.workspaceToDom(ws);
-            const xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-            const suggested = `workspace_${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}.xml`;
-            const w: any = window as any;
-            if (typeof w.showSaveFilePicker === "function") {
-              const handle = await w.showSaveFilePicker({
-                suggestedName: suggested,
-                types: [
-                  {
-                    description: "Blockly XML",
-                    accept: { "application/xml": [".xml"] },
-                  },
-                ],
-              });
-              const writable = await handle.createWritable();
-              await writable.write(new Blob([xmlText], { type: "application/xml;charset=utf-8" }));
-              await writable.close();
-            } else {
-              const name = (typeof w?.prompt === "function"
-                ? w.prompt(getAppLang() === "ru" ? "Имя файла:" : "File name:", suggested)
-                : null) || suggested;
-              const blob = new Blob([xmlText], { type: "application/xml;charset=utf-8" });
-              const a = document.createElement("a");
-              a.href = URL.createObjectURL(blob);
-              a.download = name;
-              a.click();
-              URL.revokeObjectURL(a.href);
-            }
-          } catch (e) {
-            console.error("Save XML failed", e);
-          }
+  saveXmlBtn.addEventListener("click", async () => {
+    if (!ws) return;
+    try {
+      const xmlDom = Blockly.Xml.workspaceToDom(ws);
+      const xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+      const suggested = `workspace_${new Date()
+        .toISOString()
+        .replace(/[:.]/g, "-")
+        .slice(0, 19)}.xml`;
+      const w: any = window as any;
+      if (typeof w.showSaveFilePicker === "function") {
+        const handle = await w.showSaveFilePicker({
+          suggestedName: suggested,
+          types: [
+            {
+              description: "Blockly XML",
+              accept: { "application/xml": [".xml"] },
+            },
+          ],
         });
-      }
-      if (loadXmlBtn) {
-        loadXmlBtn.addEventListener("click", () => {
-          if (!loadXmlInput) return;
-          loadXmlInput.value = "";
-          loadXmlInput.click();
+        const writable = await handle.createWritable();
+        await writable.write(
+          new Blob([xmlText], { type: "application/xml;charset=utf-8" })
+        );
+        await writable.close();
+      } else {
+        const name =
+          (typeof w?.prompt === "function"
+            ? w.prompt(
+                getAppLang() === "ru" ? "Имя файла:" : "File name:",
+                suggested
+              )
+            : null) || suggested;
+        const blob = new Blob([xmlText], {
+          type: "application/xml;charset=utf-8",
         });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(a.href);
       }
-      if (loadXmlInput) {
-        loadXmlInput.addEventListener("change", async () => {
-          if (!ws || !loadXmlInput.files || loadXmlInput.files.length === 0) return;
-          const file = loadXmlInput.files[0];
-          try {
-            const text = await file.text();
-            // Parse XML text via DOMParser instead of Blockly.Xml.textToDom for compatibility
-            const doc = new DOMParser().parseFromString(text, "text/xml");
-            const xml = doc.documentElement as Element;
-            Blockly.Events.disable();
-            ws.clear();
-            Blockly.Xml.domToWorkspace(xml, ws);
-            Blockly.Events.enable();
-            // Sync ACE editor after load
-            updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-            // Обновить счётчик блоков
-            updateToolboxBlockCounterLabel();
-            // Persist to localStorage via existing listener
-            save(ws);
-            } catch (e) {
-            console.error("Load XML failed", e);
-            }
-        });
-      }
-
+    } catch (e) {
+      console.error("Save XML failed", e);
+    }
+  });
+}
+if (loadXmlBtn) {
+  loadXmlBtn.addEventListener("click", () => {
+    if (!loadXmlInput) return;
+    loadXmlInput.value = "";
+    loadXmlInput.click();
+  });
+}
+if (loadXmlInput) {
+  loadXmlInput.addEventListener("change", async () => {
+    if (!ws || !loadXmlInput.files || loadXmlInput.files.length === 0) return;
+    const file = loadXmlInput.files[0];
+    try {
+      const text = await file.text();
+      // Parse XML text via DOMParser instead of Blockly.Xml.textToDom for compatibility
+      const doc = new DOMParser().parseFromString(text, "text/xml");
+      const xml = doc.documentElement as Element;
+      Blockly.Events.disable();
+      ws.clear();
+      Blockly.Xml.domToWorkspace(xml, ws);
+      Blockly.Events.enable();
+      // Sync ACE editor after load
+      updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+      // Обновить счётчик блоков
+      updateToolboxBlockCounterLabel();
+      // Persist to localStorage via existing listener
+      save(ws);
+    } catch (e) {
+      console.error("Load XML failed", e);
+    }
+  });
+}
 
 // Логика проверки задач перенесена в ./tasks и инициализируется через initTaskValidation(ws, ...)
 
@@ -1759,12 +1909,13 @@ if (saveXmlBtn) {
  */
 function hasUnsavedChanges(): boolean {
   // Проверяем блоки в workspace
-  const hasBlocks = ws?.getAllBlocks(false).filter((b: any) => !b.isShadow()).length > 0;
-  
+  const hasBlocks =
+    ws?.getAllBlocks(false).filter((b: any) => !b.isShadow()).length > 0;
+
   // Проверяем код в ACE редакторе
   const aceEditor = getAceEditor();
   const hasCode = aceEditor?.getValue()?.trim().length > 0;
-  
+
   return hasBlocks || hasCode;
 }
 
@@ -1774,10 +1925,11 @@ function hasUnsavedChanges(): boolean {
 function handleBeforeUnload(event: BeforeUnloadEvent): string | undefined {
   if (hasUnsavedChanges()) {
     const lang = getAppLang();
-    const message = lang === 'ru' 
-      ? 'У вас есть несохранённые изменения. Вы уверены, что хотите покинуть страницу?'
-      : 'You have unsaved changes. Are you sure you want to leave this page?';
-    
+    const message =
+      lang === "ru"
+        ? "У вас есть несохранённые изменения. Вы уверены, что хотите покинуть страницу?"
+        : "You have unsaved changes. Are you sure you want to leave this page?";
+
     // Стандартный способ для современных браузеров
     event.preventDefault();
     event.returnValue = message;
@@ -1787,7 +1939,7 @@ function handleBeforeUnload(event: BeforeUnloadEvent): string | undefined {
 }
 
 // Подключаем обработчик предупреждения о потере данных
-window.addEventListener('beforeunload', handleBeforeUnload);
+window.addEventListener("beforeunload", handleBeforeUnload);
 
 // ===== Инициализация модального окна справки по созданию блоков =====
 /**
@@ -1802,7 +1954,7 @@ function initHelpModal() {
     blockHelpBtn.addEventListener("click", () => {
       if (helpModal) {
         helpModal.style.display = "block";
-        
+
         // Вставляем содержимое руководства напрямую вместо загрузки MD файла
         markdownContent.innerHTML = `
 <h1>Руководство по созданию пользовательских блоков</h1>
@@ -1990,61 +2142,63 @@ function initHelpModal() {
 `;
       }
     });
-    
+
     // Закрытие модального окна при клике на крестик
     closeHelpModal.addEventListener("click", () => {
       if (helpModal) {
         helpModal.style.display = "none";
       }
     });
-    
+
     // Закрытие модального окна при клике вне его содержимого
     window.addEventListener("click", (event) => {
       if (event.target === helpModal) {
         helpModal.style.display = "none";
       }
     });
-    
+
     // Добавляем возможность перетаскивания модального окна
     const helpModalContent = document.getElementById("helpModalContent");
     const helpModalHeader = helpModalContent?.querySelector(".modal-header");
-    
+
     if (helpModalContent && helpModalHeader) {
       let isDragging = false;
       let offsetX = 0;
       let offsetY = 0;
-      
+
       // Начало перетаскивания
       helpModalHeader.addEventListener("mousedown", (e: Event) => {
         const mouseEvent = e as MouseEvent;
         isDragging = true;
-        
+
         // Сбрасываем transform для получения правильных координат
         const computedStyle = window.getComputedStyle(helpModalContent);
         const matrix = new DOMMatrix(computedStyle.transform);
-        
+
         // Устанавливаем начальную позицию в абсолютных координатах
-        helpModalContent.style.top = helpModalContent.offsetTop + matrix.m42 + "px";
-        helpModalContent.style.left = helpModalContent.offsetLeft + matrix.m41 + "px";
+        helpModalContent.style.top =
+          helpModalContent.offsetTop + matrix.m42 + "px";
+        helpModalContent.style.left =
+          helpModalContent.offsetLeft + matrix.m41 + "px";
         helpModalContent.style.transform = "none";
-        
+
         // Запоминаем смещение курсора относительно окна
         offsetX = mouseEvent.clientX - helpModalContent.offsetLeft;
         offsetY = mouseEvent.clientY - helpModalContent.offsetTop;
-        
+
         // Предотвращаем выделение текста при перетаскивании
         e.preventDefault();
       });
-      
+
       // Перетаскивание
       document.addEventListener("mousemove", (e: Event) => {
         const mouseEvent = e as MouseEvent;
         if (isDragging) {
-          helpModalContent.style.left = (mouseEvent.clientX - offsetX) + "px";
-          helpModalContent.style.top = (mouseEvent.clientY - offsetY) + "px";
+          helpModalContent.style.left = mouseEvent.clientX - offsetX + "px";
+          helpModalContent.style.top = mouseEvent.clientY - offsetY + "px";
         }
       });
-      
+
       // Окончание перетаскивания
       document.addEventListener("mouseup", () => {
         isDragging = false;

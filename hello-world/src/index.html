@@ -510,14 +510,29 @@
       overflow: hidden;
       position: relative;
       /* allow absolutely positioned sidebar */
+      --task-sidebar-width: 340px;
     }
 
-    /* Keep editor/output size; shift only Blockly pane when sidebar is open */
+    /* Keep editor/output size; visually shift Blockly content when sidebar is open without changing layout widths */
     #pageContainer.sidebar-open #blocklyDiv {
-      padding-left: 340px;
-      /* equal to sidebar width */
-      box-sizing: border-box;
-      /* ensure width remains fixed */
+      position: relative;
+      /* keep real width unchanged */
+    }
+    #pageContainer.sidebar-open #blocklyDiv::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: var(--task-sidebar-width); /* sidebar width */
+      pointer-events: none;
+    }
+
+    /* Move Blockly toolbox and flyout to the right by the sidebar width when it is open */
+    #pageContainer.sidebar-open #blocklyDiv .blocklyToolboxDiv,
+    #pageContainer.sidebar-open #blocklyDiv .blocklyToolbox {
+      left: var(--task-sidebar-width) !important;
+    }
+    #pageContainer.sidebar-open #blocklyDiv .blocklyFlyout {
+      transform: translateX(var(--task-sidebar-width));
     }
 
     /* Sliding task sidebar (hidden by default) */
@@ -550,16 +565,16 @@
       color: #e2e8f0;
       border-right: 1px solid #334155;
     }
-    
+
     html[data-theme='dark'] .console-output-info {
       background: #1e293b;
       border-left-color: #3b82f6;
     }
-    
+
     html[data-theme='dark'] .console-output-info h4 {
       color: #60a5fa;
     }
-    
+
     .console-output-info code {
       background: #f1f5f9;
       color: #0f172a;
@@ -568,21 +583,53 @@
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 0.9em;
     }
-    
+
     html[data-theme='dark'] .console-output-info code {
       background: #0f172a;
       color: #e2e8f0;
       padding: 2px 4px;
       border-radius: 4px;
     }
-    
+
     /* Console output info styles */
-    .console-output-info { margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #60a5fa; word-wrap: break-word; }
-    .console-output-info h4 { margin-top: 0; margin-bottom: 8px; color: #2563eb; }
-    .console-output-info code { background: #e9ecef; color: #1e40af; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
-    html[data-theme='dark'] .console-output-info { background: #1e293b; border-left-color: #3b82f6; color: #e2e8f0; }
-    html[data-theme='dark'] .console-output-info h4 { color: #60a5fa; }
-    html[data-theme='dark'] .console-output-info code { background: #0f172a; color: #93c5fd; }
+    .console-output-info {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #60a5fa;
+      word-wrap: break-word;
+    }
+
+    .console-output-info h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #2563eb;
+    }
+
+    .console-output-info code {
+      background: #e9ecef;
+      color: #1e40af;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    html[data-theme='dark'] .console-output-info {
+      background: #1e293b;
+      border-left-color: #3b82f6;
+      color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] .console-output-info h4 {
+      color: #60a5fa;
+    }
+
+    html[data-theme='dark'] .console-output-info code {
+      background: #0f172a;
+      color: #93c5fd;
+    }
 
     #blocklyDiv {
       flex: 2;
@@ -590,12 +637,12 @@
     }
 
     #outputPane {
-      flex: 1;
+      flex: 0 0 301px;
       background: #f5f5f5;
       border-left: 1px solid #ddd;
       display: flex;
       flex-direction: column;
-      min-width: 300px;
+      min-width: 301px;
     }
 
     #output {
@@ -662,47 +709,48 @@
       overflow: auto;
       overscroll-behavior: contain;
     }
-    
+
     /* Стили для markdown-контента */
     .markdown-content {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
       color: var(--text-color);
     }
-    
+
     .markdown-content h1 {
       font-size: 24px;
       margin-top: 0;
       margin-bottom: 16px;
       color: var(--primary-color);
     }
-    
+
     .markdown-content h2 {
       font-size: 20px;
       margin-top: 24px;
       margin-bottom: 12px;
       color: var(--primary-color);
     }
-    
+
     .markdown-content h3 {
       font-size: 18px;
       margin-top: 20px;
       margin-bottom: 10px;
     }
-    
+
     .markdown-content p {
       margin-bottom: 16px;
     }
-    
-    .markdown-content ul, .markdown-content ol {
+
+    .markdown-content ul,
+    .markdown-content ol {
       margin-bottom: 16px;
       padding-left: 24px;
     }
-    
+
     .markdown-content li {
       margin-bottom: 6px;
     }
-    
+
     .markdown-content code {
       font-family: 'Consolas', 'Monaco', monospace;
       background-color: var(--code-bg);
@@ -710,7 +758,7 @@
       border-radius: 4px;
       font-size: 14px;
     }
-    
+
     .markdown-content pre {
       background-color: var(--code-bg);
       padding: 12px;
@@ -718,7 +766,7 @@
       overflow-x: auto;
       margin-bottom: 16px;
     }
-    
+
     .markdown-content pre code {
       background-color: transparent;
       padding: 0;
@@ -1320,9 +1368,11 @@
           </svg>
           <span id="importBtnText">Импорт блоков</span>
         </button>
-        <button id="blockHelpBtn" class="import-button" title="Руководство по созданию блоков" aria-label="Руководство по созданию блоков">
+        <button id="blockHelpBtn" class="import-button" title="Руководство по созданию блоков"
+          aria-label="Руководство по созданию блоков">
           <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
+            <path
+              d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
           </svg>
           <span id="blockHelpBtnText">Справка</span>
         </button>
@@ -1514,7 +1564,8 @@
               </ul>
             </li>
           </ul>
-          <p style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет отображаться в окне вывода справа внизу.</p>
+          <p style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет отображаться в окне вывода
+            справа внизу.</p>
         </div>
         <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
         <div id="taskStars" class="task-stars" aria-hidden="true"></div>

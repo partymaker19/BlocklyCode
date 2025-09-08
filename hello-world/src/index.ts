@@ -187,16 +187,12 @@ const themeLabelDark = document.getElementById(
 ) as HTMLSpanElement | null;
 
 let selectedGeneratorLanguage: "javascript" | "python" | "lua" =
-  (localStorage.getItem("generator_language") as
-    | "javascript"
-    | "python"
-    | "lua") || "javascript";
+  "javascript";
 
 // Theme state
 type AppTheme = "light" | "dark";
 const APP_THEME_KEY = "app_theme";
-let appTheme: AppTheme =
-  (localStorage.getItem(APP_THEME_KEY) as AppTheme) || "light";
+let appTheme: AppTheme = "light";
 
 // Объявление рабочей области Blockly
 let ws!: Blockly.WorkspaceSvg;
@@ -299,7 +295,6 @@ function getBlocklyTheme() {
 
 function setAppTheme(next: AppTheme) {
   appTheme = next;
-  localStorage.setItem(APP_THEME_KEY, appTheme);
   // update labels state
   if (themeLabelLight && themeLabelDark) {
     themeLabelLight.classList.toggle("active", appTheme === "light");
@@ -533,7 +528,6 @@ function setGeneratorPlaceholder(lang: "ru" | "en") {
 
 function setGenLang(lang: "javascript" | "python" | "lua") {
   selectedGeneratorLanguage = lang;
-  localStorage.setItem("generator_language", lang);
   setActiveGenLangButton(lang);
   updatePresetsByGenLang();
   validateGeneratorUI();
@@ -648,7 +642,7 @@ function setupCustomBlockContextMenu() {
   }
 
   const displayText = () => {
-    const lang = (localStorage.getItem("app_language") || "ru") as "ru" | "en";
+    const lang = getAppLang();
     return lang === "ru" ? "Удалить из «Моих блоков»" : "Remove from My Blocks";
   };
 
@@ -671,9 +665,7 @@ function setupCustomBlockContextMenu() {
       const block = scope?.block as Blockly.Block | undefined;
       if (!block) return;
       const type = (block as any).type as string;
-      const lang = (localStorage.getItem("app_language") || "ru") as
-        | "ru"
-        | "en";
+      const lang = getAppLang();
       const name = type;
       const question =
         lang === "ru"

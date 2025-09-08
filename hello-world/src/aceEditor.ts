@@ -40,10 +40,16 @@ interface AceSettings {
   keybinding?: string;
 }
 
+// Держим настройки только в памяти до явного сохранения в приложении
+let aceSettingsMemory: AceSettings = {};
+
 function loadAceSettings(): AceSettings {
   try {
-    const stored = localStorage.getItem(ACE_SETTINGS_KEY);
-    return stored ? JSON.parse(stored) : {};
+    const saved = localStorage.getItem(ACE_SETTINGS_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {};
   } catch {
     return {};
   }
@@ -51,8 +57,8 @@ function loadAceSettings(): AceSettings {
 
 function saveAceSettings(settings: Partial<AceSettings>) {
   try {
-    const existing = loadAceSettings();
-    const updated = { ...existing, ...settings };
+    const current = loadAceSettings();
+    const updated = { ...current, ...settings };
     localStorage.setItem(ACE_SETTINGS_KEY, JSON.stringify(updated));
   } catch {
     // ignore errors
@@ -482,81 +488,78 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
 
   if (themeSelect)
     themeSelect.addEventListener("change", () => {
-      if (!aceEditor) return;
-      aceEditor.setTheme(themeSelect.value);
-      saveAceSettings({ theme: themeSelect.value });
+      if (aceEditor && themeSelect.value) {
+        aceEditor.setTheme(themeSelect.value);
+      }
     });
   if (fontSizeInput)
     fontSizeInput.addEventListener("input", () => {
-      if (!aceEditor) return;
-      const v = Math.max(
-        10,
-        Math.min(24, parseInt(fontSizeInput.value || "13", 10))
-      );
-      aceEditor.setFontSize(v);
-      saveAceSettings({ fontSize: v });
+      if (aceEditor && fontSizeInput.value) {
+        const fontSize = Math.max(10, Math.min(24, parseInt(fontSizeInput.value, 10)));
+        aceEditor.setFontSize(fontSize);
+      }
     });
   if (tabSizeInput)
     tabSizeInput.addEventListener("input", () => {
-      if (!aceEditor) return;
-      const v = Math.max(
-        2,
-        Math.min(8, parseInt(tabSizeInput.value || "2", 10))
-      );
-      aceEditor.session.setTabSize(v);
-      saveAceSettings({ tabSize: v });
+      if (aceEditor && tabSizeInput.value) {
+        const tabSize = Math.max(2, Math.min(8, parseInt(tabSizeInput.value, 10)));
+        aceEditor.session.setTabSize(tabSize);
+      }
     });
   if (wrapCheckbox)
     wrapCheckbox.addEventListener("input", () => {
-      if (!aceEditor) return;
-      aceEditor.session.setUseWrapMode(!!wrapCheckbox.checked);
-      saveAceSettings({ wrap: !!wrapCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.session.setUseWrapMode(wrapCheckbox.checked);
+      }
     });
   if (invisiblesCheckbox)
     invisiblesCheckbox.addEventListener("input", () => {
-      if (!aceEditor) return;
-      aceEditor.setShowInvisibles(!!invisiblesCheckbox.checked);
-      saveAceSettings({ showInvisibles: !!invisiblesCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.setShowInvisibles(invisiblesCheckbox.checked);
+      }
     });
   if (activeLineCheckbox)
     activeLineCheckbox.addEventListener("change", () => {
-      if (!aceEditor) return;
-      aceEditor.setHighlightActiveLine(!!activeLineCheckbox.checked);
-      saveAceSettings({ highlightActiveLine: !!activeLineCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.setHighlightActiveLine(activeLineCheckbox.checked);
+      }
     });
   if (printMarginCheckbox)
     printMarginCheckbox.addEventListener("change", () => {
-      if (!aceEditor) return;
-      aceEditor.setShowPrintMargin(!!printMarginCheckbox.checked);
-      saveAceSettings({ showPrintMargin: !!printMarginCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.setShowPrintMargin(printMarginCheckbox.checked);
+      }
     });
   if (gutterCheckbox)
     gutterCheckbox.addEventListener("change", () => {
-      if (!aceEditor) return;
-      aceEditor.setOption("showGutter", !!gutterCheckbox.checked);
-      saveAceSettings({ showGutter: !!gutterCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.setOption("showGutter", gutterCheckbox.checked);
+      }
     });
   if (softTabsCheckbox)
     softTabsCheckbox.addEventListener("change", () => {
-      if (!aceEditor) return;
-      aceEditor.session.setUseSoftTabs(!!softTabsCheckbox.checked);
-      saveAceSettings({ useSoftTabs: !!softTabsCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.session.setUseSoftTabs(softTabsCheckbox.checked);
+      }
     });
   if (foldWidgetsCheckbox)
     foldWidgetsCheckbox.addEventListener("change", () => {
-      if (!aceEditor) return;
-      aceEditor.setShowFoldWidgets(!!foldWidgetsCheckbox.checked);
-      saveAceSettings({ showFoldWidgets: !!foldWidgetsCheckbox.checked });
+      if (aceEditor) {
+        aceEditor.setShowFoldWidgets(foldWidgetsCheckbox.checked);
+      }
     });
   if (keybindingSelect)
     keybindingSelect.addEventListener("change", () => {
-      if (!aceEditor) return;
-      const val = keybindingSelect.value;
-      if (val === "vim") aceEditor.setKeyboardHandler("ace/keyboard/vim");
-      else if (val === "emacs")
-        aceEditor.setKeyboardHandler("ace/keyboard/emacs");
-      else aceEditor.setKeyboardHandler(null as any);
-      saveAceSettings({ keybinding: val });
+      if (aceEditor && keybindingSelect.value) {
+        const val = keybindingSelect.value;
+        if (val === "vim") {
+          aceEditor.setKeyboardHandler("ace/keyboard/vim");
+        } else if (val === "emacs") {
+          aceEditor.setKeyboardHandler("ace/keyboard/emacs");
+        } else {
+          aceEditor.setKeyboardHandler(null);
+        }
+      }
     });
 
   if (copyBtn)

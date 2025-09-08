@@ -10,8 +10,10 @@ import { getCustomBlocksToolboxCategory } from './customBlocks';
 export type AppLang = 'ru' | 'en';
 export const APP_LANG_KEY = 'app_language';
 
+let currentAppLang: AppLang = 'ru';
+
 export function getAppLang(): AppLang {
-  return (localStorage.getItem(APP_LANG_KEY) as AppLang) || 'ru';
+  return currentAppLang;
 }
 
 function updateHeaderText(lang: AppLang) {
@@ -30,6 +32,7 @@ function updateHeaderText(lang: AppLang) {
 }
 
 export function setAppLang(lang: AppLang) {
+  currentAppLang = lang;
   Blockly.setLocale(lang === 'ru' ? (RuLocale as any) : (EnLocale as any));
   if (lang === 'ru') {
     (Blockly as any).Msg.ADD_TEXT = 'Добавить текст %1';
@@ -52,7 +55,6 @@ export function setAppLang(lang: AppLang) {
     (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Type to search for blocks';
     (Blockly as any).Msg.SEARCH_NO_MATCHING = 'No matching blocks found';
   }
-  localStorage.setItem(APP_LANG_KEY, lang);
   updateHeaderText(lang);
 }
 

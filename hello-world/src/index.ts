@@ -13,6 +13,9 @@ import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
 import { save, load } from "./serialization";
+import { setupAppBootstrap, persistWorkspaceDebounced, setStorageIndicatorUpdater } from "./appBootstrap";
+import { setupAuthBootstrap } from "./authBootstrap";
+import { initAuthUI } from "./authUI";
 import "./index.css";
 import {
   initTaskValidation,
@@ -1756,10 +1759,37 @@ function refreshWorkspaceWithCustomToolbox() {
       undefined
     );
   ws = newWs as Blockly.WorkspaceSvg;
+
+  // Инициализация авторизации и переключения провайдера хранения
+  setupAuthBootstrap(ws as Blockly.Workspace);
+  initAuthUI();
+  // Инициализация загрузки/сохранения через bootstrap-модуль (не блокирует UI)
+  setupAppBootstrap(ws);
+
+  // Подключаем обновление индикатора активного хранилища и времени последнего сохранения
+  const storageIndicatorEl = document.getElementById('storageIndicator');
+  if (storageIndicatorEl) {
+    setStorageIndicatorUpdater(({ kind, lastSavedAt }) => {
+      const label = kind === 'server' ? 'Сервер' : 'Локально';
+      let suffix = '';
+      if (lastSavedAt) {
+        const d = new Date(lastSavedAt);
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        const ss = String(d.getSeconds()).padStart(2, '0');
+        suffix = ` • ${hh}:${mm}:${ss}`;
+      }
+      (storageIndicatorEl as HTMLElement).textContent = `${label}${suffix}`;
+      const titleBase = 'Активное хранилище и время последнего сохранения';
+      (storageIndicatorEl as HTMLElement).setAttribute('title', lastSavedAt ? `${titleBase}: ${new Date(lastSavedAt).toLocaleString()}` : titleBase);
+    });
+  }
+
   if (ws) {
     ws.addChangeListener((e: Blockly.Events.Abstract) => {
       if (e.isUiEvent) return;
-      save(ws);
+      // сохраняем через провайдер с дебаунсом
+      persistWorkspaceDebounced(ws);
     });
     ws.addChangeListener((e: Blockly.Events.Abstract) => {
       if (
@@ -1883,8 +1913,8 @@ if (loadXmlInput) {
       updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
       // Обновить счётчик блоков
       updateToolboxBlockCounterLabel();
-      // Persist to localStorage via existing listener
-      save(ws);
+      // Persist via selected provider (bootstrap)
+      persistWorkspaceDebounced(ws);
     } catch (e) {
       console.error("Load XML failed", e);
     }

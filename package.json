@@ -5,9 +5,14 @@
   "scripts": {
     "build": "cd hello-world && npm run build",
     "start": "cd hello-world && npm start",
-    "install": "cd hello-world && npm install"
+    "install": "cd hello-world && npm install",
+    "server": "node server/index.js",
+    "dev": "powershell -Command \"Start-Process -NoNewWindow npm -ArgumentList 'run server'; Start-Process -NoNewWindow npm -ArgumentList 'start'\""
   },
   "dependencies": {
-    "blockly": "12.2.0"
+    "blockly": "12.2.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2"
   }
 }

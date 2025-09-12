@@ -518,11 +518,15 @@
       position: relative;
       /* keep real width unchanged */
     }
+
     #pageContainer.sidebar-open #blocklyDiv::before {
       content: '';
       position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: var(--task-sidebar-width); /* sidebar width */
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--task-sidebar-width);
+      /* sidebar width */
       pointer-events: none;
     }
 
@@ -531,6 +535,7 @@
     #pageContainer.sidebar-open #blocklyDiv .blocklyToolbox {
       left: var(--task-sidebar-width) !important;
     }
+
     #pageContainer.sidebar-open #blocklyDiv .blocklyFlyout {
       transform: translateX(var(--task-sidebar-width));
     }
@@ -691,7 +696,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+      border-bottom: 0 solid rgba(255, 255, 255, 0.2);
       cursor: move;
       user-select: none;
     }
@@ -700,6 +705,10 @@
       margin: 0;
       font-size: 20px;
       font-weight: 600;
+    }
+
+    .modal-reg {
+      cursor: auto;
     }
 
     .modal-body {
@@ -796,6 +805,168 @@
     .close-button:hover {
       transform: scale(1.1);
       opacity: 1;
+    }
+
+    /* Auth modal specific */
+    #authModal .modal-content {
+      max-width: 520px;
+      width: 92%;
+      min-width: 320px;
+    }
+
+    #authModal .provider-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    #authModal .auth-provider-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 2px solid var(--provider-border, #e2e8f0);
+      background: var(--provider-bg, #ffffff);
+      color: var(--provider-color, #1f2937);
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+    }
+
+    #authModal .auth-provider-btn .icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      flex: 0 0 auto;
+      object-fit: contain;
+      vertical-align: middle;
+      filter: none;
+    }
+
+    #authModal .auth-provider-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    #authModal .auth-provider-btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.35);
+    }
+
+    #authModal .auth-provider-btn[data-provider="google"] {
+      --provider-border: #4285F4;
+      --provider-bg: #4285F4;
+      --provider-color: #ffffff;
+    }
+
+    #authModal .auth-provider-btn[data-provider="yandex"] {
+      --provider-border: #FF0000;
+      --provider-bg: #FF0000;
+      --provider-color: #ffffff;
+    }
+
+    #authModal .auth-provider-btn[data-provider="github"] {
+      --provider-border: #181717;
+      --provider-bg: #181717;
+      --provider-color: #ffffff;
+    }
+
+    #authModal .email-separator {
+      position: relative;
+      text-align: center;
+      font-size: 12px;
+      opacity: .8;
+      margin: 14px 0;
+      color: #4a5568;
+    }
+
+    #authModal .email-separator::before,
+    #authModal .email-separator::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    #authModal .email-separator::before {
+      left: 0;
+    }
+
+    #authModal .email-separator::after {
+      right: 0;
+    }
+
+    #authModal .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #authModal input[type="email"],
+    #authModal input[type="password"] {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      color: #1f2937;
+      transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+    #authModal input[type="email"]::placeholder,
+    #authModal input[type="password"]::placeholder {
+      color: #94a3b8;
+    }
+
+    #authModal input[type="email"]:focus,
+    #authModal input[type="password"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      background: #fff;
+    }
+
+    #authModal .auth-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    html[data-theme='dark'] #authModal .auth-provider-btn {
+      background: var(--provider-bg, #1f2937);
+      color: var(--provider-color, #e5e7eb);
+      border-color: var(--provider-border, #374151);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    html[data-theme='dark'] #authModal .auth-provider-btn:hover {
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+    }
+
+    html[data-theme='dark'] #authModal .email-separator {
+      color: #cbd5e1;
+    }
+
+    html[data-theme='dark'] #authModal .email-separator::before,
+    html[data-theme='dark'] #authModal .email-separator::after {
+      background: #334155;
+    }
+
+    html[data-theme='dark'] #authModal input[type="email"],
+    html[data-theme='dark'] #authModal input[type="password"] {
+      background: #111827;
+      color: #e5e7eb;
+      border-color: #374151;
+    }
+
+    html[data-theme='dark'] #authModal input[type="email"]:focus,
+    html[data-theme='dark'] #authModal input[type="password"]:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
     }
 
     .form-group {
@@ -1399,6 +1570,16 @@
           </label>
           <span class="theme-label" id="theme-dark">🌙</span>
         </div>
+        <div id="storageIndicator" class="import-button" style="opacity:.95; cursor:default; user-select:none"
+          title="Активное хранилище и время последнего сохранения">Локально</div>
+        <div class="auth-controls" style="display:flex; align-items:center; gap:10px; margin-left: 10px;">
+          <button id="openAuthModalBtn" class="import-button" style="display:none"
+            aria-label="Открыть окно входа">Войти</button>
+          <div id="userInfo" style="display:none; align-items:center; gap:8px;">
+            <span id="userEmail" style="opacity:0.9"></span>
+            <button id="logoutBtn" class="import-button" aria-label="Выйти">Выйти</button>
+          </div>
+        </div>
       </div>
       <div class="gen-lang-dropdown-container">
         <div class="gen-lang-dropdown" title="Язык генерации кода">
@@ -1615,6 +1796,44 @@
     </div>
   </div>
 
+  <!-- Auth modal -->
+  <div id="authModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle"
+    style="display:none">
+    <div class="modal-content">
+      <div class="modal-header modal-reg">
+        <h2 id="authModalTitle">Вход или регистрация</h2>
+        <span id="closeAuthModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="provider-list">
+          <a class="auth-provider-btn" href="/api/auth/google?returnTo=/" data-provider="google">
+            <img class="icon" src="https://cdn.simpleicons.org/google/FFFFFF" alt="" aria-hidden="true" />
+            Google
+          </a>
+          <a class="auth-provider-btn" href="/api/auth/yandex?returnTo=/" data-provider="yandex">
+            <img class="icon" src="https://cdn.simpleicons.org/yandexinternational/FFFFFF" alt="Yandex"
+              aria-hidden="true"
+              onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><text x=%2212%22 y=%2212%22 text-anchor=%22middle%22 dominant-baseline=%22central%22 font-size=%2214%22 fill=%22%23FFFFFF%22 font-family=%22Arial,Helvetica,sans-serif%22>Y</text></svg>'" />
+            Yandex
+          </a>
+          <a class="auth-provider-btn" href="/api/auth/github?returnTo=/" data-provider="github">
+            <img class="icon" src="https://cdn.simpleicons.org/github/FFFFFF" alt="" aria-hidden="true" />
+            GitHub
+          </a>
+        </div>
+        <div class="email-separator">или по email</div>
+        <div class="form-row">
+          <input id="authEmail" type="email" placeholder="Email" />
+          <input id="authPassword" type="password" placeholder="Пароль" />
+          <div class="auth-actions">
+            <button id="authLoginBtn" class="import-button">Войти</button>
+            <button id="authRegisterBtn" class="import-button">Регистрация</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Annotation overlay and toolbar -->
   <div id="annotationOverlay"></div>
   <div id="annotToolbar" class="annot-toolbar" role="toolbar" aria-label="Инструменты аннотаций">
@@ -1642,6 +1861,19 @@
       </div>
     </div>
   </div>
+  <script>
+    // Простая логика открытия/закрытия модалки авторизации — остальная логика в TS
+    (function () {
+      var openBtn = document.getElementById('openAuthModalBtn');
+      var modal = document.getElementById('authModal');
+      var closeBtn = document.getElementById('closeAuthModal');
+      if (openBtn && modal && closeBtn) {
+        openBtn.addEventListener('click', function () { modal.style.display = 'block'; });
+        closeBtn.addEventListener('click', function () { modal.style.display = 'none'; });
+        modal.addEventListener('click', function (e) { if (e.target === modal) modal.style.display = 'none'; });
+      }
+    })();
+  </script>
 
 </body>
 

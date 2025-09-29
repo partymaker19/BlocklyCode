@@ -94,16 +94,21 @@ async function isAuthedOnServer(): Promise<boolean> {
 }
 
 // Позволяет выбрать провайдер вручную или автоматически
-export async function selectStorageProvider(kind: StorageKind | "auto", ws?: Blockly.Workspace) {
+export async function selectStorageProvider(
+  kind: StorageKind | "auto",
+  ws?: Blockly.Workspace,
+  opts?: { shouldLoad?: boolean }
+) {
+  const shouldLoad = opts?.shouldLoad ?? true;
   if (kind === "local") {
     provider = new LocalStorageProvider();
-    if (ws) provider.load(ws);
+    if (ws && shouldLoad) provider.load(ws);
     indicatorUpdater?.({ kind: provider.kind, lastSavedAt });
     return provider.kind;
   }
   if (kind === "server") {
     provider = new ServerStorageProvider();
-    if (ws) await provider.load(ws);
+    if (ws && shouldLoad) await provider.load(ws);
     indicatorUpdater?.({ kind: provider.kind, lastSavedAt });
     return provider.kind;
   }
@@ -111,22 +116,22 @@ export async function selectStorageProvider(kind: StorageKind | "auto", ws?: Blo
   const authed = await isAuthedOnServer();
   if (authed) {
     provider = new ServerStorageProvider();
-    if (ws) await provider.load(ws);
+    if (ws && shouldLoad) await provider.load(ws);
     indicatorUpdater?.({ kind: provider.kind, lastSavedAt });
     return provider.kind;
   } else {
     provider = new LocalStorageProvider();
-    if (ws) provider.load(ws);
+    if (ws && shouldLoad) provider.load(ws);
     indicatorUpdater?.({ kind: provider.kind, lastSavedAt });
     return provider.kind;
   }
 }
 
 // Инициализация приложения: выбираем хранилище и загружаем данные
-export async function setupAppBootstrap(ws: Blockly.Workspace) {
+export async function setupAppBootstrap(ws: Blockly.Workspace, opts?: { shouldLoad?: boolean }) {
   // Можно хранить предпочтение пользователя в localStorage
   const preferred = (window.localStorage?.getItem("storage_preference") as StorageKind | "auto") || "auto";
-  await selectStorageProvider(preferred, ws);
+  await selectStorageProvider(preferred, ws, { shouldLoad: opts?.shouldLoad ?? true });
 }
 
 // Дебаунс-обёртка для сохранения текущим провайдером

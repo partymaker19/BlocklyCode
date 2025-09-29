@@ -1013,6 +1013,16 @@ localizeTooltips(defaultLang);
   }
 }
 
+// Определяем, была ли страница перезагружена
+const __navEntries = (performance as any)?.getEntriesByType?.('navigation') || [];
+const __isInitialReload = __navEntries[0]?.type === 'reload' || ((performance as any)?.navigation?.type === 1);
+
+// При перезагрузке очищаем сохранённые данные прогресса
+if (__isInitialReload) {
+  try { window.localStorage?.removeItem('mainWorkspace'); } catch {}
+  try { window.localStorage?.removeItem('task_progress_v1'); } catch {}
+}
+
 // Инициализация рабочей области при загрузке страницы
 refreshWorkspaceWithCustomToolbox();
 
@@ -1764,7 +1774,7 @@ function refreshWorkspaceWithCustomToolbox() {
   setupAuthBootstrap(ws as Blockly.Workspace);
   initAuthUI();
   // Инициализация загрузки/сохранения через bootstrap-модуль (не блокирует UI)
-  setupAppBootstrap(ws);
+  setupAppBootstrap(ws, { shouldLoad: !__isInitialReload });
 
   // Подключаем обновление индикатора активного хранилища и времени последнего сохранения
   const storageIndicatorEl = document.getElementById('storageIndicator');

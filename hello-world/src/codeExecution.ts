@@ -126,6 +126,74 @@ function executeJavaScriptCode(
 }
 
 /**
+ * Выполнение кода в изолированном Web Worker с таймаутом.
+ * Не изменяет исходный сгенерированный код циклов.
+ */
+async function executeInSandbox(
+  language: SupportedLanguage,
+  code: string,
+  outputElement: HTMLElement | null,
+  timeoutMs = 1000
+): Promise<void> {
+  if (!code.trim() || !outputElement) return;
+
+  // Очистить вывод
+  outputElement.innerHTML = "";
+
+  const appendLine = (text: string, color?: string) => {
+    const p = document.createElement("p");
+    if (color) p.style.color = color;
+    p.textContent = text;
+    outputElement.appendChild(p);
+  };
+
+  // Создаём воркер через URL, чтобы webpack корректно запаковал файл
+  let worker: Worker | null = null;
+  try {
+    worker = new Worker(new URL("./sandboxWorker.ts", import.meta.url));
+  } catch (e) {
+    appendLine(`Не удалось создать sandbox воркер: ${String((e as any)?.message || e)}`, "red");
+    // Фолбэк на старый JS рантайм, если воркер недоступен
+    if (language === "javascript" || language === "typescript") {
+      executeJavaScriptCode(code, outputElement);
+    } else {
+      appendLine("Выполнение для данного языка недоступно без воркера.", "#666");
+    }
+    return;
+  }
+
+  // Для Lua даём чуть больше времени на загрузку рантайма
+  const effectiveTimeout = language === "lua" ? Math.max(timeoutMs, 3000) : timeoutMs;
+  const timer = setTimeout(() => {
+    try {
+      worker?.terminate();
+    } catch {}
+    appendLine(`Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`, "#b58900");
+  }, effectiveTimeout);
+
+  const onMessage = (ev: MessageEvent<any>) => {
+    const msg = ev.data || {};
+    if (msg?.type === "stdout") {
+      appendLine(String(msg.text ?? ""));
+    } else if (msg?.type === "stderr") {
+      appendLine(String(msg.text ?? ""), "#b58900");
+    } else if (msg?.type === "status") {
+      if (msg.text) appendLine(String(msg.text), "#666");
+    } else if (msg?.type === "error") {
+      appendLine(`Ошибка выполнения: ${String(msg.message ?? msg)}`, "red");
+    } else if (msg?.type === "done") {
+      clearTimeout(timer);
+      worker?.removeEventListener("message", onMessage);
+      worker?.terminate();
+    }
+  };
+
+  worker.addEventListener("message", onMessage);
+  // Прокидываем таймаут внутрь воркера, чтобы рантаймы могли прерывать циклы сами
+  worker.postMessage({ language, code, timeoutMs: effectiveTimeout });
+}
+
+/**
  * Displays information message for non-executable languages
  */
 function showNonExecutableMessage(
@@ -167,15 +235,8 @@ export async function runCode(
       outputElement.innerHTML = "";
     }
 
-    if (language === "javascript") {
-      executeJavaScriptCode(code, outputElement);
-    } else if (language === "python") {
-      const py = await ensurePythonRuntime();
-      await py.runPython(code, outputElement);
-    } else if (language === "lua") {
-      const lua = await ensureLuaRuntime();
-      await lua.runLua(code, outputElement);
-    }
+    // Выполняем через изолированный воркер с таймаутом
+    await executeInSandbox(language, code, outputElement);
   } catch (error) {
     console.error("Code execution error:", error);
     if (outputElement) {
@@ -200,15 +261,7 @@ export async function runCodeString(
     const code = sourceCode || "";
     if (!code.trim()) return;
 
-    if (language === "javascript") {
-      executeJavaScriptCode(code, outputElement);
-    } else if (language === "python") {
-      const py = await ensurePythonRuntime();
-      await py.runPython(code, outputElement);
-    } else if (language === "lua") {
-      const lua = await ensureLuaRuntime();
-      await lua.runLua(code, outputElement);
-    }
+    await executeInSandbox(language, code, outputElement);
   } catch (error) {
     console.error("Code execution error:", error);
     if (outputElement) {

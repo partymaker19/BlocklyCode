@@ -43,13 +43,23 @@ class BlockSearcher {
    */
   private indexDropdownOption(field: Blockly.Field, blockType: string) {
     if (field instanceof Blockly.FieldDropdown) {
-      field.getOptions(true).forEach((option) => {
-        if (typeof option[0] === 'string') {
-          this.indexBlockText(option[0], blockType);
-        } else if ('alt' in option[0]) {
-          this.indexBlockText(option[0].alt, blockType);
-        }
-      });
+      // Поля переменных (FieldVariable) иногда не имеют выбранной переменной при
+      // создании блока в временном воркспейсе, что приводит к ошибке при вызове
+      // dropdownCreate/getOptions. Пропускаем такие поля и аккуратно обрабатываем
+      // любые исключения при запросе опций.
+      const isVariableField = (field as any) instanceof (Blockly as any).FieldVariable;
+      if (isVariableField) return;
+      try {
+        field.getOptions(true).forEach((option) => {
+          if (typeof option[0] === 'string') {
+            this.indexBlockText(option[0], blockType);
+          } else if ('alt' in option[0]) {
+            this.indexBlockText(option[0].alt, blockType);
+          }
+        });
+      } catch (_e) {
+        // Игнорируем ошибки получения опций (напр., для нестандартных полей)
+      }
     }
   }
 

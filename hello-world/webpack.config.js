@@ -16,7 +16,9 @@ const config = {
     static: './build',
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        // Use IPv4 explicitly to avoid IPv6 localhost (::1) mismatch
+        // with API server bound to 127.0.0.1
+        target: 'http://127.0.0.1:4000',
         changeOrigin: true,
         secure: false,
         ws: false,
@@ -54,6 +56,8 @@ const config = {
         { from: 'node_modules/blockly/media', to: 'media' },
         // Copy Ace Editor "src-noconflict" distribution for dynamic loading of modes, themes, and workers
         { from: 'node_modules/ace-builds/src-noconflict', to: 'ace' },
+        // Copy Fengari Web build to serve Lua runtime locally (avoid CDN in worker)
+        { from: 'node_modules/fengari-web/dist/fengari-web.js', to: 'libs/fengari-web.js' },
       ],
     }),
   ],

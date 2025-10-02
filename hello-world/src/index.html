@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Blockly Visual Programming</title>
+  <title>BlocklyCode</title>
   <style>
     html,
     body {
@@ -27,13 +27,14 @@
       display: flex;
       align-items: center;
       /* justify-content: space-between; */
+      position: relative;
       min-height: 60px;
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
     .logo {
@@ -53,6 +54,8 @@
       font-size: 24px;
       font-weight: 600;
       margin: 0;
+      display: flex;
+      align-items: center;
     }
 
     .header-subtitle {
@@ -66,6 +69,26 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Центрированный блок переключателей */
+    .header-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .header-center .language-switch,
+    .header-center .theme-switch {
+      margin: 0 !important;
+      pointer-events: auto;
     }
 
     /* Import button styles */
@@ -1476,8 +1499,12 @@
     .editor-controls-block {
       flex: 1;
       display: flex;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: flex-start;
       padding: 0 12px;
+      flex-wrap: wrap;
+      column-gap: 16px;
+      row-gap: 10px;
     }
 
     .ace-editor {
@@ -1517,6 +1544,62 @@
       border-top-color: #1f2937;
       color: #9ca3af;
     }
+
+    /* Responsive header tweaks */
+    @media (max-width: 1024px) {
+      #header {
+        padding: 10px 18px;
+      }
+
+      .import-button {
+        padding: 7px 14px;
+        font-size: 13px;
+      }
+
+      .gen-lang-dropdown .selected-option {
+        padding: 7px 34px 7px 12px;
+        min-width: 120px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-subtitle {
+        display: none;
+      }
+
+      .editor-controls-block {
+        column-gap: 12px;
+        row-gap: 8px;
+        padding: 0 8px;
+      }
+
+      .switch {
+        width: 50px;
+        height: 26px;
+      }
+
+      .slider:before {
+        height: 18px;
+        width: 18px;
+        top: 3px;
+        left: 6px;
+      }
+
+      input:checked+.slider:before {
+        transform: translateX(18px);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .icon-buttons {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .gen-lang-dropdown .selected-option {
+        min-width: 110px;
+      }
+    }
   </style>
 </head>
 
@@ -1525,12 +1608,30 @@
     <div class="header-left">
       <div class="logo">B</div>
       <div>
-        <h1 class="header-title">Blockly Visual Programming</h1>
-        <p class="header-subtitle">Создавайте программы с помощью блоков</p>
+        <h1 class="header-title">BlocklyCode</h1>
+      </div>
+    </div>
+    <!-- Центр: переключатели языка и темы -->
+    <div class="header-center">
+      <div class="language-switch" title="Язык приложения">
+        <span class="lang-label" id="lang-ru">RU</span>
+        <label class="switch">
+          <input type="checkbox" id="langSwitchInput">
+          <span class="slider"></span>
+        </label>
+        <span class="lang-label" id="lang-en">EN</span>
+      </div>
+      <div class="theme-switch" title="Тема приложения">
+        <span class="theme-label" id="theme-light">☀️</span>
+        <label class="switch">
+          <input type="checkbox" id="themeSwitchInput">
+          <span class="slider"></span>
+        </label>
+        <span class="theme-label" id="theme-dark">🌙</span>
       </div>
     </div>
     <div class="editor-controls-block">
-      <div class="icon-buttons">
+      <div class="icon-buttons" style="gap: 12px;">
         <button id="saveXmlBtn" class="icon-button" title="Сохранить (XML)" aria-label="Сохранить (XML)">💾</button>
         <button id="loadXmlBtn" class="icon-button" title="Загрузить (XML)" aria-label="Загрузить (XML)">📂</button>
         <button id="importBlockBtn" class="import-button">
@@ -1548,40 +1649,19 @@
           <span id="blockHelpBtnText">Справка</span>
         </button>
         <!-- New: Task solution button -->
-        <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи">
+        <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи"
+          style="margin-right: 12px;">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
         </button>
       </div>
       <div class="header-right">
         <input id="loadXmlInput" type="file" accept=".xml" style="display:none" />
-        <div class="language-switch" title="Язык приложения">
-          <span class="lang-label" id="lang-ru">RU</span>
-          <label class="switch">
-            <input type="checkbox" id="langSwitchInput">
-            <span class="slider"></span>
-          </label>
-          <span class="lang-label" id="lang-en">EN</span>
-        </div>
-        <div class="theme-switch" title="Тема приложения">
-          <span class="theme-label" id="theme-light">☀️</span>
-          <label class="switch">
-            <input type="checkbox" id="themeSwitchInput">
-            <span class="slider"></span>
-          </label>
-          <span class="theme-label" id="theme-dark">🌙</span>
-        </div>
-        <div id="storageIndicator" class="import-button" style="opacity:.95; cursor:default; user-select:none"
-          title="Активное хранилище и время последнего сохранения">Локально</div>
-        <div class="auth-controls" style="display:flex; align-items:center; gap:10px; margin-left: 10px;">
-          <button id="openAuthModalBtn" class="import-button" style="display:none"
-            aria-label="Открыть окно входа">Войти</button>
-          <div id="userInfo" style="display:none; align-items:center; gap:8px;">
-            <span id="userEmail" style="opacity:0.9"></span>
-            <button id="logoutBtn" class="import-button" aria-label="Выйти">Выйти</button>
-          </div>
-        </div>
+
       </div>
       <div class="gen-lang-dropdown-container">
+      </div>
+      <!-- Auth controls moved to the far right edge; include lang dropdown and annotation toggle -->
+      <div class="auth-controls" style="display:flex; align-items:center; gap:6px; margin-left: auto;">
         <div class="gen-lang-dropdown" title="Язык генерации кода">
           <div class="custom-select" id="genLangHeaderSelect">
             <div class="selected-option" id="selectedOption">JavaScript</div>
@@ -1594,6 +1674,12 @@
           </div>
         </div>
         <button id="annotateToggleBtn" class="icon-button" title="Аннотация" aria-pressed="false">✎</button>
+        <button id="openAuthModalBtn" class="import-button" style="display:none"
+          aria-label="Открыть окно входа">Войти</button>
+        <div id="userInfo" style="display:none; align-items:center; gap:8px;">
+          <span id="userEmail" style="opacity:0.9"></span>
+          <button id="logoutBtn" class="import-button" aria-label="Выйти">Выйти</button>
+        </div>
       </div>
     </div>
   </div>

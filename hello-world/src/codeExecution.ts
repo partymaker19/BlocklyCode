@@ -51,12 +51,24 @@ function executeJavaScriptCode(
     outputElement.innerHTML = "";
   }
 
+  // Ограничиваем количество строк вывода, чтобы избежать подвисаний UI при больших объёмах
+  const MAX_OUTPUT_LINES = 200; // мягкий лимит
   const appendLine = (text: string, color?: string) => {
     if (!outputElement) return;
     const p = document.createElement("p");
     if (color) p.style.color = color;
     p.textContent = text;
     outputElement.appendChild(p);
+    // Если превысили лимит, удаляем самые ранние строки
+    try {
+      const children = outputElement.children;
+      if (children.length > MAX_OUTPUT_LINES) {
+        const overflow = children.length - MAX_OUTPUT_LINES;
+        for (let i = 0; i < overflow; i++) {
+          outputElement.removeChild(children[0]);
+        }
+      }
+    } catch {}
   };
 
   // Preserve original console methods to restore later
@@ -162,14 +174,16 @@ async function executeInSandbox(
     return;
   }
 
-  // Для Lua даём чуть больше времени на загрузку рантайма
-  const effectiveTimeout = language === "lua" ? Math.max(timeoutMs, 3000) : timeoutMs;
+  // Единый таймаут для всех языков
+  const effectiveTimeout = timeoutMs;
   const timer = setTimeout(() => {
     try {
+      // Снимаем слушатель, чтобы избежать утечек и лишних вызовов
+      worker?.removeEventListener("message", onMessage);
       worker?.terminate();
     } catch {}
     appendLine(`Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`, "#b58900");
-  }, effectiveTimeout);
+  }, Math.max(0, effectiveTimeout - 50));
 
   const onMessage = (ev: MessageEvent<any>) => {
     const msg = ev.data || {};

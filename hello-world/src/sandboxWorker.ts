@@ -14,8 +14,26 @@ type OutMsg =
   | { type: 'done' }
   | { type: 'error'; message: string };
 
+// Ограничиваем количество строк, отправляемых в главный поток, чтобы снизить нагрузку
+const MAX_POST_LINES = 300;
+let _postedLines = 0;
 function post(msg: OutMsg) {
-  (self as any).postMessage(msg);
+  try {
+    if (msg.type === 'stdout' || msg.type === 'stderr') {
+      if (_postedLines >= MAX_POST_LINES) {
+        // Один раз сообщим, что вывод сокращён
+        if (_postedLines === MAX_POST_LINES) {
+          (self as any).postMessage({ type: 'status', text: 'Вывод сокращён: достигнут лимит строк' });
+          _postedLines++;
+        }
+        return;
+      }
+      _postedLines++;
+    }
+    (self as any).postMessage(msg);
+  } catch {
+    // ignore
+  }
 }
 
 // JS исполнение в изолированном контексте
@@ -139,8 +157,10 @@ async function runLua(code: string, timeoutMs?: number) {
         lauxlib.luaL_error(L2, to_luastring('Превышен лимит времени'));
       }
     };
-    // Проверяем примерно каждые 10k инструкций, чтобы не создавать большой оверхед
-    lua.lua_sethook(L, hook as any, lua.LUA_MASKCOUNT, 10000);
+    // Проверяем чаще, чтобы быстрее ловить бесконечные циклы
+    // Включаем маски по счётчику и по линиям/вызовам для лучшей реакции
+    const mask = (lua.LUA_MASKCOUNT | lua.LUA_MASKLINE | lua.LUA_MASKCALL);
+    lua.lua_sethook(L, hook as any, mask, 1000);
 
     // Переопределяем print -> постим в главный поток
     lua.lua_pushcfunction(L, (L2: any) => {
@@ -178,6 +198,7 @@ async function runLua(code: string, timeoutMs?: number) {
 
 self.onmessage = (ev: MessageEvent<InMsg>) => {
   const { language, code, timeoutMs } = ev.data || ({} as any);
+  _postedLines = 0; // сбрасываем лимит на каждую новую задачу
   if (!code || !code.trim()) {
     post({ type: 'done' });
     return;

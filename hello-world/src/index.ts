@@ -371,16 +371,8 @@ function toggleTaskSidebar(force?: boolean) {
     localStorage.removeItem(BACKUP_KEY);
   }
 
-  // Resize after layout change
-  requestAnimationFrame(() => {
-    try {
-      (Blockly as any).svgResize?.(ws);
-    } catch {}
-    try {
-      const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
-      ed?.resize?.(true);
-    } catch {}
-  });
+  // Resize after layout change (coalesced)
+  scheduleUIResize();
 }
 
 if (taskSolutionBtn) {
@@ -1132,7 +1124,7 @@ class AnnotationManager {
     this.toolbar = document.getElementById("annotToolbar") as HTMLDivElement;
     this.initUI();
     this.initStage();
-    window.addEventListener("resize", () => this.resize());
+    window.addEventListener("resize", () => this.scheduleResize());
   }
 
   private initUI() {
@@ -1204,6 +1196,16 @@ class AnnotationManager {
     const height = window.innerHeight - topOffset;
     this.overlay.style.top = `${topOffset}px`;
     this.stage.size({ width, height });
+  }
+
+  private _resizeScheduled = false;
+  private scheduleResize() {
+    if (this._resizeScheduled) return;
+    this._resizeScheduled = true;
+    requestAnimationFrame(() => {
+      this._resizeScheduled = false;
+      this.resize();
+    });
   }
 
   private setTool(t: Tool) {
@@ -1421,23 +1423,35 @@ const horizontalResizer = document.getElementById(
   "horizontalResizer"
 ) as HTMLDivElement | null;
 
+// Coalesce UI-dependent resizes (Blockly svg + Ace) in a single rAF tick
+let __uiResizeScheduled = false;
+function scheduleUIResize() {
+  if (__uiResizeScheduled) return;
+  __uiResizeScheduled = true;
+  requestAnimationFrame(() => {
+    __uiResizeScheduled = false;
+    try {
+      (Blockly as any).svgResize?.(ws);
+    } catch {}
+    try {
+      const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
+      ed?.resize?.(true);
+    } catch {}
+  });
+}
+
 // Ensure final resize after flex-basis transition completes
 if (blocklyDiv) {
   blocklyDiv.addEventListener("transitionend", (e: TransitionEvent) => {
     if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
-      try {
-        (Blockly as any).svgResize?.(ws);
-      } catch {}
+      scheduleUIResize();
     }
   });
 }
 if (outputPaneEl) {
   outputPaneEl.addEventListener("transitionend", (e: TransitionEvent) => {
     if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
-      try {
-        const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
-        ed?.resize?.(true);
-      } catch {}
+      scheduleUIResize();
     }
   });
 }
@@ -1451,11 +1465,8 @@ if (outputPaneEl) {
   const RESIZER_H = Math.max(4, horizontalResizer?.offsetHeight || 6);
 
   function resizeAceSoon() {
-    const ed = getAceEditor?.();
-    if (ed && typeof ed.resize === "function") {
-      // Use rAF to avoid layout thrash
-      requestAnimationFrame(() => ed.resize(true));
-    }
+    // Keep name for compatibility; delegate to unified scheduler
+    scheduleUIResize();
   }
 
   function applyVerticalByRatio(ratio: number) {
@@ -1473,11 +1484,8 @@ if (outputPaneEl) {
     (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${leftPx}px`;
     (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${rightPx}px`;
 
-    // Resize dependent widgets
-    try {
-      (Blockly as any).svgResize?.(ws);
-    } catch {}
-    resizeAceSoon();
+    // Resize dependent widgets (coalesced)
+    scheduleUIResize();
   }
 
   function applyHorizontalByRatio(ratio: number) {
@@ -1589,12 +1597,18 @@ if (outputPaneEl) {
   const savedH = parseFloat(localStorage.getItem(H_KEY) || "0");
   if (savedH > 0 && savedH < 1) applyHorizontalByRatio(savedH);
 
+  // Throttle reapplying ratios on window resize to a single rAF per frame
+  let __splitReapplyScheduled = false;
   window.addEventListener("resize", () => {
-    // Reapply ratios on window resize to keep layout consistent
-    const v = parseFloat(localStorage.getItem(V_KEY) || "0");
-    if (v > 0 && v < 1) applyVerticalByRatio(v);
-    const h = parseFloat(localStorage.getItem(H_KEY) || "0");
-    if (h > 0 && h < 1) applyHorizontalByRatio(h);
+    if (__splitReapplyScheduled) return;
+    __splitReapplyScheduled = true;
+    requestAnimationFrame(() => {
+      __splitReapplyScheduled = false;
+      const v = parseFloat(localStorage.getItem(V_KEY) || "0");
+      if (v > 0 && v < 1) applyVerticalByRatio(v);
+      const h = parseFloat(localStorage.getItem(H_KEY) || "0");
+      if (h > 0 && h < 1) applyHorizontalByRatio(h);
+    });
   });
 })();
 
@@ -1649,6 +1663,11 @@ function initImportModalDrag() {
   let isDragging = false;
   let offsetX = 0;
   let offsetY = 0;
+  let cachedWidth = 0;
+  let cachedHeight = 0;
+  let dragScheduled = false;
+  let pendingLeft = 0;
+  let pendingTop = 0;
 
   function onMouseDown(ev: MouseEvent) {
     // Начинаем drag только левой кнопкой
@@ -1669,6 +1688,10 @@ function initImportModalDrag() {
     content.style.transform = "none";
     content.style.animation = "none";
 
+    // Кэшируем размеры, чтобы не читать rect на каждом движении
+    cachedWidth = rect.width;
+    cachedHeight = rect.height;
+
     // Вычисляем смещение курсора относительно левого верхнего угла окна
     offsetX = ev.clientX - rect.left;
     offsetY = ev.clientY - rect.top;
@@ -1680,25 +1703,26 @@ function initImportModalDrag() {
 
   function onMouseMove(ev: MouseEvent) {
     if (!isDragging) return;
-    const rect = content.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    let nextLeft = ev.clientX - offsetX;
-    let nextTop = ev.clientY - offsetY;
-
-    // Ограничиваем в пределах окна
-    const maxLeft = window.innerWidth - width;
-    const maxTop = window.innerHeight - height;
-    // Минимальное значение для top, чтобы заголовок всегда был виден
-    const minTop = 10; // Оставляем минимум 10px от верха окна
-    if (nextLeft < 0) nextLeft = 0;
-    else if (nextLeft > maxLeft) nextLeft = maxLeft;
-    if (nextTop < minTop) nextTop = minTop;
-    else if (nextTop > maxTop) nextTop = maxTop;
-
-    content.style.left = `${nextLeft}px`;
-    content.style.top = `${nextTop}px`;
+    pendingLeft = ev.clientX - offsetX;
+    pendingTop = ev.clientY - offsetY;
+    if (dragScheduled) return;
+    dragScheduled = true;
+    requestAnimationFrame(() => {
+      dragScheduled = false;
+      let nextLeft = pendingLeft;
+      let nextTop = pendingTop;
+      const width = cachedWidth;
+      const height = cachedHeight;
+      const maxLeft = window.innerWidth - width;
+      const maxTop = window.innerHeight - height;
+      const minTop = 10;
+      if (nextLeft < 0) nextLeft = 0;
+      else if (nextLeft > maxLeft) nextLeft = maxLeft;
+      if (nextTop < minTop) nextTop = minTop;
+      else if (nextTop > maxTop) nextTop = maxTop;
+      content.style.left = `${nextLeft}px`;
+      content.style.top = `${nextTop}px`;
+    });
   }
 
   function onMouseUp() {

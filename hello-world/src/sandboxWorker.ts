@@ -23,6 +23,39 @@ function post(msg: WorkerOutMsg) {
   }
 }
 
+// Глобальный дедлайн для ожиданий ввода/выполнения
+let _deadlineEpochMs: number = 0;
+
+// Синхронный ввод с использованием SharedArrayBuffer и Atomics.wait в воркере
+function syncInput(prompt: string): string {
+  try {
+    const headerBytes = 8; // 2 * Int32: [status, length]
+    const capacity = 4096; // максимум символов ввода
+    const sab = new SharedArrayBuffer(headerBytes + capacity);
+    const ctrl = new Int32Array(sab, 0, 2);
+    const data = new Uint8Array(sab, headerBytes);
+    // Сообщаем главному потоку о необходимости ввода
+    post({ type: 'input_request', prompt, buffer: sab });
+
+    // Ждём ответа пользователя либо таймаута
+    const remainingMs = Math.max(0, (_deadlineEpochMs || 0) - Date.now());
+    const result = (Atomics as any).wait(ctrl, 0, 0, remainingMs);
+    if (result !== 'ok') {
+      if (result === 'timed-out') {
+        throw new Error('Ввод прерван по таймауту');
+      }
+      throw new Error('Ввод отменён');
+    }
+    const len = ctrl[1] | 0;
+    const dec = new TextDecoder();
+    const text = dec.decode(data.slice(0, Math.max(0, Math.min(len, data.length))));
+    return text;
+  } catch (e: any) {
+    const msg = e?.message ? String(e.message) : String(e);
+    throw new Error(msg || 'Ошибка ввода');
+  }
+}
+
 // JS исполнение в изолированном контексте
 function runJS(code: string) {
   const print = (s: unknown) => post({ type: 'stdout', text: String(s ?? '') });
@@ -67,9 +100,9 @@ function runJS(code: string) {
 async function runPython(code: string, timeoutMs?: number) {
   try {
     post({ type: 'status', text: 'Загрузка Pyodide...' });
-    (self as any).importScripts('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js');
+    (self as any).importScripts('https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js');
     const loadPyodide = (self as any).loadPyodide;
-    const pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+    const pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.28.2/full/' });
 
     pyodide.globals.set('print_to_dom', (s: any) => {
       const str = String(s ?? '');
@@ -80,7 +113,7 @@ async function runPython(code: string, timeoutMs?: number) {
       }
     });
 
-    const deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
+    _deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
     await pyodide.runPythonAsync(`
 import sys
 class _JsWriter:
@@ -96,7 +129,7 @@ sys.stderr = _JsWriter()
 
 # Устанавливаем трассировщик, который прерывает выполнение по истечении времени
 import time
-_deadline_ms = ${deadlineEpochMs}
+_deadline_ms = ${_deadlineEpochMs}
 def _trace(frame, event, arg):
     if time.time() * 1000 > _deadline_ms:
         raise TimeoutError('Превышен лимит времени')
@@ -106,6 +139,9 @@ sys.settrace(_trace)
 
     // Убираем статус
     post({ type: 'status', text: '' });
+
+    // Переопределяем input -> синхронный ввод через SharedArrayBuffer
+    pyodide.globals.set('input', (prompt: any) => syncInput(String(prompt ?? '')));
 
     try {
       await pyodide.runPythonAsync(code);
@@ -185,7 +221,10 @@ async function runLua(code: string, timeoutMs?: number) {
 }
 
 self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
-  const { language, code, timeoutMs } = ev.data || ({} as any);
+  const msg = ev.data as WorkerInMsg;
+  // Обрабатываем объединённый тип: запуск кода или ответ ввода
+  if ('language' in msg) {
+    const { language, code, timeoutMs } = msg;
   _postedLines = 0; // сбрасываем лимит на каждую новую задачу
   if (!code || !code.trim()) {
     post({ type: 'done' });
@@ -203,5 +242,9 @@ self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
     }
   } catch (e: any) {
     post({ type: 'error', message: String(e?.message || e) });
+  }
+  } else {
+    // Тип input_response обрабатывается рантаймами, здесь ничего не делаем
+    return;
   }
 };

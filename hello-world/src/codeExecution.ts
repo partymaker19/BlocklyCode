@@ -182,15 +182,20 @@ async function executeInSandbox(
     return;
   }
 
-  // Единый таймаут для всех языков
-  const effectiveTimeout = timeoutMs;
+  // Таймаут выполнения: для Python увеличиваем минимум из-за холодного старта Pyodide
+  const effectiveTimeout =
+    language === "python" ? Math.max(timeoutMs, 10000) : timeoutMs;
   const timer = setTimeout(() => {
     try {
       // Снимаем слушатель, чтобы избежать утечек и лишних вызовов
       worker?.removeEventListener("message", onMessage);
       worker?.terminate();
     } catch {}
-    appendLine(`Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`, "#b58900");
+    // Сообщение о прерывании показываем только для JS/TS.
+    // Для Python/Lua прерывание по времени сообщается самим рантаймом.
+    if (language === "javascript" || language === "typescript") {
+      appendLine(`Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`, "#b58900");
+    }
   }, Math.max(0, effectiveTimeout - 50));
 
   const onMessage = (ev: MessageEvent<WorkerOutMsg>) => {
@@ -201,6 +206,27 @@ async function executeInSandbox(
       appendLine(String(msg.text ?? ""), "#b58900");
     } else if (msg?.type === "status") {
       if (msg.text) appendLine(String(msg.text), "#666");
+    } else if (msg?.type === "input_request") {
+      // Показываем нативный prompt для ввода, затем записываем ответ в SharedArrayBuffer
+      try {
+        const promptText = String(msg.prompt || "Введите значение:");
+        const value = (window.prompt?.(promptText) ?? "");
+        // Записываем в буфер: [status,len] + bytes
+        const sab = msg.buffer;
+        const ctrl = new Int32Array(sab, 0, 2);
+        const data = new Uint8Array(sab, 8);
+        const enc = new TextEncoder();
+        const bytes = enc.encode(value);
+        const n = Math.min(bytes.length, data.length);
+        if (n > 0) data.set(bytes.subarray(0, n));
+        Atomics.store(ctrl, 1, n);
+        Atomics.store(ctrl, 0, 1);
+        Atomics.notify(ctrl, 0, 1);
+        // Отразим ввод пользователя в выводе
+        appendLine("> " + value);
+      } catch (e) {
+        appendLine("Ошибка ввода: " + getErrorMessage(e), "red");
+      }
     } else if (msg?.type === "error") {
       appendLine(`Ошибка выполнения: ${String(msg.message ?? msg)}`, "red");
     } else if (msg?.type === "done") {

@@ -6,6 +6,16 @@ const app = express();
 const HOST = "127.0.0.1";
 const PORT = 4000;
 
+// COOP/COEP headers to allow SharedArrayBuffer and stronger isolation in dev
+app.use((req, res, next) => {
+  try {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    res.setHeader('Origin-Agent-Cluster', '?1');
+  } catch {}
+  next();
+});
+
 app.use(cookieParser());
 app.use(express.json({ limit: "2mb" }));
 app.use(

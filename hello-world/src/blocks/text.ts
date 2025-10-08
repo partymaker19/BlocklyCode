@@ -118,6 +118,23 @@ const bitmapDemo = {
   }
 };
 
+// Блок для ввода из Python input(), без поля подсказки
+const pyInput = {
+  type: 'py_input',
+  message0: '%{BKY_PY_INPUT}',
+  // Убираем args0, поле подсказки больше не требуется
+  output: ['String', 'Number'],
+  colour: 160,
+  tooltip: 'Python input()',
+  helpUrl: '',
+  init: function(this: Blockly.Block) {
+    this.setColour(160);
+    // Блок может возвращать строку или число
+    this.setOutput(true, ['String', 'Number']);
+    this.setTooltip('Python input()');
+  }
+};
+
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
 // This file has no side effects!
@@ -126,4 +143,5 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   angleDemo,
   angleValue,
   bitmapDemo,
+  pyInput,
 ]);

@@ -53,3 +53,15 @@ forBlock['bitmap_demo'] = function (
   const code = `print('Bitmap data: ' + ${JSON.stringify(bitmapData)})\n`;
   return code;
 };
+
+// Генератор для блока py_input (Python)
+forBlock['py_input'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Поле подсказки удалено, возвращаем просто input()
+  // Значение может использоваться как строка или число.
+  // Для числовых контекстов пользователь может конвертировать значение самостоятельно,
+  // либо использовать его напрямую как строку.
+  return ['input()', PythonOrder.ATOMIC];
+};

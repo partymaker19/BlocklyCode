@@ -343,6 +343,10 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
               },
             },
           },
+          {
+            kind: 'block',
+            type: 'py_input',
+          },
         ],
       },
       // Новая категория: Кастомные перенесена в самый низ

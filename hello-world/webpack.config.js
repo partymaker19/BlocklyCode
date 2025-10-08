@@ -14,6 +14,11 @@ const config = {
   // Enable webpack-dev-server to get hot refresh of the app.
   devServer: {
     static: './build',
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Origin-Agent-Cluster': '?1',
+    },
     proxy: {
       '/api': {
         // Use IPv4 explicitly to avoid IPv6 localhost (::1) mismatch

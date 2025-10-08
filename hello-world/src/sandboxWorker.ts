@@ -57,12 +57,14 @@ function syncInput(prompt: string): string {
 }
 
 // JS исполнение в изолированном контексте
-function runJS(code: string) {
+function runJS(code: string, timeoutMs?: number) {
   const print = (s: unknown) => post({ type: 'stdout', text: String(s ?? '') });
   const originalLog = console.log;
   const originalWarn = console.warn;
   const originalError = console.error;
   try {
+    // Устанавливаем общий дедлайн для операций ввода
+    _deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
     console.log = (...args: unknown[]) => {
       try { originalLog.apply(console, args); } catch {}
       post({ type: 'stdout', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
@@ -76,15 +78,17 @@ function runJS(code: string) {
       post({ type: 'stderr', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
     };
     // Подставляем window/self/globalThis внутрь исполняемого кода, чтобы избежать ошибок в воркере
-    const wrapper = `(function(print, consoleObj, selfRef, windowRef, globalRef){\ntry{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}\n${code}\n})`;
+    // Передаём ссылку на syncInput внутрь обёртки, чтобы избежать "syncInput is not defined"
+    const wrapper = `(function(print, consoleObj, selfRef, windowRef, globalRef, syncInputRef){\ntry{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}\n// Определяем синхронный ввод для JS-кода\nvar input = function(prompt){ try { return syncInputRef(String(prompt ?? '')); } catch (e) { throw e; } };\n${code}\n})`;
     const fn = (0, eval)(wrapper) as (
       print: (s: unknown) => void,
       consoleObj: Console,
       selfRef: unknown,
       windowRef: unknown,
-      globalRef: unknown
+      globalRef: unknown,
+      syncInputRef: (p: string) => string
     ) => void;
-    fn(print, console, self as unknown, self as unknown, self as unknown);
+    fn(print, console, self as unknown, self as unknown, self as unknown, syncInput);
     post({ type: 'done' });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -175,6 +179,8 @@ async function runLua(code: string, timeoutMs?: number) {
 
     // Устанавливаем хук дебаггера для прерывания по времени
     const deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
+    // Сохраняем дедлайн для syncInput
+    _deadlineEpochMs = deadlineEpochMs;
     const hook = (L2: any, ar: any) => {
       if (Date.now() > deadlineEpochMs) {
         // Вызов ошибки внутри VM
@@ -199,6 +205,31 @@ async function runLua(code: string, timeoutMs?: number) {
       return 0;
     });
     lua.lua_setglobal(L, to_luastring('print'));
+
+    // Определяем глобальную функцию input(prompt) -> string, использующую syncInput
+    lua.lua_pushcfunction(L, (L2: any) => {
+      const n = lua.lua_gettop(L2);
+      let promptStr = '';
+      if (n >= 1) {
+        try {
+          const s = to_jsstring(lauxlib.luaL_tolstring(L2, 1));
+          lua.lua_pop(L2, 1);
+          promptStr = s ?? '';
+        } catch { promptStr = ''; }
+      }
+      try {
+        const inputText = syncInput(String(promptStr));
+        lua.lua_pushstring(L2, to_luastring(String(inputText)));
+        return 1;
+      } catch (e: any) {
+        const msg = String(e?.message || e);
+        // Возвращаем nil и сообщение как ошибка через stderr
+        post({ type: 'stderr', text: msg });
+        lua.lua_pushnil(L2);
+        return 1;
+      }
+    });
+    lua.lua_setglobal(L, to_luastring('input'));
 
     const status = lauxlib.luaL_loadstring(L, to_luastring(code));
     if (status === lua.LUA_OK) {
@@ -232,7 +263,7 @@ self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
   }
   try {
     if (language === 'javascript' || language === 'typescript') {
-      runJS(code);
+      runJS(code, timeoutMs);
     } else if (language === 'python') {
       runPython(code, timeoutMs);
     } else if (language === 'lua') {

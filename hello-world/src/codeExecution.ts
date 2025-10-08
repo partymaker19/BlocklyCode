@@ -183,8 +183,13 @@ async function executeInSandbox(
   }
 
   // Таймаут выполнения: для Python увеличиваем минимум из-за холодного старта Pyodide
-  const effectiveTimeout =
+  let effectiveTimeout =
     language === "python" ? Math.max(timeoutMs, 10000) : timeoutMs;
+  // Если в коде используется input(), даём пользователю больше времени на ввод
+  const usesInput = /\binput\s*\(/.test(code);
+  if (usesInput && (language === "javascript" || language === "typescript" || language === "lua")) {
+    effectiveTimeout = Math.max(effectiveTimeout, 20000);
+  }
   const timer = setTimeout(() => {
     try {
       // Снимаем слушатель, чтобы избежать утечек и лишних вызовов

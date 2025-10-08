@@ -135,6 +135,21 @@ const pyInput = {
   }
 };
 
+// Блок для ввода числа: конвертирует input() в число
+const pyInputNumber = {
+  type: 'py_input_number',
+  message0: '%{BKY_PY_INPUT_NUMBER}',
+  output: 'Number',
+  colour: 160,
+  tooltip: 'Numeric input()',
+  helpUrl: '',
+  init: function(this: Blockly.Block) {
+    this.setColour(160);
+    this.setOutput(true, 'Number');
+    this.setTooltip('Numeric input()');
+  }
+};
+
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
 // This file has no side effects!
@@ -144,4 +159,5 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   angleValue,
   bitmapDemo,
   pyInput,
+  pyInputNumber,
 ]);

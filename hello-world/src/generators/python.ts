@@ -65,3 +65,12 @@ forBlock['py_input'] = function (
   // либо использовать его напрямую как строку.
   return ['input()', PythonOrder.ATOMIC];
 };
+
+// Генератор для блока py_input_number (Python)
+forBlock['py_input_number'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Преобразуем ввод в число (float для универсальности)
+  return ['float(input())', PythonOrder.ATOMIC];
+};

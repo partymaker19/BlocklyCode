@@ -53,3 +53,21 @@ forBlock['bitmap_demo'] = function (
   const code = `print('Bitmap data: ' .. ${JSON.stringify(bitmapData)})\n`;
   return code;
 };
+
+// Генератор для блока py_input (Lua)
+forBlock['py_input'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Возвращаем выражение input(), определённое в рантайме Lua
+  return ['input()', LuaOrder.ATOMIC];
+};
+
+// Генератор для блока py_input_number (Lua)
+forBlock['py_input_number'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Преобразуем ввод в число
+  return ['tonumber(input())', LuaOrder.ATOMIC];
+};

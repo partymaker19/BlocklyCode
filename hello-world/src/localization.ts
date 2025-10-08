@@ -41,7 +41,8 @@ export function setAppLang(lang: AppLang): void {
     (Blockly as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
     (Blockly as any).Msg.DEGREES = 'градусов';
     (Blockly as any).Msg.BITMAP_DEMO = 'Битмап: %1';
-    (Blockly as any).Msg.PY_INPUT = 'Ввод (Python)';
+    (Blockly as any).Msg.PY_INPUT = 'Ввод текста';
+    (Blockly as any).Msg.PY_INPUT_NUMBER = 'Ввод числа';
     // Search plugin localization
     (Blockly as any).Msg.SEARCH_PLACEHOLDER = 'Поиск блоков';
     (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Введите текст для поиска блоков';
@@ -52,7 +53,8 @@ export function setAppLang(lang: AppLang): void {
     (Blockly as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
     (Blockly as any).Msg.DEGREES = 'degrees';
     (Blockly as any).Msg.BITMAP_DEMO = 'Bitmap: %1';
-    (Blockly as any).Msg.PY_INPUT = 'Python input';
+    (Blockly as any).Msg.PY_INPUT = 'Text input';
+    (Blockly as any).Msg.PY_INPUT_NUMBER = 'Number input';
     // Search plugin localization
     (Blockly as any).Msg.SEARCH_PLACEHOLDER = 'Search blocks';
     (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Type to search for blocks';

@@ -75,3 +75,21 @@ forBlock['bitmap_demo'] = function (
   const code = `${addText}('Bitmap data: ' + ${JSON.stringify(bitmapData)});\n`;
   return code;
 };
+
+// Генератор для блока py_input (JavaScript)
+forBlock['py_input'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Возвращаем выражение input(), определённое в рантайме воркера
+  return ['input()', Order.ATOMIC];
+};
+
+// Генератор для блока py_input_number (JavaScript)
+forBlock['py_input_number'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Преобразуем ввод в число
+  return ['Number(input())', Order.ATOMIC];
+};

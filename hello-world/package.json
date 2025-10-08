@@ -68,6 +68,8 @@
 
     "blockly": "12.2.0",
 
+    "blockly-demo": "file:..",
+
     "fengari": "^0.1.4",
 
     "fengari-web": "^0.1.4",

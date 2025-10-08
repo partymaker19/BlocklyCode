@@ -330,48 +330,6 @@ export function importBlockFromJson(
   }
 }
 
-/**
- * Экспортировать все пользовательские блоки в JSON
- */
-export function exportCustomBlocks(): string {
-  const blocks = getCustomBlocks();
-  return JSON.stringify(blocks, null, 2);
-}
-
-/**
- * Импортировать блоки из экспортированного JSON
- */
-export function importCustomBlocks(jsonString: string): { success: boolean; imported: number; errors: string[] } {
-  try {
-    const importedBlocks: CustomBlock[] = JSON.parse(jsonString.trim());
-    
-    if (!Array.isArray(importedBlocks)) {
-      return { success: false, imported: 0, errors: ['Invalid format: expected array of blocks'] };
-    }
-
-    let imported = 0;
-    const errors: string[] = [];
-
-    importedBlocks.forEach((block, index) => {
-      try {
-        if (addCustomBlock(block.definition, block.generator, block.generatorLanguage)) {
-          imported++;
-        } else {
-          errors.push(`Block ${index + 1}: Failed to import`);
-        }
-      } catch (error) {
-        const msg = (error && (error as any).message) ? (error as any).message : String(error);
-        errors.push(`Block ${index + 1}: ${msg}`);
-      }
-    });
-
-    return { success: imported > 0, imported, errors };
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    return { success: false, imported: 0, errors: [`Invalid JSON: ${msg}`] };
-  }
-}
-
 // Helper to strip TypeScript constructs from user-supplied JS generator code
 function stripTypeScriptFromJs(code: string): string {
   let out = code ?? '';

@@ -1311,6 +1311,8 @@
       flex: 0 0 auto;
       background: rgba(0, 0, 0, 0.06);
       transition: background .2s;
+      /* Disable browser touch gestures to ensure smooth pointer dragging */
+      touch-action: none;
     }
 
     .resizer.vertical {

@@ -189,8 +189,8 @@ const themeLabelDark = document.getElementById(
   "theme-dark"
 ) as HTMLSpanElement | null;
 
-let selectedGeneratorLanguage: "javascript" | "python" | "lua" =
-  "javascript";
+  let selectedGeneratorLanguage: "javascript" | "python" | "lua" =
+    "javascript";
 
 // Theme state
 type AppTheme = "light" | "dark";
@@ -198,7 +198,20 @@ const APP_THEME_KEY = "app_theme";
 let appTheme: AppTheme = "light";
 
 // Объявление рабочей области Blockly
-let ws!: Blockly.WorkspaceSvg;
+  let ws!: Blockly.WorkspaceSvg;
+
+  // Дебаунсим синхронизацию ACE редактора с workspace в rAF (объявление выше всех вызовов)
+  let __aceSyncScheduled = false;
+  function scheduleAceSync() {
+    if (__aceSyncScheduled) return;
+    __aceSyncScheduled = true;
+    requestAnimationFrame(() => {
+      __aceSyncScheduled = false;
+      try {
+        updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+      } catch {}
+    });
+  }
 
 // Элементы модального окна справки
 const blockHelpBtn = document.getElementById(
@@ -529,7 +542,7 @@ function setGenLang(lang: "javascript" | "python" | "lua") {
   const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
   // sync ACE editor (без авто-выполнения)
-  updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+  scheduleAceSync();
 }
 
 if (genLangJsBtn)
@@ -1116,6 +1129,7 @@ class AnnotationManager {
   private currentShape: Konva.Shape | null = null;
   private history: Konva.Shape[] = [];
   private redoStack: Konva.Shape[] = [];
+  private _drawScheduled = false;
 
   constructor() {
     this.overlay = document.getElementById(
@@ -1325,7 +1339,7 @@ class AnnotationManager {
       rect.width(w);
       rect.height(h);
     }
-    this.layer.batchDraw();
+    this.scheduleLayerDraw();
   }
 
   private onPointerUp(e: any) {
@@ -1357,7 +1371,7 @@ class AnnotationManager {
 
     this.history.push(this.currentShape);
     this.redoStack = [];
-    this.layer.draw();
+    this.scheduleLayerDraw();
   }
 
   private undo() {
@@ -1366,7 +1380,7 @@ class AnnotationManager {
     if (!shape) return;
     this.redoStack.push(shape);
     shape.destroy();
-    this.layer.draw();
+    this.scheduleLayerDraw();
   }
 
   private redo() {
@@ -1375,7 +1389,7 @@ class AnnotationManager {
     if (!shape) return;
     this.layer.add(shape);
     this.history.push(shape);
-    this.layer.draw();
+    this.scheduleLayerDraw();
   }
 
   private clear() {
@@ -1383,7 +1397,19 @@ class AnnotationManager {
     this.layer.destroyChildren();
     this.history = [];
     this.redoStack = [];
-    this.layer.draw();
+    this.scheduleLayerDraw();
+  }
+
+  private scheduleLayerDraw() {
+    if (!this.layer) return;
+    if (this._drawScheduled) return;
+    this._drawScheduled = true;
+    requestAnimationFrame(() => {
+      this._drawScheduled = false;
+      try {
+        this.layer && this.layer.batchDraw();
+      } catch {}
+    });
   }
 }
 
@@ -1439,6 +1465,8 @@ function scheduleUIResize() {
     } catch {}
   });
 }
+
+// (scheduleAceSync перемещён выше для избежания TDZ)
 
 // Ensure final resize after flex-basis transition completes
 if (blocklyDiv) {
@@ -1505,90 +1533,62 @@ if (outputPaneEl) {
     resizeAceSoon();
   }
 
-  function getPointerPosX(e: MouseEvent | TouchEvent) {
-    if (e instanceof MouseEvent) return e.clientX;
-    const t = e.touches[0] || e.changedTouches?.[0];
-    return t ? t.clientX : 0;
-  }
-  function getPointerPosY(e: MouseEvent | TouchEvent) {
-    if (e instanceof MouseEvent) return e.clientY;
-    const t = e.touches[0] || e.changedTouches?.[0];
-    return t ? t.clientY : 0;
-  }
+  // Pointer-based dragging (unified for mouse/touch)
 
-  // Vertical drag
+  // Vertical drag (Pointer Events)
   if (verticalResizer) {
-    const startV = (e: MouseEvent | TouchEvent) => {
+    const startV = (e: PointerEvent) => {
       e.preventDefault();
       const rect = pageContainer.getBoundingClientRect();
-      const onMoveMouse = (ev: MouseEvent) => {
-        const x = getPointerPosX(ev) - rect.left;
-        const ratio = x / rect.width;
-        applyVerticalByRatio(ratio);
-      };
-      const onMoveTouch = (ev: TouchEvent) => {
-        const x = getPointerPosX(ev) - rect.left;
+      const onMove = (ev: PointerEvent) => {
+        ev.preventDefault();
+        const x = ev.clientX - rect.left;
         const ratio = x / rect.width;
         applyVerticalByRatio(ratio);
       };
       const cleanup = () => {
-        window.removeEventListener("mousemove", onMoveMouse);
-        window.removeEventListener("touchmove", onMoveTouch);
-        window.removeEventListener("mouseup", onUpMouse);
-        window.removeEventListener("touchend", onUpTouch);
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        try { verticalResizer.releasePointerCapture(e.pointerId); } catch {}
         // Save ratio
-        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
-          .width;
+        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect().width;
         const total = (pageContainer as HTMLDivElement).clientWidth;
         localStorage.setItem(V_KEY, String(left / total));
       };
-      const onUpMouse = () => cleanup();
-      const onUpTouch = () => cleanup();
-      window.addEventListener("mousemove", onMoveMouse);
-      window.addEventListener("touchmove", onMoveTouch, { passive: false });
-      window.addEventListener("mouseup", onUpMouse);
-      window.addEventListener("touchend", onUpTouch);
+      const onUp = () => cleanup();
+      window.addEventListener("pointermove", onMove, { passive: false });
+      window.addEventListener("pointerup", onUp);
+      try { verticalResizer.setPointerCapture(e.pointerId); } catch {}
     };
-    verticalResizer.addEventListener("mousedown", startV);
-    verticalResizer.addEventListener("touchstart", startV, { passive: false });
+    verticalResizer.addEventListener("pointerdown", startV);
   }
 
-  // Horizontal drag
+  // Horizontal drag (Pointer Events)
   if (horizontalResizer && codePaneEl) {
-    const startH = (e: MouseEvent | TouchEvent) => {
+    const startH = (e: PointerEvent) => {
       e.preventDefault();
       const rect = (outputPaneEl as HTMLDivElement).getBoundingClientRect();
-      const onMoveMouse = (ev: MouseEvent) => {
-        const y = getPointerPosY(ev) - rect.top;
-        const ratio = y / rect.height;
-        applyHorizontalByRatio(ratio);
-      };
-      const onMoveTouch = (ev: TouchEvent) => {
-        const y = getPointerPosY(ev) - rect.top;
+      const onMove = (ev: PointerEvent) => {
+        ev.preventDefault();
+        const y = ev.clientY - rect.top;
         const ratio = y / rect.height;
         applyHorizontalByRatio(ratio);
       };
       const cleanup = () => {
-        window.removeEventListener("mousemove", onMoveMouse);
-        window.removeEventListener("touchmove", onMoveTouch);
-        window.removeEventListener("mouseup", onUpMouse);
-        window.removeEventListener("touchend", onUpTouch);
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        try { horizontalResizer.releasePointerCapture(e.pointerId); } catch {}
         // Save ratio
         const h = (codePaneEl as HTMLDivElement).getBoundingClientRect().height;
         const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
         localStorage.setItem(H_KEY, String(h / totalH));
       };
-      const onUpMouse = () => cleanup();
-      const onUpTouch = () => cleanup();
-      window.addEventListener("mousemove", onMoveMouse);
-      window.addEventListener("touchmove", onMoveTouch, { passive: false });
-      window.addEventListener("mouseup", onUpMouse);
-      window.addEventListener("touchend", onUpTouch);
+      const onUp = () => cleanup();
+      window.addEventListener("pointermove", onMove, { passive: false });
+      window.addEventListener("pointerup", onUp);
+      try { horizontalResizer.setPointerCapture(e.pointerId); } catch {}
     };
-    horizontalResizer.addEventListener("mousedown", startH);
-    horizontalResizer.addEventListener("touchstart", startH, {
-      passive: false,
-    });
+    horizontalResizer.addEventListener("pointerdown", startH);
   }
 
   // Apply saved ratios or sensible defaults
@@ -1832,7 +1832,7 @@ function refreshWorkspaceWithCustomToolbox() {
         return;
       }
       // Keep ACE editor content in sync (без авто-выполнения)
-      updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+      scheduleAceSync();
 
       // Если блок был удален, очищаем окно вывода
       // Тип события удаления может называться 'BLOCK_DELETE' в текущих версиях Blockly
@@ -1859,7 +1859,7 @@ function refreshWorkspaceWithCustomToolbox() {
   // Активируем первую не решённую задачу
   setActiveTask(getFirstUnsolvedTask());
   // Initial sync after workspace init (без авто-выполнения)
-  updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+  scheduleAceSync();
   // Начальная отрисовка счётчика
   // На всякий случай немного отложим, чтобы DOM тулбокса гарантированно создался
   requestAnimationFrame(() => updateToolboxBlockCounterLabel());
@@ -1942,7 +1942,7 @@ if (loadXmlInput) {
       Blockly.Xml.domToWorkspace(xml, ws);
       Blockly.Events.enable();
       // Sync ACE editor after load
-      updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+      scheduleAceSync();
       // Обновить счётчик блоков
       updateToolboxBlockCounterLabel();
       // Persist via selected provider (bootstrap)

@@ -8,8 +8,18 @@ import * as Blockly from "blockly/core";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
+import type { SupportedLanguage, WorkerOutMsg, WorkerInMsg } from "./types/messages";
+export type { SupportedLanguage } from "./types/messages";
 
-export type SupportedLanguage = "javascript" | "python" | "lua" | "typescript";
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  try {
+    // Some errors can be plain objects/strings
+    return String((err as { message?: unknown })?.message ?? err);
+  } catch {
+    return "Unknown error";
+  }
+}
 
 /**
  * Generates code from a Blockly workspace based on the selected language
@@ -78,7 +88,7 @@ function executeJavaScriptCode(
 
   try {
     if (outputElement) {
-      console.log = (...args: any[]) => {
+      console.log = (...args: unknown[]) => {
         try {
           originalLog.apply(console, args);
         } catch {}
@@ -88,7 +98,7 @@ function executeJavaScriptCode(
             .join(" ")
         );
       };
-      console.warn = (...args: any[]) => {
+      console.warn = (...args: unknown[]) => {
         try {
           originalWarn.apply(console, args);
         } catch {}
@@ -99,7 +109,7 @@ function executeJavaScriptCode(
           "#b58900"
         );
       };
-      console.error = (...args: any[]) => {
+      console.error = (...args: unknown[]) => {
         try {
           originalError.apply(console, args);
         } catch {}
@@ -113,20 +123,18 @@ function executeJavaScriptCode(
     }
 
     // Provide a print function to match Python/Lua UX
-    const jsPrint = (s: any) => appendLine(String(s ?? ""));
+    const jsPrint = (s: unknown) => appendLine(String(s ?? ""));
 
     // Wrap code so it can access the print function
     const wrapper = `(function(print){\n${code}\n})`;
-    const fn = eval(wrapper) as (print: (s: any) => void) => void;
+    const fn = eval(wrapper) as (print: (s: unknown) => void) => void;
     fn(jsPrint);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Runtime error:", error);
     if (outputElement) {
       const errorEl = document.createElement("p");
       errorEl.style.color = "red";
-      errorEl.textContent = `Ошибка выполнения: ${
-        (error as any).message || error
-      }`;
+      errorEl.textContent = `Ошибка выполнения: ${getErrorMessage(error)}`;
       outputElement.appendChild(errorEl);
     }
   } finally {
@@ -163,8 +171,8 @@ async function executeInSandbox(
   let worker: Worker | null = null;
   try {
     worker = new Worker(new URL("./sandboxWorker.ts", import.meta.url));
-  } catch (e) {
-    appendLine(`Не удалось создать sandbox воркер: ${String((e as any)?.message || e)}`, "red");
+  } catch (e: unknown) {
+    appendLine(`Не удалось создать sandbox воркер: ${getErrorMessage(e)}`, "red");
     // Фолбэк на старый JS рантайм, если воркер недоступен
     if (language === "javascript" || language === "typescript") {
       executeJavaScriptCode(code, outputElement);
@@ -185,8 +193,8 @@ async function executeInSandbox(
     appendLine(`Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`, "#b58900");
   }, Math.max(0, effectiveTimeout - 50));
 
-  const onMessage = (ev: MessageEvent<any>) => {
-    const msg = ev.data || {};
+  const onMessage = (ev: MessageEvent<WorkerOutMsg>) => {
+    const msg = ev.data as WorkerOutMsg;
     if (msg?.type === "stdout") {
       appendLine(String(msg.text ?? ""));
     } else if (msg?.type === "stderr") {
@@ -204,7 +212,8 @@ async function executeInSandbox(
 
   worker.addEventListener("message", onMessage);
   // Прокидываем таймаут внутрь воркера, чтобы рантаймы могли прерывать циклы сами
-  worker.postMessage({ language, code, timeoutMs: effectiveTimeout });
+  const inMsg: WorkerInMsg = { language, code, timeoutMs: effectiveTimeout };
+  worker.postMessage(inMsg);
 }
 
 /**
@@ -256,9 +265,7 @@ export async function runCode(
     if (outputElement) {
       const errorEl = document.createElement("p");
       errorEl.style.color = "red";
-      errorEl.textContent = `Ошибка генерации/выполнения: ${
-        (error as any).message || error
-      }`;
+      errorEl.textContent = `Ошибка генерации/выполнения: ${getErrorMessage(error)}`;
       outputElement.appendChild(errorEl);
     }
   }
@@ -281,9 +288,7 @@ export async function runCodeString(
     if (outputElement) {
       const errorEl = document.createElement("p");
       errorEl.style.color = "red";
-      errorEl.textContent = `Ошибка выполнения: ${
-        (error as any).message || error
-      }`;
+      errorEl.textContent = `Ошибка выполнения: ${getErrorMessage(error)}`;
       outputElement.appendChild(errorEl);
     }
   }

@@ -1,23 +1,10 @@
 // Sandbox Web Worker: безопасное выполнение кода для JS/Python/Lua с выводом и сообщениями
-
-// Типы сообщений воркера
-type InMsg = {
-  language: 'javascript' | 'python' | 'lua' | 'typescript';
-  code: string;
-  timeoutMs?: number;
-};
-
-type OutMsg =
-  | { type: 'stdout'; text: string }
-  | { type: 'stderr'; text: string }
-  | { type: 'status'; text: string }
-  | { type: 'done' }
-  | { type: 'error'; message: string };
+import type { WorkerInMsg, WorkerOutMsg } from "./types/messages";
 
 // Ограничиваем количество строк, отправляемых в главный поток, чтобы снизить нагрузку
 const MAX_POST_LINES = 300;
 let _postedLines = 0;
-function post(msg: OutMsg) {
+function post(msg: WorkerOutMsg) {
   try {
     if (msg.type === 'stdout' || msg.type === 'stderr') {
       if (_postedLines >= MAX_POST_LINES) {
@@ -38,36 +25,37 @@ function post(msg: OutMsg) {
 
 // JS исполнение в изолированном контексте
 function runJS(code: string) {
-  const print = (s: any) => post({ type: 'stdout', text: String(s ?? '') });
+  const print = (s: unknown) => post({ type: 'stdout', text: String(s ?? '') });
   const originalLog = console.log;
   const originalWarn = console.warn;
   const originalError = console.error;
   try {
-    console.log = (...args: any[]) => {
+    console.log = (...args: unknown[]) => {
       try { originalLog.apply(console, args); } catch {}
       post({ type: 'stdout', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
     };
-    console.warn = (...args: any[]) => {
+    console.warn = (...args: unknown[]) => {
       try { originalWarn.apply(console, args); } catch {}
       post({ type: 'stderr', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
     };
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       try { originalError.apply(console, args); } catch {}
       post({ type: 'stderr', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
     };
     // Подставляем window/self/globalThis внутрь исполняемого кода, чтобы избежать ошибок в воркере
     const wrapper = `(function(print, consoleObj, selfRef, windowRef, globalRef){\ntry{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}\n${code}\n})`;
     const fn = (0, eval)(wrapper) as (
-      print: (s: any) => void,
-      consoleObj: any,
-      selfRef: any,
-      windowRef: any,
-      globalRef: any
+      print: (s: unknown) => void,
+      consoleObj: Console,
+      selfRef: unknown,
+      windowRef: unknown,
+      globalRef: unknown
     ) => void;
-    fn(print, console, self as any, self as any, self as any);
+    fn(print, console, self as unknown, self as unknown, self as unknown);
     post({ type: 'done' });
-  } catch (e: any) {
-    post({ type: 'error', message: String(e?.message || e) });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    post({ type: 'error', message: msg });
   } finally {
     console.log = originalLog;
     console.warn = originalWarn;
@@ -196,7 +184,7 @@ async function runLua(code: string, timeoutMs?: number) {
   }
 }
 
-self.onmessage = (ev: MessageEvent<InMsg>) => {
+self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
   const { language, code, timeoutMs } = ev.data || ({} as any);
   _postedLines = 0; // сбрасываем лимит на каждую новую задачу
   if (!code || !code.trim()) {

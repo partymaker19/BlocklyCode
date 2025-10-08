@@ -14,10 +14,12 @@ your toolbox from scratch, or carefully choosing whether you need each block
 listed here.
 */
 
+import * as Blockly from 'blockly/core';
+
 /**
  * Get localized toolbox configuration
  */
-export function getLocalizedToolbox() {
+export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
   return {
     kind: 'categoryToolbox',
     contents: [

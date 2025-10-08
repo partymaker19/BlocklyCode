@@ -2,6 +2,7 @@
  * Localization utilities for the app (Blockly locale + UI texts + toolbox names)
  */
 import * as Blockly from 'blockly';
+import * as BlocklyCore from 'blockly/core';
 import * as EnLocale from 'blockly/msg/en';
 import * as RuLocale from 'blockly/msg/ru';
 import {toolbox as originalToolbox} from './toolbox';
@@ -16,7 +17,7 @@ export function getAppLang(): AppLang {
   return currentAppLang;
 }
 
-function updateHeaderText(lang: AppLang) {
+function updateHeaderText(lang: AppLang): void {
   const subtitle = document.querySelector('.header-subtitle');
   const ruLabel = document.getElementById('lang-ru');
   const enLabel = document.getElementById('lang-en');
@@ -31,7 +32,7 @@ function updateHeaderText(lang: AppLang) {
   }
 }
 
-export function setAppLang(lang: AppLang) {
+export function setAppLang(lang: AppLang): void {
   currentAppLang = lang;
   Blockly.setLocale(lang === 'ru' ? (RuLocale as any) : (EnLocale as any));
   if (lang === 'ru') {
@@ -58,19 +59,22 @@ export function setAppLang(lang: AppLang) {
   updateHeaderText(lang);
 }
 
-export function localizedToolbox(lang: AppLang) {
+export function localizedToolbox(lang: AppLang): BlocklyCore.utils.toolbox.ToolboxInfo {
   const t = {
     en: { Logic: 'Logic', Loops: 'Loops', Math: 'Math', Text: 'Text', Lists: 'Lists', Variables: 'Variables', Functions: 'Functions', Custom: 'Custom blocks', MyBlocks: 'My Blocks', ImportBlocks: 'Import blocks', ImportModalTitle: 'Import custom blocks', JsonLabel: 'Block definition (JSON):', ImportInfo: 'Paste the block JSON definition below. The block will be added to "My Blocks" category.', Cancel: 'Cancel', Import: 'Import', Search: 'Search' },
     ru: { Logic: 'Логика', Loops: 'Циклы', Math: 'Математика', Text: 'Текст', Lists: 'Списки', Variables: 'Переменные', Functions: 'Функции', Custom: 'Кастомные блоки', MyBlocks: 'Мои блоки', ImportBlocks: 'Импорт блоков', ImportModalTitle: 'Импорт пользовательских блоков', JsonLabel: 'JSON определение блока:', ImportInfo: 'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".', Cancel: 'Отмена', Import: 'Импортировать', Search: 'Поиск' },
   }[lang as AppLang];
-  const tb = JSON.parse(JSON.stringify(originalToolbox));
-  for (const cat of tb.contents) {
-    if (cat.kind === 'category' && t[cat.name as keyof typeof t]) {
-      cat.name = t[cat.name as keyof typeof t];
+  const tb = JSON.parse(JSON.stringify(originalToolbox)) as BlocklyCore.utils.toolbox.ToolboxInfo;
+  for (const item of tb.contents) {
+    if (item.kind === 'category') {
+      const cat = item as BlocklyCore.utils.toolbox.StaticCategoryInfo;
+      if (t[cat.name as keyof typeof t]) {
+        cat.name = t[cat.name as keyof typeof t];
+      }
     }
-    // Localize the search category name
-    if (cat.kind === 'search') {
-      cat.name = t.Search;
+    // Localize the search category name (custom toolbox item)
+    if ((item as any).kind === 'search') {
+      (item as any).name = t.Search;
     }
   }
   const customCat = getCustomBlocksToolboxCategory();
@@ -82,7 +86,7 @@ export function localizedToolbox(lang: AppLang) {
   return tb;
 }
 
-export function localizeImportUI(lang: AppLang) {
+export function localizeImportUI(lang: AppLang): void {
   const t = {
     en: { 
       ImportBlocks: 'Create block', 
@@ -217,7 +221,7 @@ export function localizeImportUI(lang: AppLang) {
 }
 
 // Added: localize tooltips and aria-labels across the app
-export function localizeTooltips(lang: AppLang) {
+export function localizeTooltips(lang: AppLang): void {
   const setAttrs = (
     el: Element | null,
     attrs: Record<string, string | undefined>
@@ -340,7 +344,7 @@ export function localizeTooltips(lang: AppLang) {
 }
 
 // Added: localize labels and options inside Ace Settings panel
-export function localizeAceSettingsPanel(lang: AppLang) {
+export function localizeAceSettingsPanel(lang: AppLang): void {
   const t = {
     en: {
       theme: 'Theme',
@@ -411,7 +415,14 @@ export function localizeAceSettingsPanel(lang: AppLang) {
 }
 
 // Added: strings for Ace runtime UI (statusbar, toasts)
-export function getAceUIStrings(lang: AppLang) {
+export type AceUIStrings = {
+  copySuccess: string;
+  save: string;
+  saved: string;
+  statusLine: (mode: string, row: number, col: number, total: number) => string;
+};
+
+export function getAceUIStrings(lang: AppLang): AceUIStrings {
   if (lang === 'en') {
     return {
       copySuccess: 'Copied',
@@ -419,7 +430,7 @@ export function getAceUIStrings(lang: AppLang) {
       saved: 'Saved',
       statusLine: (mode: string, row: number, col: number, total: number) =>
         `${mode}  |  Line ${row}, Column ${col}  |  Total: ${total}`,
-    } as const;
+    };
   }
   return {
     copySuccess: 'Скопировано',
@@ -427,5 +438,5 @@ export function getAceUIStrings(lang: AppLang) {
     saved: 'Сохранено',
     statusLine: (mode: string, row: number, col: number, total: number) =>
       `${mode}  |  Строка ${row}, Столбец ${col}  |  Всего: ${total}`,
-  } as const;
+  };
 }

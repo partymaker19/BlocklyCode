@@ -2,7 +2,7 @@ import type * as Blockly from "blockly/core";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
-import type { SupportedLanguage } from "./codeExecution";
+import type { SupportedLanguage } from "./types/messages";
 import { getAppLang, getAceUIStrings } from "./localization";
 
 // Ace imports and configuration
@@ -22,7 +22,51 @@ import "ace-builds/src-noconflict/snippets/lua";
 (ace as any).config.set("themePath", "/ace");
 (ace as any).config.set("workerPath", "/ace");
 
-let aceEditor: any | null = null;
+type AceMode = { $id?: string } | any;
+interface AceDocument { getAllLines(): string[] }
+interface AceSession {
+  setMode(mode: string): void;
+  getMode(): AceMode;
+  getLength(): number;
+  setTabSize(size: number): void;
+  setUseWrapMode(use: boolean): void;
+  setUseSoftTabs(use: boolean): void;
+  on(event: string, handler: (...args: any[]) => void): void;
+  getDocument(): AceDocument;
+  addMarker(range: any, clazz: string, type: string, inFront?: boolean): number;
+  removeMarker(id: number): void;
+}
+interface AceSelection {
+  on(event: string, handler: (...args: any[]) => void): void;
+}
+interface AceEditor {
+  session: AceSession;
+  selection: AceSelection;
+  setOptions(options: {
+    enableBasicAutocompletion?: boolean;
+    enableLiveAutocompletion?: boolean;
+    enableSnippets?: boolean;
+    fontSize?: number;
+    showGutter?: boolean;
+    highlightActiveLine?: boolean;
+  }): void;
+  setShowFoldWidgets(show: boolean): void;
+  setShowInvisibles(show: boolean): void;
+  setTheme(theme: string): void;
+  setFontSize(size: number): void;
+  setKeyboardHandler(handler: string | null): void;
+  setValue(value: string, cursorPos?: number): void;
+  getValue(): string;
+  execCommand(command: string): void;
+  on(event: string, handler: (...args: any[]) => void): void;
+  setOption(name: string, value: any): void;
+  setShowPrintMargin(show: boolean): void;
+  setHighlightActiveLine(show: boolean): void;
+  getCursorPosition(): { row: number; column: number };
+  resize(force?: boolean): void;
+}
+
+let aceEditor: AceEditor | null = null;
 
 const ACE_SETTINGS_KEY = "ace_editor_settings";
 
@@ -173,7 +217,7 @@ function updateBraceMarkers() {
   }
 }
 
-export function getAceEditor() {
+export function getAceEditor(): AceEditor | null {
   return aceEditor;
 }
 
@@ -479,7 +523,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
             aceEditor.setKeyboardHandler("ace/keyboard/vim");
           else if (saved.keybinding === "emacs")
             aceEditor.setKeyboardHandler("ace/keyboard/emacs");
-          else aceEditor.setKeyboardHandler(null as any);
+          else aceEditor.setKeyboardHandler(null);
           if (keybindingSelect) keybindingSelect.value = saved.keybinding;
         }
       }
@@ -724,7 +768,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         if (aceEditor) {
           if (val === "vim") aceEditor.setKeyboardHandler("ace/keyboard/vim");
           else if (val === "emacs") aceEditor.setKeyboardHandler("ace/keyboard/emacs");
-          else aceEditor.setKeyboardHandler(null as any);
+          else aceEditor.setKeyboardHandler(null);
         }
       }
       saveAceSettings(next);

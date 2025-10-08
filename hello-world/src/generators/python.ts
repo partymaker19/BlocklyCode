@@ -7,10 +7,11 @@
 import {Order as PythonOrder} from 'blockly/python';
 import * as Blockly from 'blockly/core';
 
+type BlockGenerator = (block: Blockly.Block, generator: Blockly.CodeGenerator) => string | [string, number];
+export const forBlock: Record<string, BlockGenerator> = Object.create(null);
 // Export all the code generators for our custom blocks for Python,
 // but don't register them with Blockly yet.
 // This file has no side effects!
-export const forBlock = Object.create(null);
 
 forBlock['add_text'] = function (
   block: Blockly.Block,
@@ -26,7 +27,8 @@ forBlock['angle_demo'] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
-  const angle = (block as any).getFieldValue('ANGLE') || 0;
+  const angleStr = block.getFieldValue('ANGLE');
+  const angle = angleStr ? Number(angleStr) : 0;
   const code = `print('Angle: ' + str(${angle}))\n`;
   return code;
 };
@@ -36,7 +38,8 @@ forBlock['angle_value'] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
-  const angle = (block as any).getFieldValue('ANGLE') || 0;
+  const angleStr = block.getFieldValue('ANGLE');
+  const angle = angleStr ? Number(angleStr) : 0;
   // Возвращаем код и порядок операций (атомарное значение)
   return [String(angle), PythonOrder.ATOMIC];
 };
@@ -46,7 +49,7 @@ forBlock['bitmap_demo'] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
-  const bitmapData = String((block as any).getFieldValue('FIELDNAME') || '');
+  const bitmapData = String(block.getFieldValue('FIELDNAME') || '');
   const code = `print('Bitmap data: ' + ${JSON.stringify(bitmapData)})\n`;
   return code;
 };

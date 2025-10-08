@@ -13,7 +13,7 @@ import {Order as PythonOrder} from 'blockly/python';
 import {Order as LuaOrder} from 'blockly/lua';
 
 export interface CustomBlock {
-  definition: any;
+  definition: { type: string } & Record<string, unknown>;
   generator?: string;
   generatorLanguage?: 'javascript' | 'python' | 'lua'; // Новое поле для языка генератора
   id: string;
@@ -50,7 +50,11 @@ function saveCustomBlocks(blocks: CustomBlock[]) {
 /**
  * Добавить новый пользовательский блок
  */
-export function addCustomBlock(definition: any, generator?: string, generatorLanguage?: 'javascript' | 'python' | 'lua'): boolean {
+export function addCustomBlock(
+  definition: { type: string } & Record<string, unknown>,
+  generator?: string,
+  generatorLanguage?: 'javascript' | 'python' | 'lua'
+): boolean {
   try {
     // Валидация определения блока
     if (!definition || typeof definition !== 'object') {
@@ -144,8 +148,8 @@ export function registerCustomBlocks() {
         let cleanGenerator = stripTypeScriptFromJs(block.generator || '');
         
         // Определяем целевой генератор и Order в зависимости от языка
-        let targetGenerator: any;
-        let targetOrder: any;
+        let targetGenerator: typeof javascriptGenerator | typeof pythonGenerator | typeof luaGenerator;
+        let targetOrder: typeof Order | typeof PythonOrder | typeof LuaOrder;
         
         switch (block.generatorLanguage) {
           case 'python':
@@ -164,7 +168,7 @@ export function registerCustomBlocks() {
         }
         
         // Создаем функцию генератора через Function constructor с лучшей обработкой ошибок
-        (targetGenerator.forBlock as any)[block.definition.type] = function(blockInstance: any) {
+        (targetGenerator.forBlock as any)[block.definition.type] = function(blockInstance: Blockly.Block) {
           console.log(`Executing generator for block ${blockInstance.type} (${block.generatorLanguage || 'javascript'})`);
           try {
             // Создаем тело функции генератора без использования шаблонных литералов,
@@ -198,7 +202,7 @@ export function registerCustomBlocks() {
             console.log(`Generator result for ${blockInstance.type}:`, result);
             return result || `// Custom block: ${blockInstance.type}\n`;
           } catch (error) {
-            const msg = (error && (error as any).message) ? (error as any).message : String(error);
+            const msg = (error && typeof (error as any).message === 'string') ? (error as any).message : String(error);
             console.error(`Runtime error in generator for ${blockInstance.type}:`, error);
             return `// Runtime error in generator: ${msg}\n`;
           }
@@ -207,7 +211,7 @@ export function registerCustomBlocks() {
       } catch (error) {
         console.error(`Error registering generator for block ${block.definition.type}:`, error);
         // Создаем простой генератор по умолчанию для всех трех языков
-        const fallbackGenerator = function(block: any) {
+        const fallbackGenerator = function(block: Blockly.Block) {
           return `// Custom block: ${block.type}\n`;
         };
         (javascriptGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
@@ -217,31 +221,25 @@ export function registerCustomBlocks() {
     } else {
       // Встроенные генераторы для некоторых типов блоков
       if (block.definition.type === 'return_value') {
-        // Генератор для блока return - теперь использует настоящий return, совместимый с IIFE
-        const returnGenerator = function(block: any) {
-          // JavaScript
-          if (block.generatorLanguage === 'javascript') {
-            const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
-            return `return ${value};\n`;
-          }
-          // Python  
-          else if (block.generatorLanguage === 'python') {
-            const value = pythonGenerator.valueToCode(block, 'VALUE', PythonOrder.NONE) || 'None';
-            return `return ${value}\n`;
-          }
-          // Lua
-          else if (block.generatorLanguage === 'lua') {
-            const value = luaGenerator.valueToCode(block, 'VALUE', LuaOrder.NONE) || 'nil';
-            return `return ${value}\n`;
-          }
-          return `// Custom block: ${block.type}\n`;
+        // Генераторы для блока return отдельно для каждого языка
+        const returnGeneratorJs = function(block: Blockly.Block) {
+          const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
+          return `return ${value};\n`;
         };
-        (javascriptGenerator.forBlock as any)[block.definition.type] = returnGenerator;
-        (pythonGenerator.forBlock as any)[block.definition.type] = returnGenerator;
-        (luaGenerator.forBlock as any)[block.definition.type] = returnGenerator;
+        const returnGeneratorPy = function(block: Blockly.Block) {
+          const value = pythonGenerator.valueToCode(block, 'VALUE', PythonOrder.NONE) || 'None';
+          return `return ${value}\n`;
+        };
+        const returnGeneratorLua = function(block: Blockly.Block) {
+          const value = luaGenerator.valueToCode(block, 'VALUE', LuaOrder.NONE) || 'nil';
+          return `return ${value}\n`;
+        };
+        (javascriptGenerator.forBlock as any)[block.definition.type] = returnGeneratorJs;
+        (pythonGenerator.forBlock as any)[block.definition.type] = returnGeneratorPy;
+        (luaGenerator.forBlock as any)[block.definition.type] = returnGeneratorLua;
       } else {
         // Генератор по умолчанию для остальных блоков
-        const defaultGenerator = function(block: any) {
+        const defaultGenerator = function(block: Blockly.Block) {
           return `// Custom block: ${block.type}\n`;
         };
         (javascriptGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
@@ -258,7 +256,7 @@ export function registerCustomBlocks() {
 /**
  * Получить содержимое категории "Мои блоки" для toolbox
  */
-export function getCustomBlocksToolboxCategory() {
+export function getCustomBlocksToolboxCategory(): Blockly.utils.toolbox.StaticCategoryInfo | null {
   const customBlocks = getCustomBlocks();
   
   if (customBlocks.length === 0) {
@@ -269,6 +267,10 @@ export function getCustomBlocksToolboxCategory() {
     kind: 'category',
     name: 'My Blocks', // Будет переведено в toolbox
     colour: '#9C27B0',
+    id: undefined,
+    categorystyle: undefined,
+    cssconfig: undefined,
+    hidden: undefined,
     contents: customBlocks.map(block => ({
       kind: 'block',
       type: block.definition.type

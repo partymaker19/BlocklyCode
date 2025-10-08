@@ -1,12 +1,38 @@
 // Fengari-based Lua runtime integration
 
+type FengariLua = {
+  LUA_OK: number;
+  LUA_MULTRET: number;
+  lua_pushcfunction: (L: unknown, fn: (L2: unknown) => number) => void;
+  lua_setglobal: (L: unknown, name: Uint8Array) => void;
+  lua_gettop: (L: unknown) => number;
+  lua_pcall: (L: unknown, nargs: number, nresults: number, errfunc: number) => number;
+  lua_tostring: (L: unknown, idx: number) => Uint8Array | null;
+  lua_pop: (L: unknown, n: number) => void;
+};
+
+type FengariAux = {
+  luaL_newstate: () => unknown;
+  luaL_openlibs: (L: unknown) => void;
+  luaL_loadstring: (L: unknown, code: Uint8Array) => number;
+  luaL_tolstring: (L: unknown, idx: number) => Uint8Array;
+};
+
+type Fengari = {
+  lua: FengariLua;
+  lauxlib: FengariAux;
+  lualib: { luaL_openlibs: (L: unknown) => void } & Record<string, unknown>;
+  to_luastring: (s: string) => Uint8Array;
+  to_jsstring: (bytes: Uint8Array | null) => string;
+};
+
 declare global {
   interface Window {
-    fengari?: any;
+    fengari?: Fengari;
   }
 }
 
-let _fengariLoaded: Promise<any> | null = null;
+let _fengariLoaded: Promise<Fengari> | null = null;
 
 function loadScriptOnce(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -24,13 +50,13 @@ function loadScriptOnce(src: string): Promise<void> {
   });
 }
 
-async function ensureFengari() {
+async function ensureFengari(): Promise<Fengari> {
   if (_fengariLoaded) return _fengariLoaded;
   // Use fengari-web UMD build for browsers
   const FENGARI_CDN = 'https://unpkg.com/fengari-web/dist/fengari-web.js';
   _fengariLoaded = (async () => {
     await loadScriptOnce(FENGARI_CDN);
-    const f = (window as any).fengari;
+    const f = window.fengari;
     if (!f) throw new Error('Global fengari is not available after loading fengari-web.js');
     return f;
   })();
@@ -48,13 +74,13 @@ export async function runLua(code: string, outputElement: HTMLElement | null): P
   if (!code.trim() || !outputElement) return;
   try {
     const fengari = await ensureFengari();
-    const { lua, lauxlib, lualib, to_luastring, to_jsstring } = fengari as any;
+    const { lua, lauxlib, lualib, to_luastring, to_jsstring } = fengari;
 
     const L = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(L);
 
     // Define JS print -> Lua global 'print' that writes to DOM
-    lua.lua_pushcfunction(L, (L2: any) => {
+    lua.lua_pushcfunction(L, (L2: unknown) => {
       const n = lua.lua_gettop(L2);
       const parts: string[] = [];
       for (let i = 1; i <= n; i++) {
@@ -81,7 +107,8 @@ export async function runLua(code: string, outputElement: HTMLElement | null): P
       lua.lua_pop(L, 1);
       appendLine(outputElement, `Ошибка Lua: ${err}`, 'red');
     }
-  } catch (err: any) {
-    appendLine(outputElement, `Ошибка Lua: ${err?.message || String(err)}`, 'red');
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    appendLine(outputElement, `Ошибка Lua: ${msg}`, 'red');
   }
 }

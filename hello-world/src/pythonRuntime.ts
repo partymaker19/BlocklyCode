@@ -1,7 +1,12 @@
 import type { SupportedLanguage } from './codeExecution';
 
 // Lazy-loaded Pyodide instance
-let _pyodidePromise: Promise<any> | null = null;
+type JsBridgeFn = (s: unknown) => void;
+type Pyodide = {
+  runPythonAsync: (code: string) => Promise<void>;
+  globals: { set: (name: string, value: JsBridgeFn) => void };
+};
+let _pyodidePromise: Promise<Pyodide> | null = null;
 
 // Configure CDN for Pyodide assets. You may adjust version if needed.
 const PYODIDE_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/';
@@ -24,19 +29,19 @@ function loadScriptOnce(src: string): Promise<void> {
 
 declare global {
   interface Window {
-    loadPyodide?: any;
+    loadPyodide?: (opts: { indexURL: string }) => Promise<Pyodide>;
   }
 }
 
-export async function ensurePyodide(): Promise<any> {
+export async function ensurePyodide(): Promise<Pyodide> {
   if (_pyodidePromise) return _pyodidePromise;
   try {
     await loadScriptOnce(PYODIDE_CDN + 'pyodide.js');
-    const loadPyodideFn = (window as any).loadPyodide;
+    const loadPyodideFn = window.loadPyodide;
     if (!loadPyodideFn) throw new Error('Global loadPyodide is not available after loading pyodide.js');
     _pyodidePromise = loadPyodideFn({ indexURL: PYODIDE_CDN });
     return _pyodidePromise;
-  } catch (e) {
+  } catch (e: unknown) {
     console.error('Failed to load Pyodide:', e);
     throw e;
   }
@@ -56,7 +61,7 @@ export async function runPython(code: string, outputElement: HTMLElement | null)
     const pyodide = await ensurePyodide();
 
     // Bridge JS function for capturing stdout/stderr
-    pyodide.globals.set('print_to_dom', (s: any) => {
+    pyodide.globals.set('print_to_dom', (s: unknown) => {
       // Normalize to string and handle newlines
       const str = String(s ?? '');
       const parts = str.split(/\n/);
@@ -89,13 +94,10 @@ sys.stderr = _JsWriter()
     }
 
     await pyodide.runPythonAsync(code);
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (outputElement) {
-      appendLine(
-        outputElement,
-        `Ошибка Python: ${err?.message || String(err)}`,
-        'red'
-      );
+      const msg = err instanceof Error ? err.message : String(err);
+      appendLine(outputElement, `Ошибка Python: ${msg}`, 'red');
     }
   }
 }

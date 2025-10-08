@@ -217,7 +217,7 @@ function getWorkspaceBlockCount(): number {
   try {
     if (!ws) return 0;
     // Не учитываем теневые блоки
-    return ws.getAllBlocks(false).filter((b: any) => !b.isShadow()).length;
+    return ws.getAllBlocks(false).filter((b: Blockly.Block) => !b.isShadow()).length;
   } catch {
     return 0;
   }
@@ -293,7 +293,7 @@ function updateToolboxBlockCounterLabel(): void {
 
 // Helper: get active Blockly theme
 function getBlocklyTheme() {
-  return appTheme === "dark" ? (DarkTheme as any) : Blockly.Themes.Classic;
+  return appTheme === "dark" ? (DarkTheme as unknown as Blockly.Theme) : Blockly.Themes.Classic;
 }
 
 function setAppTheme(next: AppTheme) {
@@ -652,22 +652,22 @@ function setupCustomBlockContextMenu() {
   const item = {
     id: ITEM_ID,
     displayText,
-    preconditionFn: (scope: any) => {
-      const block = scope?.block as Blockly.Block | undefined;
+    preconditionFn: (scope: { block?: Blockly.Block } | undefined) => {
+      const block = scope?.block;
       if (!block) return "hidden";
       try {
         const custom = getCustomBlocks();
-        return custom.some((b: any) => b.definition?.type === block.type)
+        return custom.some((b) => b.definition?.type === block.type)
           ? "enabled"
           : "hidden";
       } catch {
         return "hidden";
       }
     },
-    callback: (scope: any) => {
-      const block = scope?.block as Blockly.Block | undefined;
+    callback: (scope: { block?: Blockly.Block } | undefined) => {
+      const block = scope?.block;
       if (!block) return;
-      const type = (block as any).type as string;
+      const type = block.type;
       const lang = getAppLang();
       const name = type;
       const question =
@@ -1499,12 +1499,12 @@ if (outputPaneEl) {
 
   function getPointerPosX(e: MouseEvent | TouchEvent) {
     if (e instanceof MouseEvent) return e.clientX;
-    const t = e.touches[0] || (e as any).changedTouches?.[0];
+    const t = e.touches[0] || e.changedTouches?.[0];
     return t ? t.clientX : 0;
   }
   function getPointerPosY(e: MouseEvent | TouchEvent) {
     if (e instanceof MouseEvent) return e.clientY;
-    const t = e.touches[0] || (e as any).changedTouches?.[0];
+    const t = e.touches[0] || e.changedTouches?.[0];
     return t ? t.clientY : 0;
   }
 
@@ -1513,34 +1513,33 @@ if (outputPaneEl) {
     const startV = (e: MouseEvent | TouchEvent) => {
       e.preventDefault();
       const rect = pageContainer.getBoundingClientRect();
-      const onMove = (ev: MouseEvent | TouchEvent) => {
+      const onMoveMouse = (ev: MouseEvent) => {
         const x = getPointerPosX(ev) - rect.left;
         const ratio = x / rect.width;
         applyVerticalByRatio(ratio);
       };
-      const onUp = () => {
-        window.removeEventListener("mousemove", onMove as any);
-        window.removeEventListener(
-          "touchmove",
-          onMove as any,
-          { passive: false } as any
-        );
-        window.removeEventListener("mouseup", onUp);
-        window.removeEventListener("touchend", onUp);
+      const onMoveTouch = (ev: TouchEvent) => {
+        const x = getPointerPosX(ev) - rect.left;
+        const ratio = x / rect.width;
+        applyVerticalByRatio(ratio);
+      };
+      const cleanup = () => {
+        window.removeEventListener("mousemove", onMoveMouse);
+        window.removeEventListener("touchmove", onMoveTouch);
+        window.removeEventListener("mouseup", onUpMouse);
+        window.removeEventListener("touchend", onUpTouch);
         // Save ratio
         const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
           .width;
         const total = (pageContainer as HTMLDivElement).clientWidth;
         localStorage.setItem(V_KEY, String(left / total));
       };
-      window.addEventListener("mousemove", onMove as any);
-      window.addEventListener(
-        "touchmove",
-        onMove as any,
-        { passive: false } as any
-      );
-      window.addEventListener("mouseup", onUp);
-      window.addEventListener("touchend", onUp);
+      const onUpMouse = () => cleanup();
+      const onUpTouch = () => cleanup();
+      window.addEventListener("mousemove", onMoveMouse);
+      window.addEventListener("touchmove", onMoveTouch, { passive: false });
+      window.addEventListener("mouseup", onUpMouse);
+      window.addEventListener("touchend", onUpTouch);
     };
     verticalResizer.addEventListener("mousedown", startV);
     verticalResizer.addEventListener("touchstart", startV, { passive: false });
@@ -1551,33 +1550,32 @@ if (outputPaneEl) {
     const startH = (e: MouseEvent | TouchEvent) => {
       e.preventDefault();
       const rect = (outputPaneEl as HTMLDivElement).getBoundingClientRect();
-      const onMove = (ev: MouseEvent | TouchEvent) => {
+      const onMoveMouse = (ev: MouseEvent) => {
         const y = getPointerPosY(ev) - rect.top;
         const ratio = y / rect.height;
         applyHorizontalByRatio(ratio);
       };
-      const onUp = () => {
-        window.removeEventListener("mousemove", onMove as any);
-        window.removeEventListener(
-          "touchmove",
-          onMove as any,
-          { passive: false } as any
-        );
-        window.removeEventListener("mouseup", onUp);
-        window.removeEventListener("touchend", onUp);
+      const onMoveTouch = (ev: TouchEvent) => {
+        const y = getPointerPosY(ev) - rect.top;
+        const ratio = y / rect.height;
+        applyHorizontalByRatio(ratio);
+      };
+      const cleanup = () => {
+        window.removeEventListener("mousemove", onMoveMouse);
+        window.removeEventListener("touchmove", onMoveTouch);
+        window.removeEventListener("mouseup", onUpMouse);
+        window.removeEventListener("touchend", onUpTouch);
         // Save ratio
         const h = (codePaneEl as HTMLDivElement).getBoundingClientRect().height;
         const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
         localStorage.setItem(H_KEY, String(h / totalH));
       };
-      window.addEventListener("mousemove", onMove as any);
-      window.addEventListener(
-        "touchmove",
-        onMove as any,
-        { passive: false } as any
-      );
-      window.addEventListener("mouseup", onUp);
-      window.addEventListener("touchend", onUp);
+      const onUpMouse = () => cleanup();
+      const onUpTouch = () => cleanup();
+      window.addEventListener("mousemove", onMoveMouse);
+      window.addEventListener("touchmove", onMoveTouch, { passive: false });
+      window.addEventListener("mouseup", onUpMouse);
+      window.addEventListener("touchend", onUpTouch);
     };
     horizontalResizer.addEventListener("mousedown", startH);
     horizontalResizer.addEventListener("touchstart", startH, {
@@ -1946,7 +1944,8 @@ function hasUnsavedChanges(): boolean {
 
   // Проверяем код в ACE редакторе
   const aceEditor = getAceEditor();
-  const hasCode = aceEditor?.getValue()?.trim().length > 0;
+  const val = aceEditor ? aceEditor.getValue() : "";
+  const hasCode = val.trim().length > 0;
 
   return hasBlocks || hasCode;
 }

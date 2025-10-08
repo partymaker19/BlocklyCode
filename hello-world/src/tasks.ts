@@ -116,7 +116,7 @@ function getVisibleOutputLines(): string[] {
 function getBlockCount(ws: Blockly.WorkspaceSvg | null | undefined): number {
   try {
     if (!ws) return 0;
-    return ws.getAllBlocks(false).filter((b: any) => !b.isShadow()).length;
+    return ws.getAllBlocks(false).filter((b: Blockly.Block) => !b.isShadow()).length;
   } catch { return 0; }
 }
 

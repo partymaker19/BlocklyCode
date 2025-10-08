@@ -22,17 +22,23 @@ function notify() {
   }
 }
 
-function mapUser(data: any): AuthUser | null {
-  if (!data) return null;
-  // допускаем форматы {user: {...}} или просто {...}
-  const u = data.user ?? data;
-  if (!u) return null;
-  return {
-    id: String(u.id ?? u._id ?? ""),
-    email: u.email ?? undefined,
-    name: u.name ?? u.username ?? undefined,
-    avatarUrl: u.avatarUrl ?? u.avatar ?? undefined,
-  } as AuthUser;
+function mapUser(data: unknown): AuthUser | null {
+  if (data == null) return null;
+  if (typeof data !== "object") return null;
+  const obj = data as Record<string, unknown>;
+  const rawUser = obj.user && typeof obj.user === "object" && obj.user != null
+    ? (obj.user as Record<string, unknown>)
+    : obj;
+  const idVal = (rawUser["id"] ?? rawUser["_id"]) as unknown;
+  const emailVal = rawUser["email"] as unknown;
+  const nameVal = (rawUser["name"] ?? rawUser["username"]) as unknown;
+  const avatarVal = (rawUser["avatarUrl"] ?? rawUser["avatar"]) as unknown;
+  const id = idVal != null ? String(idVal) : "";
+  const email = typeof emailVal === "string" ? emailVal : undefined;
+  const name = typeof nameVal === "string" ? nameVal : undefined;
+  const avatarUrl = typeof avatarVal === "string" ? avatarVal : undefined;
+  if (!id) return null;
+  return { id, email, name, avatarUrl };
 }
 
 export async function initAuth(): Promise<AuthUser | null> {
@@ -43,7 +49,7 @@ export async function initAuth(): Promise<AuthUser | null> {
       notify();
       return null;
     }
-    const payload = await res.json().catch(() => ({}));
+    const payload: unknown = await res.json().catch(() => ({} as unknown));
     currentUser = mapUser(payload);
   } catch {
     currentUser = null;
@@ -96,7 +102,7 @@ export async function loginWithEmail(email: string, password: string): Promise<A
   if (!res.ok) {
     throw new Error("Login failed");
   }
-  const payload = await res.json().catch(() => ({}));
+  const payload: unknown = await res.json().catch(() => ({} as unknown));
   currentUser = mapUser(payload);
   notify();
   return currentUser;
@@ -112,7 +118,7 @@ export async function registerWithEmail(email: string, password: string): Promis
   if (!res.ok) {
     throw new Error("Registration failed");
   }
-  const payload = await res.json().catch(() => ({}));
+  const payload: unknown = await res.json().catch(() => ({} as unknown));
   currentUser = mapUser(payload);
   notify();
   return currentUser;

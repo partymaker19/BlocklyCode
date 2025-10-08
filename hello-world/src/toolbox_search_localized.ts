@@ -21,7 +21,7 @@ class BlockSearcher {
    *
    * @param blockTypes A list of block types to index.
    */
-  indexBlocks(blockTypes: string[]) {
+  indexBlocks(blockTypes: string[]): void {
     const blockCreationWorkspace = new Blockly.Workspace();
     blockTypes.forEach((blockType) => {
       const block = blockCreationWorkspace.newBlock(blockType);
@@ -41,7 +41,7 @@ class BlockSearcher {
    * @param field We need to check the type of field
    * @param blockType The block type to associate the trigrams with.
    */
-  private indexDropdownOption(field: Blockly.Field, blockType: string) {
+  private indexDropdownOption(field: Blockly.Field, blockType: string): void {
     if (field instanceof Blockly.FieldDropdown) {
       // Поля переменных (FieldVariable) иногда не имеют выбранной переменной при
       // создании блока в временном воркспейсе, что приводит к ошибке при вызове
@@ -89,7 +89,7 @@ class BlockSearcher {
    * @param text The text to generate trigrams of.
    * @param blockType The block type to associate the trigrams with.
    */
-  private indexBlockText(text: string, blockType: string) {
+  private indexBlockText(text: string, blockType: string): void {
     this.generateTrigrams(text).forEach((trigram) => {
       const blockSet = this.trigramsToBlocks.get(trigram) ?? new Set<string>();
       blockSet.add(blockType);
@@ -189,7 +189,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
    * @returns The zero-based index of this category in its parent toolbox, or -1
    *    if it cannot be determined, e.g. if this is a nested category.
    */
-  private getPosition() {
+  private getPosition(): number {
     const categories = this.workspace_.options.languageTree?.contents || [];
     for (let i = 0; i < categories.length; i++) {
       if (categories[i].kind === LocalizedToolboxSearchCategory.SEARCH_CATEGORY_KIND) {
@@ -203,7 +203,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   /**
    * Registers a shortcut for displaying the toolbox search category.
    */
-  private registerShortcut() {
+  private registerShortcut(): void {
     const shortcut = Blockly.ShortcutRegistry.registry.createSerializedKey(
       Blockly.utils.KeyCodes.B,
       [Blockly.utils.KeyCodes.CTRL],
@@ -230,7 +230,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   private getAvailableBlocks(
     schema: Blockly.utils.toolbox.ToolboxItemInfo,
     allBlocks: Set<string>,
-  ) {
+  ): void {
     if ('contents' in schema) {
       schema.contents.forEach((contents) => {
         this.getAvailableBlocks(contents, allBlocks);
@@ -245,7 +245,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   /**
    * Builds the BlockSearcher index based on the available blocks.
    */
-  private initBlockSearcher() {
+  private initBlockSearcher(): void {
     const availableBlocks = new Set<string>();
     this.workspace_.options.languageTree?.contents?.forEach((item) =>
       this.getAvailableBlocks(item, availableBlocks),
@@ -258,7 +258,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
    *
    * @param e The click event.
    */
-  override onClick(e: Event) {
+  override onClick(e: Event): void {
     super.onClick(e);
     e.preventDefault();
     e.stopPropagation();
@@ -270,7 +270,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
    *
    * @param isSelected Whether or not the category is now selected.
    */
-  override setSelected(isSelected: boolean) {
+  override setSelected(isSelected: boolean): void {
     super.setSelected(isSelected);
     if (!this.searchField) return;
     if (isSelected) {
@@ -285,7 +285,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   /**
    * Filters the available blocks based on the current query string.
    */
-  private matchBlocks() {
+  private matchBlocks(): void {
     const query = this.searchField?.value || '';
 
     this.flyoutItems_ = query
@@ -312,7 +312,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   /**
    * Disposes of this category.
    */
-  override dispose() {
+  override dispose(): void {
     super.dispose();
     Blockly.ShortcutRegistry.registry.unregister(
       LocalizedToolboxSearchCategory.START_SEARCH_SHORTCUT,

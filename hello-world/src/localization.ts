@@ -444,3 +444,42 @@ export function getAceUIStrings(lang: AppLang): AceUIStrings {
       `${mode}  |  Строка ${row}, Столбец ${col}  |  Всего: ${total}`,
   };
 }
+
+// Localize Help UI: button text/labels and modal title
+export function localizeHelpUI(lang: AppLang): void {
+  const t = {
+    en: {
+      modalTitle: 'Guide to Creating Custom Blocks',
+      buttonText: 'Help',
+      buttonLabel: 'Help',
+      title: 'Guide to Creating Custom Blocks',
+      closeLabel: 'Close',
+    },
+    ru: {
+      modalTitle: 'Руководство по созданию блоков',
+      buttonText: 'Справка',
+      buttonLabel: 'Справка',
+      title: 'Руководство по созданию блоков',
+      closeLabel: 'Закрыть',
+    },
+  }[lang];
+
+  const helpBtn = document.getElementById('blockHelpBtn');
+  const helpBtnText = document.getElementById('blockHelpBtnText');
+  const modalTitleEl = document.querySelector('#helpModal .modal-header h2');
+  const closeBtn = document.getElementById('closeHelpModal');
+
+  if (helpBtn) {
+    helpBtn.setAttribute('title', t.title);
+    helpBtn.setAttribute('aria-label', t.buttonLabel);
+  }
+  if (helpBtnText) {
+    (helpBtnText as HTMLElement).textContent = t.buttonText;
+  }
+  if (modalTitleEl) {
+    (modalTitleEl as HTMLElement).textContent = t.modalTitle;
+  }
+  if (closeBtn) {
+    closeBtn.setAttribute('aria-label', t.closeLabel);
+  }
+}

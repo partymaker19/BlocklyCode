@@ -35,6 +35,7 @@ import {
   getAppLang,
   localizeTooltips,
   localizeAceSettingsPanel,
+  localizeHelpUI,
 } from "./localization";
 import {
   setupAceEditor,
@@ -960,6 +961,8 @@ initThemeSwitchUI();
 // Инициализация UI локализации
 localizeImportUI(defaultLang);
 localizeTooltips(defaultLang);
+// Локализуем кнопку и модалку справки
+localizeHelpUI(defaultLang);
 // Установить локализованный текст для кнопки следующей задачи и элементы панели задач
 {
   const t = (window as any)._currentLocalizedStrings;
@@ -1049,6 +1052,8 @@ if (langSwitchInput) {
     // Локализуем тултипы и окно настроек Ace
     localizeTooltips(newLang);
     localizeAceSettingsPanel(newLang);
+    // Локализуем кнопку и модалку справки
+    localizeHelpUI(newLang);
     // ACE специфичные строки (кнопка Save, статусбар)
     const { refreshAceUILanguage } = require("./aceEditor");
     if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
@@ -2326,47 +2331,81 @@ function initHelpModal() {
     const helpModalHeader = helpModalContent?.querySelector(".modal-header");
 
     if (helpModalContent && helpModalHeader) {
+      // Копируем логику ограниченного перетаскивания, как у окна импорта
       let isDragging = false;
       let offsetX = 0;
       let offsetY = 0;
+      let cachedWidth = 0;
+      let cachedHeight = 0;
+      let dragScheduled = false;
+      let pendingLeft = 0;
+      let pendingTop = 0;
 
-      // Начало перетаскивания
-      helpModalHeader.addEventListener("mousedown", (e: Event) => {
-        const mouseEvent = e as MouseEvent;
+      function onMouseDown(e: Event) {
+        const ev = e as MouseEvent;
+        // Только левая кнопка мыши
+        if (ev.button !== 0) return;
+        // Не начинаем перетаскивание, если клик по кнопке закрытия
+        const target = ev.target as HTMLElement | null;
+        if (target && target.closest("#closeHelpModal")) return;
+        ev.preventDefault();
         isDragging = true;
 
-        // Сбрасываем transform для получения правильных координат
-        const computedStyle = window.getComputedStyle(helpModalContent);
-        const matrix = new DOMMatrix(computedStyle.transform);
+        // Текущие координаты и размеры
+        const rect = (helpModalContent as HTMLDivElement).getBoundingClientRect();
 
-        // Устанавливаем начальную позицию в абсолютных координатах
-        helpModalContent.style.top =
-          helpModalContent.offsetTop + matrix.m42 + "px";
-        helpModalContent.style.left =
-          helpModalContent.offsetLeft + matrix.m41 + "px";
-        helpModalContent.style.transform = "none";
+        // Фиксируем абсолютные координаты и отключаем трансформации/анимации
+        (helpModalContent as HTMLDivElement).style.left = rect.left + "px";
+        (helpModalContent as HTMLDivElement).style.top = rect.top + "px";
+        (helpModalContent as HTMLDivElement).style.transform = "none";
+        (helpModalContent as HTMLDivElement).style.animation = "none";
 
-        // Запоминаем смещение курсора относительно окна
-        offsetX = mouseEvent.clientX - helpModalContent.offsetLeft;
-        offsetY = mouseEvent.clientY - helpModalContent.offsetTop;
+        // Кэшируем размеры
+        cachedWidth = rect.width;
+        cachedHeight = rect.height;
 
-        // Предотвращаем выделение текста при перетаскивании
-        e.preventDefault();
-      });
+        // Смещение курсора относительно окна
+        offsetX = ev.clientX - rect.left;
+        offsetY = ev.clientY - rect.top;
 
-      // Перетаскивание
-      document.addEventListener("mousemove", (e: Event) => {
-        const mouseEvent = e as MouseEvent;
-        if (isDragging) {
-          helpModalContent.style.left = mouseEvent.clientX - offsetX + "px";
-          helpModalContent.style.top = mouseEvent.clientY - offsetY + "px";
-        }
-      });
+        document.body.style.userSelect = "none";
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      }
 
-      // Окончание перетаскивания
-      document.addEventListener("mouseup", () => {
+      function onMouseMove(e: Event) {
+        const ev = e as MouseEvent;
+        if (!isDragging) return;
+        pendingLeft = ev.clientX - offsetX;
+        pendingTop = ev.clientY - offsetY;
+        if (dragScheduled) return;
+        dragScheduled = true;
+        requestAnimationFrame(() => {
+          dragScheduled = false;
+          let nextLeft = pendingLeft;
+          let nextTop = pendingTop;
+          const width = cachedWidth;
+          const height = cachedHeight;
+          const maxLeft = window.innerWidth - width;
+          const maxTop = window.innerHeight - height;
+          const minTop = 10; // не позволяем прятать заголовок за верхней границей
+          if (nextLeft < 0) nextLeft = 0;
+          else if (nextLeft > maxLeft) nextLeft = maxLeft;
+          if (nextTop < minTop) nextTop = minTop;
+          else if (nextTop > maxTop) nextTop = maxTop;
+          (helpModalContent as HTMLDivElement).style.left = `${nextLeft}px`;
+          (helpModalContent as HTMLDivElement).style.top = `${nextTop}px`;
+        });
+      }
+
+      function onMouseUp(_e?: Event) {
         isDragging = false;
-      });
+        document.body.style.userSelect = "";
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      }
+
+      helpModalHeader.addEventListener("mousedown", onMouseDown);
     }
   }
 }

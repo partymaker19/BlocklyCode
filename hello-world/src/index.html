@@ -805,16 +805,60 @@
 
     .close-button {
       color: white;
-      font-size: 32px;
-      font-weight: 300;
+      font-size: 0; /* скрываем текстовую "×", рисуем крестик псевдоэлементами */
+      font-weight: 400;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      position: relative;
+      line-height: 0;
+      transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
       opacity: 0.9;
     }
 
+    .close-button::before,
+    .close-button::after {
+      content: "";
+      position: absolute;
+      display: block;
+      width: 18px;
+      height: 2px;
+      background-color: currentColor;
+      border-radius: 1px;
+      top: 50%;
+      left: 50%;
+      transform-origin: center;
+      margin-top: 0.5px; /* оптическое центрирование вниз */
+      margin-left: 0.5px; /* оптическое центрирование вправо */
+    }
+
+    .close-button::before {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .close-button::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
     .close-button:hover {
-      transform: scale(1.1);
+      background-color: #ffffff;
+      color: #000000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       opacity: 1;
+    }
+
+    .close-button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 0 0 6px rgba(0,0,0,0.25);
+    }
+
+    html[data-theme='dark'] .close-button:hover {
+      background-color: #ffffff;
+      color: #000000;
     }
 
     /* Auth modal specific */

@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>404 — Страница не найдена</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><text y='50%' x='50%' text-anchor='middle' dominant-baseline='middle' font-size='160'>⚠️</text></svg>">
-  <link rel="stylesheet" href="./index.css" />
+  <title>404 — Page Not Found</title>
+  <link rel="icon" type="image/png" href="./meta-icon.png" />
   <style>
     :root {
       --bg: #1e1e2f;
@@ -14,7 +14,12 @@
       --muted: #666;
       --accent: #6c4dd6;
     }
-    html, body { height: 100%; }
+
+    html,
+    body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
       display: grid;
@@ -23,13 +28,15 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', Helvetica, Arial, 'Noto Sans', sans-serif;
       color: var(--text);
     }
+
     .card {
       width: min(720px, calc(100vw - 32px));
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
       border-radius: 16px;
       background: var(--card-bg);
       overflow: hidden;
     }
+
     .header {
       background: linear-gradient(135deg, #6c4dd6, #9b59d0);
       color: #fff;
@@ -38,52 +45,104 @@
       align-items: center;
       gap: 12px;
     }
-    .header .code { font-weight: 700; font-size: 28px; }
-    .header .title { font-size: 18px; opacity: 0.95; }
-    .content { padding: 24px; }
-    .lead { font-size: 16px; line-height: 1.5; color: var(--muted); }
-    .actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+
+    .header .code {
+      font-weight: 700;
+      font-size: 28px;
+    }
+
+    .header .title {
+      font-size: 18px;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .lead {
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
     .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 10px 14px; border-radius: 10px; border: 1px solid #ddd;
-      background: #fff; color: #222; text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #222;
+      text-decoration: none;
       transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
     }
-    .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(0,0,0,.15); }
-    .details {
-      margin-top: 16px; font-size: 14px; color: var(--muted);
+
+    .btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
     }
-    .list { margin: 8px 0 0 18px; }
-    .list li { margin: 6px 0; }
-    .small { font-size: 12px; opacity: .8; margin-top: 14px; }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
+    }
+
+    .details {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .list {
+      margin: 8px 0 0 18px;
+    }
+
+    .list li {
+      margin: 6px 0;
+    }
+
+    .small {
+      font-size: 12px;
+      opacity: .8;
+      margin-top: 14px;
+    }
   </style>
 </head>
+
 <body>
   <main class="card" role="main">
     <div class="header">
       <div class="code">404</div>
-      <div class="title">Страница не найдена или приложение не загрузилось</div>
+      <div class="title">Page not found or the app failed to load</div>
     </div>
     <div class="content">
       <p class="lead">
-        Запрашиваемый путь не существует, или возникла ошибка при загрузке ресурсов приложения.
-        Попробуйте вернуться на главную и перезагрузить страницу.
+        The requested path doesn’t exist, or an error occurred while loading application assets.
+        Try reloading the page.
       </p>
       <div class="actions">
-        <a class="btn primary" href="./index.html">Вернуться на главную</a>
-        <a class="btn" href="javascript:location.reload()">Перезагрузить</a>
+        <a class="btn" href="javascript:location.reload()">Reload</a>
       </div>
       <div class="details">
-        Возможные причины:
+        Possible causes:
         <ul class="list">
-          <li>Неправильный URL или удалённая страница</li>
-          <li>Проблемы сети или блокировка запросов</li>
-          <li>Сбой при сборке/раздаче статических файлов</li>
+          <li>Incorrect URL or the page was removed</li>
+          <li>Network issues or requests are blocked</li>
+          <li>Build error or static files are not served</li>
         </ul>
-        <p class="small">Если проблема повторяется, пожалуйста, сообщите нам через «Справка» → «Обратная связь» внутри приложения.</p>
       </div>
     </div>
   </main>
 </body>
+
 </html>

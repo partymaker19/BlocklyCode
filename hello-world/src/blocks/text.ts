@@ -7,6 +7,7 @@
 import * as Blockly from 'blockly/core';
 import {FieldAngle} from '@blockly/field-angle';
 import '@blockly/field-bitmap';
+import '@blockly/field-grid-dropdown';
 
 // Create a custom block called 'add_text' that adds
 // text to the output div on the sample app.
@@ -118,6 +119,34 @@ const bitmapDemo = {
   }
 };
 
+// Блок с плагином field_grid_dropdown (сеточный выпадающий список)
+const gridDropdownDemo = {
+  type: 'grid_dropdown_demo',
+  message0: 'Grid dropdown: %1',
+  args0: [
+    {
+      type: 'field_grid_dropdown',
+      name: 'FIELDNAME',
+      options: [
+        ['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'],
+        ['E', 'E'], ['F', 'F'], ['G', 'G'], ['H', 'H']
+      ],
+      columns: 4
+    },
+  ],
+  previousStatement: null,
+  nextStatement: null,
+  colour: 200,
+  tooltip: 'Grid dropdown field',
+  helpUrl: '',
+  init: function(this: Blockly.Block) {
+    this.setColour(200);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip('Grid dropdown field');
+  }
+};
+
 // Блок для ввода из Python input(), без поля подсказки
 const pyInput = {
   type: 'py_input',
@@ -158,6 +187,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   angleDemo,
   angleValue,
   bitmapDemo,
+  gridDropdownDemo,
   pyInput,
   pyInputNumber,
 ]);

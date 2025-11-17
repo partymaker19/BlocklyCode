@@ -62,6 +62,8 @@
 
     "@blockly/field-bitmap": "^6.0.2",
 
+    "@blockly/field-grid-dropdown": "^6.0.4",
+
     "@blockly/theme-dark": "^8.0.1",
 
     "@blockly/toolbox-search": "^3.0.2",

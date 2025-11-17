@@ -3,3 +3,5 @@ declare module '@blockly/block-dynamic-connection' {
   export function overrideOldBlockDefinitions(Blockly?: any): void;
   export function finalizeConnections(e: any): void;
 }
+
+declare module '@blockly/field-grid-dropdown';

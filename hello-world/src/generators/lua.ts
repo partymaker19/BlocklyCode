@@ -54,6 +54,16 @@ forBlock['bitmap_demo'] = function (
   return code;
 };
 
+// Генератор для блока grid_dropdown_demo (Lua)
+forBlock['grid_dropdown_demo'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const value = String(block.getFieldValue('FIELDNAME') || '');
+  const code = `print('Grid selected: ' .. ${JSON.stringify(value)})\n`;
+  return code;
+};
+
 // Генератор для блока py_input (Lua)
 forBlock['py_input'] = function (
   block: Blockly.Block,

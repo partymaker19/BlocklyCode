@@ -40,7 +40,7 @@ forBlock['angle_demo'] = function (
   outputDiv.appendChild(textEl);
 }`,
   );
-  const code = `${addText}('Angle: ' + String(${angle}));\n`;
+  const code = `console.log('Angle:', String(${angle}));\n`;
   return code;
 };
 
@@ -128,7 +128,18 @@ forBlock['bitmap_demo'] = function (
   outputDiv.appendChild(textEl);
 }`,
   );
-  const code = `${addText}('Bitmap data: ' + ${JSON.stringify(bitmapData)});\n`;
+  const code = `console.log('Bitmap data:', ${JSON.stringify(bitmapData)});\n`;
+  return code;
+};
+
+// Генератор для блока grid_dropdown_demo (JavaScript)
+forBlock['grid_dropdown_demo'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const value = String(block.getFieldValue('FIELDNAME') || '');
+  const code = `console.log('Grid selected:', ${JSON.stringify(value)});
+`;
   return code;
 };
 

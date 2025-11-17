@@ -209,6 +209,8 @@ let appTheme: AppTheme = "light";
 
 // Объявление рабочей области Blockly
   let ws!: Blockly.WorkspaceSvg;
+  let __langSwitchTimer: number | null = null;
+  let __themeSwitchTimer: number | null = null;
 
   // Дебаунсим синхронизацию ACE редактора с workspace в rAF (объявление выше всех вызовов)
   let __aceSyncScheduled = false;
@@ -329,15 +331,20 @@ function getBlocklyTheme() {
 
 function setAppTheme(next: AppTheme) {
   appTheme = next;
-  // update labels state
   if (themeLabelLight && themeLabelDark) {
     themeLabelLight.classList.toggle("active", appTheme === "light");
     themeLabelDark.classList.toggle("active", appTheme === "dark");
   }
-  // Add data attribute for CSS chrome
   document.documentElement.setAttribute("data-theme", appTheme);
-  // Recreate workspace with preserved state
-  refreshWorkspaceWithCustomToolbox();
+  try {
+    const canSetTheme = ws && typeof (ws as any).setTheme === "function";
+    if (canSetTheme) {
+      (ws as any).setTheme(getBlocklyTheme());
+    } else {
+      refreshWorkspaceWithCustomToolbox();
+    }
+  } catch {}
+  scheduleAceSync();
 }
 
 function initThemeSwitchUI() {
@@ -349,7 +356,10 @@ function initThemeSwitchUI() {
   }
   themeSwitchInput.addEventListener("change", (e: Event) => {
     const checked = (e.target as HTMLInputElement).checked;
-    setAppTheme(checked ? "dark" : "light");
+    if (__themeSwitchTimer) clearTimeout(__themeSwitchTimer);
+    __themeSwitchTimer = window.setTimeout(() => {
+      setAppTheme(checked ? "dark" : "light");
+    }, 120);
   });
 }
 
@@ -1062,9 +1072,18 @@ if (langSwitchInput) {
 
   langSwitchInput.addEventListener("change", () => {
     const newLang = langSwitchInput.checked ? "en" : "ru";
+    if (__langSwitchTimer) clearTimeout(__langSwitchTimer);
+    __langSwitchTimer = window.setTimeout(() => {
     setAppLang(newLang);
     // Обновляем рабочую область с локализованным тулбоксом
-    refreshWorkspaceWithCustomToolbox();
+    try {
+      const canUpdate = ws && typeof (ws as any).updateToolbox === "function";
+      if (canUpdate) {
+        (ws as any).updateToolbox(localizedToolbox(newLang));
+      } else {
+        refreshWorkspaceWithCustomToolbox();
+      }
+    } catch {}
     // Локализуем импорт-модалку
     localizeImportUI(newLang);
     // Локализуем тултипы и окно настроек Ace
@@ -1134,6 +1153,9 @@ if (langSwitchInput) {
         }
       }
     }
+    scheduleAceSync();
+    requestAnimationFrame(() => updateToolboxBlockCounterLabel());
+    }, 120);
   });
 }
 
@@ -1870,6 +1892,9 @@ function refreshWorkspaceWithCustomToolbox() {
         (e as any).type === (Blockly as any).Events?.BLOCK_DELETE ||
         (e as any).type === "block_delete"
       ) {
+        try {
+          updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+        } catch {}
         const out = document.getElementById("output") as HTMLElement | null;
         clearOutput(out);
       }

@@ -56,6 +56,13 @@ const config = {
       // Disable html-minifier-terser which currently fails on our complex template
       minify: false,
     }),
+    // Generate 404 page for production/static hosting
+    new HtmlWebpackPlugin({
+      template: 'src/404.html',
+      filename: '404.html',
+      inject: false,
+      minify: false,
+    }),
     new CopyWebpackPlugin({
       patterns: [
         { from: 'node_modules/blockly/media', to: 'media' },

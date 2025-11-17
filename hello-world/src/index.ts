@@ -6,6 +6,7 @@ import * as Blockly from "blockly";
 // Добавляем импорт стандартных блоков Blockly, чтобы категории тулбокса были заполнены
 import "blockly/blocks";
 import { blocks } from "./blocks/text";
+import { blocks as algorithmBlocks } from "./blocks/algorithms";
 import { forBlock } from "./generators/javascript";
 import { forBlock as forBlockPython } from "./generators/python";
 import { forBlock as forBlockLua } from "./generators/lua";
@@ -72,6 +73,7 @@ let modalDragInitialized = false;
 
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
+Blockly.common.defineBlocks(algorithmBlocks);
 Object.assign(javascriptGenerator.forBlock, forBlock);
 Object.assign(pythonGenerator.forBlock, forBlockPython);
 Object.assign(luaGenerator.forBlock, forBlockLua);

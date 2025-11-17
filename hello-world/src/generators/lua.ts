@@ -71,3 +71,41 @@ forBlock['py_input_number'] = function (
   // Преобразуем ввод в число
   return ['tonumber(input())', LuaOrder.ATOMIC];
 };
+// ===== Словарные блоки (Lua - таблицы) =====
+forBlock['dict_create'] = function (
+  _block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  return ['{}', LuaOrder.ATOMIC];
+};
+
+forBlock['dict_set'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const dict = generator.valueToCode(block, 'DICT', LuaOrder.NONE) || '{}';
+  const key = generator.valueToCode(block, 'KEY', LuaOrder.NONE) || "''";
+  const value = generator.valueToCode(block, 'VALUE', LuaOrder.NONE) || 'nil';
+  const code = `${dict}[${key}] = ${value}\n`;
+  return code;
+};
+
+forBlock['dict_get'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const dict = generator.valueToCode(block, 'DICT', LuaOrder.NONE) || '{}';
+  const key = generator.valueToCode(block, 'KEY', LuaOrder.NONE) || "''";
+  const code = `${dict}[${key}]`;
+  return [code, LuaOrder.ATOMIC];
+};
+
+forBlock['dict_has_key'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const key = generator.valueToCode(block, 'KEY', LuaOrder.NONE) || "''";
+  const dict = generator.valueToCode(block, 'DICT', LuaOrder.NONE) || '{}';
+  const code = `${dict}[${key}] ~= nil`;
+  return [code, LuaOrder.RELATIONAL];
+};

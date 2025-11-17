@@ -366,10 +366,6 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
           },
           {
             kind: 'block',
-            type: 'lists_create_with',
-          },
-          {
-            kind: 'block',
             type: 'lists_repeat',
             inputs: {
               NUM: {
@@ -454,6 +450,7 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
           { kind: 'block', type: 'angle_demo' },
           { kind: 'block', type: 'angle_value' },
           { kind: 'block', type: 'bitmap_demo' },
+          // Удалены словарные блоки из раздела «Кастомные блоки»
         ],
       },
     ],

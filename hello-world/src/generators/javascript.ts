@@ -44,6 +44,62 @@ forBlock['angle_demo'] = function (
   return code;
 };
 
+// ===== Словарные блоки (JS) =====
+forBlock['dict_create'] = function (
+  _block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  return ['({})', Order.ATOMIC];
+};
+
+forBlock['dict_set'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const dict = generator.valueToCode(block, 'DICT', Order.NONE) || '{}';
+  const key = generator.valueToCode(block, 'KEY', Order.NONE) || "''";
+  const value = generator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
+  const code = `${dict}[${key}] = ${value};\n`;
+  return code;
+};
+
+forBlock['dict_get'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const dict = generator.valueToCode(block, 'DICT', Order.NONE) || '{}';
+  const key = generator.valueToCode(block, 'KEY', Order.NONE) || "''";
+  const code = `${dict}[${key}]`;
+  return [code, Order.MEMBER];
+};
+
+forBlock['dict_has_key'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const key = generator.valueToCode(block, 'KEY', Order.NONE) || "''";
+  const dict = generator.valueToCode(block, 'DICT', Order.NONE) || '{}';
+  const code = `Object.prototype.hasOwnProperty.call(${dict}, ${key})`;
+  return [code, Order.FUNCTION_CALL];
+};
+
+// Переопределение генератора для блока изменения переменной (math_change)
+// Это гарантирует, что тело циклов с этим блоком генерирует корректный JS код.
+forBlock['math_change'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  // Имя переменной из поля VAR
+  const varName = (generator as any).nameDB_.getName(
+    (block as any).getFieldValue('VAR'),
+    (Blockly as any).Names?.NameType?.VARIABLE || 'VARIABLE'
+  );
+  // Значение изменения (DELTA)
+  const delta = generator.valueToCode(block, 'DELTA', Order.ADDITION) || '0';
+  const code = `${varName} += ${delta};\n`;
+  return code;
+};
+
 // Генератор для блока-выражения angle_value
 forBlock['angle_value'] = function (
   block: Blockly.Block,

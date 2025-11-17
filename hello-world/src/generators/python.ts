@@ -44,6 +44,45 @@ forBlock['angle_value'] = function (
   return [String(angle), PythonOrder.ATOMIC];
 };
 
+// ===== Словарные блоки (Python) =====
+forBlock['dict_create'] = function (
+  _block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  return ['{}', PythonOrder.ATOMIC];
+};
+
+forBlock['dict_set'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const dict = generator.valueToCode(block, 'DICT', PythonOrder.NONE) || '{}';
+  const key = generator.valueToCode(block, 'KEY', PythonOrder.NONE) || "''";
+  const value = generator.valueToCode(block, 'VALUE', PythonOrder.NONE) || 'None';
+  const code = `${dict}[${key}] = ${value}\n`;
+  return code;
+};
+
+forBlock['dict_get'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const dict = generator.valueToCode(block, 'DICT', PythonOrder.NONE) || '{}';
+  const key = generator.valueToCode(block, 'KEY', PythonOrder.NONE) || "''";
+  const code = `${dict}[${key}]`;
+  return [code, PythonOrder.ATOMIC];
+};
+
+forBlock['dict_has_key'] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const key = generator.valueToCode(block, 'KEY', PythonOrder.NONE) || "''";
+  const dict = generator.valueToCode(block, 'DICT', PythonOrder.NONE) || '{}';
+  const code = `${key} in ${dict}`;
+  return [code, PythonOrder.RELATIONAL];
+};
+
 // Генератор для блока bitmap_demo (Python)
 forBlock['bitmap_demo'] = function (
   block: Blockly.Block,

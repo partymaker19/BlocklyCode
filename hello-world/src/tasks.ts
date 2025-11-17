@@ -12,7 +12,7 @@ export type InitTaskValidationOptions = {
 };
 
 // ---------- Прогресс и порядок задач ----------
-export type TaskId = "hello_world" | "add_2_7";
+export type TaskId = "hello_world" | "add_2_7" | "sum_array" | "min_max" | "char_freq";
 
 type TaskDef = {
   id: TaskId;
@@ -45,12 +45,45 @@ const tasks: Record<TaskId, TaskDef> = {
       : "Hint: use the addition block from Math and a print/output block.",
     validate: validateAdd2Plus7,
   },
+  sum_array: {
+    id: "sum_array",
+    title: (lang) => lang === "ru" ? "Задача 3: Сумма массива" : "Task 3: Array sum",
+    description: (lang) => lang === "ru"
+      ? 'Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл.'
+      : 'Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and print their sum: <strong>15</strong>. You may use list/math blocks or a loop.',
+    hint: (lang) => lang === "ru"
+      ? "Подсказка: попробуйте блок ‘операции над списком’ (SUM) или цикл forEach."
+      : "Hint: try ‘math on list’ (SUM) or a forEach loop.",
+    validate: validateSumArray,
+  },
+  min_max: {
+    id: "min_max",
+    title: (lang) => lang === "ru" ? "Задача 4: Минимум и максимум" : "Task 4: Min and Max",
+    description: (lang) => lang === "ru"
+      ? 'Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две.'
+      : 'Create a list <code>[5, 1, 9, 3, 7]</code> and print min and max: <strong>min=1</strong> and <strong>max=9</strong>. One or two lines are fine.',
+    hint: (lang) => lang === "ru"
+      ? "Подсказка: используйте ‘операции над списком’ MIN/MAX или напишите цикл."
+      : "Hint: use ‘math on list’ MIN/MAX or write a loop.",
+    validate: validateMinMax,
+  },
+  char_freq: {
+    id: "char_freq",
+    title: (lang) => lang === "ru" ? "Задача 5: Частоты символов" : "Task 5: Character frequencies",
+    description: (lang) => lang === "ru"
+      ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
+      : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). Using the dictionary blocks from Custom is recommended.',
+    hint: (lang) => lang === "ru"
+      ? "Подсказка: создайте словарь, проверяйте наличие ключа и увеличивайте счётчик."
+      : "Hint: create a dictionary, check key existence, and increment counters.",
+    validate: validateCharFreq,
+  },
 };
 
 let activeTaskId: TaskId = "hello_world";
 
 // Порядок задач для последовательного прохождения
-const TASKS_ORDER: TaskId[] = ["hello_world", "add_2_7"];
+const TASKS_ORDER: TaskId[] = ["hello_world", "add_2_7", "sum_array", "min_max", "char_freq"];
 const PROGRESS_KEY = "task_progress_v1";
 
 type Progress = Partial<Record<TaskId, { solved: boolean; stars: number }>>;
@@ -171,6 +204,97 @@ async function validateAdd2Plus7(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolea
     else stars = 1;
   } else {
     stars = 0;
+  }
+  return { ok, stars };
+}
+
+async function validateSumArray(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+  const ok = lines.some((l) => /(^|\b)15(\b|$)/.test(l));
+
+  // Heuristics for stars: SUM via math_on_list or forEach
+  let usedMathOnList = false;
+  let usedForEach = false;
+  let usedListCreate = false;
+  try {
+    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    for (const b of blocks) {
+      const t = (b as any).type;
+      if (t === 'lists_create_with') usedListCreate = true;
+      if (t === 'controls_forEach') usedForEach = true;
+      if (t === 'math_on_list') usedMathOnList = true;
+    }
+  } catch {}
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    if (usedMathOnList && usedListCreate && count <= 6) stars = 3;
+    else if (usedForEach && usedListCreate && count <= 8) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateMinMax(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+  const hasMin = lines.some((l) => /min\s*[:=]\s*1/i.test(l) || l.trim() === '1');
+  const hasMax = lines.some((l) => /max\s*[:=]\s*9/i.test(l) || l.trim() === '9');
+  const ok = hasMin && hasMax;
+
+  let usedMathOnList = false;
+  let usedMin = false;
+  let usedMax = false;
+  try {
+    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    for (const b of blocks) {
+      if ((b as any).type === 'math_on_list') {
+        usedMathOnList = true;
+        // some versions encode MODE field
+        const mode = typeof (b as any).getFieldValue === 'function' ? (b as any).getFieldValue('OP') || (b as any).getFieldValue('MODE') : undefined;
+        if (String(mode).toUpperCase().includes('MIN')) usedMin = true;
+        if (String(mode).toUpperCase().includes('MAX')) usedMax = true;
+      }
+    }
+  } catch {}
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    if (usedMathOnList && usedMin && usedMax && count <= 8) stars = 3;
+    else if (count <= 10) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateCharFreq(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+  const need = { a: 3, b: 4, c: 1 } as Record<string, number>;
+  const checks = Object.entries(need).map(([ch, n]) =>
+    lines.some((l) => new RegExp(`${ch}\s*[:=]\s*${n}`, 'i').test(l))
+  );
+  const ok = checks.every(Boolean);
+
+  // Prefer dictionary blocks usage
+  let usedDict = false;
+  try {
+    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    for (const b of blocks) {
+      const t = (b as any).type;
+      if (t === 'dict_create' || t === 'dict_set' || t === 'dict_get' || t === 'dict_has_key') {
+        usedDict = true;
+        break;
+      }
+    }
+  } catch {}
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    if (usedDict && count <= 14) stars = 3;
+    else if (count <= 18) stars = 2;
+    else stars = 1;
   }
   return { ok, stars };
 }

@@ -1668,6 +1668,10 @@
           style="margin-right: 12px;">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
         </button>
+        <!-- Support button -->
+        <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
+          <span id="supportBtnText">💙 Поддержка</span>
+        </button>
       </div>
       <div class="header-right">
         <input id="loadXmlInput" type="file" accept=".xml" style="display:none" />
@@ -1969,6 +1973,33 @@
     <button id="annotUndo" title="Отменить">↶</button>
     <button id="annotRedo" title="Повторить">↷</button>
     <button id="annotClear" title="Очистить">🧹</button>
+  </div>
+
+  <!-- Support modal -->
+  <div id="supportModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle" style="display:none">
+    <div class="modal-content" style="max-width:560px;width:92%;min-width:320px;">
+      <div class="modal-header">
+        <h2 id="supportModalTitle">Поддержка проекта</h2>
+        <span id="closeSupportModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p id="supportIntro1" style="margin-bottom:12px;">Если вам понравилось приложение, вы можете поддержать дальнейшую разработку и оплату хостинга.</p>
+        <p id="supportIntro2" style="margin-bottom:16px;">Спасибо за любую сумму — это помогает развивать функциональность и покрывать расходы.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="flex:1 1 auto;">
+              <div id="supportCardLabel" style="font-size:14px;opacity:0.8;">Номер карты</div>
+              <div id="supportCardNumber" data-card="0000 0000 0000 0000" style="font-weight:600;font-size:18px;letter-spacing:1px;">0000 0000 0000 0000</div>
+            </div>
+            <button id="copyCardBtn" class="btn secondary" aria-label="Скопировать номер">Копировать</button>
+          </div>
+          <div id="copyCardStatus" style="display:none;color:#10b981;font-weight:600;">Скопировано</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="closeSupportBtn" class="btn secondary">Закрыть</button>
+      </div>
+    </div>
   </div>
 
   <!-- Модальное окно руководства по созданию блоков -->

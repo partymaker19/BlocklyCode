@@ -483,3 +483,55 @@ export function localizeHelpUI(lang: AppLang): void {
     closeBtn.setAttribute('aria-label', t.closeLabel);
   }
 }
+
+export function localizeSupportUI(lang: AppLang): void {
+  const t = {
+    en: {
+      buttonText: 'Support',
+      buttonLabel: 'Support the project',
+      modalTitle: 'Support the project',
+      intro1: 'If you enjoy the app, you can support ongoing development and hosting costs.',
+      intro2: 'Any amount helps improve features and cover costs.',
+      cardLabel: 'Card number',
+      copy: 'Copy',
+      copied: 'Copied',
+      close: 'Close',
+    },
+    ru: {
+      buttonText: 'Поддержка',
+      buttonLabel: 'Поддержка проекта',
+      modalTitle: 'Поддержка проекта',
+      intro1: 'Если вам понравилось приложение, вы можете поддержать дальнейшую разработку и оплату хостинга.',
+      intro2: 'Спасибо за любую сумму — это помогает развивать функциональность и покрывать расходы.',
+      cardLabel: 'Номер карты',
+      copy: 'Копировать',
+      copied: 'Скопировано',
+      close: 'Закрыть',
+    },
+  }[lang];
+
+  const btn = document.getElementById('supportBtn');
+  const btnText = document.getElementById('supportBtnText');
+  const titleEl = document.getElementById('supportModalTitle');
+  const intro1El = document.getElementById('supportIntro1');
+  const intro2El = document.getElementById('supportIntro2');
+  const cardLabelEl = document.getElementById('supportCardLabel');
+  const copyBtn = document.getElementById('copyCardBtn');
+  const copiedEl = document.getElementById('copyCardStatus');
+  const closeBtn = document.getElementById('closeSupportBtn');
+  const closeIcon = document.getElementById('closeSupportModal');
+
+  if (btn) {
+    btn.setAttribute('title', t.buttonLabel);
+    btn.setAttribute('aria-label', t.buttonLabel);
+  }
+  if (btnText) (btnText as HTMLElement).textContent = `💙 ${t.buttonText}`;
+  if (titleEl) (titleEl as HTMLElement).textContent = t.modalTitle;
+  if (intro1El) (intro1El as HTMLElement).textContent = t.intro1;
+  if (intro2El) (intro2El as HTMLElement).textContent = t.intro2;
+  if (cardLabelEl) (cardLabelEl as HTMLElement).textContent = t.cardLabel;
+  if (copyBtn) (copyBtn as HTMLElement).textContent = t.copy;
+  if (copiedEl) (copiedEl as HTMLElement).textContent = t.copied;
+  if (closeBtn) (closeBtn as HTMLElement).textContent = t.close;
+  if (closeIcon) closeIcon.setAttribute('aria-label', t.close);
+}

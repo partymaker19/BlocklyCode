@@ -37,6 +37,7 @@ import {
   localizeTooltips,
   localizeAceSettingsPanel,
   localizeHelpUI,
+  localizeSupportUI,
 } from "./localization";
 import {
   setupAceEditor,
@@ -227,6 +228,14 @@ const closeHelpModal = document.getElementById(
 const markdownContent = document.getElementById(
   "markdownContent"
 ) as HTMLDivElement | null;
+
+const supportBtn = document.getElementById("supportBtn") as HTMLButtonElement | null;
+const supportModal = document.getElementById("supportModal") as HTMLDivElement | null;
+const closeSupportModal = document.getElementById("closeSupportModal") as HTMLSpanElement | null;
+const closeSupportBtn = document.getElementById("closeSupportBtn") as HTMLButtonElement | null;
+const copyCardBtn = document.getElementById("copyCardBtn") as HTMLButtonElement | null;
+const supportCardNumberEl = document.getElementById("supportCardNumber") as HTMLDivElement | null;
+const copyCardStatusEl = document.getElementById("copyCardStatus") as HTMLDivElement | null;
 
 // ===== Блок: счётчик блоков в тулбоксе =====
 function getWorkspaceBlockCount(): number {
@@ -965,6 +974,7 @@ localizeImportUI(defaultLang);
 localizeTooltips(defaultLang);
 // Локализуем кнопку и модалку справки
 localizeHelpUI(defaultLang);
+localizeSupportUI(defaultLang);
 // Установить локализованный текст для кнопки следующей задачи и элементы панели задач
 {
   const t = (window as any)._currentLocalizedStrings;
@@ -1056,6 +1066,7 @@ if (langSwitchInput) {
     localizeAceSettingsPanel(newLang);
     // Локализуем кнопку и модалку справки
     localizeHelpUI(newLang);
+    localizeSupportUI(newLang);
     // ACE специфичные строки (кнопка Save, статусбар)
     const { refreshAceUILanguage } = require("./aceEditor");
     if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
@@ -2412,5 +2423,35 @@ function initHelpModal() {
   }
 }
 
+function initSupportModal() {
+  if (!supportModal || !supportBtn) return;
+  supportBtn.addEventListener("click", () => {
+    supportModal.style.display = "block";
+  });
+  const close = () => {
+    supportModal.style.display = "none";
+  };
+  if (closeSupportModal) closeSupportModal.addEventListener("click", close);
+  if (closeSupportBtn) closeSupportBtn.addEventListener("click", close);
+  supportModal.addEventListener("click", (e) => {
+    if (e.target === supportModal) close();
+  });
+  if (copyCardBtn && supportCardNumberEl) {
+    copyCardBtn.addEventListener("click", async () => {
+      const text = (supportCardNumberEl.getAttribute("data-card") || supportCardNumberEl.textContent || "").trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        if (copyCardStatusEl) {
+          copyCardStatusEl.style.display = "block";
+          setTimeout(() => {
+            if (copyCardStatusEl) copyCardStatusEl.style.display = "none";
+          }, 2000);
+        }
+      } catch {}
+    });
+  }
+}
+
 // Вызываем инициализацию модального окна справки
 initHelpModal();
+initSupportModal();

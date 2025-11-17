@@ -50,12 +50,18 @@ import Konva from "konva";
 import DarkTheme from "@blockly/theme-dark";
 // Toolbox search plugin (localized)
 import "./toolbox_search_localized";
+import * as BlockDynamicConnection from "@blockly/block-dynamic-connection";
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
 
 // Регистрируем поле угла до того, как начнём создавать блоки
 registerFieldAngle();
+
+try {
+  (Blockly as any).Blocks['lists_create_with'] = (Blockly as any).Blocks['dynamic_list_create'];
+  (Blockly as any).Blocks['text_join'] = (Blockly as any).Blocks['dynamic_text_join'];
+} catch {}
 
 // Register the blocks and generator with Blockly
 // Регистрация будет выполнена после применения локали, чтобы подтянуть правильные строки
@@ -1762,6 +1768,9 @@ function refreshWorkspaceWithCustomToolbox() {
   if (ws) ws.dispose();
   const newWs = Blockly.inject(blocklyDiv!, {
     toolbox: localizedToolbox(lang),
+    plugins: {
+      connectionPreviewer: (BlockDynamicConnection as any).decoratePreviewer(),
+    },
     grid: {
       spacing: 20,
       length: 3,
@@ -1802,6 +1811,9 @@ function refreshWorkspaceWithCustomToolbox() {
     modalInputs: true,
     readOnly: false,
   });
+  try {
+    newWs.addChangeListener((BlockDynamicConnection as any).finalizeConnections);
+  } catch {}
   if (currentState)
     Blockly.serialization.workspaces.load(
       currentState,

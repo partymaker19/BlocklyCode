@@ -64,13 +64,17 @@
 
     "@blockly/field-grid-dropdown": "^6.0.4",
 
+    "@blockly/keyboard-navigation": "^3.0.3",
+
     "@blockly/theme-dark": "^8.0.1",
 
     "@blockly/toolbox-search": "^3.0.2",
 
+    "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
+
     "ace-builds": "^1.34.2",
 
-    "blockly": "12.2.0",
+    "blockly": "^12.3.0",
 
     "fengari": "^0.1.4",
 

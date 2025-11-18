@@ -122,7 +122,7 @@ const bitmapDemo = {
 // Блок с плагином field_grid_dropdown (сеточный выпадающий список)
 const gridDropdownDemo = {
   type: 'grid_dropdown_demo',
-  message0: 'Grid dropdown: %1',
+  message0: '%{BKY_GRID_DROPDOWN}',
   args0: [
     {
       type: 'field_grid_dropdown',
@@ -137,13 +137,13 @@ const gridDropdownDemo = {
   previousStatement: null,
   nextStatement: null,
   colour: 200,
-  tooltip: 'Grid dropdown field',
+  tooltip: '%{BKY_GRID_DROPDOWN_TOOLTIP}',
   helpUrl: '',
   init: function(this: Blockly.Block) {
     this.setColour(200);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setTooltip('Grid dropdown field');
+    this.setTooltip((Blockly as any).Msg.GRID_DROPDOWN_TOOLTIP || 'Grid dropdown field');
   }
 };
 

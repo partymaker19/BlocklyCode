@@ -41,6 +41,9 @@ export function setAppLang(lang: AppLang): void {
     (Blockly as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
     (Blockly as any).Msg.DEGREES = 'градусов';
     (Blockly as any).Msg.BITMAP_DEMO = 'Битмап: %1';
+    (Blockly as any).Msg.GRID_DROPDOWN = 'Сеточный список: %1';
+    (Blockly as any).Msg.GRID_DROPDOWN_TOOLTIP = 'Поле сеточного списка';
+    (Blockly as any).Msg.GRID_SELECTED = 'Выбрано:';
     (Blockly as any).Msg.PY_INPUT = 'Ввод текста';
     (Blockly as any).Msg.PY_INPUT_NUMBER = 'Ввод числа';
     // Search plugin localization
@@ -53,6 +56,9 @@ export function setAppLang(lang: AppLang): void {
     (Blockly as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
     (Blockly as any).Msg.DEGREES = 'degrees';
     (Blockly as any).Msg.BITMAP_DEMO = 'Bitmap: %1';
+    (Blockly as any).Msg.GRID_DROPDOWN = 'Grid dropdown: %1';
+    (Blockly as any).Msg.GRID_DROPDOWN_TOOLTIP = 'Grid dropdown field';
+    (Blockly as any).Msg.GRID_SELECTED = 'Selected:';
     (Blockly as any).Msg.PY_INPUT = 'Text input';
     (Blockly as any).Msg.PY_INPUT_NUMBER = 'Number input';
     // Search plugin localization

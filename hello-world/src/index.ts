@@ -51,12 +51,19 @@ import DarkTheme from "@blockly/theme-dark";
 // Toolbox search plugin (localized)
 import "./toolbox_search_localized";
 import * as BlockDynamicConnection from "@blockly/block-dynamic-connection";
+import { KeyboardNavigation } from "@blockly/keyboard-navigation";
+import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
 
 // Регистрируем поле угла до того, как начнём создавать блоки
 registerFieldAngle();
+
+try {
+  KeyboardNavigation.registerKeyboardNavigationStyles();
+  KeyboardNavigation.registerNavigationDeferringToolbox();
+} catch {}
 
 try {
   (Blockly as any).Blocks['lists_create_with'] = (Blockly as any).Blocks['dynamic_list_create'];
@@ -77,6 +84,7 @@ localizeAceSettingsPanel(defaultLang);
 // Объявляем флаг регистрации контекстного меню до первого вызова
 let customBlockContextRegistered = false;
 let modalDragInitialized = false;
+const ENABLE_KBD_NAV = false;
 
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
@@ -1833,6 +1841,17 @@ function refreshWorkspaceWithCustomToolbox() {
     modalInputs: true,
     readOnly: false,
   });
+  try { if (ENABLE_KBD_NAV) (window as any).__keyboardNav = new KeyboardNavigation(newWs); } catch {}
+  try {
+    const fm = (Blockly as any).getFocusManager?.() || (newWs as any).getFocusManager?.() || (newWs as any).focusManager;
+    if (fm && typeof fm.focusNode === "function") {
+      const origFocusNode = fm.focusNode.bind(fm);
+      fm.focusNode = function(node: any) {
+        if (!node || typeof node.canBeFocused !== "function") return;
+        return origFocusNode(node);
+      };
+    }
+  } catch {}
   try {
     newWs.addChangeListener((BlockDynamicConnection as any).finalizeConnections);
   } catch {}
@@ -1843,6 +1862,34 @@ function refreshWorkspaceWithCustomToolbox() {
       undefined
     );
   ws = newWs as Blockly.WorkspaceSvg;
+
+  try {
+    const multiOptions = {
+      useDoubleClick: false,
+      bumpNeighbours: false,
+      multiFieldUpdate: true,
+      workspaceAutoFocus: true,
+      multiselectIcon: { hideIcon: true },
+      multiSelectKeys: ["Shift"],
+      multiselectCopyPaste: { crossTab: true, menu: true },
+    } as any;
+    const multiselect = new Multiselect(newWs);
+    multiselect.init(multiOptions);
+    (window as any).__multiselect = multiselect;
+    try {
+      const controls = (multiselect as any).controls_;
+      if (controls && typeof controls.updateMultiselect === "function") {
+        const origUpdate = controls.updateMultiselect.bind(controls);
+        controls.updateMultiselect = function() {
+          try { origUpdate(); } catch {}
+        };
+      }
+      const origSetSelected = (Blockly as any).common.setSelected.bind((Blockly as any).common);
+      (Blockly as any).common.setSelected = function(sel: any) {
+        try { return origSetSelected(sel); } catch {}
+      };
+    } catch {}
+  } catch {}
 
   // Инициализация авторизации и переключения провайдера хранения
   setupAuthBootstrap(ws as Blockly.Workspace);

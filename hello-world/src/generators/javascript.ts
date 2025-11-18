@@ -138,7 +138,8 @@ forBlock['grid_dropdown_demo'] = function (
   generator: Blockly.CodeGenerator,
 ) {
   const value = String(block.getFieldValue('FIELDNAME') || '');
-  const code = `console.log('Grid selected:', ${JSON.stringify(value)});
+  const label = (Blockly as any).Msg?.GRID_SELECTED || 'Grid selected:';
+  const code = `console.log(${JSON.stringify(label)}, ${JSON.stringify(value)});
 `;
   return code;
 };

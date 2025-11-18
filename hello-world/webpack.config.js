@@ -34,7 +34,13 @@ const config = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: false,
+            onlyCompileBundledFiles: false,
+          },
+        },
         exclude: /node_modules/,
       },
       {

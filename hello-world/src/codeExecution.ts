@@ -207,6 +207,8 @@ async function executeInSandbox(
     const msg = ev.data as WorkerOutMsg;
     if (msg?.type === "stdout") {
       appendLine(String(msg.text ?? ""));
+    } else if (msg?.type === "stdout_color") {
+      appendLine(String(msg.text ?? ""), String((msg as any).color ?? ""));
     } else if (msg?.type === "stderr") {
       appendLine(String(msg.text ?? ""), "#b58900");
     } else if (msg?.type === "status") {

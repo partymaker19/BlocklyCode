@@ -62,7 +62,11 @@
 
     "@blockly/field-bitmap": "^6.0.2",
 
-    "@blockly/field-grid-dropdown": "^6.0.4",
+    "@blockly/field-colour-hsv-sliders": "^6.0.6",
+
+    "@blockly/field-date": "^10.0.3",
+
+    "@blockly/field-slider": "^8.0.3",
 
     "@blockly/keyboard-navigation": "^3.0.3",
 

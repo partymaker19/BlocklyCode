@@ -1,7 +1,6 @@
 /**
  * Localization utilities for the app (Blockly locale + UI texts + toolbox names)
  */
-import * as Blockly from 'blockly';
 import * as BlocklyCore from 'blockly/core';
 import * as EnLocale from 'blockly/msg/en';
 import * as RuLocale from 'blockly/msg/ru';
@@ -34,37 +33,45 @@ function updateHeaderText(lang: AppLang): void {
 
 export function setAppLang(lang: AppLang): void {
   currentAppLang = lang;
-  Blockly.setLocale(lang === 'ru' ? (RuLocale as any) : (EnLocale as any));
+  BlocklyCore.setLocale(lang === 'ru' ? (RuLocale as any) : (EnLocale as any));
   if (lang === 'ru') {
-    (Blockly as any).Msg.ADD_TEXT = 'Добавить текст %1';
-    (Blockly as any).Msg.ANGLE_DEMO = 'Установить угол %1 градусов';
-    (Blockly as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
-    (Blockly as any).Msg.DEGREES = 'градусов';
-    (Blockly as any).Msg.BITMAP_DEMO = 'Битмап: %1';
-    (Blockly as any).Msg.GRID_DROPDOWN = 'Сеточный список: %1';
-    (Blockly as any).Msg.GRID_DROPDOWN_TOOLTIP = 'Поле сеточного списка';
-    (Blockly as any).Msg.GRID_SELECTED = 'Выбрано:';
-    (Blockly as any).Msg.PY_INPUT = 'Ввод текста';
-    (Blockly as any).Msg.PY_INPUT_NUMBER = 'Ввод числа';
+    (BlocklyCore as any).Msg.ADD_TEXT = 'Добавить текст %1';
+    (BlocklyCore as any).Msg.ADD_TEXT_COLOR = 'Добавить текст %1 цвет %2';
+    (BlocklyCore as any).Msg.ANGLE_DEMO = 'Установить угол %1 градусов';
+    (BlocklyCore as any).Msg.ANGLE_VALUE = 'Угол %1 градусов';
+    (BlocklyCore as any).Msg.DEGREES = 'градусов';
+    (BlocklyCore as any).Msg.BITMAP_DEMO = 'Битмап: %1';
+    (BlocklyCore as any).Msg.DATE_VALUE = 'Дата: %1';
+    (BlocklyCore as any).Msg.DATE_VALUE_TOOLTIP = 'Поле выбора даты';
+    (BlocklyCore as any).Msg.SLIDER_VALUE = 'Слайдер: %1';
+    (BlocklyCore as any).Msg.SLIDER_VALUE_TOOLTIP = 'Поле числового слайдера';
+    (BlocklyCore as any).Msg.HSV_VALUE = 'HSV цвет: %1';
+    (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = 'Поле выбора цвета HSV';
+    (BlocklyCore as any).Msg.PY_INPUT = 'Ввод текста';
+    (BlocklyCore as any).Msg.PY_INPUT_NUMBER = 'Ввод числа';
     // Search plugin localization
-    (Blockly as any).Msg.SEARCH_PLACEHOLDER = 'Поиск блоков';
-    (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Введите текст для поиска блоков';
-    (Blockly as any).Msg.SEARCH_NO_MATCHING = 'Блоки не найдены';
+    (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = 'Поиск блоков';
+    (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Введите текст для поиска блоков';
+    (BlocklyCore as any).Msg.SEARCH_NO_MATCHING = 'Блоки не найдены';
   } else {
-    (Blockly as any).Msg.ADD_TEXT = 'Add text %1';
-    (Blockly as any).Msg.ANGLE_DEMO = 'Set angle to %1 degrees';
-    (Blockly as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
-    (Blockly as any).Msg.DEGREES = 'degrees';
-    (Blockly as any).Msg.BITMAP_DEMO = 'Bitmap: %1';
-    (Blockly as any).Msg.GRID_DROPDOWN = 'Grid dropdown: %1';
-    (Blockly as any).Msg.GRID_DROPDOWN_TOOLTIP = 'Grid dropdown field';
-    (Blockly as any).Msg.GRID_SELECTED = 'Selected:';
-    (Blockly as any).Msg.PY_INPUT = 'Text input';
-    (Blockly as any).Msg.PY_INPUT_NUMBER = 'Number input';
+    (BlocklyCore as any).Msg.ADD_TEXT = 'Add text %1';
+    (BlocklyCore as any).Msg.ADD_TEXT_COLOR = 'Add text %1 color %2';
+    (BlocklyCore as any).Msg.ANGLE_DEMO = 'Set angle to %1 degrees';
+    (BlocklyCore as any).Msg.ANGLE_VALUE = 'Angle %1 degrees';
+    (BlocklyCore as any).Msg.DEGREES = 'degrees';
+    (BlocklyCore as any).Msg.BITMAP_DEMO = 'Bitmap: %1';
+    (BlocklyCore as any).Msg.DATE_VALUE = 'Date: %1';
+    (BlocklyCore as any).Msg.DATE_VALUE_TOOLTIP = 'Date picker field';
+    (BlocklyCore as any).Msg.SLIDER_VALUE = 'Slider: %1';
+    (BlocklyCore as any).Msg.SLIDER_VALUE_TOOLTIP = 'Numeric slider field';
+    (BlocklyCore as any).Msg.HSV_VALUE = 'HSV color: %1';
+    (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = 'HSV color picker field';
+    (BlocklyCore as any).Msg.PY_INPUT = 'Text input';
+    (BlocklyCore as any).Msg.PY_INPUT_NUMBER = 'Number input';
     // Search plugin localization
-    (Blockly as any).Msg.SEARCH_PLACEHOLDER = 'Search blocks';
-    (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Type to search for blocks';
-    (Blockly as any).Msg.SEARCH_NO_MATCHING = 'No matching blocks found';
+    (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = 'Search blocks';
+    (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH = 'Type to search for blocks';
+    (BlocklyCore as any).Msg.SEARCH_NO_MATCHING = 'No matching blocks found';
   }
   updateHeaderText(lang);
 }

@@ -18,8 +18,11 @@ forBlock['add_text'] = function (
   generator: Blockly.CodeGenerator,
 ) {
   const text = generator.valueToCode(block, 'TEXT', Order.NONE) || "''";
-  const code = `console.log(${text});\n`;
-  return code;
+  const color = generator.valueToCode(block, 'COLOR', Order.NONE) || '';
+  if (color && color.trim && color.trim().length > 0) {
+    return `printColored(${text}, ${color});\n`;
+  }
+  return `print(${text});\n`;
 };
 
 // Генератор для блока angle_demo
@@ -132,17 +135,35 @@ forBlock['bitmap_demo'] = function (
   return code;
 };
 
-// Генератор для блока grid_dropdown_demo (JavaScript)
-forBlock['grid_dropdown_demo'] = function (
+
+// Генератор для блока date_value (JavaScript)
+forBlock['date_value'] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator,
+  _generator: Blockly.CodeGenerator,
 ) {
-  const value = String(block.getFieldValue('FIELDNAME') || '');
-  const label = (Blockly as any).Msg?.GRID_SELECTED || 'Grid selected:';
-  const code = `console.log(${JSON.stringify(label)}, ${JSON.stringify(value)});
-`;
-  return code;
+  const value = String(block.getFieldValue('DATE') ?? '');
+  return [JSON.stringify(value), Order.ATOMIC];
 };
+
+// Генератор для блока slider_value (JavaScript)
+forBlock['slider_value'] = function (
+  block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  const v = Number(block.getFieldValue('SLIDER') ?? 0);
+  return [String(v), Order.ATOMIC];
+};
+
+
+forBlock['hsv_colour_value'] = function (
+  block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  const v = String(block.getFieldValue('COLOUR') ?? '#000000');
+  return [JSON.stringify(v), Order.ATOMIC];
+};
+
+
 
 // Генератор для блока py_input (JavaScript)
 forBlock['py_input'] = function (

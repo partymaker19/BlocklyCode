@@ -59,6 +59,13 @@ function syncInput(prompt: string): string {
 // JS исполнение в изолированном контексте
 function runJS(code: string, timeoutMs?: number) {
   const print = (s: unknown) => post({ type: 'stdout', text: String(s ?? '') });
+  const printColored = (s: unknown, color: unknown) => {
+    try {
+      post({ type: 'stdout_color', text: String(s ?? ''), color: String(color ?? '') });
+    } catch {
+      post({ type: 'stdout', text: String(s ?? '') });
+    }
+  };
   const originalLog = console.log;
   const originalWarn = console.warn;
   const originalError = console.error;
@@ -79,16 +86,17 @@ function runJS(code: string, timeoutMs?: number) {
     };
     // Подставляем window/self/globalThis внутрь исполняемого кода, чтобы избежать ошибок в воркере
     // Передаём ссылку на syncInput внутрь обёртки, чтобы избежать "syncInput is not defined"
-    const wrapper = `(function(print, consoleObj, selfRef, windowRef, globalRef, syncInputRef){\ntry{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}\n// Определяем синхронный ввод для JS-кода\nvar input = function(prompt){ try { return syncInputRef(String(prompt ?? '')); } catch (e) { throw e; } };\n${code}\n})`;
+    const wrapper = `(function(print, printColored, consoleObj, selfRef, windowRef, globalRef, syncInputRef){\ntry{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}\n// Определяем синхронный ввод для JS-кода\nvar input = function(prompt){ try { return syncInputRef(String(prompt ?? '')); } catch (e) { throw e; } };\n${code}\n})`;
     const fn = (0, eval)(wrapper) as (
       print: (s: unknown) => void,
+      printColored: (s: unknown, color: unknown) => void,
       consoleObj: Console,
       selfRef: unknown,
       windowRef: unknown,
       globalRef: unknown,
       syncInputRef: (p: string) => string
     ) => void;
-    fn(print, console, self as unknown, self as unknown, self as unknown, syncInput);
+    fn(print, printColored, console, self as unknown, self as unknown, self as unknown, syncInput);
     post({ type: 'done' });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -114,6 +122,17 @@ async function runPython(code: string, timeoutMs?: number) {
       for (const line of parts) {
         if (!line) continue;
         post({ type: 'stdout', text: line });
+      }
+    });
+
+    // Цветной вывод для Python
+    pyodide.globals.set('print_to_dom_color', (s: any, color: any) => {
+      try {
+        const text = String(s ?? '');
+        const clr = String(color ?? '');
+        post({ type: 'stdout_color', text, color: clr });
+      } catch (e) {
+        post({ type: 'stdout', text: String(s ?? '') });
       }
     });
 
@@ -148,6 +167,8 @@ sys.settrace(_trace)
     pyodide.globals.set('input', (prompt: any) => syncInput(String(prompt ?? '')));
 
     try {
+      // Обёртка: добавляем удобную функцию print_colored
+      await pyodide.runPythonAsync('def print_colored(s, c):\n    print_to_dom_color(str(s), str(c))');
       await pyodide.runPythonAsync(code);
     } finally {
       await pyodide.runPythonAsync('import sys; sys.settrace(None)');
@@ -205,6 +226,30 @@ async function runLua(code: string, timeoutMs?: number) {
       return 0;
     });
     lua.lua_setglobal(L, to_luastring('print'));
+
+    // Цветной вывод: print_colored(text, color)
+    lua.lua_pushcfunction(L, (L2: any) => {
+      const n = lua.lua_gettop(L2);
+      let txt = '';
+      let clr = '';
+      if (n >= 1) {
+        const s = to_jsstring(lauxlib.luaL_tolstring(L2, 1));
+        lua.lua_pop(L2, 1);
+        txt = s ?? '';
+      }
+      if (n >= 2) {
+        const c = to_jsstring(lauxlib.luaL_tolstring(L2, 2));
+        lua.lua_pop(L2, 1);
+        clr = c ?? '';
+      }
+      try {
+        post({ type: 'stdout_color', text: String(txt), color: String(clr) });
+      } catch {
+        post({ type: 'stdout', text: String(txt) });
+      }
+      return 0;
+    });
+    lua.lua_setglobal(L, to_luastring('print_colored'));
 
     // Определяем глобальную функцию input(prompt) -> string, использующую syncInput
     lua.lua_pushcfunction(L, (L2: any) => {

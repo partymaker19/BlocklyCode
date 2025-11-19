@@ -450,7 +450,9 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
           { kind: 'block', type: 'angle_demo' },
           { kind: 'block', type: 'angle_value' },
           { kind: 'block', type: 'bitmap_demo' },
-          { kind: 'block', type: 'grid_dropdown_demo' },
+          { kind: 'block', type: 'date_value' },
+          { kind: 'block', type: 'slider_value' },
+          { kind: 'block', type: 'hsv_colour_value' },
           // Удалены словарные блоки из раздела «Кастомные блоки»
         ],
       },

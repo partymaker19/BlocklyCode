@@ -7,7 +7,9 @@
 import * as Blockly from 'blockly/core';
 import {FieldAngle} from '@blockly/field-angle';
 import '@blockly/field-bitmap';
-import '@blockly/field-grid-dropdown';
+import '@blockly/field-date';
+import '@blockly/field-slider';
+import '@blockly/field-colour-hsv-sliders';
 
 // Create a custom block called 'add_text' that adds
 // text to the output div on the sample app.
@@ -16,12 +18,17 @@ import '@blockly/field-grid-dropdown';
 const addText = {
   type: 'add_text',
   // Используем ключ локализации
-  message0: '%{BKY_ADD_TEXT}',
+  message0: '%{BKY_ADD_TEXT_COLOR}',
   args0: [
     {
       type: 'input_value',
       name: 'TEXT',
       check: ['String', 'Number'],
+    },
+    {
+      type: 'input_value',
+      name: 'COLOR',
+      check: ['String'],
     },
   ],
   previousStatement: null,
@@ -119,33 +126,76 @@ const bitmapDemo = {
   }
 };
 
-// Блок с плагином field_grid_dropdown (сеточный выпадающий список)
-const gridDropdownDemo = {
-  type: 'grid_dropdown_demo',
-  message0: '%{BKY_GRID_DROPDOWN}',
+
+// Блок с плагином field_date (значение даты как строка)
+const dateValue = {
+  type: 'date_value',
+  message0: '%{BKY_DATE_VALUE}',
   args0: [
     {
-      type: 'field_grid_dropdown',
-      name: 'FIELDNAME',
-      options: [
-        ['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D'],
-        ['E', 'E'], ['F', 'F'], ['G', 'G'], ['H', 'H']
-      ],
-      columns: 4
+      type: 'field_date',
+      name: 'DATE',
+      date: '2025-01-01',
     },
   ],
-  previousStatement: null,
-  nextStatement: null,
-  colour: 200,
-  tooltip: '%{BKY_GRID_DROPDOWN_TOOLTIP}',
+  output: 'String',
+  colour: 120,
+  tooltip: 'Date field value',
   helpUrl: '',
   init: function(this: Blockly.Block) {
-    this.setColour(200);
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setTooltip((Blockly as any).Msg.GRID_DROPDOWN_TOOLTIP || 'Grid dropdown field');
+    this.setColour(120);
+    this.setOutput(true, 'String');
+    this.setTooltip((Blockly as any).Msg.DATE_VALUE_TOOLTIP || 'Date field value');
   }
 };
+
+// Блок с плагином field_slider (значение числа от слайдера)
+const sliderValue = {
+  type: 'slider_value',
+  message0: '%{BKY_SLIDER_VALUE}',
+  args0: [
+    {
+      type: 'field_slider',
+      name: 'SLIDER',
+      min: 0,
+      max: 100,
+      step: 1,
+      value: 50,
+    },
+  ],
+  output: 'Number',
+  colour: 40,
+  tooltip: 'Slider field value',
+  helpUrl: '',
+  init: function(this: Blockly.Block) {
+    this.setColour(40);
+    this.setOutput(true, 'Number');
+    this.setTooltip((Blockly as any).Msg.SLIDER_VALUE_TOOLTIP || 'Slider field value');
+  }
+};
+
+const hsvColourValue = {
+  type: 'hsv_colour_value',
+  message0: '%{BKY_HSV_VALUE}',
+  args0: [
+    {
+      type: 'field_colour_hsv_sliders',
+      name: 'COLOUR',
+      colour: '#ff0000',
+    },
+  ],
+  output: 'String',
+  colour: 290,
+  tooltip: '%{BKY_HSV_VALUE_TOOLTIP}',
+  helpUrl: '',
+  init: function(this: Blockly.Block) {
+    this.setColour(290);
+    this.setOutput(true, 'String');
+    this.setTooltip((Blockly as any).Msg.HSV_VALUE_TOOLTIP || 'HSV colour field');
+  }
+};
+
+
 
 // Блок для ввода из Python input(), без поля подсказки
 const pyInput = {
@@ -187,7 +237,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   angleDemo,
   angleValue,
   bitmapDemo,
-  gridDropdownDemo,
+  dateValue,
+  sliderValue,
+  hsvColourValue,
   pyInput,
   pyInputNumber,
 ]);

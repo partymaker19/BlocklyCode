@@ -18,8 +18,11 @@ forBlock['add_text'] = function (
   generator: Blockly.CodeGenerator,
 ) {
   const text = generator.valueToCode(block, 'TEXT', LuaOrder.NONE) || "''";
-  const code = `print(${text})\n`;
-  return code;
+  const color = generator.valueToCode(block, 'COLOR', LuaOrder.NONE) || '';
+  if (color && (color as string).trim && (color as string).trim().length > 0) {
+    return `print_colored(${text}, ${color})\n`;
+  }
+  return `print(${text})\n`;
 };
 
 // Генератор для блока angle_demo (Lua)
@@ -54,16 +57,35 @@ forBlock['bitmap_demo'] = function (
   return code;
 };
 
-// Генератор для блока grid_dropdown_demo (Lua)
-forBlock['grid_dropdown_demo'] = function (
+
+// Генератор для блока date_value (Lua)
+forBlock['date_value'] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator,
+  _generator: Blockly.CodeGenerator,
 ) {
-  const value = String(block.getFieldValue('FIELDNAME') || '');
-  const label = (Blockly as any).Msg?.GRID_SELECTED || 'Grid selected:';
-  const code = `print(${JSON.stringify(label + ' ')} .. ${JSON.stringify(value)})\n`;
-  return code;
+  const value = String(block.getFieldValue('DATE') ?? '');
+  return [JSON.stringify(value), LuaOrder.ATOMIC];
 };
+
+// Генератор для блока slider_value (Lua)
+forBlock['slider_value'] = function (
+  block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  const v = Number(block.getFieldValue('SLIDER') ?? 0);
+  return [String(v), LuaOrder.ATOMIC];
+};
+
+
+forBlock['hsv_colour_value'] = function (
+  block: Blockly.Block,
+  _generator: Blockly.CodeGenerator,
+) {
+  const v = String(block.getFieldValue('COLOUR') ?? '#000000');
+  return [JSON.stringify(v), LuaOrder.ATOMIC];
+};
+
+
 
 // Генератор для блока py_input (Lua)
 forBlock['py_input'] = function (

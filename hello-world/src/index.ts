@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as Blockly from "blockly";
+import * as Blockly from "blockly/core";
 // Добавляем импорт стандартных блоков Blockly, чтобы категории тулбокса были заполнены
 import "blockly/blocks";
 import { blocks } from "./blocks/text";
@@ -84,7 +84,7 @@ localizeAceSettingsPanel(defaultLang);
 // Объявляем флаг регистрации контекстного меню до первого вызова
 let customBlockContextRegistered = false;
 let modalDragInitialized = false;
-const ENABLE_KBD_NAV = false;
+const ENABLE_KBD_NAV = true;
 
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
@@ -742,9 +742,103 @@ function setupCustomBlockContextMenu() {
     registry.register(item);
     customBlockContextRegistered = true;
   } catch (e) {
-    // На случай повторной регистрации при горячей перезагрузке
     customBlockContextRegistered = true;
   }
+
+  try {
+    const registry = (Blockly as any).ContextMenuRegistry?.registry as any;
+    if (!registry) return;
+    const scopeType = (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK;
+
+    const makeItem = (id: string, displayText: () => string, preconditionFn: (scope: { block?: Blockly.Block }) => "enabled"|"disabled"|"hidden", callback: (scope: { block?: Blockly.Block }) => void, weight = 195) => ({ id, displayText, preconditionFn, callback, scopeType, weight });
+
+    const t = () => getAppLang() === "ru";
+    const text = {
+      paste: () => t() ? "Вставить" : "Paste",
+      expand: () => t() ? "Развернуть блок" : "Expand block",
+      enable: () => t() ? "Включить блок" : "Enable block",
+      removeComment: () => t() ? "Удалить комментарий" : "Remove comment",
+      inline: () => t() ? "Встроить входы" : "Inline inputs",
+      external: () => t() ? "Внешние входы" : "External inputs",
+    };
+
+    const hasItem = (id: string) => registry.getItem && registry.getItem(id);
+
+    if (!hasItem("custom_paste_near_block")) registry.register(makeItem(
+      "custom_paste_near_block",
+      text.paste,
+      (scope) => {
+        const data = (Blockly as any).clipboard?.getLastCopiedData?.();
+        return data ? "enabled" : "disabled";
+      },
+      (scope) => {
+        const block: any = scope.block;
+        if (!block) return;
+        try {
+          const data = (Blockly as any).clipboard.getLastCopiedData();
+          const ws = (Blockly as any).clipboard.getLastCopiedWorkspace?.() || block.workspace;
+          let p = block.getRelativeToSurfaceXY?.();
+          p = p && typeof p.clone === "function" ? p.clone() : new (Blockly as any).utils.Coordinate(0, 0);
+          p.translate?.(24, 24);
+          (Blockly as any).clipboard.paste(data, ws, p);
+        } catch { try { (Blockly as any).clipboard.paste(); } catch {} }
+      }
+    ));
+
+    if (!hasItem("custom_expand_block")) registry.register(makeItem(
+      "custom_expand_block",
+      text.expand,
+      (scope) => {
+        const b: any = scope.block; if (!b) return "hidden";
+        return (!!b.workspace?.options?.collapse && !!b.isMovable?.() && !!b.isCollapsed?.()) ? "enabled" : "hidden";
+      },
+      (scope) => { const b: any = scope.block; b?.setCollapsed?.(false); }
+    ));
+
+    if (!hasItem("custom_enable_block")) registry.register(makeItem(
+      "custom_enable_block",
+      text.enable,
+      (scope) => {
+        const b: any = scope.block; if (!b) return "hidden";
+        const isEnabled = typeof b.isEnabled === "function" ? b.isEnabled() : true;
+        return (!isEnabled && !!b.isEditable?.()) ? "enabled" : "hidden";
+      },
+      (scope) => { const b: any = scope.block; try { const reason = (Blockly as any).constants?.MANUALLY_DISABLED || "MANUALLY_DISABLED"; b?.setDisabledReason?.(false, reason); } catch { b?.setDisabled?.(false); } }
+    ));
+
+    if (!hasItem("custom_remove_comment")) registry.register(makeItem(
+      "custom_remove_comment",
+      text.removeComment,
+      (scope) => {
+        const b: any = scope.block; if (!b) return "hidden";
+        const hasText = !!(typeof b.getCommentText === "function" && b.getCommentText());
+        return hasText ? "enabled" : "hidden";
+      },
+      (scope) => { const b: any = scope.block; b?.setCommentText?.(null); }
+    ));
+
+    if (!hasItem("custom_inline_inputs")) registry.register(makeItem(
+      "custom_inline_inputs",
+      text.inline,
+      (scope) => {
+        const b: any = scope.block; if (!b) return "hidden";
+        const multiple = !!(b.inputList && b.inputList.length > 1 && !b.isCollapsed?.());
+        return (multiple && !b.getInputsInline?.()) ? "enabled" : "hidden";
+      },
+      (scope) => { const b: any = scope.block; b?.setInputsInline?.(true); }
+    ));
+
+    if (!hasItem("custom_external_inputs")) registry.register(makeItem(
+      "custom_external_inputs",
+      text.external,
+      (scope) => {
+        const b: any = scope.block; if (!b) return "hidden";
+        const multiple = !!(b.inputList && b.inputList.length > 1 && !b.isCollapsed?.());
+        return (multiple && !!b.getInputsInline?.()) ? "enabled" : "hidden";
+      },
+      (scope) => { const b: any = scope.block; b?.setInputsInline?.(false); }
+    ));
+  } catch {}
 }
 
 function applyPreset(kind: "let" | "const" | "print" | "return") {
@@ -1830,7 +1924,7 @@ function refreshWorkspaceWithCustomToolbox() {
     maxBlocks: Infinity,
     maxInstances: { controls_if: 10, controls_repeat_ext: 5 },
     scrollbars: true,
-    renderer: "thrasos",
+    renderer: "geras",
     theme: getBlocklyTheme(),
     media: "media/",
     horizontalLayout: false,
@@ -1838,7 +1932,7 @@ function refreshWorkspaceWithCustomToolbox() {
     css: true,
     rtl: false,
     oneBasedIndex: true,
-    modalInputs: true,
+    modalInputs: false,
     readOnly: false,
   });
   try { if (ENABLE_KBD_NAV) (window as any).__keyboardNav = new KeyboardNavigation(newWs); } catch {}
@@ -1930,6 +2024,8 @@ function refreshWorkspaceWithCustomToolbox() {
       ) {
         return;
       }
+      // Авто-разворачивание и инициализация мультитекстового поля
+      
       // Keep ACE editor content in sync (без авто-выполнения)
       scheduleAceSync();
 

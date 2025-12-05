@@ -17,10 +17,10 @@ import "ace-builds/src-noconflict/snippets/javascript";
 import "ace-builds/src-noconflict/snippets/python";
 import "ace-builds/src-noconflict/snippets/lua";
 
-(ace as any).config.set("basePath", "/ace");
-(ace as any).config.set("modePath", "/ace");
-(ace as any).config.set("themePath", "/ace");
-(ace as any).config.set("workerPath", "/ace");
+(ace as any).config.set("basePath", "ace");
+(ace as any).config.set("modePath", "ace");
+(ace as any).config.set("themePath", "ace");
+(ace as any).config.set("workerPath", "ace");
 
 type AceMode = { $id?: string } | any;
 interface AceDocument { getAllLines(): string[] }

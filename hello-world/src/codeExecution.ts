@@ -8,7 +8,11 @@ import * as Blockly from "blockly/core";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
-import type { SupportedLanguage, WorkerOutMsg, WorkerInMsg } from "./types/messages";
+import type {
+  SupportedLanguage,
+  WorkerOutMsg,
+  WorkerInMsg,
+} from "./types/messages";
 export type { SupportedLanguage } from "./types/messages";
 
 function getErrorMessage(err: unknown): string {
@@ -172,12 +176,18 @@ async function executeInSandbox(
   try {
     worker = new Worker(new URL("./sandboxWorker.ts", import.meta.url));
   } catch (e: unknown) {
-    appendLine(`Не удалось создать sandbox воркер: ${getErrorMessage(e)}`, "red");
+    appendLine(
+      `Не удалось создать sandbox воркер: ${getErrorMessage(e)}`,
+      "red"
+    );
     // Фолбэк на старый JS рантайм, если воркер недоступен
     if (language === "javascript" || language === "typescript") {
       executeJavaScriptCode(code, outputElement);
     } else {
-      appendLine("Выполнение для данного языка недоступно без воркера.", "#666");
+      appendLine(
+        "Выполнение для данного языка недоступно без воркера.",
+        "#666"
+      );
     }
     return;
   }
@@ -187,7 +197,12 @@ async function executeInSandbox(
     language === "python" ? Math.max(timeoutMs, 10000) : timeoutMs;
   // Если в коде используется input(), даём пользователю больше времени на ввод
   const usesInput = /\binput\s*\(/.test(code);
-  if (usesInput && (language === "javascript" || language === "typescript" || language === "lua")) {
+  if (
+    usesInput &&
+    (language === "javascript" ||
+      language === "typescript" ||
+      language === "lua")
+  ) {
     effectiveTimeout = Math.max(effectiveTimeout, 20000);
   }
   const timer = setTimeout(() => {
@@ -199,7 +214,10 @@ async function executeInSandbox(
     // Сообщение о прерывании показываем только для JS/TS.
     // Для Python/Lua прерывание по времени сообщается самим рантаймом.
     if (language === "javascript" || language === "typescript") {
-      appendLine(`Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`, "#b58900");
+      appendLine(
+        `Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`,
+        "#b58900"
+      );
     }
   }, Math.max(0, effectiveTimeout - 50));
 
@@ -217,7 +235,7 @@ async function executeInSandbox(
       // Показываем нативный prompt для ввода, затем записываем ответ в SharedArrayBuffer
       try {
         const promptText = String(msg.prompt || "Введите значение:");
-        const value = (window.prompt?.(promptText) ?? "");
+        const value = window.prompt?.(promptText) ?? "";
         // Записываем в буфер: [status,len] + bytes
         const sab = msg.buffer;
         const ctrl = new Int32Array(sab, 0, 2);
@@ -298,7 +316,9 @@ export async function runCode(
     if (outputElement) {
       const errorEl = document.createElement("p");
       errorEl.style.color = "red";
-      errorEl.textContent = `Ошибка генерации/выполнения: ${getErrorMessage(error)}`;
+      errorEl.textContent = `Ошибка генерации/выполнения: ${getErrorMessage(
+        error
+      )}`;
       outputElement.appendChild(errorEl);
     }
   }

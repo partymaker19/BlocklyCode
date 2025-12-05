@@ -6,11 +6,14 @@ const MAX_POST_LINES = 300;
 let _postedLines = 0;
 function post(msg: WorkerOutMsg) {
   try {
-    if (msg.type === 'stdout' || msg.type === 'stderr') {
+    if (msg.type === "stdout" || msg.type === "stderr") {
       if (_postedLines >= MAX_POST_LINES) {
         // Один раз сообщим, что вывод сокращён
         if (_postedLines === MAX_POST_LINES) {
-          (self as any).postMessage({ type: 'status', text: 'Вывод сокращён: достигнут лимит строк' });
+          (self as any).postMessage({
+            type: "status",
+            text: "Вывод сокращён: достигнут лимит строк",
+          });
           _postedLines++;
         }
         return;
@@ -35,35 +38,41 @@ function syncInput(prompt: string): string {
     const ctrl = new Int32Array(sab, 0, 2);
     const data = new Uint8Array(sab, headerBytes);
     // Сообщаем главному потоку о необходимости ввода
-    post({ type: 'input_request', prompt, buffer: sab });
+    post({ type: "input_request", prompt, buffer: sab });
 
     // Ждём ответа пользователя либо таймаута
     const remainingMs = Math.max(0, (_deadlineEpochMs || 0) - Date.now());
     const result = (Atomics as any).wait(ctrl, 0, 0, remainingMs);
-    if (result !== 'ok') {
-      if (result === 'timed-out') {
-        throw new Error('Ввод прерван по таймауту');
+    if (result !== "ok") {
+      if (result === "timed-out") {
+        throw new Error("Ввод прерван по таймауту");
       }
-      throw new Error('Ввод отменён');
+      throw new Error("Ввод отменён");
     }
     const len = ctrl[1] | 0;
     const dec = new TextDecoder();
-    const text = dec.decode(data.slice(0, Math.max(0, Math.min(len, data.length))));
+    const text = dec.decode(
+      data.slice(0, Math.max(0, Math.min(len, data.length)))
+    );
     return text;
   } catch (e: any) {
     const msg = e?.message ? String(e.message) : String(e);
-    throw new Error(msg || 'Ошибка ввода');
+    throw new Error(msg || "Ошибка ввода");
   }
 }
 
 // JS исполнение в изолированном контексте
 function runJS(code: string, timeoutMs?: number) {
-  const print = (s: unknown) => post({ type: 'stdout', text: String(s ?? '') });
+  const print = (s: unknown) => post({ type: "stdout", text: String(s ?? "") });
   const printColored = (s: unknown, color: unknown) => {
     try {
-      post({ type: 'stdout_color', text: String(s ?? ''), color: String(color ?? '') });
+      post({
+        type: "stdout_color",
+        text: String(s ?? ""),
+        color: String(color ?? ""),
+      });
     } catch {
-      post({ type: 'stdout', text: String(s ?? '') });
+      post({ type: "stdout", text: String(s ?? "") });
     }
   };
   const originalLog = console.log;
@@ -73,16 +82,37 @@ function runJS(code: string, timeoutMs?: number) {
     // Устанавливаем общий дедлайн для операций ввода
     _deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
     console.log = (...args: unknown[]) => {
-      try { originalLog.apply(console, args); } catch {}
-      post({ type: 'stdout', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
+      try {
+        originalLog.apply(console, args);
+      } catch {}
+      post({
+        type: "stdout",
+        text: args
+          .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
+          .join(" "),
+      });
     };
     console.warn = (...args: unknown[]) => {
-      try { originalWarn.apply(console, args); } catch {}
-      post({ type: 'stderr', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
+      try {
+        originalWarn.apply(console, args);
+      } catch {}
+      post({
+        type: "stderr",
+        text: args
+          .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
+          .join(" "),
+      });
     };
     console.error = (...args: unknown[]) => {
-      try { originalError.apply(console, args); } catch {}
-      post({ type: 'stderr', text: args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') });
+      try {
+        originalError.apply(console, args);
+      } catch {}
+      post({
+        type: "stderr",
+        text: args
+          .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
+          .join(" "),
+      });
     };
     // Подставляем window/self/globalThis внутрь исполняемого кода, чтобы избежать ошибок в воркере
     // Передаём ссылку на syncInput внутрь обёртки, чтобы избежать "syncInput is not defined"
@@ -96,11 +126,19 @@ function runJS(code: string, timeoutMs?: number) {
       globalRef: unknown,
       syncInputRef: (p: string) => string
     ) => void;
-    fn(print, printColored, console, self as unknown, self as unknown, self as unknown, syncInput);
-    post({ type: 'done' });
+    fn(
+      print,
+      printColored,
+      console,
+      self as unknown,
+      self as unknown,
+      self as unknown,
+      syncInput
+    );
+    post({ type: "done" });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    post({ type: 'error', message: msg });
+    post({ type: "error", message: msg });
   } finally {
     console.log = originalLog;
     console.warn = originalWarn;
@@ -111,28 +149,32 @@ function runJS(code: string, timeoutMs?: number) {
 // Python через Pyodide внутри воркера
 async function runPython(code: string, timeoutMs?: number) {
   try {
-    post({ type: 'status', text: 'Загрузка Pyodide...' });
-    (self as any).importScripts('https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js');
+    post({ type: "status", text: "Загрузка Pyodide..." });
+    (self as any).importScripts(
+      "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js"
+    );
     const loadPyodide = (self as any).loadPyodide;
-    const pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.28.2/full/' });
+    const pyodide = await loadPyodide({
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/",
+    });
 
-    pyodide.globals.set('print_to_dom', (s: any) => {
-      const str = String(s ?? '');
+    pyodide.globals.set("print_to_dom", (s: any) => {
+      const str = String(s ?? "");
       const parts = str.split(/\n/);
       for (const line of parts) {
         if (!line) continue;
-        post({ type: 'stdout', text: line });
+        post({ type: "stdout", text: line });
       }
     });
 
     // Цветной вывод для Python
-    pyodide.globals.set('print_to_dom_color', (s: any, color: any) => {
+    pyodide.globals.set("print_to_dom_color", (s: any, color: any) => {
       try {
-        const text = String(s ?? '');
-        const clr = String(color ?? '');
-        post({ type: 'stdout_color', text, color: clr });
+        const text = String(s ?? "");
+        const clr = String(color ?? "");
+        post({ type: "stdout_color", text, color: clr });
       } catch (e) {
-        post({ type: 'stdout', text: String(s ?? '') });
+        post({ type: "stdout", text: String(s ?? "") });
       }
     });
 
@@ -161,21 +203,25 @@ sys.settrace(_trace)
 `);
 
     // Убираем статус
-    post({ type: 'status', text: '' });
+    post({ type: "status", text: "" });
 
     // Переопределяем input -> синхронный ввод через SharedArrayBuffer
-    pyodide.globals.set('input', (prompt: any) => syncInput(String(prompt ?? '')));
+    pyodide.globals.set("input", (prompt: any) =>
+      syncInput(String(prompt ?? ""))
+    );
 
     try {
       // Обёртка: добавляем удобную функцию print_colored
-      await pyodide.runPythonAsync('def print_colored(s, c):\n    print_to_dom_color(str(s), str(c))');
+      await pyodide.runPythonAsync(
+        "def print_colored(s, c):\n    print_to_dom_color(str(s), str(c))"
+      );
       await pyodide.runPythonAsync(code);
     } finally {
-      await pyodide.runPythonAsync('import sys; sys.settrace(None)');
+      await pyodide.runPythonAsync("import sys; sys.settrace(None)");
     }
-    post({ type: 'done' });
+    post({ type: "done" });
   } catch (e: any) {
-    post({ type: 'error', message: String(e?.message || e) });
+    post({ type: "error", message: String(e?.message || e) });
   }
 }
 
@@ -183,8 +229,10 @@ sys.settrace(_trace)
 async function runLua(code: string, timeoutMs?: number) {
   try {
     // Загружаем Fengari локально, скопированный в сборку вебпака
-    const origin = (self as any).location?.origin || '';
-    const localUrl = origin ? origin + '/libs/fengari-web.js' : '/libs/fengari-web.js';
+    const origin = (self as any).location?.origin || "";
+    const localUrl = origin
+      ? origin + "/libs/fengari-web.js"
+      : "/libs/fengari-web.js";
     // Полифиллы для окружения: некоторые сборки fengari-web ожидают window/globalThis
     const g: any = self as any;
     try {
@@ -193,7 +241,7 @@ async function runLua(code: string, timeoutMs?: number) {
     } catch {}
     g.importScripts(localUrl);
     const fengari = (self as any).fengari;
-    if (!fengari) throw new Error('Fengari недоступен');
+    if (!fengari) throw new Error("Fengari недоступен");
     const { lua, lauxlib, lualib, to_luastring, to_jsstring } = fengari as any;
     const L = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(L);
@@ -205,12 +253,12 @@ async function runLua(code: string, timeoutMs?: number) {
     const hook = (L2: any, ar: any) => {
       if (Date.now() > deadlineEpochMs) {
         // Вызов ошибки внутри VM
-        lauxlib.luaL_error(L2, to_luastring('Превышен лимит времени'));
+        lauxlib.luaL_error(L2, to_luastring("Превышен лимит времени"));
       }
     };
     // Проверяем чаще, чтобы быстрее ловить бесконечные циклы
     // Включаем маски по счётчику и по линиям/вызовам для лучшей реакции
-    const mask = (lua.LUA_MASKCOUNT | lua.LUA_MASKLINE | lua.LUA_MASKCALL);
+    const mask = lua.LUA_MASKCOUNT | lua.LUA_MASKLINE | lua.LUA_MASKCALL;
     lua.lua_sethook(L, hook as any, mask, 1000);
 
     // Переопределяем print -> постим в главный поток
@@ -222,45 +270,47 @@ async function runLua(code: string, timeoutMs?: number) {
         lua.lua_pop(L2, 1);
         parts.push(s);
       }
-      post({ type: 'stdout', text: parts.join('\t') });
+      post({ type: "stdout", text: parts.join("\t") });
       return 0;
     });
-    lua.lua_setglobal(L, to_luastring('print'));
+    lua.lua_setglobal(L, to_luastring("print"));
 
     // Цветной вывод: print_colored(text, color)
     lua.lua_pushcfunction(L, (L2: any) => {
       const n = lua.lua_gettop(L2);
-      let txt = '';
-      let clr = '';
+      let txt = "";
+      let clr = "";
       if (n >= 1) {
         const s = to_jsstring(lauxlib.luaL_tolstring(L2, 1));
         lua.lua_pop(L2, 1);
-        txt = s ?? '';
+        txt = s ?? "";
       }
       if (n >= 2) {
         const c = to_jsstring(lauxlib.luaL_tolstring(L2, 2));
         lua.lua_pop(L2, 1);
-        clr = c ?? '';
+        clr = c ?? "";
       }
       try {
-        post({ type: 'stdout_color', text: String(txt), color: String(clr) });
+        post({ type: "stdout_color", text: String(txt), color: String(clr) });
       } catch {
-        post({ type: 'stdout', text: String(txt) });
+        post({ type: "stdout", text: String(txt) });
       }
       return 0;
     });
-    lua.lua_setglobal(L, to_luastring('print_colored'));
+    lua.lua_setglobal(L, to_luastring("print_colored"));
 
     // Определяем глобальную функцию input(prompt) -> string, использующую syncInput
     lua.lua_pushcfunction(L, (L2: any) => {
       const n = lua.lua_gettop(L2);
-      let promptStr = '';
+      let promptStr = "";
       if (n >= 1) {
         try {
           const s = to_jsstring(lauxlib.luaL_tolstring(L2, 1));
           lua.lua_pop(L2, 1);
-          promptStr = s ?? '';
-        } catch { promptStr = ''; }
+          promptStr = s ?? "";
+        } catch {
+          promptStr = "";
+        }
       }
       try {
         const inputText = syncInput(String(promptStr));
@@ -269,12 +319,12 @@ async function runLua(code: string, timeoutMs?: number) {
       } catch (e: any) {
         const msg = String(e?.message || e);
         // Возвращаем nil и сообщение как ошибка через stderr
-        post({ type: 'stderr', text: msg });
+        post({ type: "stderr", text: msg });
         lua.lua_pushnil(L2);
         return 1;
       }
     });
-    lua.lua_setglobal(L, to_luastring('input'));
+    lua.lua_setglobal(L, to_luastring("input"));
 
     const status = lauxlib.luaL_loadstring(L, to_luastring(code));
     if (status === lua.LUA_OK) {
@@ -282,43 +332,43 @@ async function runLua(code: string, timeoutMs?: number) {
       if (callStatus !== lua.LUA_OK) {
         const err = to_jsstring(lua.lua_tostring(L, -1));
         lua.lua_pop(L, 1);
-        post({ type: 'error', message: err });
+        post({ type: "error", message: err });
         return;
       }
-      post({ type: 'done' });
+      post({ type: "done" });
     } else {
       const err = to_jsstring(lua.lua_tostring(L, -1));
       lua.lua_pop(L, 1);
-      post({ type: 'error', message: err });
+      post({ type: "error", message: err });
     }
   } catch (e: any) {
-    post({ type: 'error', message: String(e?.message || e) });
+    post({ type: "error", message: String(e?.message || e) });
   }
 }
 
 self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
   const msg = ev.data as WorkerInMsg;
   // Обрабатываем объединённый тип: запуск кода или ответ ввода
-  if ('language' in msg) {
+  if ("language" in msg) {
     const { language, code, timeoutMs } = msg;
-  _postedLines = 0; // сбрасываем лимит на каждую новую задачу
-  if (!code || !code.trim()) {
-    post({ type: 'done' });
-    return;
-  }
-  try {
-    if (language === 'javascript' || language === 'typescript') {
-      runJS(code, timeoutMs);
-    } else if (language === 'python') {
-      runPython(code, timeoutMs);
-    } else if (language === 'lua') {
-      runLua(code, timeoutMs);
-    } else {
-      post({ type: 'error', message: `Неизвестный язык: ${language}` });
+    _postedLines = 0; // сбрасываем лимит на каждую новую задачу
+    if (!code || !code.trim()) {
+      post({ type: "done" });
+      return;
     }
-  } catch (e: any) {
-    post({ type: 'error', message: String(e?.message || e) });
-  }
+    try {
+      if (language === "javascript" || language === "typescript") {
+        runJS(code, timeoutMs);
+      } else if (language === "python") {
+        runPython(code, timeoutMs);
+      } else if (language === "lua") {
+        runLua(code, timeoutMs);
+      } else {
+        post({ type: "error", message: `Неизвестный язык: ${language}` });
+      }
+    } catch (e: any) {
+      post({ type: "error", message: String(e?.message || e) });
+    }
   } else {
     // Тип input_response обрабатывается рантаймами, здесь ничего не делаем
     return;

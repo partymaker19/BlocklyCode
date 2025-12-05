@@ -14,7 +14,11 @@ import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
 import { save, load } from "./serialization";
-import { setupAppBootstrap, persistWorkspaceDebounced, setStorageIndicatorUpdater } from "./appBootstrap";
+import {
+  setupAppBootstrap,
+  persistWorkspaceDebounced,
+  setStorageIndicatorUpdater,
+} from "./appBootstrap";
 import { setupAuthBootstrap } from "./authBootstrap";
 import { initAuthUI } from "./authUI";
 import "./index.css";
@@ -63,11 +67,6 @@ registerFieldAngle();
 try {
   KeyboardNavigation.registerKeyboardNavigationStyles();
   KeyboardNavigation.registerNavigationDeferringToolbox();
-} catch {}
-
-try {
-  (Blockly as any).Blocks['lists_create_with'] = (Blockly as any).Blocks['dynamic_list_create'];
-  (Blockly as any).Blocks['text_join'] = (Blockly as any).Blocks['dynamic_text_join'];
 } catch {}
 
 // Register the blocks and generator with Blockly
@@ -207,8 +206,7 @@ const themeLabelDark = document.getElementById(
   "theme-dark"
 ) as HTMLSpanElement | null;
 
-  let selectedGeneratorLanguage: "javascript" | "python" | "lua" =
-    "javascript";
+let selectedGeneratorLanguage: "javascript" | "python" | "lua" = "javascript";
 
 // Theme state
 type AppTheme = "light" | "dark";
@@ -216,22 +214,22 @@ const APP_THEME_KEY = "app_theme";
 let appTheme: AppTheme = "light";
 
 // Объявление рабочей области Blockly
-  let ws!: Blockly.WorkspaceSvg;
-  let __langSwitchTimer: number | null = null;
-  let __themeSwitchTimer: number | null = null;
+let ws!: Blockly.WorkspaceSvg;
+let __langSwitchTimer: number | null = null;
+let __themeSwitchTimer: number | null = null;
 
-  // Дебаунсим синхронизацию ACE редактора с workspace в rAF (объявление выше всех вызовов)
-  let __aceSyncScheduled = false;
-  function scheduleAceSync() {
-    if (__aceSyncScheduled) return;
-    __aceSyncScheduled = true;
-    requestAnimationFrame(() => {
-      __aceSyncScheduled = false;
-      try {
-        updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
-      } catch {}
-    });
-  }
+// Дебаунсим синхронизацию ACE редактора с workspace в rAF (объявление выше всех вызовов)
+let __aceSyncScheduled = false;
+function scheduleAceSync() {
+  if (__aceSyncScheduled) return;
+  __aceSyncScheduled = true;
+  requestAnimationFrame(() => {
+    __aceSyncScheduled = false;
+    try {
+      updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+    } catch {}
+  });
+}
 
 // Элементы модального окна справки
 const blockHelpBtn = document.getElementById(
@@ -245,20 +243,35 @@ const markdownContent = document.getElementById(
   "markdownContent"
 ) as HTMLDivElement | null;
 
-const supportBtn = document.getElementById("supportBtn") as HTMLButtonElement | null;
-const supportModal = document.getElementById("supportModal") as HTMLDivElement | null;
-const closeSupportModal = document.getElementById("closeSupportModal") as HTMLSpanElement | null;
-const closeSupportBtn = document.getElementById("closeSupportBtn") as HTMLButtonElement | null;
-const copyCardBtn = document.getElementById("copyCardBtn") as HTMLButtonElement | null;
-const supportCardNumberEl = document.getElementById("supportCardNumber") as HTMLDivElement | null;
-const copyCardStatusEl = document.getElementById("copyCardStatus") as HTMLDivElement | null;
+const supportBtn = document.getElementById(
+  "supportBtn"
+) as HTMLButtonElement | null;
+const supportModal = document.getElementById(
+  "supportModal"
+) as HTMLDivElement | null;
+const closeSupportModal = document.getElementById(
+  "closeSupportModal"
+) as HTMLSpanElement | null;
+const closeSupportBtn = document.getElementById(
+  "closeSupportBtn"
+) as HTMLButtonElement | null;
+const copyCardBtn = document.getElementById(
+  "copyCardBtn"
+) as HTMLButtonElement | null;
+const supportCardNumberEl = document.getElementById(
+  "supportCardNumber"
+) as HTMLDivElement | null;
+const copyCardStatusEl = document.getElementById(
+  "copyCardStatus"
+) as HTMLDivElement | null;
 
 // ===== Блок: счётчик блоков в тулбоксе =====
 function getWorkspaceBlockCount(): number {
   try {
     if (!ws) return 0;
     // Не учитываем теневые блоки
-    return ws.getAllBlocks(false).filter((b: Blockly.Block) => !b.isShadow()).length;
+    return ws.getAllBlocks(false).filter((b: Blockly.Block) => !b.isShadow())
+      .length;
   } catch {
     return 0;
   }
@@ -334,7 +347,9 @@ function updateToolboxBlockCounterLabel(): void {
 
 // Helper: get active Blockly theme
 function getBlocklyTheme() {
-  return appTheme === "dark" ? (DarkTheme as unknown as Blockly.Theme) : Blockly.Themes.Classic;
+  return appTheme === "dark"
+    ? (DarkTheme as unknown as Blockly.Theme)
+    : Blockly.Themes.Classic;
 }
 
 function setAppTheme(next: AppTheme) {
@@ -750,94 +765,171 @@ function setupCustomBlockContextMenu() {
     if (!registry) return;
     const scopeType = (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK;
 
-    const makeItem = (id: string, displayText: () => string, preconditionFn: (scope: { block?: Blockly.Block }) => "enabled"|"disabled"|"hidden", callback: (scope: { block?: Blockly.Block }) => void, weight = 195) => ({ id, displayText, preconditionFn, callback, scopeType, weight });
+    const makeItem = (
+      id: string,
+      displayText: () => string,
+      preconditionFn: (scope: {
+        block?: Blockly.Block;
+      }) => "enabled" | "disabled" | "hidden",
+      callback: (scope: { block?: Blockly.Block }) => void,
+      weight = 195
+    ) => ({ id, displayText, preconditionFn, callback, scopeType, weight });
 
     const t = () => getAppLang() === "ru";
     const text = {
-      paste: () => t() ? "Вставить" : "Paste",
-      expand: () => t() ? "Развернуть блок" : "Expand block",
-      enable: () => t() ? "Включить блок" : "Enable block",
-      removeComment: () => t() ? "Удалить комментарий" : "Remove comment",
-      inline: () => t() ? "Встроить входы" : "Inline inputs",
-      external: () => t() ? "Внешние входы" : "External inputs",
+      paste: () => (t() ? "Вставить" : "Paste"),
+      expand: () => (t() ? "Развернуть блок" : "Expand block"),
+      enable: () => (t() ? "Включить блок" : "Enable block"),
+      removeComment: () => (t() ? "Удалить комментарий" : "Remove comment"),
+      inline: () => (t() ? "Встроить входы" : "Inline inputs"),
+      external: () => (t() ? "Внешние входы" : "External inputs"),
     };
 
     const hasItem = (id: string) => registry.getItem && registry.getItem(id);
 
-    if (!hasItem("custom_paste_near_block")) registry.register(makeItem(
-      "custom_paste_near_block",
-      text.paste,
-      (scope) => {
-        const data = (Blockly as any).clipboard?.getLastCopiedData?.();
-        return data ? "enabled" : "disabled";
-      },
-      (scope) => {
-        const block: any = scope.block;
-        if (!block) return;
-        try {
-          const data = (Blockly as any).clipboard.getLastCopiedData();
-          const ws = (Blockly as any).clipboard.getLastCopiedWorkspace?.() || block.workspace;
-          let p = block.getRelativeToSurfaceXY?.();
-          p = p && typeof p.clone === "function" ? p.clone() : new (Blockly as any).utils.Coordinate(0, 0);
-          p.translate?.(24, 24);
-          (Blockly as any).clipboard.paste(data, ws, p);
-        } catch { try { (Blockly as any).clipboard.paste(); } catch {} }
-      }
-    ));
+    if (!hasItem("custom_paste_near_block"))
+      registry.register(
+        makeItem(
+          "custom_paste_near_block",
+          text.paste,
+          (scope) => {
+            const data = (Blockly as any).clipboard?.getLastCopiedData?.();
+            return data ? "enabled" : "disabled";
+          },
+          (scope) => {
+            const block: any = scope.block;
+            if (!block) return;
+            try {
+              const data = (Blockly as any).clipboard.getLastCopiedData();
+              const ws =
+                (Blockly as any).clipboard.getLastCopiedWorkspace?.() ||
+                block.workspace;
+              let p = block.getRelativeToSurfaceXY?.();
+              p =
+                p && typeof p.clone === "function"
+                  ? p.clone()
+                  : new (Blockly as any).utils.Coordinate(0, 0);
+              p.translate?.(24, 24);
+              (Blockly as any).clipboard.paste(data, ws, p);
+            } catch {
+              try {
+                (Blockly as any).clipboard.paste();
+              } catch {}
+            }
+          }
+        )
+      );
 
-    if (!hasItem("custom_expand_block")) registry.register(makeItem(
-      "custom_expand_block",
-      text.expand,
-      (scope) => {
-        const b: any = scope.block; if (!b) return "hidden";
-        return (!!b.workspace?.options?.collapse && !!b.isMovable?.() && !!b.isCollapsed?.()) ? "enabled" : "hidden";
-      },
-      (scope) => { const b: any = scope.block; b?.setCollapsed?.(false); }
-    ));
+    if (!hasItem("custom_expand_block"))
+      registry.register(
+        makeItem(
+          "custom_expand_block",
+          text.expand,
+          (scope) => {
+            const b: any = scope.block;
+            if (!b) return "hidden";
+            return !!b.workspace?.options?.collapse &&
+              !!b.isMovable?.() &&
+              !!b.isCollapsed?.()
+              ? "enabled"
+              : "hidden";
+          },
+          (scope) => {
+            const b: any = scope.block;
+            b?.setCollapsed?.(false);
+          }
+        )
+      );
 
-    if (!hasItem("custom_enable_block")) registry.register(makeItem(
-      "custom_enable_block",
-      text.enable,
-      (scope) => {
-        const b: any = scope.block; if (!b) return "hidden";
-        const isEnabled = typeof b.isEnabled === "function" ? b.isEnabled() : true;
-        return (!isEnabled && !!b.isEditable?.()) ? "enabled" : "hidden";
-      },
-      (scope) => { const b: any = scope.block; try { const reason = (Blockly as any).constants?.MANUALLY_DISABLED || "MANUALLY_DISABLED"; b?.setDisabledReason?.(false, reason); } catch { b?.setDisabled?.(false); } }
-    ));
+    if (!hasItem("custom_enable_block"))
+      registry.register(
+        makeItem(
+          "custom_enable_block",
+          text.enable,
+          (scope) => {
+            const b: any = scope.block;
+            if (!b) return "hidden";
+            const isEnabled =
+              typeof b.isEnabled === "function" ? b.isEnabled() : true;
+            return !isEnabled && !!b.isEditable?.() ? "enabled" : "hidden";
+          },
+          (scope) => {
+            const b: any = scope.block;
+            try {
+              const reason =
+                (Blockly as any).constants?.MANUALLY_DISABLED ||
+                "MANUALLY_DISABLED";
+              b?.setDisabledReason?.(false, reason);
+            } catch {
+              b?.setDisabled?.(false);
+            }
+          }
+        )
+      );
 
-    if (!hasItem("custom_remove_comment")) registry.register(makeItem(
-      "custom_remove_comment",
-      text.removeComment,
-      (scope) => {
-        const b: any = scope.block; if (!b) return "hidden";
-        const hasText = !!(typeof b.getCommentText === "function" && b.getCommentText());
-        return hasText ? "enabled" : "hidden";
-      },
-      (scope) => { const b: any = scope.block; b?.setCommentText?.(null); }
-    ));
+    if (!hasItem("custom_remove_comment"))
+      registry.register(
+        makeItem(
+          "custom_remove_comment",
+          text.removeComment,
+          (scope) => {
+            const b: any = scope.block;
+            if (!b) return "hidden";
+            const hasText = !!(
+              typeof b.getCommentText === "function" && b.getCommentText()
+            );
+            return hasText ? "enabled" : "hidden";
+          },
+          (scope) => {
+            const b: any = scope.block;
+            b?.setCommentText?.(null);
+          }
+        )
+      );
 
-    if (!hasItem("custom_inline_inputs")) registry.register(makeItem(
-      "custom_inline_inputs",
-      text.inline,
-      (scope) => {
-        const b: any = scope.block; if (!b) return "hidden";
-        const multiple = !!(b.inputList && b.inputList.length > 1 && !b.isCollapsed?.());
-        return (multiple && !b.getInputsInline?.()) ? "enabled" : "hidden";
-      },
-      (scope) => { const b: any = scope.block; b?.setInputsInline?.(true); }
-    ));
+    if (!hasItem("custom_inline_inputs"))
+      registry.register(
+        makeItem(
+          "custom_inline_inputs",
+          text.inline,
+          (scope) => {
+            const b: any = scope.block;
+            if (!b) return "hidden";
+            const multiple = !!(
+              b.inputList &&
+              b.inputList.length > 1 &&
+              !b.isCollapsed?.()
+            );
+            return multiple && !b.getInputsInline?.() ? "enabled" : "hidden";
+          },
+          (scope) => {
+            const b: any = scope.block;
+            b?.setInputsInline?.(true);
+          }
+        )
+      );
 
-    if (!hasItem("custom_external_inputs")) registry.register(makeItem(
-      "custom_external_inputs",
-      text.external,
-      (scope) => {
-        const b: any = scope.block; if (!b) return "hidden";
-        const multiple = !!(b.inputList && b.inputList.length > 1 && !b.isCollapsed?.());
-        return (multiple && !!b.getInputsInline?.()) ? "enabled" : "hidden";
-      },
-      (scope) => { const b: any = scope.block; b?.setInputsInline?.(false); }
-    ));
+    if (!hasItem("custom_external_inputs"))
+      registry.register(
+        makeItem(
+          "custom_external_inputs",
+          text.external,
+          (scope) => {
+            const b: any = scope.block;
+            if (!b) return "hidden";
+            const multiple = !!(
+              b.inputList &&
+              b.inputList.length > 1 &&
+              !b.isCollapsed?.()
+            );
+            return multiple && !!b.getInputsInline?.() ? "enabled" : "hidden";
+          },
+          (scope) => {
+            const b: any = scope.block;
+            b?.setInputsInline?.(false);
+          }
+        )
+      );
   } catch {}
 }
 
@@ -1152,13 +1244,20 @@ localizeSupportUI(defaultLang);
 }
 
 // Определяем, была ли страница перезагружена
-const __navEntries = (performance as any)?.getEntriesByType?.('navigation') || [];
-const __isInitialReload = __navEntries[0]?.type === 'reload' || ((performance as any)?.navigation?.type === 1);
+const __navEntries =
+  (performance as any)?.getEntriesByType?.("navigation") || [];
+const __isInitialReload =
+  __navEntries[0]?.type === "reload" ||
+  (performance as any)?.navigation?.type === 1;
 
 // При перезагрузке очищаем сохранённые данные прогресса
 if (__isInitialReload) {
-  try { window.localStorage?.removeItem('mainWorkspace'); } catch {}
-  try { window.localStorage?.removeItem('task_progress_v1'); } catch {}
+  try {
+    window.localStorage?.removeItem("mainWorkspace");
+  } catch {}
+  try {
+    window.localStorage?.removeItem("task_progress_v1");
+  } catch {}
 }
 
 // Инициализация рабочей области при загрузке страницы
@@ -1176,87 +1275,89 @@ if (langSwitchInput) {
     const newLang = langSwitchInput.checked ? "en" : "ru";
     if (__langSwitchTimer) clearTimeout(__langSwitchTimer);
     __langSwitchTimer = window.setTimeout(() => {
-    setAppLang(newLang);
-    // Обновляем рабочую область с локализованным тулбоксом
-    try {
-      const canUpdate = ws && typeof (ws as any).updateToolbox === "function";
-      if (canUpdate) {
-        (ws as any).updateToolbox(localizedToolbox(newLang));
-      } else {
-        refreshWorkspaceWithCustomToolbox();
-      }
-    } catch {}
-    // Локализуем импорт-модалку
-    localizeImportUI(newLang);
-    // Локализуем тултипы и окно настроек Ace
-    localizeTooltips(newLang);
-    localizeAceSettingsPanel(newLang);
-    // Локализуем кнопку и модалку справки
-    localizeHelpUI(newLang);
-    localizeSupportUI(newLang);
-    // ACE специфичные строки (кнопка Save, статусбар)
-    const { refreshAceUILanguage } = require("./aceEditor");
-    if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
-    // Обновить текст кнопки следующей задачи и элементы панели задач
-    {
-      const t = (window as any)._currentLocalizedStrings;
-      const nextLabel =
-        t?.NextTask || (newLang === "ru" ? "Следующая задача" : "Next task");
-      const prevLabel =
-        t?.PrevTask ||
-        (newLang === "ru" ? "Предыдущая задача" : "Previous task");
-      const btn = document.getElementById("nextTaskBtn");
-      if (btn) btn.textContent = `${nextLabel} →`;
-      const prev = document.getElementById("prevTaskBtn");
-      if (prev) prev.textContent = `← ${prevLabel}`;
-
-      const solText = document.getElementById("taskSolutionBtnText");
-      if (solText)
-        (solText as HTMLElement).textContent = `ℹ️ ${
-          t?.TaskSolutions ||
-          (newLang === "ru" ? "Решение задач" : "Task Solutions")
-        }`;
-
-      const checkBtn = document.getElementById("checkTaskBtn");
-      if (checkBtn)
-        (checkBtn as HTMLElement).textContent =
-          t?.CheckSolution ||
-          (newLang === "ru" ? "Проверить решение" : "Check solution");
-
-      const criteriaEl = document.querySelector("#taskSidebar .task-criteria");
-      if (criteriaEl) {
-        const text =
-          t?.StarsCriteria ||
-          (newLang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
-        const firstNode = criteriaEl.firstChild;
-        if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
-          (firstNode as Text).textContent = text + "\n";
+      setAppLang(newLang);
+      // Обновляем рабочую область с локализованным тулбоксом
+      try {
+        const canUpdate = ws && typeof (ws as any).updateToolbox === "function";
+        if (canUpdate) {
+          (ws as any).updateToolbox(localizedToolbox(newLang));
+        } else {
+          refreshWorkspaceWithCustomToolbox();
         }
+      } catch {}
+      // Локализуем импорт-модалку
+      localizeImportUI(newLang);
+      // Локализуем тултипы и окно настроек Ace
+      localizeTooltips(newLang);
+      localizeAceSettingsPanel(newLang);
+      // Локализуем кнопку и модалку справки
+      localizeHelpUI(newLang);
+      localizeSupportUI(newLang);
+      // ACE специфичные строки (кнопка Save, статусбар)
+      const { refreshAceUILanguage } = require("./aceEditor");
+      if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
+      // Обновить текст кнопки следующей задачи и элементы панели задач
+      {
+        const t = (window as any)._currentLocalizedStrings;
+        const nextLabel =
+          t?.NextTask || (newLang === "ru" ? "Следующая задача" : "Next task");
+        const prevLabel =
+          t?.PrevTask ||
+          (newLang === "ru" ? "Предыдущая задача" : "Previous task");
+        const btn = document.getElementById("nextTaskBtn");
+        if (btn) btn.textContent = `${nextLabel} →`;
+        const prev = document.getElementById("prevTaskBtn");
+        if (prev) prev.textContent = `← ${prevLabel}`;
 
-        const ul = criteriaEl.querySelector("ul");
-        if (ul) {
-          const items = ul.querySelectorAll("li");
-          const starsOptimal =
-            t?.StarsOptimal ||
-            (newLang === "ru"
-              ? "оптимально (минимум блоков)"
-              : "optimal (minimum blocks)");
-          const starsGood =
-            t?.StarsGood || (newLang === "ru" ? "хорошо" : "good");
-          const starsCorrect =
-            t?.StarsCorrect ||
-            (newLang === "ru" ? "решение верное" : "solution correct");
-          if (items[0])
-            (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
-          if (items[1])
-            (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
-          if (items[2])
-            (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
+        const solText = document.getElementById("taskSolutionBtnText");
+        if (solText)
+          (solText as HTMLElement).textContent = `ℹ️ ${
+            t?.TaskSolutions ||
+            (newLang === "ru" ? "Решение задач" : "Task Solutions")
+          }`;
+
+        const checkBtn = document.getElementById("checkTaskBtn");
+        if (checkBtn)
+          (checkBtn as HTMLElement).textContent =
+            t?.CheckSolution ||
+            (newLang === "ru" ? "Проверить решение" : "Check solution");
+
+        const criteriaEl = document.querySelector(
+          "#taskSidebar .task-criteria"
+        );
+        if (criteriaEl) {
+          const text =
+            t?.StarsCriteria ||
+            (newLang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
+          const firstNode = criteriaEl.firstChild;
+          if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
+            (firstNode as Text).textContent = text + "\n";
+          }
+
+          const ul = criteriaEl.querySelector("ul");
+          if (ul) {
+            const items = ul.querySelectorAll("li");
+            const starsOptimal =
+              t?.StarsOptimal ||
+              (newLang === "ru"
+                ? "оптимально (минимум блоков)"
+                : "optimal (minimum blocks)");
+            const starsGood =
+              t?.StarsGood || (newLang === "ru" ? "хорошо" : "good");
+            const starsCorrect =
+              t?.StarsCorrect ||
+              (newLang === "ru" ? "решение верное" : "solution correct");
+            if (items[0])
+              (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
+            if (items[1])
+              (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
+            if (items[2])
+              (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
+          }
         }
       }
-    }
-    scheduleAceSync();
-    requestAnimationFrame(() => updateToolboxBlockCounterLabel());
+      scheduleAceSync();
+      requestAnimationFrame(() => updateToolboxBlockCounterLabel());
     }, 120);
   });
 }
@@ -1697,16 +1798,21 @@ if (outputPaneEl) {
       const cleanup = () => {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
-        try { verticalResizer.releasePointerCapture(e.pointerId); } catch {}
+        try {
+          verticalResizer.releasePointerCapture(e.pointerId);
+        } catch {}
         // Save ratio
-        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect().width;
+        const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
+          .width;
         const total = (pageContainer as HTMLDivElement).clientWidth;
         localStorage.setItem(V_KEY, String(left / total));
       };
       const onUp = () => cleanup();
       window.addEventListener("pointermove", onMove, { passive: false });
       window.addEventListener("pointerup", onUp);
-      try { verticalResizer.setPointerCapture(e.pointerId); } catch {}
+      try {
+        verticalResizer.setPointerCapture(e.pointerId);
+      } catch {}
     };
     verticalResizer.addEventListener("pointerdown", startV);
   }
@@ -1725,7 +1831,9 @@ if (outputPaneEl) {
       const cleanup = () => {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
-        try { horizontalResizer.releasePointerCapture(e.pointerId); } catch {}
+        try {
+          horizontalResizer.releasePointerCapture(e.pointerId);
+        } catch {}
         // Save ratio
         const h = (codePaneEl as HTMLDivElement).getBoundingClientRect().height;
         const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
@@ -1734,7 +1842,9 @@ if (outputPaneEl) {
       const onUp = () => cleanup();
       window.addEventListener("pointermove", onMove, { passive: false });
       window.addEventListener("pointerup", onUp);
-      try { horizontalResizer.setPointerCapture(e.pointerId); } catch {}
+      try {
+        horizontalResizer.setPointerCapture(e.pointerId);
+      } catch {}
     };
     horizontalResizer.addEventListener("pointerdown", startH);
   }
@@ -1935,19 +2045,27 @@ function refreshWorkspaceWithCustomToolbox() {
     modalInputs: false,
     readOnly: false,
   });
-  try { if (ENABLE_KBD_NAV) (window as any).__keyboardNav = new KeyboardNavigation(newWs); } catch {}
   try {
-    const fm = (Blockly as any).getFocusManager?.() || (newWs as any).getFocusManager?.() || (newWs as any).focusManager;
+    if (ENABLE_KBD_NAV)
+      (window as any).__keyboardNav = new KeyboardNavigation(newWs);
+  } catch {}
+  try {
+    const fm =
+      (Blockly as any).getFocusManager?.() ||
+      (newWs as any).getFocusManager?.() ||
+      (newWs as any).focusManager;
     if (fm && typeof fm.focusNode === "function") {
       const origFocusNode = fm.focusNode.bind(fm);
-      fm.focusNode = function(node: any) {
+      fm.focusNode = function (node: any) {
         if (!node || typeof node.canBeFocused !== "function") return;
         return origFocusNode(node);
       };
     }
   } catch {}
   try {
-    newWs.addChangeListener((BlockDynamicConnection as any).finalizeConnections);
+    newWs.addChangeListener(
+      (BlockDynamicConnection as any).finalizeConnections
+    );
   } catch {}
   if (currentState)
     Blockly.serialization.workspaces.load(
@@ -1974,13 +2092,19 @@ function refreshWorkspaceWithCustomToolbox() {
       const controls = (multiselect as any).controls_;
       if (controls && typeof controls.updateMultiselect === "function") {
         const origUpdate = controls.updateMultiselect.bind(controls);
-        controls.updateMultiselect = function() {
-          try { origUpdate(); } catch {}
+        controls.updateMultiselect = function () {
+          try {
+            origUpdate();
+          } catch {}
         };
       }
-      const origSetSelected = (Blockly as any).common.setSelected.bind((Blockly as any).common);
-      (Blockly as any).common.setSelected = function(sel: any) {
-        try { return origSetSelected(sel); } catch {}
+      const origSetSelected = (Blockly as any).common.setSelected.bind(
+        (Blockly as any).common
+      );
+      (Blockly as any).common.setSelected = function (sel: any) {
+        try {
+          return origSetSelected(sel);
+        } catch {}
       };
     } catch {}
   } catch {}
@@ -1992,21 +2116,26 @@ function refreshWorkspaceWithCustomToolbox() {
   setupAppBootstrap(ws, { shouldLoad: !__isInitialReload });
 
   // Подключаем обновление индикатора активного хранилища и времени последнего сохранения
-  const storageIndicatorEl = document.getElementById('storageIndicator');
+  const storageIndicatorEl = document.getElementById("storageIndicator");
   if (storageIndicatorEl) {
     setStorageIndicatorUpdater(({ kind, lastSavedAt }) => {
-      const label = kind === 'server' ? 'Сервер' : 'Локально';
-      let suffix = '';
+      const label = kind === "server" ? "Сервер" : "Локально";
+      let suffix = "";
       if (lastSavedAt) {
         const d = new Date(lastSavedAt);
-        const hh = String(d.getHours()).padStart(2, '0');
-        const mm = String(d.getMinutes()).padStart(2, '0');
-        const ss = String(d.getSeconds()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        const ss = String(d.getSeconds()).padStart(2, "0");
         suffix = ` • ${hh}:${mm}:${ss}`;
       }
       (storageIndicatorEl as HTMLElement).textContent = `${label}${suffix}`;
-      const titleBase = 'Активное хранилище и время последнего сохранения';
-      (storageIndicatorEl as HTMLElement).setAttribute('title', lastSavedAt ? `${titleBase}: ${new Date(lastSavedAt).toLocaleString()}` : titleBase);
+      const titleBase = "Активное хранилище и время последнего сохранения";
+      (storageIndicatorEl as HTMLElement).setAttribute(
+        "title",
+        lastSavedAt
+          ? `${titleBase}: ${new Date(lastSavedAt).toLocaleString()}`
+          : titleBase
+      );
     });
   }
 
@@ -2025,7 +2154,7 @@ function refreshWorkspaceWithCustomToolbox() {
         return;
       }
       // Авто-разворачивание и инициализация мультитекстового поля
-      
+
       // Keep ACE editor content in sync (без авто-выполнения)
       scheduleAceSync();
 
@@ -2208,7 +2337,9 @@ function initHelpModal() {
       if (helpModal) {
         helpModal.style.display = "block";
         // Центрируем окно при открытии (сбрасываем возможные координаты после drag)
-        const helpModalContent = document.getElementById("helpModalContent") as HTMLDivElement | null;
+        const helpModalContent = document.getElementById(
+          "helpModalContent"
+        ) as HTMLDivElement | null;
         if (helpModalContent) {
           helpModalContent.style.left = "50%";
           helpModalContent.style.top = "50%";
@@ -2545,7 +2676,9 @@ function initHelpModal() {
         isDragging = true;
 
         // Текущие координаты и размеры
-        const rect = (helpModalContent as HTMLDivElement).getBoundingClientRect();
+        const rect = (
+          helpModalContent as HTMLDivElement
+        ).getBoundingClientRect();
 
         // Фиксируем абсолютные координаты и отключаем трансформации/анимации
         (helpModalContent as HTMLDivElement).style.left = rect.left + "px";
@@ -2618,7 +2751,11 @@ function initSupportModal() {
   });
   if (copyCardBtn && supportCardNumberEl) {
     copyCardBtn.addEventListener("click", async () => {
-      const text = (supportCardNumberEl.getAttribute("data-card") || supportCardNumberEl.textContent || "").trim();
+      const text = (
+        supportCardNumberEl.getAttribute("data-card") ||
+        supportCardNumberEl.textContent ||
+        ""
+      ).trim();
       try {
         await navigator.clipboard.writeText(text);
         if (copyCardStatusEl) {

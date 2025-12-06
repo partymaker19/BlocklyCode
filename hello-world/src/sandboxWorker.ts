@@ -229,10 +229,12 @@ sys.settrace(_trace)
 async function runLua(code: string, timeoutMs?: number) {
   try {
     // Загружаем Fengari локально, скопированный в сборку вебпака
-    const origin = (self as any).location?.origin || "";
-    const localUrl = origin
-      ? origin + "/libs/fengari-web.js"
-      : "/libs/fengari-web.js";
+    // Формируем относительный URL к скопированному в сборку файлу fengari-web.js,
+    // чтобы корректно работать под subpath (GitHub Pages)
+    const href = (self as any).location?.href || "";
+    const localUrl = href
+      ? new URL("libs/fengari-web.js", href).toString()
+      : "libs/fengari-web.js";
     // Полифиллы для окружения: некоторые сборки fengari-web ожидают window/globalThis
     const g: any = self as any;
     try {

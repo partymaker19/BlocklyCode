@@ -193,33 +193,38 @@ async function executeInSandbox(
   }
 
   // Таймаут выполнения: для Python увеличиваем минимум из-за холодного старта Pyodide
+  // и возможной медленной сети на проде
   let effectiveTimeout =
-    language === "python" ? Math.max(timeoutMs, 10000) : timeoutMs;
+    language === "python" ? Math.max(timeoutMs, 60000) : timeoutMs;
   // Если в коде используется input(), даём пользователю больше времени на ввод
   const usesInput = /\binput\s*\(/.test(code);
   if (
     usesInput &&
     (language === "javascript" ||
       language === "typescript" ||
-      language === "lua")
+      language === "lua" ||
+      language === "python")
   ) {
-    effectiveTimeout = Math.max(effectiveTimeout, 20000);
+    effectiveTimeout = Math.max(effectiveTimeout, 30000);
   }
-  const timer = setTimeout(() => {
-    try {
-      // Снимаем слушатель, чтобы избежать утечек и лишних вызовов
-      worker?.removeEventListener("message", onMessage);
-      worker?.terminate();
-    } catch {}
-    // Сообщение о прерывании показываем только для JS/TS.
-    // Для Python/Lua прерывание по времени сообщается самим рантаймом.
-    if (language === "javascript" || language === "typescript") {
-      appendLine(
-        `Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`,
-        "#b58900"
-      );
-    }
-  }, Math.max(0, effectiveTimeout - 50));
+  const enableMainTimer = language !== "python";
+  const timer = enableMainTimer
+    ? setTimeout(() => {
+        try {
+          // Снимаем слушатель, чтобы избежать утечек и лишних вызовов
+          worker?.removeEventListener("message", onMessage);
+          worker?.terminate();
+        } catch {}
+        // Сообщение о прерывании показываем только для JS/TS.
+        // Для Python/Lua прерывание по времени сообщается самим рантаймом.
+        if (language === "javascript" || language === "typescript") {
+          appendLine(
+            `Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`,
+            "#b58900"
+          );
+        }
+      }, Math.max(0, effectiveTimeout - 50))
+    : null;
 
   const onMessage = (ev: MessageEvent<WorkerOutMsg>) => {
     const msg = ev.data as WorkerOutMsg;
@@ -255,7 +260,7 @@ async function executeInSandbox(
     } else if (msg?.type === "error") {
       appendLine(`Ошибка выполнения: ${String(msg.message ?? msg)}`, "red");
     } else if (msg?.type === "done") {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer as any);
       worker?.removeEventListener("message", onMessage);
       worker?.terminate();
     }

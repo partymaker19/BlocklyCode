@@ -129,9 +129,10 @@ function executeJavaScriptCode(
     // Provide a print function to match Python/Lua UX
     const jsPrint = (s: unknown) => appendLine(String(s ?? ""));
 
-    // Wrap code so it can access the print function
-    const wrapper = `(function(print){\n${code}\n})`;
-    const fn = eval(wrapper) as (print: (s: unknown) => void) => void;
+    // Compile once without eval for better performance and safety
+    const fn = new Function("print", String(code)) as (
+      print: (s: unknown) => void
+    ) => void;
     fn(jsPrint);
   } catch (error: unknown) {
     console.error("Runtime error:", error);
@@ -273,26 +274,6 @@ async function executeInSandbox(
 }
 
 /**
- * Displays information message for non-executable languages
- */
-function showNonExecutableMessage(
-  language: SupportedLanguage,
-  outputElement: HTMLElement | null,
-  hasCode: boolean
-): void {
-  if (!hasCode || !outputElement) return;
-
-  const infoEl = document.createElement("p");
-  infoEl.style.color = "#666";
-  infoEl.style.fontStyle = "italic";
-
-  const langName = language === "python" ? "Python" : "Lua";
-  infoEl.textContent = `Код на ${langName} сгенерирован. Для выполнения используйте соответствующий интерпретатор.`;
-
-  outputElement.appendChild(infoEl);
-}
-
-/**
  * Main function to run code generation and execution
  */
 export async function runCode(
@@ -350,22 +331,6 @@ export async function runCodeString(
       outputElement.appendChild(errorEl);
     }
   }
-}
-
-// Lazy imports for runtimes
-let _pyRuntime: null | typeof import("./pythonRuntime") = null;
-let _luaRuntime: null | typeof import("./luaRuntime") = null;
-
-async function ensurePythonRuntime() {
-  if (_pyRuntime) return _pyRuntime;
-  _pyRuntime = await import("./pythonRuntime");
-  return _pyRuntime;
-}
-
-async function ensureLuaRuntime() {
-  if (_luaRuntime) return _luaRuntime;
-  _luaRuntime = await import("./luaRuntime");
-  return _luaRuntime;
 }
 
 /**

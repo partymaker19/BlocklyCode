@@ -5,7 +5,7 @@
  */
 
 import * as Blockly from "blockly/core";
-import { FieldAngle } from "@blockly/field-angle";
+import "@blockly/field-angle";
 import "@blockly/field-bitmap";
 import "@blockly/field-date";
 import "@blockly/field-slider";

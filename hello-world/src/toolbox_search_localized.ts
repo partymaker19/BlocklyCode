@@ -8,7 +8,6 @@ import * as Blockly from 'blockly/core';
  * A class that provides methods for indexing and searching blocks.
  */
 class BlockSearcher {
-  private blockCreationWorkspace = new Blockly.Workspace();
   private trigramsToBlocks = new Map<string, Set<string>>();
 
   /**
@@ -33,6 +32,7 @@ class BlockSearcher {
         });
       });
     });
+    try { blockCreationWorkspace.dispose(); } catch {}
   }
 
   /**

@@ -114,10 +114,21 @@ function runJS(code: string, timeoutMs?: number) {
           .join(" "),
       });
     };
-    // Подставляем window/self/globalThis внутрь исполняемого кода, чтобы избежать ошибок в воркере
-    // Передаём ссылку на syncInput внутрь обёртки, чтобы избежать "syncInput is not defined"
-    const wrapper = `(function(print, printColored, consoleObj, selfRef, windowRef, globalRef, syncInputRef){\ntry{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}\n// Определяем синхронный ввод для JS-кода\nvar input = function(prompt){ try { return syncInputRef(String(prompt ?? '')); } catch (e) { throw e; } };\n${code}\n})`;
-    const fn = (0, eval)(wrapper) as (
+    // Подставляем window/self/globalThis и определяем input() без eval
+    const prelude = [
+      "try{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}",
+      "var input = function(prompt){ try { return syncInputRef(String(prompt ?? '')); } catch (e) { throw e; } };",
+    ].join("\n");
+    const fn = new Function(
+      "print",
+      "printColored",
+      "consoleObj",
+      "selfRef",
+      "windowRef",
+      "globalRef",
+      "syncInputRef",
+      prelude + "\n" + String(code)
+    ) as (
       print: (s: unknown) => void,
       printColored: (s: unknown, color: unknown) => void,
       consoleObj: Console,

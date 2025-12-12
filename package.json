@@ -7,13 +7,15 @@
     "start": "cd hello-world && npm start",
     "install": "cd hello-world && npm install",
     "server": "node server/index.js",
-    "dev": "powershell -Command \"Start-Process -NoNewWindow npm -ArgumentList 'run server'; Start-Process -NoNewWindow npm -ArgumentList 'start'\""
+    "dev": "powershell -Command \"Start-Process -NoNewWindow npm -ArgumentList 'run server'; Start-Process -NoNewWindow npm -ArgumentList 'start'\"",
+    "pdf": "node scripts/create-pdf.js"
   },
   "dependencies": {
     "blockly": "12.2.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
-    "express-session": "^1.18.2"
+    "express-session": "^1.18.2",
+    "pdfkit": "^0.13.0"
   },
   "overrides": {
     "body-parser": "^2.2.1"

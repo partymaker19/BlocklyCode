@@ -21,11 +21,7 @@ forBlock["add_text"] = function (
   generator: Blockly.CodeGenerator
 ) {
   const text = generator.valueToCode(block, "TEXT", Order.NONE) || "''";
-  const color = generator.valueToCode(block, "COLOR", Order.NONE) || "";
-  if (color && color.trim && color.trim().length > 0) {
-    return `printColored(${text}, ${color});\n`;
-  }
-  return `print(${text});\n`;
+  return `console.log(${text});\n`;
 };
 
 // Генератор для блока angle_demo

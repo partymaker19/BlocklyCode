@@ -14,8 +14,11 @@ export type InitTaskValidationOptions = {
 // ---------- Прогресс и порядок задач ----------
 export type TaskId = "hello_world" | "add_2_7" | "sum_array" | "min_max" | "char_freq";
 
+export type TaskDifficulty = "basic" | "advanced";
+
 type TaskDef = {
   id: TaskId;
+  difficulty: TaskDifficulty;
   title: (lang: "ru" | "en") => string;
   description: (lang: "ru" | "en") => string; // can contain HTML
   hint: (lang: "ru" | "en") => string;
@@ -25,6 +28,7 @@ type TaskDef = {
 const tasks: Record<TaskId, TaskDef> = {
   hello_world: {
     id: "hello_world",
+    difficulty: "basic",
     title: (lang) => lang === "ru" ? "Задача 1: Hello World" : "Task 1: Hello World",
     description: (lang) => lang === "ru"
       ? 'Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong>'
@@ -36,6 +40,7 @@ const tasks: Record<TaskId, TaskDef> = {
   },
   add_2_7: {
     id: "add_2_7",
+    difficulty: "basic",
     title: (lang) => lang === "ru" ? "Задача 2: 2 + 7" : "Task 2: 2 + 7",
     description: (lang) => lang === "ru"
       ? 'Сложите <strong>2</strong> и <strong>7</strong> и выведите результат в окно вывода: должно получиться <strong>9</strong>.'
@@ -47,6 +52,7 @@ const tasks: Record<TaskId, TaskDef> = {
   },
   sum_array: {
     id: "sum_array",
+    difficulty: "advanced",
     title: (lang) => lang === "ru" ? "Задача 3: Сумма массива" : "Task 3: Array sum",
     description: (lang) => lang === "ru"
       ? 'Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл.'
@@ -58,6 +64,7 @@ const tasks: Record<TaskId, TaskDef> = {
   },
   min_max: {
     id: "min_max",
+    difficulty: "advanced",
     title: (lang) => lang === "ru" ? "Задача 4: Минимум и максимум" : "Task 4: Min and Max",
     description: (lang) => lang === "ru"
       ? 'Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две.'
@@ -69,6 +76,7 @@ const tasks: Record<TaskId, TaskDef> = {
   },
   char_freq: {
     id: "char_freq",
+    difficulty: "advanced",
     title: (lang) => lang === "ru" ? "Задача 5: Частоты символов" : "Task 5: Character frequencies",
     description: (lang) => lang === "ru"
       ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -82,8 +90,13 @@ const tasks: Record<TaskId, TaskDef> = {
 
 let activeTaskId: TaskId = "hello_world";
 
+let activeDifficulty: TaskDifficulty = "basic";
+
 // Порядок задач для последовательного прохождения
-const TASKS_ORDER: TaskId[] = ["hello_world", "add_2_7", "sum_array", "min_max", "char_freq"];
+const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
+  basic: ["hello_world", "add_2_7"],
+  advanced: ["sum_array", "min_max", "char_freq"],
+};
 const PROGRESS_KEY = "task_progress_v1";
 
 type Progress = Partial<Record<TaskId, { solved: boolean; stars: number }>>;
@@ -113,24 +126,35 @@ export function isSolved(taskId: TaskId): boolean {
   return !!p[taskId]?.solved;
 }
 
-export function getFirstUnsolvedTask(): TaskId {
+export function getActiveDifficulty(): TaskDifficulty {
+  return activeDifficulty;
+}
+
+export function setActiveDifficulty(difficulty: TaskDifficulty) {
+  activeDifficulty = difficulty;
+}
+
+export function getFirstUnsolvedTask(difficulty: TaskDifficulty = activeDifficulty): TaskId {
   const p = loadProgress();
-  for (const id of TASKS_ORDER) {
+  const order = TASKS_ORDER_BY_DIFFICULTY[difficulty] || [];
+  for (const id of order) {
     if (!p[id]?.solved) return id;
   }
-  return TASKS_ORDER[TASKS_ORDER.length - 1];
+  return order[order.length - 1] || "hello_world";
 }
 
 export function getNextTaskId(current: TaskId): TaskId | null {
-  const idx = TASKS_ORDER.indexOf(current);
+  const order = TASKS_ORDER_BY_DIFFICULTY[tasks[current].difficulty] || [];
+  const idx = order.indexOf(current);
   if (idx < 0) return null;
-  return idx + 1 < TASKS_ORDER.length ? TASKS_ORDER[idx + 1] : null;
+  return idx + 1 < order.length ? order[idx + 1] : null;
 }
 
-function getPrevTaskId(current: TaskId): TaskId | null {
-  const idx = TASKS_ORDER.indexOf(current);
+export function getPrevTaskId(current: TaskId): TaskId | null {
+  const order = TASKS_ORDER_BY_DIFFICULTY[tasks[current].difficulty] || [];
+  const idx = order.indexOf(current);
   if (idx <= 0) return null;
-  return TASKS_ORDER[idx - 1] || null;
+  return order[idx - 1] || null;
 }
 
 export function getActiveTask(): TaskId { return activeTaskId; }
@@ -336,16 +360,25 @@ function renderResult(
 
 export function setActiveTask(taskId: TaskId) {
   activeTaskId = taskId;
+  activeDifficulty = tasks[taskId].difficulty;
   const lang = getAppLang();
 
   const titleEl = document.querySelector("#taskSidebar .task-title") as HTMLElement | null;
   const descEl = document.querySelector("#taskSidebar .task-desc") as HTMLElement | null;
   const hintEl = document.querySelector("#taskSidebar .task-hint") as HTMLElement | null;
+  const feedbackEl = document.getElementById("taskFeedback") as HTMLDivElement | null;
+  const starsEl = document.getElementById("taskStars") as HTMLDivElement | null;
+  const nextButton = document.getElementById("nextTaskBtn") as HTMLButtonElement | null;
+  const prevButton = document.getElementById("prevTaskBtn") as HTMLButtonElement | null;
 
   const tdef = tasks[activeTaskId];
   if (titleEl) titleEl.textContent = tdef.title(lang);
   if (descEl) descEl.innerHTML = tdef.description(lang);
   if (hintEl) hintEl.textContent = tdef.hint(lang);
+  if (feedbackEl) feedbackEl.textContent = "";
+  if (starsEl) starsEl.innerHTML = "";
+  if (nextButton) nextButton.disabled = !isSolved(activeTaskId) || getNextTaskId(activeTaskId) === null;
+  if (prevButton) prevButton.disabled = getPrevTaskId(activeTaskId) === null;
 }
 
 export function initTaskValidation(ws: Blockly.WorkspaceSvg, opts: InitTaskValidationOptions) {

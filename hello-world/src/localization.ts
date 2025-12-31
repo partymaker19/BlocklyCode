@@ -278,6 +278,8 @@ export function localizeImportUI(lang: AppLang): void {
           StarsGood: "хорошо",
           StarsCorrect: "решение верное",
           RunFirst: "Сначала запустите код",
+          TaskDifficultyBasic: "Основа",
+          TaskDifficultyAdvanced: "Продвинутый",
         }
       : {
           TaskPerfect: "Great! Optimal solution.",
@@ -291,6 +293,8 @@ export function localizeImportUI(lang: AppLang): void {
           StarsGood: "good",
           StarsCorrect: "solution correct",
           RunFirst: "Run the code first",
+          TaskDifficultyBasic: "Basic",
+          TaskDifficultyAdvanced: "Advanced",
         };
   (window as any)._currentLocalizedStrings = {
     ...(window as any)._currentLocalizedStrings,

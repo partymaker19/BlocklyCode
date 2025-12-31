@@ -26,6 +26,8 @@ import {
   initTaskValidation,
   setActiveTask,
   getFirstUnsolvedTask,
+  setActiveDifficulty,
+  getActiveDifficulty,
 } from "./tasks";
 import {
   registerCustomBlocks,
@@ -193,6 +195,12 @@ const nextTaskBtn = document.getElementById(
 ) as HTMLButtonElement | null;
 const prevTaskBtn = document.getElementById(
   "prevTaskBtn"
+) as HTMLButtonElement | null;
+const taskDifficultyBasicBtn = document.getElementById(
+  "taskDifficultyBasic"
+) as HTMLButtonElement | null;
+const taskDifficultyAdvancedBtn = document.getElementById(
+  "taskDifficultyAdvanced"
 ) as HTMLButtonElement | null;
 
 // Theme elements
@@ -398,6 +406,9 @@ function toggleTaskSidebar(force?: boolean) {
   const next = force !== undefined ? force : !isOpen;
 
   taskSidebar.classList.toggle("open", next);
+  if (next) {
+    taskSidebar.classList.add("mode-select");
+  }
   const pc = document.getElementById("pageContainer") as HTMLDivElement | null;
   if (pc) pc.classList.toggle("sidebar-open", next);
   if (taskSolutionBtn) {
@@ -1211,6 +1222,16 @@ localizeSupportUI(defaultLang);
       t?.CheckSolution ||
       (defaultLang === "ru" ? "Проверить решение" : "Check solution");
 
+  const diffBasic = document.getElementById("taskDifficultyBasic");
+  if (diffBasic)
+    (diffBasic as HTMLElement).textContent =
+      t?.TaskDifficultyBasic || (defaultLang === "ru" ? "Основа" : "Basic");
+  const diffAdvanced = document.getElementById("taskDifficultyAdvanced");
+  if (diffAdvanced)
+    (diffAdvanced as HTMLElement).textContent =
+      t?.TaskDifficultyAdvanced ||
+      (defaultLang === "ru" ? "Продвинутый" : "Advanced");
+
   const criteriaEl = document.querySelector("#taskSidebar .task-criteria");
   if (criteriaEl) {
     const text =
@@ -1321,6 +1342,16 @@ if (langSwitchInput) {
           (checkBtn as HTMLElement).textContent =
             t?.CheckSolution ||
             (newLang === "ru" ? "Проверить решение" : "Check solution");
+
+        const diffBasic = document.getElementById("taskDifficultyBasic");
+        if (diffBasic)
+          (diffBasic as HTMLElement).textContent =
+            t?.TaskDifficultyBasic || (newLang === "ru" ? "Основа" : "Basic");
+        const diffAdvanced = document.getElementById("taskDifficultyAdvanced");
+        if (diffAdvanced)
+          (diffAdvanced as HTMLElement).textContent =
+            t?.TaskDifficultyAdvanced ||
+            (newLang === "ru" ? "Продвинутый" : "Advanced");
 
         const criteriaEl = document.querySelector(
           "#taskSidebar .task-criteria"
@@ -2183,8 +2214,40 @@ function refreshWorkspaceWithCustomToolbox() {
     nextButton: nextTaskBtn,
     prevButton: prevTaskBtn,
   });
-  // Активируем первую не решённую задачу
-  setActiveTask(getFirstUnsolvedTask());
+  const setDifficultyUI = () => {
+    const diff = getActiveDifficulty();
+    if (taskDifficultyBasicBtn) {
+      taskDifficultyBasicBtn.classList.toggle("primary", diff === "basic");
+      taskDifficultyBasicBtn.classList.toggle("secondary", diff !== "basic");
+    }
+    if (taskDifficultyAdvancedBtn) {
+      taskDifficultyAdvancedBtn.classList.toggle(
+        "primary",
+        diff === "advanced"
+      );
+      taskDifficultyAdvancedBtn.classList.toggle(
+        "secondary",
+        diff !== "advanced"
+      );
+    }
+  };
+  const activateDifficulty = (difficulty: "basic" | "advanced") => {
+    setActiveDifficulty(difficulty);
+    setActiveTask(getFirstUnsolvedTask(difficulty));
+    setDifficultyUI();
+    if (taskSidebar) taskSidebar.classList.remove("mode-select");
+  };
+  if (taskDifficultyBasicBtn) {
+    taskDifficultyBasicBtn.addEventListener("click", () => {
+      activateDifficulty("basic");
+    });
+  }
+  if (taskDifficultyAdvancedBtn) {
+    taskDifficultyAdvancedBtn.addEventListener("click", () => {
+      activateDifficulty("advanced");
+    });
+  }
+  setDifficultyUI();
   // Initial sync after workspace init (без авто-выполнения)
   scheduleAceSync();
   // Начальная отрисовка счётчика

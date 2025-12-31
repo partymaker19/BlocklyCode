@@ -1138,6 +1138,41 @@
       flex: 1 1 0;
     }
 
+    #taskSidebar .task-difficulty-screen {
+      display: none;
+      height: 100%;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #taskSidebar .task-difficulty {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: min(260px, 100%);
+      max-width: none;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #taskSidebar .task-difficulty .btn {
+      width: 100%;
+    }
+
+    #taskSidebar.mode-select {
+      overflow: hidden;
+      padding: 0;
+    }
+
+    #taskSidebar.mode-select .task-difficulty-screen {
+      display: flex;
+    }
+
+    #taskSidebar.mode-select .task-content {
+      display: none;
+    }
+
     .generator-language-selector {
       display: inline-flex;
       background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
@@ -1806,60 +1841,70 @@
     </div>
 
     <!-- Right task sidebar -->
-    <aside id="taskSidebar" class="task-sidebar" aria-label="Панель задач">
-      <div class="task-header">
-        <h2 class="task-title">Задача 1: Hello World</h2>
+    <aside id="taskSidebar" class="task-sidebar mode-select" aria-label="Панель задач">
+      <div class="task-difficulty-screen" aria-label="Сложность задач">
+        <div class="task-difficulty" role="tablist" aria-label="Сложность задач">
+          <button id="taskDifficultyBasic" type="button" class="btn primary">Основа</button>
+          <button id="taskDifficultyAdvanced" type="button" class="btn secondary">Продвинутый</button>
+        </div>
       </div>
-      <div class="task-body">
-        <p class="task-desc">Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong></p>
-        <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
-        <div class="task-criteria">
-          Критерии звёзд:
-          <ul>
-            <li>★★★ — оптимально (минимум блоков)</li>
-            <li>★★ — хорошо</li>
-            <li>★ — решение верное</li>
-          </ul>
+      <div class="task-content">
+        <div class="task-header">
+          <h2 class="task-title">Задача 1: Hello World</h2>
         </div>
-        <button id="checkTaskBtn" class="btn primary" style="margin-top:8px;">Проверить решение</button>
-        <div class="task-nav">
-          <button id="prevTaskBtn" class="btn secondary" disabled>← Предыдущая задача</button>
-          <button id="nextTaskBtn" class="btn secondary" disabled>Следующая задача →</button>
+        <div class="task-body">
+          <p class="task-desc">Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong>
+          </p>
+          <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
+          <div class="task-criteria">
+            Критерии звёзд:
+            <ul>
+              <li>★★★ — оптимально (минимум блоков)</li>
+              <li>★★ — хорошо</li>
+              <li>★ — решение верное</li>
+            </ul>
+          </div>
+          <button id="checkTaskBtn" class="btn primary" style="margin-top:8px;">Проверить решение</button>
+          <div class="task-nav">
+            <button id="prevTaskBtn" class="btn secondary" disabled>← Предыдущая задача</button>
+            <button id="nextTaskBtn" class="btn secondary" disabled>Следующая задача →</button>
+          </div>
+          <div class="console-output-info">
+            <h4>Вывод в консоль:</h4>
+            <p>Для вывода информации в консоль используйте следующие функции в зависимости от выбранного языка:</p>
+            <ul>
+              <li><strong>JavaScript:</strong>
+                <ul>
+                  <li><code>console.log("текст")</code> — вывод текста</li>
+                  <li><code>console.log(число)</code> — вывод числа</li>
+                  <li><code>console.log("текст", переменная)</code> — вывод текста и значения</li>
+                  <li><code>console.log(`Значение: ${переменная}`)</code> — шаблонные строки</li>
+                </ul>
+              </li>
+              <li><strong>Python:</strong>
+                <ul>
+                  <li><code>print("текст")</code> — вывод текста</li>
+                  <li><code>print(число)</code> — вывод числа</li>
+                  <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
+                  <li><code>print(f"Значение: {переменная}")</code> — f-строки для форматирования</li>
+                </ul>
+              </li>
+              <li><strong>Lua:</strong>
+                <ul>
+                  <li><code>print("текст")</code> — вывод текста</li>
+                  <li><code>print(число)</code> — вывод числа</li>
+                  <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
+                  <li><code>print(string.format("Значение: %s", переменная))</code> — форматирование строк</li>
+                </ul>
+              </li>
+            </ul>
+            <p style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет отображаться в окне
+              вывода
+              справа внизу.</p>
+          </div>
+          <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
+          <div id="taskStars" class="task-stars" aria-hidden="true"></div>
         </div>
-        <div class="console-output-info">
-          <h4>Вывод в консоль:</h4>
-          <p>Для вывода информации в консоль используйте следующие функции в зависимости от выбранного языка:</p>
-          <ul>
-            <li><strong>JavaScript:</strong>
-              <ul>
-                <li><code>console.log("текст")</code> — вывод текста</li>
-                <li><code>console.log(число)</code> — вывод числа</li>
-                <li><code>console.log("текст", переменная)</code> — вывод текста и значения</li>
-                <li><code>console.log(`Значение: ${переменная}`)</code> — шаблонные строки</li>
-              </ul>
-            </li>
-            <li><strong>Python:</strong>
-              <ul>
-                <li><code>print("текст")</code> — вывод текста</li>
-                <li><code>print(число)</code> — вывод числа</li>
-                <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
-                <li><code>print(f"Значение: {переменная}")</code> — f-строки для форматирования</li>
-              </ul>
-            </li>
-            <li><strong>Lua:</strong>
-              <ul>
-                <li><code>print("текст")</code> — вывод текста</li>
-                <li><code>print(число)</code> — вывод числа</li>
-                <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
-                <li><code>print(string.format("Значение: %s", переменная))</code> — форматирование строк</li>
-              </ul>
-            </li>
-          </ul>
-          <p style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет отображаться в окне вывода
-            справа внизу.</p>
-        </div>
-        <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
-        <div id="taskStars" class="task-stars" aria-hidden="true"></div>
       </div>
     </aside>
   </div>

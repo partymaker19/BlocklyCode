@@ -524,33 +524,12 @@
       position: relative;
       /* allow absolutely positioned sidebar */
       --task-sidebar-width: 340px;
+      --task-toolbox-offset: 0px;
     }
 
-    /* Keep editor/output size; visually shift Blockly content when sidebar is open without changing layout widths */
     #pageContainer.sidebar-open #blocklyDiv {
-      position: relative;
-      /* keep real width unchanged */
-    }
-
-    #pageContainer.sidebar-open #blocklyDiv::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: var(--task-sidebar-width);
-      /* sidebar width */
-      pointer-events: none;
-    }
-
-    /* Move Blockly toolbox and flyout to the right by the sidebar width when it is open */
-    #pageContainer.sidebar-open #blocklyDiv .blocklyToolboxDiv,
-    #pageContainer.sidebar-open #blocklyDiv .blocklyToolbox {
-      left: var(--task-sidebar-width) !important;
-    }
-
-    #pageContainer.sidebar-open #blocklyDiv .blocklyFlyout {
-      transform: translateX(var(--task-sidebar-width));
+      box-sizing: border-box;
+      padding-left: calc(var(--task-sidebar-width) + var(--task-toolbox-offset));
     }
 
     /* Sliding task sidebar (hidden by default) */
@@ -1672,14 +1651,14 @@
           <span id="blockHelpBtnText">Справка</span>
         </button>
         <!-- New: Task solution button -->
-        <!-- <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи"
+        <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи"
           style="margin-right: 12px;">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
-        </button> -->
+        </button>
         <!-- Support button -->
-        <!-- <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
+        <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
           <span id="supportBtnText">💙 Поддержка</span>
-        </button> -->
+        </button>
       </div>
       <div class="header-right">
         <input id="loadXmlInput" type="file" accept=".xml" style="display:none" />

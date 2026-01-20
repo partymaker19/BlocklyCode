@@ -25,6 +25,7 @@ import "./index.css";
 import {
   initTaskValidation,
   setActiveTask,
+  getActiveTask,
   getFirstUnsolvedTask,
   setActiveDifficulty,
   getActiveDifficulty,
@@ -102,116 +103,116 @@ setupCustomBlockContextMenu();
 const outputDiv = document.getElementById("output");
 const blocklyDiv = document.getElementById("blocklyDiv");
 const importBtn = document.getElementById(
-  "importBlockBtn"
+  "importBlockBtn",
 ) as HTMLButtonElement | null;
 const importModal = document.getElementById(
-  "importModal"
+  "importModal",
 ) as HTMLDivElement | null;
 const closeModalBtn = document.getElementById(
-  "closeModal"
+  "closeModal",
 ) as HTMLSpanElement | null;
 const cancelImportBtn = document.getElementById(
-  "cancelImport"
+  "cancelImport",
 ) as HTMLButtonElement | null;
 const confirmImportBtn = document.getElementById(
-  "confirmImport"
+  "confirmImport",
 ) as HTMLButtonElement | null;
 const blockJsonTextarea = document.getElementById(
-  "blockJson"
+  "blockJson",
 ) as HTMLTextAreaElement | null;
 const blockGeneratorTextarea = document.getElementById(
-  "blockGenerator"
+  "blockGenerator",
 ) as HTMLTextAreaElement | null;
 
 // Task UI elements: header toggle button and left sidebar
 const taskSolutionBtn = document.getElementById(
-  "taskSolutionBtn"
+  "taskSolutionBtn",
 ) as HTMLButtonElement | null;
 const taskSidebar = document.getElementById(
-  "taskSidebar"
+  "taskSidebar",
 ) as HTMLDivElement | null;
 
 const presetLetBtn = document.getElementById(
-  "presetLet"
+  "presetLet",
 ) as HTMLButtonElement | null;
 const presetConstBtn = document.getElementById(
-  "presetConst"
+  "presetConst",
 ) as HTMLButtonElement | null;
 const presetReturnBtn = document.getElementById(
-  "presetReturn"
+  "presetReturn",
 ) as HTMLButtonElement | null;
 // Добавляем ссылки на элементы модального окна для перетаскивания
 const modalContent = importModal?.querySelector(
-  ".modal-content"
+  ".modal-content",
 ) as HTMLDivElement | null;
 const modalHeader = importModal?.querySelector(
-  ".modal-header"
+  ".modal-header",
 ) as HTMLDivElement | null;
 // Новые элементы модалки
 const genLangTabs = document.getElementById(
-  "generatorLangTabs"
+  "generatorLangTabs",
 ) as HTMLDivElement | null;
 const genLangJsBtn = document.getElementById(
-  "genLangJs"
+  "genLangJs",
 ) as HTMLButtonElement | null;
 const genLangPyBtn = document.getElementById(
-  "genLangPy"
+  "genLangPy",
 ) as HTMLButtonElement | null;
 const genLangLuaBtn = document.getElementById(
-  "genLangLua"
+  "genLangLua",
 ) as HTMLButtonElement | null;
 // Кнопки выбора языка генератора в шапке
 const genLangHeaderContainer = document.getElementById(
-  "genLangHeaderSelect"
+  "genLangHeaderSelect",
 ) as HTMLDivElement | null;
 const genLangHeaderSelectedOption = document.getElementById(
-  "selectedOption"
+  "selectedOption",
 ) as HTMLDivElement | null;
 const genLangHeaderDropdownOptions = document.getElementById(
-  "dropdownOptions"
+  "dropdownOptions",
 ) as HTMLDivElement | null;
 const presetNotice = document.getElementById(
-  "presetNotice"
+  "presetNotice",
 ) as HTMLDivElement | null;
 const generatorErrorEl = document.getElementById(
-  "generatorError"
+  "generatorError",
 ) as HTMLDivElement | null;
 const generatorOkEl = document.getElementById(
-  "generatorOk"
+  "generatorOk",
 ) as HTMLDivElement | null;
 
 // Task sidebar elements
 const checkTaskBtn = document.getElementById(
-  "checkTaskBtn"
+  "checkTaskBtn",
 ) as HTMLButtonElement | null;
 const taskFeedbackEl = document.getElementById(
-  "taskFeedback"
+  "taskFeedback",
 ) as HTMLDivElement | null;
 const taskStarsEl = document.getElementById(
-  "taskStars"
+  "taskStars",
 ) as HTMLDivElement | null;
 const nextTaskBtn = document.getElementById(
-  "nextTaskBtn"
+  "nextTaskBtn",
 ) as HTMLButtonElement | null;
 const prevTaskBtn = document.getElementById(
-  "prevTaskBtn"
+  "prevTaskBtn",
 ) as HTMLButtonElement | null;
 const taskDifficultyBasicBtn = document.getElementById(
-  "taskDifficultyBasic"
+  "taskDifficultyBasic",
 ) as HTMLButtonElement | null;
 const taskDifficultyAdvancedBtn = document.getElementById(
-  "taskDifficultyAdvanced"
+  "taskDifficultyAdvanced",
 ) as HTMLButtonElement | null;
 
 // Theme elements
 const themeSwitchInput = document.getElementById(
-  "themeSwitchInput"
+  "themeSwitchInput",
 ) as HTMLInputElement | null;
 const themeLabelLight = document.getElementById(
-  "theme-light"
+  "theme-light",
 ) as HTMLSpanElement | null;
 const themeLabelDark = document.getElementById(
-  "theme-dark"
+  "theme-dark",
 ) as HTMLSpanElement | null;
 
 let selectedGeneratorLanguage: "javascript" | "python" | "lua" = "javascript";
@@ -241,36 +242,36 @@ function scheduleAceSync() {
 
 // Элементы модального окна справки
 const blockHelpBtn = document.getElementById(
-  "blockHelpBtn"
+  "blockHelpBtn",
 ) as HTMLButtonElement | null;
 const helpModal = document.getElementById("helpModal") as HTMLDivElement | null;
 const closeHelpModal = document.getElementById(
-  "closeHelpModal"
+  "closeHelpModal",
 ) as HTMLSpanElement | null;
 const markdownContent = document.getElementById(
-  "markdownContent"
+  "markdownContent",
 ) as HTMLDivElement | null;
 
 const supportBtn = document.getElementById(
-  "supportBtn"
+  "supportBtn",
 ) as HTMLButtonElement | null;
 const supportModal = document.getElementById(
-  "supportModal"
+  "supportModal",
 ) as HTMLDivElement | null;
 const closeSupportModal = document.getElementById(
-  "closeSupportModal"
+  "closeSupportModal",
 ) as HTMLSpanElement | null;
 const closeSupportBtn = document.getElementById(
-  "closeSupportBtn"
+  "closeSupportBtn",
 ) as HTMLButtonElement | null;
 const copyCardBtn = document.getElementById(
-  "copyCardBtn"
+  "copyCardBtn",
 ) as HTMLButtonElement | null;
 const supportCardNumberEl = document.getElementById(
-  "supportCardNumber"
+  "supportCardNumber",
 ) as HTMLDivElement | null;
 const copyCardStatusEl = document.getElementById(
-  "copyCardStatus"
+  "copyCardStatus",
 ) as HTMLDivElement | null;
 
 // ===== Блок: счётчик блоков в тулбоксе =====
@@ -287,7 +288,7 @@ function getWorkspaceBlockCount(): number {
 
 function ensureToolboxBlockCounter(): HTMLDivElement | null {
   const toolboxDiv = document.querySelector(
-    ".blocklyToolboxDiv, .blocklyToolbox"
+    ".blocklyToolboxDiv, .blocklyToolbox",
   ) as HTMLDivElement | null;
   if (!toolboxDiv) {
     console.debug("[block-counter] toolbox not found");
@@ -296,14 +297,14 @@ function ensureToolboxBlockCounter(): HTMLDivElement | null {
 
   // Контейнер со списком категорий (разные версии Blockly)
   const categoriesContainer = (toolboxDiv.querySelector(
-    ".blocklyToolboxContents"
+    ".blocklyToolboxContents",
   ) ||
     toolboxDiv.querySelector(".blocklyTreeRoot") ||
     toolboxDiv) as HTMLElement;
 
   // Создаём/находим элемент бейджа
   let el = document.getElementById(
-    "toolbox-block-counter"
+    "toolbox-block-counter",
   ) as HTMLDivElement | null;
   if (!el) {
     el = document.createElement("div");
@@ -432,7 +433,7 @@ function toggleTaskSidebar(force?: boolean) {
     const targetLeft = clamp(
       currentLeft - sidebarWidth,
       minLeft,
-      total - minRight - RESIZER_W
+      total - minRight - RESIZER_W,
     );
     // keep left pane width unchanged when toggling sidebar; do not modify its flex here
     // keep outputPane fixed at 301px via CSS; do not adjust its flex here
@@ -459,7 +460,7 @@ if (taskSolutionBtn) {
 
 function setActiveGenLangButton(lang: "javascript" | "python" | "lua") {
   [genLangJsBtn, genLangPyBtn, genLangLuaBtn].forEach(
-    (btn) => btn && btn.classList.remove("active")
+    (btn) => btn && btn.classList.remove("active"),
   );
   if (lang === "javascript") {
     if (genLangJsBtn) genLangJsBtn.classList.add("active");
@@ -476,17 +477,17 @@ function setActiveGenLangButton(lang: "javascript" | "python" | "lua") {
       lang === "javascript"
         ? "JavaScript"
         : lang === "python"
-        ? "Python"
-        : "Lua";
+          ? "Python"
+          : "Lua";
     genLangHeaderSelectedOption.textContent = label;
   }
   if (genLangHeaderDropdownOptions) {
     Array.from(
-      genLangHeaderDropdownOptions.querySelectorAll(".option")
+      genLangHeaderDropdownOptions.querySelectorAll(".option"),
     ).forEach((opt) => {
       opt.classList.toggle(
         "selected",
-        (opt as HTMLElement).dataset.value === lang
+        (opt as HTMLElement).dataset.value === lang,
       );
     });
   }
@@ -671,14 +672,14 @@ if (confirmImportBtn) {
     ) {
       alert(
         t?.FixJsGenerator ||
-          "Исправьте ошибки в генераторе JavaScript перед импортом"
+          "Исправьте ошибки в генераторе JavaScript перед импортом",
       );
       return;
     }
     const { success, error, blockType } = importBlockFromJson(
       json,
       gen,
-      selectedGeneratorLanguage as any
+      selectedGeneratorLanguage as any,
     );
     if (success) {
       registerCustomBlocks();
@@ -756,7 +757,9 @@ function setupCustomBlockContextMenu() {
         }
       } else {
         alert(
-          lang === "ru" ? "Не удалось удалить блок." : "Failed to remove block."
+          lang === "ru"
+            ? "Не удалось удалить блок."
+            : "Failed to remove block.",
         );
       }
     },
@@ -783,7 +786,7 @@ function setupCustomBlockContextMenu() {
         block?: Blockly.Block;
       }) => "enabled" | "disabled" | "hidden",
       callback: (scope: { block?: Blockly.Block }) => void,
-      weight = 195
+      weight = 195,
     ) => ({ id, displayText, preconditionFn, callback, scopeType, weight });
 
     const t = () => getAppLang() === "ru";
@@ -827,8 +830,8 @@ function setupCustomBlockContextMenu() {
                 (Blockly as any).clipboard.paste();
               } catch {}
             }
-          }
-        )
+          },
+        ),
       );
 
     if (!hasItem("custom_expand_block"))
@@ -848,8 +851,8 @@ function setupCustomBlockContextMenu() {
           (scope) => {
             const b: any = scope.block;
             b?.setCollapsed?.(false);
-          }
-        )
+          },
+        ),
       );
 
     if (!hasItem("custom_enable_block"))
@@ -874,8 +877,8 @@ function setupCustomBlockContextMenu() {
             } catch {
               b?.setDisabled?.(false);
             }
-          }
-        )
+          },
+        ),
       );
 
     if (!hasItem("custom_remove_comment"))
@@ -894,8 +897,8 @@ function setupCustomBlockContextMenu() {
           (scope) => {
             const b: any = scope.block;
             b?.setCommentText?.(null);
-          }
-        )
+          },
+        ),
       );
 
     if (!hasItem("custom_inline_inputs"))
@@ -916,8 +919,8 @@ function setupCustomBlockContextMenu() {
           (scope) => {
             const b: any = scope.block;
             b?.setInputsInline?.(true);
-          }
-        )
+          },
+        ),
       );
 
     if (!hasItem("custom_external_inputs"))
@@ -938,8 +941,8 @@ function setupCustomBlockContextMenu() {
           (scope) => {
             const b: any = scope.block;
             b?.setInputsInline?.(false);
-          }
-        )
+          },
+        ),
       );
   } catch {}
 }
@@ -1173,16 +1176,16 @@ if (genLangHeaderSelectedOption && genLangHeaderDropdownOptions) {
     selectedGeneratorLanguage === "javascript"
       ? "JavaScript"
       : selectedGeneratorLanguage === "python"
-      ? "Python"
-      : "Lua";
+        ? "Python"
+        : "Lua";
   genLangHeaderSelectedOption.textContent = label;
   Array.from(genLangHeaderDropdownOptions.querySelectorAll(".option")).forEach(
     (opt) => {
       opt.classList.toggle(
         "selected",
-        (opt as HTMLElement).dataset.value === selectedGeneratorLanguage
+        (opt as HTMLElement).dataset.value === selectedGeneratorLanguage,
       );
-    }
+    },
   );
 }
 
@@ -1196,14 +1199,14 @@ localizeTooltips(defaultLang);
 // Локализуем кнопку и модалку справки
 localizeHelpUI(defaultLang);
 localizeSupportUI(defaultLang);
-// Установить локализованный текст для кнопки следующей задачи и элементы панели задач
-{
+
+function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   const t = (window as any)._currentLocalizedStrings;
+
   const nextLabel =
-    t?.NextTask || (defaultLang === "ru" ? "Следующая задача" : "Next task");
+    t?.NextTask || (lang === "ru" ? "Следующая задача" : "Next task");
   const prevLabel =
-    t?.PrevTask ||
-    (defaultLang === "ru" ? "Предыдущая задача" : "Previous task");
+    t?.PrevTask || (lang === "ru" ? "Предыдущая задача" : "Previous task");
   const btn = document.getElementById("nextTaskBtn");
   if (btn) btn.textContent = `${nextLabel} →`;
   const prev = document.getElementById("prevTaskBtn");
@@ -1212,57 +1215,160 @@ localizeSupportUI(defaultLang);
   const solText = document.getElementById("taskSolutionBtnText");
   if (solText)
     (solText as HTMLElement).textContent = `ℹ️ ${
-      t?.TaskSolutions ||
-      (defaultLang === "ru" ? "Решение задач" : "Task Solutions")
+      t?.TaskSolutions || (lang === "ru" ? "Решение задач" : "Task Solutions")
     }`;
 
   const checkBtn = document.getElementById("checkTaskBtn");
   if (checkBtn)
     (checkBtn as HTMLElement).textContent =
       t?.CheckSolution ||
-      (defaultLang === "ru" ? "Проверить решение" : "Check solution");
+      (lang === "ru" ? "Проверить решение" : "Check solution");
 
   const diffBasic = document.getElementById("taskDifficultyBasic");
   if (diffBasic)
     (diffBasic as HTMLElement).textContent =
-      t?.TaskDifficultyBasic || (defaultLang === "ru" ? "Основа" : "Basic");
+      t?.TaskDifficultyBasic || (lang === "ru" ? "Основа" : "Basic");
   const diffAdvanced = document.getElementById("taskDifficultyAdvanced");
   if (diffAdvanced)
     (diffAdvanced as HTMLElement).textContent =
-      t?.TaskDifficultyAdvanced ||
-      (defaultLang === "ru" ? "Продвинутый" : "Advanced");
+      t?.TaskDifficultyAdvanced || (lang === "ru" ? "Продвинутый" : "Advanced");
 
-  const criteriaEl = document.querySelector("#taskSidebar .task-criteria");
-  if (criteriaEl) {
-    const text =
+  const criteriaLabel = document.getElementById("taskStarsCriteriaLabel");
+  if (criteriaLabel) {
+    (criteriaLabel as HTMLElement).textContent =
       t?.StarsCriteria ||
-      (defaultLang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
-    const firstNode = criteriaEl.firstChild;
-    if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
-      (firstNode as Text).textContent = text + "\n";
-    }
-
-    const ul = criteriaEl.querySelector("ul");
-    if (ul) {
-      const items = ul.querySelectorAll("li");
-      const starsOptimal =
-        t?.StarsOptimal ||
-        (defaultLang === "ru"
-          ? "оптимально (минимум блоков)"
-          : "optimal (minimum blocks)");
-      const starsGood =
-        t?.StarsGood || (defaultLang === "ru" ? "хорошо" : "good");
-      const starsCorrect =
-        t?.StarsCorrect ||
-        (defaultLang === "ru" ? "решение верное" : "solution correct");
-      if (items[0])
-        (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
-      if (items[1]) (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
-      if (items[2])
-        (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
-    }
+      (lang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
   }
+  const starsOptimal =
+    t?.StarsOptimal ||
+    (lang === "ru"
+      ? "оптимально (минимум блоков)"
+      : "optimal (minimum blocks)");
+  const starsGood = t?.StarsGood || (lang === "ru" ? "хорошо" : "good");
+  const starsCorrect =
+    t?.StarsCorrect || (lang === "ru" ? "решение верное" : "solution correct");
+  const optimalEl = document.getElementById("taskStarsCriteriaOptimal");
+  if (optimalEl)
+    (optimalEl as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
+  const goodEl = document.getElementById("taskStarsCriteriaGood");
+  if (goodEl) (goodEl as HTMLElement).textContent = `★★ — ${starsGood}`;
+  const correctEl = document.getElementById("taskStarsCriteriaCorrect");
+  if (correctEl) (correctEl as HTMLElement).textContent = `★ — ${starsCorrect}`;
+
+  const consoleHeader = document.getElementById("consoleOutputHeader");
+  if (consoleHeader)
+    (consoleHeader as HTMLElement).textContent =
+      t?.ConsoleOutputHeader ||
+      (lang === "ru" ? "Вывод в консоль:" : "Console output:");
+
+  const consoleDesc = document.getElementById("consoleOutputDescription");
+  if (consoleDesc)
+    (consoleDesc as HTMLElement).textContent =
+      t?.ConsoleOutputDescription ||
+      (lang === "ru"
+        ? "Для вывода информации в консоль используйте следующие функции в зависимости от выбранного языка:"
+        : "Use the following functions to print to the console depending on the selected language:");
+
+  const consoleNote = document.getElementById("consoleOutputNote");
+  if (consoleNote)
+    (consoleNote as HTMLElement).textContent =
+      t?.ConsoleOutputNote ||
+      (lang === "ru"
+        ? "Примечание: Результат вывода будет отображаться в окне вывода справа внизу."
+        : "Note: The output will be shown in the output window at the bottom right.");
+
+  const setText = (id: string, value: any) => {
+    const el = document.getElementById(id);
+    if (el && typeof value === "string")
+      (el as HTMLElement).textContent = value;
+  };
+
+  setText("consoleJsLogTextCode", t?.ConsoleJsLogTextCode);
+  setText("consoleJsLogNumberCode", t?.ConsoleJsLogNumberCode);
+  setText("consoleJsLogTextVarCode", t?.ConsoleJsLogTextVarCode);
+  setText("consoleJsTemplateCode", t?.ConsoleJsTemplateCode);
+  setText("consolePyPrintTextCode", t?.ConsolePyPrintTextCode);
+  setText("consolePyPrintNumberCode", t?.ConsolePyPrintNumberCode);
+  setText("consolePyPrintTextVarCode", t?.ConsolePyPrintTextVarCode);
+  setText("consolePyFStringCode", t?.ConsolePyFStringCode);
+  setText("consoleLuaPrintTextCode", t?.ConsoleLuaPrintTextCode);
+  setText("consoleLuaPrintNumberCode", t?.ConsoleLuaPrintNumberCode);
+  setText("consoleLuaPrintTextVarCode", t?.ConsoleLuaPrintTextVarCode);
+  setText("consoleLuaFormatCode", t?.ConsoleLuaFormatCode);
+
+  const textDesc =
+    t?.ConsoleTextDesc || (lang === "ru" ? "вывод текста" : "print text");
+  const numberDesc =
+    t?.ConsoleNumberDesc || (lang === "ru" ? "вывод числа" : "print number");
+  const textVarDesc =
+    t?.ConsoleTextVarDesc ||
+    (lang === "ru" ? "вывод текста и значения" : "print text and value");
+  const jsTemplateDesc =
+    t?.ConsoleJsTemplateDesc ||
+    (lang === "ru" ? "шаблонные строки" : "template strings");
+  const pyFStringDesc =
+    t?.ConsolePyFStringDesc ||
+    (lang === "ru"
+      ? "f-строки для форматирования"
+      : "f-strings for formatting");
+  const luaFormatDesc =
+    t?.ConsoleLuaFormatDesc ||
+    (lang === "ru" ? "форматирование строк" : "string formatting");
+
+  setText("consoleJsLogTextDesc", textDesc);
+  setText("consoleJsLogNumberDesc", numberDesc);
+  setText("consoleJsLogTextVarDesc", textVarDesc);
+  setText("consoleJsTemplateDesc", jsTemplateDesc);
+  setText("consolePyPrintTextDesc", textDesc);
+  setText("consolePyPrintNumberDesc", numberDesc);
+  setText("consolePyPrintTextVarDesc", textVarDesc);
+  setText("consolePyFStringDesc", pyFStringDesc);
+  setText("consoleLuaPrintTextDesc", textDesc);
+  setText("consoleLuaPrintNumberDesc", numberDesc);
+  setText("consoleLuaPrintTextVarDesc", textVarDesc);
+  setText("consoleLuaFormatDesc", luaFormatDesc);
+
+  setText(
+    "dataTypesHeader",
+    t?.DataTypesHeader || (lang === "ru" ? "Типы данных:" : "Data types:"),
+  );
+  setText(
+    "dataTypesDescription",
+    t?.DataTypesDescription ||
+      (lang === "ru"
+        ? "Текст (строка) нужно оборачивать в кавычки, а числа — нет."
+        : "Text (a string) requires quotes, but numbers do not."),
+  );
+  setText(
+    "dataTypesExamplesHeader",
+    t?.DataTypesExamplesHeader || (lang === "ru" ? "Примеры:" : "Examples:"),
+  );
+  setText("dataTypesExampleStringCode", t?.DataTypesExampleStringCode);
+  setText("dataTypesExampleStringDesc", t?.DataTypesExampleStringDesc);
+  setText("dataTypesExampleNumberCode", t?.DataTypesExampleNumberCode);
+  setText("dataTypesExampleNumberDesc", t?.DataTypesExampleNumberDesc);
+  setText("dataTypesConsoleTextCode", t?.DataTypesConsoleTextCode);
+  setText("dataTypesConsoleNumberCode", t?.DataTypesConsoleNumberCode);
+  setText("dataTypesConsoleErrorCode", t?.DataTypesConsoleErrorCode);
+  setText("dataTypesConsoleTextDesc", t?.DataTypesConsoleOkDesc);
+  setText("dataTypesConsoleNumberDesc", t?.DataTypesConsoleOkDesc);
+  setText("dataTypesConsoleErrorDesc", t?.DataTypesConsoleErrorDesc);
+
+  setText(
+    "variableInfoHeader",
+    t?.VariableInfoHeader ||
+      (lang === "ru" ? "Что такое переменная?" : "What is a variable?"),
+  );
+  setText(
+    "variableInfoText",
+    t?.VariableInfoText ||
+      (lang === "ru"
+        ? "Переменная — это “коробка” с именем, в которой можно хранить значение (например, число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте — тогда не надо искать и править число везде."
+        : "A variable is like a named “box” that stores a value (for example, a number). It’s useful when you want to reuse the same value or change it in one place instead of editing it everywhere."),
+  );
 }
+
+localizeTaskSidebarStaticUI(defaultLang);
 
 // Определяем, была ли страница перезагружена
 const __navEntries =
@@ -1286,7 +1392,7 @@ refreshWorkspaceWithCustomToolbox();
 
 // Обработчик переключения языка
 const langSwitchInput = document.getElementById(
-  "langSwitchInput"
+  "langSwitchInput",
 ) as HTMLInputElement | null;
 if (langSwitchInput) {
   // Установить состояние переключателя в соответствии с текущим языком
@@ -1317,76 +1423,10 @@ if (langSwitchInput) {
       // ACE специфичные строки (кнопка Save, статусбар)
       const { refreshAceUILanguage } = require("./aceEditor");
       if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
-      // Обновить текст кнопки следующей задачи и элементы панели задач
-      {
-        const t = (window as any)._currentLocalizedStrings;
-        const nextLabel =
-          t?.NextTask || (newLang === "ru" ? "Следующая задача" : "Next task");
-        const prevLabel =
-          t?.PrevTask ||
-          (newLang === "ru" ? "Предыдущая задача" : "Previous task");
-        const btn = document.getElementById("nextTaskBtn");
-        if (btn) btn.textContent = `${nextLabel} →`;
-        const prev = document.getElementById("prevTaskBtn");
-        if (prev) prev.textContent = `← ${prevLabel}`;
-
-        const solText = document.getElementById("taskSolutionBtnText");
-        if (solText)
-          (solText as HTMLElement).textContent = `ℹ️ ${
-            t?.TaskSolutions ||
-            (newLang === "ru" ? "Решение задач" : "Task Solutions")
-          }`;
-
-        const checkBtn = document.getElementById("checkTaskBtn");
-        if (checkBtn)
-          (checkBtn as HTMLElement).textContent =
-            t?.CheckSolution ||
-            (newLang === "ru" ? "Проверить решение" : "Check solution");
-
-        const diffBasic = document.getElementById("taskDifficultyBasic");
-        if (diffBasic)
-          (diffBasic as HTMLElement).textContent =
-            t?.TaskDifficultyBasic || (newLang === "ru" ? "Основа" : "Basic");
-        const diffAdvanced = document.getElementById("taskDifficultyAdvanced");
-        if (diffAdvanced)
-          (diffAdvanced as HTMLElement).textContent =
-            t?.TaskDifficultyAdvanced ||
-            (newLang === "ru" ? "Продвинутый" : "Advanced");
-
-        const criteriaEl = document.querySelector(
-          "#taskSidebar .task-criteria"
-        );
-        if (criteriaEl) {
-          const text =
-            t?.StarsCriteria ||
-            (newLang === "ru" ? "Критерии звёзд:" : "Stars criteria:");
-          const firstNode = criteriaEl.firstChild;
-          if (firstNode && firstNode.nodeType === Node.TEXT_NODE) {
-            (firstNode as Text).textContent = text + "\n";
-          }
-
-          const ul = criteriaEl.querySelector("ul");
-          if (ul) {
-            const items = ul.querySelectorAll("li");
-            const starsOptimal =
-              t?.StarsOptimal ||
-              (newLang === "ru"
-                ? "оптимально (минимум блоков)"
-                : "optimal (minimum blocks)");
-            const starsGood =
-              t?.StarsGood || (newLang === "ru" ? "хорошо" : "good");
-            const starsCorrect =
-              t?.StarsCorrect ||
-              (newLang === "ru" ? "решение верное" : "solution correct");
-            if (items[0])
-              (items[0] as HTMLElement).textContent = `★★★ — ${starsOptimal}`;
-            if (items[1])
-              (items[1] as HTMLElement).textContent = `★★ — ${starsGood}`;
-            if (items[2])
-              (items[2] as HTMLElement).textContent = `★ — ${starsCorrect}`;
-          }
-        }
-      }
+      localizeTaskSidebarStaticUI(newLang);
+      try {
+        setActiveTask(getActiveTask());
+      } catch {}
       scheduleAceSync();
       requestAnimationFrame(() => updateToolboxBlockCounterLabel());
     }, 120);
@@ -1413,7 +1453,7 @@ class AnnotationManager {
 
   constructor() {
     this.overlay = document.getElementById(
-      "annotationOverlay"
+      "annotationOverlay",
     ) as HTMLDivElement;
     this.toolbar = document.getElementById("annotToolbar") as HTMLDivElement;
     this.initUI();
@@ -1423,7 +1463,7 @@ class AnnotationManager {
 
   private initUI() {
     const toggleBtn = document.getElementById(
-      "annotateToggleBtn"
+      "annotateToggleBtn",
     ) as HTMLButtonElement | null;
     if (toggleBtn) {
       toggleBtn.addEventListener("click", () => this.toggle());
@@ -1512,7 +1552,7 @@ class AnnotationManager {
           (id === "annotBrush" && t === "brush") ||
             (id === "annotLine" && t === "line") ||
             (id === "annotArrow" && t === "arrow") ||
-            (id === "annotRect" && t === "rect")
+            (id === "annotRect" && t === "rect"),
         );
     });
   }
@@ -1716,17 +1756,17 @@ try {
 
 // Split layout elements
 const pageContainer = document.getElementById(
-  "pageContainer"
+  "pageContainer",
 ) as HTMLDivElement | null;
 const outputPaneEl = document.getElementById(
-  "outputPane"
+  "outputPane",
 ) as HTMLDivElement | null;
 const codePaneEl = document.getElementById("codePane") as HTMLDivElement | null;
 const verticalResizer = document.getElementById(
-  "verticalResizer"
+  "verticalResizer",
 ) as HTMLDivElement | null;
 const horizontalResizer = document.getElementById(
-  "horizontalResizer"
+  "horizontalResizer",
 ) as HTMLDivElement | null;
 
 // Coalesce UI-dependent resizes (Blockly svg + Ace) in a single rAF tick
@@ -1914,11 +1954,11 @@ function openImportModal() {
     const rect = modalContent.getBoundingClientRect();
     const centerLeft = Math.max(
       0,
-      Math.round(window.innerWidth / 2 - rect.width / 2)
+      Math.round(window.innerWidth / 2 - rect.width / 2),
     );
     const centerTop = Math.max(
       0,
-      Math.round(window.innerHeight / 2 - rect.height / 2)
+      Math.round(window.innerHeight / 2 - rect.height / 2),
     );
     // Используем transform для центрирования, как в CSS
     modalContent.style.left = "50%";
@@ -2095,14 +2135,14 @@ function refreshWorkspaceWithCustomToolbox() {
   } catch {}
   try {
     newWs.addChangeListener(
-      (BlockDynamicConnection as any).finalizeConnections
+      (BlockDynamicConnection as any).finalizeConnections,
     );
   } catch {}
   if (currentState)
     Blockly.serialization.workspaces.load(
       currentState,
       newWs as Blockly.Workspace,
-      undefined
+      undefined,
     );
   ws = newWs as Blockly.WorkspaceSvg;
 
@@ -2130,7 +2170,7 @@ function refreshWorkspaceWithCustomToolbox() {
         };
       }
       const origSetSelected = (Blockly as any).common.setSelected.bind(
-        (Blockly as any).common
+        (Blockly as any).common,
       );
       (Blockly as any).common.setSelected = function (sel: any) {
         try {
@@ -2165,7 +2205,7 @@ function refreshWorkspaceWithCustomToolbox() {
         "title",
         lastSavedAt
           ? `${titleBase}: ${new Date(lastSavedAt).toLocaleString()}`
-          : titleBase
+          : titleBase,
       );
     });
   }
@@ -2223,11 +2263,11 @@ function refreshWorkspaceWithCustomToolbox() {
     if (taskDifficultyAdvancedBtn) {
       taskDifficultyAdvancedBtn.classList.toggle(
         "primary",
-        diff === "advanced"
+        diff === "advanced",
       );
       taskDifficultyAdvancedBtn.classList.toggle(
         "secondary",
-        diff !== "advanced"
+        diff !== "advanced",
       );
     }
   };
@@ -2255,13 +2295,13 @@ function refreshWorkspaceWithCustomToolbox() {
   requestAnimationFrame(() => updateToolboxBlockCounterLabel());
 }
 const saveXmlBtn = document.getElementById(
-  "saveXmlBtn"
+  "saveXmlBtn",
 ) as HTMLButtonElement | null;
 const loadXmlBtn = document.getElementById(
-  "loadXmlBtn"
+  "loadXmlBtn",
 ) as HTMLButtonElement | null;
 const loadXmlInput = document.getElementById(
-  "loadXmlInput"
+  "loadXmlInput",
 ) as HTMLInputElement | null;
 if (saveXmlBtn) {
   saveXmlBtn.addEventListener("click", async () => {
@@ -2286,7 +2326,7 @@ if (saveXmlBtn) {
         });
         const writable = await handle.createWritable();
         await writable.write(
-          new Blob([xmlText], { type: "application/xml;charset=utf-8" })
+          new Blob([xmlText], { type: "application/xml;charset=utf-8" }),
         );
         await writable.close();
       } else {
@@ -2294,7 +2334,7 @@ if (saveXmlBtn) {
           (typeof w?.prompt === "function"
             ? w.prompt(
                 getAppLang() === "ru" ? "Имя файла:" : "File name:",
-                suggested
+                suggested,
               )
             : null) || suggested;
         const blob = new Blob([xmlText], {
@@ -2401,7 +2441,7 @@ function initHelpModal() {
         helpModal.style.display = "block";
         // Центрируем окно при открытии (сбрасываем возможные координаты после drag)
         const helpModalContent = document.getElementById(
-          "helpModalContent"
+          "helpModalContent",
         ) as HTMLDivElement | null;
         if (helpModalContent) {
           helpModalContent.style.left = "50%";

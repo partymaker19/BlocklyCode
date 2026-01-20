@@ -1857,11 +1857,11 @@
           </p>
           <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
           <div class="task-criteria">
-            Критерии звёзд:
+            <span id="taskStarsCriteriaLabel">Критерии звёзд:</span>
             <ul>
-              <li>★★★ — оптимально (минимум блоков)</li>
-              <li>★★ — хорошо</li>
-              <li>★ — решение верное</li>
+              <li id="taskStarsCriteriaOptimal">★★★ — оптимально (минимум блоков)</li>
+              <li id="taskStarsCriteriaGood">★★ — хорошо</li>
+              <li id="taskStarsCriteriaCorrect">★ — решение верное</li>
             </ul>
           </div>
           <button id="checkTaskBtn" class="btn primary" style="margin-top:8px;">Проверить решение</button>
@@ -1869,41 +1869,80 @@
             <button id="prevTaskBtn" class="btn secondary" disabled>← Предыдущая задача</button>
             <button id="nextTaskBtn" class="btn secondary" disabled>Следующая задача →</button>
           </div>
-          <div class="console-output-info">
-            <h4>Вывод в консоль:</h4>
-            <p>Для вывода информации в консоль используйте следующие функции в зависимости от выбранного языка:</p>
+          <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
+          <div id="taskStars" class="task-stars" aria-hidden="true"></div>
+          <div id="consoleOutputInfoSection" class="console-output-info">
+            <h4 id="consoleOutputHeader">Вывод в консоль:</h4>
+            <p id="consoleOutputDescription">Для вывода информации в консоль используйте следующие функции в зависимости
+              от выбранного языка:</p>
             <ul>
               <li><strong>JavaScript:</strong>
                 <ul>
-                  <li><code>console.log("текст")</code> — вывод текста</li>
-                  <li><code>console.log(число)</code> — вывод числа</li>
-                  <li><code>console.log("текст", переменная)</code> — вывод текста и значения</li>
-                  <li><code>console.log(`Значение: ${переменная}`)</code> — шаблонные строки</li>
+                  <li><code id="consoleJsLogTextCode">console.log("текст")</code> — <span
+                      id="consoleJsLogTextDesc">вывод текста</span></li>
+                  <li><code id="consoleJsLogNumberCode">console.log(число)</code> — <span
+                      id="consoleJsLogNumberDesc">вывод числа</span></li>
+                  <li><code id="consoleJsLogTextVarCode">console.log("текст", переменная)</code> — <span
+                      id="consoleJsLogTextVarDesc">вывод текста и значения</span></li>
+                  <li><code id="consoleJsTemplateCode">console.log(`Значение: ${переменная}`)</code> — <span
+                      id="consoleJsTemplateDesc">шаблонные строки</span></li>
                 </ul>
               </li>
               <li><strong>Python:</strong>
                 <ul>
-                  <li><code>print("текст")</code> — вывод текста</li>
-                  <li><code>print(число)</code> — вывод числа</li>
-                  <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
-                  <li><code>print(f"Значение: {переменная}")</code> — f-строки для форматирования</li>
+                  <li><code id="consolePyPrintTextCode">print("текст")</code> — <span id="consolePyPrintTextDesc">вывод
+                      текста</span></li>
+                  <li><code id="consolePyPrintNumberCode">print(число)</code> — <span
+                      id="consolePyPrintNumberDesc">вывод числа</span></li>
+                  <li><code id="consolePyPrintTextVarCode">print("текст", переменная)</code> — <span
+                      id="consolePyPrintTextVarDesc">вывод текста и значения</span></li>
+                  <li><code id="consolePyFStringCode">print(f"Значение: {переменная}")</code> — <span
+                      id="consolePyFStringDesc">f-строки для форматирования</span></li>
                 </ul>
               </li>
               <li><strong>Lua:</strong>
                 <ul>
-                  <li><code>print("текст")</code> — вывод текста</li>
-                  <li><code>print(число)</code> — вывод числа</li>
-                  <li><code>print("текст", переменная)</code> — вывод текста и значения</li>
-                  <li><code>print(string.format("Значение: %s", переменная))</code> — форматирование строк</li>
+                  <li><code id="consoleLuaPrintTextCode">print("текст")</code> — <span
+                      id="consoleLuaPrintTextDesc">вывод текста</span></li>
+                  <li><code id="consoleLuaPrintNumberCode">print(число)</code> — <span
+                      id="consoleLuaPrintNumberDesc">вывод числа</span></li>
+                  <li><code id="consoleLuaPrintTextVarCode">print("текст", переменная)</code> — <span
+                      id="consoleLuaPrintTextVarDesc">вывод текста и значения</span></li>
+                  <li><code id="consoleLuaFormatCode">print(string.format("Значение: %s", переменная))</code> — <span
+                      id="consoleLuaFormatDesc">форматирование строк</span></li>
                 </ul>
               </li>
             </ul>
-            <p style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет отображаться в окне
+            <p id="consoleOutputNote" style="font-size: 0.9em; font-style: italic;">Примечание: Результат вывода будет
+              отображаться в окне
               вывода
               справа внизу.</p>
           </div>
-          <div id="taskFeedback" class="task-feedback" aria-live="polite"></div>
-          <div id="taskStars" class="task-stars" aria-hidden="true"></div>
+          <div id="dataTypesInfoSection" class="console-output-info" style="display:none;">
+            <h4 id="dataTypesHeader">Типы данных:</h4>
+            <p id="dataTypesDescription">Текст (строка) нужно оборачивать в кавычки, а числа — нет.</p>
+            <h4 id="dataTypesExamplesHeader" style="margin-top:12px;">Примеры:</h4>
+            <ul>
+              <li><code id="dataTypesExampleStringCode">"Привет"</code> — <span id="dataTypesExampleStringDesc">строка
+                  (текст)</span></li>
+              <li><code id="dataTypesExampleNumberCode">5</code> — <span id="dataTypesExampleNumberDesc">число</span>
+              </li>
+            </ul>
+            <ul>
+              <li><code id="dataTypesConsoleTextCode">console.log("Привет")</code> — <span
+                  id="dataTypesConsoleTextDesc">правильно</span></li>
+              <li><code id="dataTypesConsoleNumberCode">console.log(5)</code> — <span
+                  id="dataTypesConsoleNumberDesc">правильно</span></li>
+              <li><code id="dataTypesConsoleErrorCode">console.log(Привет)</code> — <span
+                  id="dataTypesConsoleErrorDesc">ошибка (нет кавычек)</span></li>
+            </ul>
+          </div>
+          <div id="variableInfoSection" class="console-output-info" style="display:none;">
+            <h4 id="variableInfoHeader">Что такое переменная?</h4>
+            <p id="variableInfoText">Переменная — это “коробка” с именем, в которой можно хранить значение (например,
+              число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте —
+              тогда не надо искать и править число везде.</p>
+          </div>
         </div>
       </div>
     </aside>

@@ -1343,10 +1343,43 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
     "dataTypesExamplesHeader",
     t?.DataTypesExamplesHeader || (lang === "ru" ? "Примеры:" : "Examples:"),
   );
+  setText(
+    "dataTypesKindsNote",
+    t?.DataTypesKindsNote ||
+      (lang === "ru"
+        ? "В разных языках названия могут немного отличаться, но идея одинаковая."
+        : "Names can vary a bit between languages, but the idea is the same."),
+  );
+  setText(
+    "dataTypesBasicsHeader",
+    t?.DataTypesBasicsHeader ||
+      (lang === "ru" ? "Основные типы:" : "Core types:"),
+  );
+  setText("dataTypesStringLine", t?.DataTypesStringLine);
+  setText("dataTypesNumberLine", t?.DataTypesNumberLine);
+  setText("dataTypesFloatLine", t?.DataTypesFloatLine);
+  setText("dataTypesBoolLine", t?.DataTypesBoolLine);
   setText("dataTypesExampleStringCode", t?.DataTypesExampleStringCode);
   setText("dataTypesExampleStringDesc", t?.DataTypesExampleStringDesc);
   setText("dataTypesExampleNumberCode", t?.DataTypesExampleNumberCode);
   setText("dataTypesExampleNumberDesc", t?.DataTypesExampleNumberDesc);
+  setText("dataTypesExampleFloatCode", t?.DataTypesExampleFloatCode);
+  setText("dataTypesExampleFloatDesc", t?.DataTypesExampleFloatDesc);
+  setText("dataTypesExampleBooleanCode", t?.DataTypesExampleBooleanCode);
+  setText("dataTypesExampleBooleanDesc", t?.DataTypesExampleBooleanDesc);
+  setText("dataTypesExampleNullCode", t?.DataTypesExampleNullCode);
+  setText("dataTypesExampleNullDesc", t?.DataTypesExampleNullDesc);
+  setText("dataTypesExampleUndefinedCode", t?.DataTypesExampleUndefinedCode);
+  setText("dataTypesExampleUndefinedDesc", t?.DataTypesExampleUndefinedDesc);
+  setText("dataTypesExampleArrayCode", t?.DataTypesExampleArrayCode);
+  setText("dataTypesExampleArrayDesc", t?.DataTypesExampleArrayDesc);
+  setText("dataTypesExampleObjectCode", t?.DataTypesExampleObjectCode);
+  setText("dataTypesExampleObjectDesc", t?.DataTypesExampleObjectDesc);
+  setText(
+    "dataTypesConsoleExamplesHeader",
+    t?.DataTypesConsoleExamplesHeader ||
+      (lang === "ru" ? "Примеры вывода:" : "Output examples:"),
+  );
   setText("dataTypesConsoleTextCode", t?.DataTypesConsoleTextCode);
   setText("dataTypesConsoleNumberCode", t?.DataTypesConsoleNumberCode);
   setText("dataTypesConsoleErrorCode", t?.DataTypesConsoleErrorCode);

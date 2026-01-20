@@ -80,7 +80,7 @@ export function setAppLang(lang: AppLang): void {
 }
 
 export function localizedToolbox(
-  lang: AppLang
+  lang: AppLang,
 ): BlocklyCore.utils.toolbox.ToolboxInfo {
   const t = {
     en: {
@@ -123,7 +123,7 @@ export function localizedToolbox(
     },
   }[lang as AppLang];
   const tb = JSON.parse(
-    JSON.stringify(originalToolbox)
+    JSON.stringify(originalToolbox),
   ) as BlocklyCore.utils.toolbox.ToolboxInfo;
   for (const item of tb.contents) {
     if (item.kind === "category") {
@@ -232,16 +232,16 @@ export function localizeImportUI(lang: AppLang): void {
   const presetsLabelEl = document.getElementById("presetsLabel");
   const presetNoticeEl = document.getElementById("presetNotice");
   const presetLetBtn = document.getElementById(
-    "presetLet"
+    "presetLet",
   ) as HTMLButtonElement | null;
   const presetConstBtn = document.getElementById(
-    "presetConst"
+    "presetConst",
   ) as HTMLButtonElement | null;
   const presetReturnBtn = document.getElementById(
-    "presetReturn"
+    "presetReturn",
   ) as HTMLButtonElement | null;
   const blockJsonTextarea = document.getElementById(
-    "blockJson"
+    "blockJson",
   ) as HTMLTextAreaElement | null;
 
   if (importBtnText) importBtnText.textContent = t.ImportBlocks;
@@ -304,11 +304,32 @@ export function localizeImportUI(lang: AppLang): void {
           DataTypesHeader: "Типы данных:",
           DataTypesDescription:
             "Текст (строка) нужно оборачивать в кавычки, а числа — нет.",
-          DataTypesExamplesHeader: "Примеры:",
+          DataTypesExamplesHeader: "Какие типы данных бывают:",
+          DataTypesKindsNote:
+            "В разных языках названия могут немного отличаться, но идея одинаковая.",
+          DataTypesBasicsHeader: "Основные типы:",
+          DataTypesStringLine: "string (строка): текст. Пишется в кавычках.",
+          DataTypesNumberLine: "number (число): числа (и целые, и дробные).",
+          DataTypesFloatLine:
+            "float (дробное число): число с точкой, например 3.14.",
+          DataTypesBoolLine: "bool/boolean: логический тип — true или false.",
           DataTypesExampleStringCode: '"Привет"',
           DataTypesExampleStringDesc: "строка (текст)",
           DataTypesExampleNumberCode: "5",
           DataTypesExampleNumberDesc: "число",
+          DataTypesExampleFloatCode: "3.14",
+          DataTypesExampleFloatDesc: "дробное число",
+          DataTypesExampleBooleanCode: "true",
+          DataTypesExampleBooleanDesc: "логическое значение (да/нет)",
+          DataTypesExampleNullCode: "null",
+          DataTypesExampleNullDesc: "«пустое значение»",
+          DataTypesExampleUndefinedCode: "undefined",
+          DataTypesExampleUndefinedDesc: "значение “не задано”",
+          DataTypesExampleArrayCode: "[1, 2, 3]",
+          DataTypesExampleArrayDesc: "список (массив)",
+          DataTypesExampleObjectCode: '{ name: "Ann" }',
+          DataTypesExampleObjectDesc: "объект (набор свойств)",
+          DataTypesConsoleExamplesHeader: "Примеры вывода:",
           DataTypesConsoleOkDesc: "правильно",
           DataTypesConsoleErrorDesc: "ошибка (нет кавычек)",
           DataTypesConsoleTextCode: 'console.log("Привет")',
@@ -358,11 +379,32 @@ export function localizeImportUI(lang: AppLang): void {
           DataTypesHeader: "Data types:",
           DataTypesDescription:
             "Text (a string) requires quotes, but numbers do not.",
-          DataTypesExamplesHeader: "Examples:",
+          DataTypesExamplesHeader: "Common data types:",
+          DataTypesKindsNote:
+            "Names can vary a bit between languages, but the idea is the same.",
+          DataTypesBasicsHeader: "Core types:",
+          DataTypesStringLine: "string: text. Written in quotes.",
+          DataTypesNumberLine:
+            "number: numeric values (integers and decimals).",
+          DataTypesFloatLine: "float: a decimal number like 3.14.",
+          DataTypesBoolLine: "bool/boolean: logical type — true or false.",
           DataTypesExampleStringCode: '"Hello"',
           DataTypesExampleStringDesc: "string (text)",
           DataTypesExampleNumberCode: "5",
           DataTypesExampleNumberDesc: "number",
+          DataTypesExampleFloatCode: "3.14",
+          DataTypesExampleFloatDesc: "decimal number",
+          DataTypesExampleBooleanCode: "true",
+          DataTypesExampleBooleanDesc: "boolean (yes/no)",
+          DataTypesExampleNullCode: "null",
+          DataTypesExampleNullDesc: "empty value",
+          DataTypesExampleUndefinedCode: "undefined",
+          DataTypesExampleUndefinedDesc: "value is not set",
+          DataTypesExampleArrayCode: "[1, 2, 3]",
+          DataTypesExampleArrayDesc: "array (list)",
+          DataTypesExampleObjectCode: '{ name: "Ann" }',
+          DataTypesExampleObjectDesc: "object (a set of properties)",
+          DataTypesConsoleExamplesHeader: "Output examples:",
           DataTypesConsoleOkDesc: "correct",
           DataTypesConsoleErrorDesc: "error (missing quotes)",
           DataTypesConsoleTextCode: 'console.log("Hello")',
@@ -385,7 +427,7 @@ export function localizeImportUI(lang: AppLang): void {
 export function localizeTooltips(lang: AppLang): void {
   const setAttrs = (
     el: Element | null,
-    attrs: Record<string, string | undefined>
+    attrs: Record<string, string | undefined>,
   ) => {
     if (!el) return;
     Object.entries(attrs).forEach(([k, v]) => {
@@ -560,7 +602,7 @@ export function localizeAceSettingsPanel(lang: AppLang): void {
 
   // Update keybinding "default" option text
   const kb = document.getElementById(
-    "aceKeybinding"
+    "aceKeybinding",
   ) as HTMLSelectElement | null;
   if (kb) {
     const opt = Array.from(kb.options).find((o) => o.value === "default");
@@ -569,15 +611,15 @@ export function localizeAceSettingsPanel(lang: AppLang): void {
 
   // Update theme select option names for Light and Monokai
   const themeSel = document.getElementById(
-    "aceThemeSelect"
+    "aceThemeSelect",
   ) as HTMLSelectElement | null;
   if (themeSel) {
     const light = Array.from(themeSel.options).find(
-      (o) => o.value === "ace/theme/chrome"
+      (o) => o.value === "ace/theme/chrome",
     );
     if (light) light.textContent = t.themeLight;
     const monokai = Array.from(themeSel.options).find(
-      (o) => o.value === "ace/theme/monokai"
+      (o) => o.value === "ace/theme/monokai",
     );
     if (monokai) monokai.textContent = t.themeMonokai;
   }

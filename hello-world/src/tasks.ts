@@ -16,6 +16,7 @@ export type TaskId =
   | "hello_world"
   | "add_2_7"
   | "var_my_age"
+  | "calc_sum"
   | "sub_10_4"
   | "sum_array"
   | "min_max"
@@ -73,18 +74,35 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 3: My first variable",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте переменную с именем <code>myAge</code> и сохраните в неё число. Затем выведите значение этой переменной в окно вывода.<br><br><strong>Пример:</strong> вы устанавливаете значение <strong>10</strong>, и в окне вывода появляется <strong>10</strong>.<br><br><strong>Дополнительно (для исследования):</strong> после того как получилось, попробуйте изменить число в переменной или создать новую переменную с другим именем (например, <code>birthYear</code>) и вывести её."
-        : "Create a variable named <code>myAge</code> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <code>birthYear</code>) and printing it.",
+        ? "Создайте переменную с именем <strong><code>myAge</code></strong> и сохраните в неё число. Затем выведите значение этой переменной в окно вывода.<br><br><strong>Пример:</strong> вы устанавливаете значение <strong>10</strong>, и в окне вывода появляется <strong>10</strong>.<br><br><strong>Дополнительно (для исследования):</strong> после того как получилось, попробуйте изменить число в переменной или создать новую переменную с другим именем (например, <strong><code>birthYear</code></strong>) и вывести её."
+        : "Create a variable named <strong><code>myAge</code></strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong><code>birthYear</code></strong>) and printing it.",
     hint: (lang) =>
       lang === "ru"
         ? 'Подсказка: используйте "create variable..." в категории Variables, затем блок присваивания значения (например, число из Math) и блок вывода.'
         : 'Hint: use "create variable..." in Variables, then a set-value block (e.g. a number from Math) and a print/output block.',
     validate: validateVarMyAge,
   },
+  calc_sum: {
+    id: "calc_sum",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 4: Простой калькулятор"
+        : "Task 4: Simple calculator",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте две переменные: <strong>a</strong> и <strong>b</strong>. Присвойте им числа. Создайте третью переменную <strong>sum</strong> и сохраните в неё результат сложения <strong>a</strong> и <strong>b</strong>. Выведите значение <strong>sum</strong>."
+        : "Create two variables: <strong>a</strong> and <strong>b</strong>. Assign numbers to them. Create a third variable <strong>sum</strong> and store <strong>a + b</strong> in it. Print <strong>sum</strong>.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: задайте a и b через блоки переменных, затем соберите a+b в блоке арифметики и присвойте в sum. Потом выведите sum."
+        : "Hint: set a and b using variable blocks, build a+b with an arithmetic block and assign to sum, then print sum.",
+    validate: validateCalcSum,
+  },
   sub_10_4: {
     id: "sub_10_4",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 4: 10 − 4" : "Task 4: 10 − 4"),
+    title: (lang) => (lang === "ru" ? "Задача 5: 10 − 4" : "Task 5: 10 − 4"),
     description: (lang) =>
       lang === "ru"
         ? "Вычтите <strong>4</strong> из <strong>10</strong> и выведите результат в окно вывода: должно получиться <strong>6</strong>."
@@ -99,7 +117,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "sum_array",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 5: Сумма массива" : "Task 5: Array sum",
+      lang === "ru" ? "Задача 6: Сумма массива" : "Task 6: Array sum",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл."
@@ -114,7 +132,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "min_max",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 6: Минимум и максимум" : "Task 6: Min and Max",
+      lang === "ru" ? "Задача 7: Минимум и максимум" : "Task 7: Min and Max",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две."
@@ -130,8 +148,8 @@ const tasks: Record<TaskId, TaskDef> = {
     difficulty: "advanced",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 7: Частоты символов"
-        : "Task 7: Character frequencies",
+        ? "Задача 8: Частоты символов"
+        : "Task 8: Character frequencies",
     description: (lang) =>
       lang === "ru"
         ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -148,9 +166,11 @@ let activeTaskId: TaskId = "hello_world";
 
 let activeDifficulty: TaskDifficulty = "basic";
 
+const FREE_TASK_NAV = true;
+
 // Порядок задач для последовательного прохождения
 const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
-  basic: ["hello_world", "add_2_7", "var_my_age", "sub_10_4"],
+  basic: ["hello_world", "add_2_7", "var_my_age", "calc_sum", "sub_10_4"],
   advanced: ["sum_array", "min_max", "char_freq"],
 };
 const PROGRESS_KEY = "task_progress_v1";
@@ -391,6 +411,155 @@ async function validateVarMyAge(
   return { ok, stars };
 }
 
+async function validateCalcSum(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+
+  const nonShadowBlocks = (() => {
+    try {
+      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    } catch {
+      return [];
+    }
+  })();
+
+  const getVarFieldText = (b: any): string => {
+    try {
+      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+      const t = typeof f?.getText === "function" ? f.getText() : "";
+      return String(t || "");
+    } catch {
+      return "";
+    }
+  };
+
+  const tryGetAssignedNumber = (setBlock: any): number | null => {
+    try {
+      const target =
+        typeof setBlock?.getInputTargetBlock === "function"
+          ? setBlock.getInputTargetBlock("VALUE")
+          : null;
+      if (!target || (target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  let aVal: number | null = null;
+  let bVal: number | null = null;
+  let hasSetA = false;
+  let hasSetB = false;
+  let hasSetSum = false;
+  let hasGetA = false;
+  let hasGetB = false;
+  let hasGetSum = false;
+  let hasPrint = false;
+  let hasSumFromAPlusB = false;
+
+  for (const b of nonShadowBlocks) {
+    const t = (b as any).type;
+    if (t === "variables_set") {
+      const name = getVarFieldText(b);
+      if (name === "a") {
+        hasSetA = true;
+        const n = tryGetAssignedNumber(b);
+        if (n !== null) aVal = n;
+      }
+      if (name === "b") {
+        hasSetB = true;
+        const n = tryGetAssignedNumber(b);
+        if (n !== null) bVal = n;
+      }
+      if (name === "sum") {
+        hasSetSum = true;
+        try {
+          const valueBlock =
+            typeof (b as any).getInputTargetBlock === "function"
+              ? (b as any).getInputTargetBlock("VALUE")
+              : null;
+          if (valueBlock && (valueBlock as any).type === "math_arithmetic") {
+            const op =
+              typeof (valueBlock as any).getFieldValue === "function"
+                ? (valueBlock as any).getFieldValue("OP")
+                : undefined;
+            if (op === "ADD") {
+              const left =
+                typeof (valueBlock as any).getInputTargetBlock === "function"
+                  ? (valueBlock as any).getInputTargetBlock("A")
+                  : null;
+              const right =
+                typeof (valueBlock as any).getInputTargetBlock === "function"
+                  ? (valueBlock as any).getInputTargetBlock("B")
+                  : null;
+              const leftOk =
+                left &&
+                (left as any).type === "variables_get" &&
+                getVarFieldText(left) === "a";
+              const rightOk =
+                right &&
+                (right as any).type === "variables_get" &&
+                getVarFieldText(right) === "b";
+              const leftOk2 =
+                left &&
+                (left as any).type === "variables_get" &&
+                getVarFieldText(left) === "b";
+              const rightOk2 =
+                right &&
+                (right as any).type === "variables_get" &&
+                getVarFieldText(right) === "a";
+              if ((leftOk && rightOk) || (leftOk2 && rightOk2))
+                hasSumFromAPlusB = true;
+            }
+          }
+        } catch {}
+      }
+    }
+    if (t === "variables_get") {
+      const name = getVarFieldText(b);
+      if (name === "a") hasGetA = true;
+      if (name === "b") hasGetB = true;
+      if (name === "sum") hasGetSum = true;
+    }
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok = (() => {
+    if (aVal === null || bVal === null) return false;
+    const expected = aVal + bVal;
+    const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
+    const hasValueInOutput = lines.some((l) => re.test(l));
+    return (
+      hasSetA &&
+      hasSetB &&
+      hasSetSum &&
+      hasGetSum &&
+      hasGetA &&
+      hasGetB &&
+      hasSumFromAPlusB &&
+      hasValueInOutput
+    );
+  })();
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    if (hasPrint && count <= 10) stars = 3;
+    else if (count <= 13) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
 async function validateSub10Minus4(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -610,9 +779,10 @@ export function setActiveTask(taskId: TaskId) {
   if (hintEl) hintEl.textContent = tdef.hint(lang);
   if (feedbackEl) feedbackEl.textContent = "";
   if (starsEl) starsEl.innerHTML = "";
+  const nextId = getNextTaskId(activeTaskId);
   if (nextButton)
     nextButton.disabled =
-      !isSolved(activeTaskId) || getNextTaskId(activeTaskId) === null;
+      nextId === null ? true : !FREE_TASK_NAV && !isSolved(activeTaskId);
   if (prevButton) prevButton.disabled = getPrevTaskId(activeTaskId) === null;
 
   const consoleInfo = document.getElementById(
@@ -625,12 +795,12 @@ export function setActiveTask(taskId: TaskId) {
     "variableInfoSection",
   ) as HTMLDivElement | null;
   const showDataTypes = activeTaskId === "add_2_7";
-  const showVariableInfo = activeTaskId === "var_my_age";
+  const showVariableInfo =
+    activeTaskId === "var_my_age" || activeTaskId === "calc_sum";
   const showConsole = !showDataTypes && !showVariableInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
-  if (variableInfo)
-    variableInfo.style.display = showVariableInfo ? "" : "none";
+  if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
 }
 
 export function initTaskValidation(
@@ -669,7 +839,10 @@ export function initTaskValidation(
       if (ok) {
         markSolved(activeTaskId, stars);
         if (nextButton)
-          nextButton.disabled = getNextTaskId(activeTaskId) === null; // включить, если есть куда идти
+          nextButton.disabled =
+            getNextTaskId(activeTaskId) === null
+              ? true
+              : !FREE_TASK_NAV && !isSolved(activeTaskId);
       }
     })();
   });
@@ -677,13 +850,16 @@ export function initTaskValidation(
   if (nextButton) {
     // Кнопка активируется только если текущая задача решена и есть следующая
     nextButton.disabled =
-      !isSolved(activeTaskId) || getNextTaskId(activeTaskId) === null;
+      getNextTaskId(activeTaskId) === null
+        ? true
+        : !FREE_TASK_NAV && !isSolved(activeTaskId);
     nextButton.addEventListener("click", () => {
       const next = getNextTaskId(activeTaskId);
       if (!next) return;
       setActiveTask(next);
       // после перехода — блокируем кнопку снова, пока новая задача не решена
-      nextButton.disabled = !isSolved(next) || getNextTaskId(next) === null;
+      nextButton.disabled =
+        getNextTaskId(next) === null ? true : !FREE_TASK_NAV && !isSolved(next);
       if (prevButton) prevButton.disabled = getPrevTaskId(next) === null;
       resetResult();
     });
@@ -699,7 +875,10 @@ export function initTaskValidation(
       // после перехода — пересчитываем состояния навигации
       prevButton.disabled = getPrevTaskId(prev) === null;
       if (nextButton)
-        nextButton.disabled = !isSolved(prev) || getNextTaskId(prev) === null;
+        nextButton.disabled =
+          getNextTaskId(prev) === null
+            ? true
+            : !FREE_TASK_NAV && !isSolved(prev);
       resetResult();
     });
   }

@@ -1967,6 +1967,41 @@
               число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте —
               тогда не надо искать и править число везде.</p>
           </div>
+          <div id="concatInfoSection" class="console-output-info" style="display:none;">
+            <h4 id="concatInfoHeader">Конкатенация строк</h4>
+            <p id="concatInfoIntro">Конкатенация — это соединение строк в одну строку.</p>
+            <p id="concatInfoIdea">Идея простая: берём кусочки текста и “склеиваем” их вместе.</p>
+            <h4 id="concatExamplesHeader" style="margin-top:12px;">Примеры:</h4>
+            <ul>
+              <li><strong>JavaScript:</strong>
+                <ul>
+                  <li><code id="concatJsPlusCode">"Hello, " + name + "!"</code> — <span id="concatJsPlusDesc">обычное
+                      сложение строк</span></li>
+                  <li><code id="concatJsTemplateCode">`Hello, ${name}!`</code> — <span
+                      id="concatJsTemplateDesc">шаблонная
+                      строка</span></li>
+                </ul>
+              </li>
+              <li><strong>Python:</strong>
+                <ul>
+                  <li><code id="concatPyPlusCode">"Hello, " + name + "!"</code> — <span id="concatPyPlusDesc">сложение
+                      строк</span></li>
+                  <li><code id="concatPyFStringCode">f"Hello, {name}!"</code> — <span id="concatPyFStringDesc">f-строка
+                      (удобно вставлять переменные)</span></li>
+                </ul>
+              </li>
+              <li><strong>Lua:</strong>
+                <ul>
+                  <li><code id="concatLuaDotsCode">"Hello, " .. name .. "!"</code> — <span
+                      id="concatLuaDotsDesc">оператор .. склеивает строки</span></li>
+                  <li><code id="concatLuaFormatCode">string.format("Hello, %s!", name)</code> — <span
+                      id="concatLuaFormatDesc">форматирование строки</span></li>
+                </ul>
+              </li>
+            </ul>
+            <p id="concatInfoNote" style="font-size: 0.9em; font-style: italic;">Примечание: если “склеиваете” строку и
+              число, иногда нужно сначала превратить число в строку.</p>
+          </div>
         </div>
       </div>
     </aside>

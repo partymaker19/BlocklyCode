@@ -17,6 +17,7 @@ export type TaskId =
   | "add_2_7"
   | "var_my_age"
   | "calc_sum"
+  | "greet_concat"
   | "sub_10_4"
   | "sum_array"
   | "min_max"
@@ -99,10 +100,27 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: set a and b using variable blocks, build a+b with an arithmetic block and assign to sum, then print sum.",
     validate: validateCalcSum,
   },
+  greet_concat: {
+    id: "greet_concat",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 5: Машина для приветствий"
+        : "Task 5: Greeting machine",
+    description: (lang) =>
+      lang === "ru"
+        ? 'Создайте текстовую переменную <strong><code>name</code></strong> и сохраните в неё ваше имя (например, <strong>"Anna"</strong>). Используйте соединение строк (конкатенацию), чтобы собрать и вывести фразу <strong>"Hello, " + name + "!"</strong>.'
+        : 'Create a text variable <strong><code>name</code></strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.',
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте переменные (set/get), блок text_join из категории Текст и блок вывода."
+        : "Hint: use variables (set/get), the text_join block from Text, and a print/output block.",
+    validate: validateGreetConcat,
+  },
   sub_10_4: {
     id: "sub_10_4",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 5: 10 − 4" : "Task 5: 10 − 4"),
+    title: (lang) => (lang === "ru" ? "Задача 6: 10 − 4" : "Task 6: 10 − 4"),
     description: (lang) =>
       lang === "ru"
         ? "Вычтите <strong>4</strong> из <strong>10</strong> и выведите результат в окно вывода: должно получиться <strong>6</strong>."
@@ -117,7 +135,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "sum_array",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 6: Сумма массива" : "Task 6: Array sum",
+      lang === "ru" ? "Задача 7: Сумма массива" : "Task 7: Array sum",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл."
@@ -132,7 +150,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "min_max",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 7: Минимум и максимум" : "Task 7: Min and Max",
+      lang === "ru" ? "Задача 8: Минимум и максимум" : "Task 8: Min and Max",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две."
@@ -148,8 +166,8 @@ const tasks: Record<TaskId, TaskDef> = {
     difficulty: "advanced",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 8: Частоты символов"
-        : "Task 8: Character frequencies",
+        ? "Задача 9: Частоты символов"
+        : "Task 9: Character frequencies",
     description: (lang) =>
       lang === "ru"
         ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -170,7 +188,14 @@ const FREE_TASK_NAV = true;
 
 // Порядок задач для последовательного прохождения
 const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
-  basic: ["hello_world", "add_2_7", "var_my_age", "calc_sum", "sub_10_4"],
+  basic: [
+    "hello_world",
+    "add_2_7",
+    "var_my_age",
+    "calc_sum",
+    "greet_concat",
+    "sub_10_4",
+  ],
   advanced: ["sum_array", "min_max", "char_freq"],
 };
 const PROGRESS_KEY = "task_progress_v1";
@@ -560,6 +585,62 @@ async function validateCalcSum(
   return { ok, stars };
 }
 
+async function validateGreetConcat(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+
+  const nonShadowBlocks = (() => {
+    try {
+      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    } catch {
+      return [];
+    }
+  })();
+
+  const getVarFieldText = (b: any): string => {
+    try {
+      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+      const t = typeof f?.getText === "function" ? f.getText() : "";
+      return String(t || "");
+    } catch {
+      return "";
+    }
+  };
+
+  let hasSetName = false;
+  let hasGetName = false;
+  let usedTextJoin = false;
+  let usedTextAppend = false;
+  let hasPrint = false;
+
+  for (const b of nonShadowBlocks) {
+    const t = (b as any).type;
+    if (t === "variables_set" && getVarFieldText(b) === "name")
+      hasSetName = true;
+    if (t === "variables_get" && getVarFieldText(b) === "name")
+      hasGetName = true;
+    if (t === "text_join") usedTextJoin = true;
+    if (t === "text_append") usedTextAppend = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok =
+    hasSetName &&
+    hasGetName &&
+    (usedTextJoin || usedTextAppend) &&
+    lines.some((l) => /^Hello,\s*.+!$/.test(l.trim()));
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    if (hasPrint && usedTextJoin && count <= 9) stars = 3;
+    else if (count <= 12) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
 async function validateSub10Minus4(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -794,13 +875,18 @@ export function setActiveTask(taskId: TaskId) {
   const variableInfo = document.getElementById(
     "variableInfoSection",
   ) as HTMLDivElement | null;
+  const concatInfo = document.getElementById(
+    "concatInfoSection",
+  ) as HTMLDivElement | null;
   const showDataTypes = activeTaskId === "add_2_7";
   const showVariableInfo =
     activeTaskId === "var_my_age" || activeTaskId === "calc_sum";
-  const showConsole = !showDataTypes && !showVariableInfo;
+  const showConcatInfo = activeTaskId === "greet_concat";
+  const showConsole = !showDataTypes && !showVariableInfo && !showConcatInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
+  if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";
 }
 
 export function initTaskValidation(

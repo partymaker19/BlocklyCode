@@ -338,6 +338,19 @@ export function localizeImportUI(lang: AppLang): void {
           VariableInfoHeader: "Что такое переменная?",
           VariableInfoText:
             "Переменная — это “коробка” с именем, в которой можно хранить значение (например, число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте — тогда не надо искать и править число везде.",
+          ConcatInfoHeader: "Конкатенация строк",
+          ConcatInfoIntro: "Конкатенация — это соединение строк в одну строку.",
+          ConcatInfoIdea:
+            "Идея простая: берём кусочки текста и “склеиваем” их вместе.",
+          ConcatExamplesHeader: "Примеры:",
+          ConcatJsPlusDesc: "обычное сложение строк",
+          ConcatJsTemplateDesc: "шаблонная строка",
+          ConcatPyPlusDesc: "сложение строк",
+          ConcatPyFStringDesc: "f-строка (удобно вставлять переменные)",
+          ConcatLuaDotsDesc: "оператор .. склеивает строки",
+          ConcatLuaFormatDesc: "форматирование строки",
+          ConcatInfoNote:
+            "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку.",
           RunFirst: "Сначала запустите код",
           TaskDifficultyBasic: "Основа",
           TaskDifficultyAdvanced: "Продвинутый",
@@ -413,6 +426,20 @@ export function localizeImportUI(lang: AppLang): void {
           VariableInfoHeader: "What is a variable?",
           VariableInfoText:
             "A variable is like a named “box” that stores a value (for example, a number). It’s useful when you want to reuse the same value or change it in one place instead of editing it everywhere.",
+          ConcatInfoHeader: "String concatenation",
+          ConcatInfoIntro:
+            "Concatenation means joining strings into one string.",
+          ConcatInfoIdea:
+            "The idea is simple: take parts and join them together.",
+          ConcatExamplesHeader: "Examples:",
+          ConcatJsPlusDesc: "simple string concatenation",
+          ConcatJsTemplateDesc: "template string",
+          ConcatPyPlusDesc: "string concatenation",
+          ConcatPyFStringDesc: "f-string (easy variable interpolation)",
+          ConcatLuaDotsDesc: "the .. operator joins strings",
+          ConcatLuaFormatDesc: "string formatting",
+          ConcatInfoNote:
+            "Note: when joining a string and a number, you may need to convert the number to a string first.",
           RunFirst: "Run the code first",
           TaskDifficultyBasic: "Basic",
           TaskDifficultyAdvanced: "Advanced",

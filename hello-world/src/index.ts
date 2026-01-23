@@ -1399,6 +1399,43 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
         ? "Переменная — это “коробка” с именем, в которой можно хранить значение (например, число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте — тогда не надо искать и править число везде."
         : "A variable is like a named “box” that stores a value (for example, a number). It’s useful when you want to reuse the same value or change it in one place instead of editing it everywhere."),
   );
+
+  setText(
+    "concatInfoHeader",
+    t?.ConcatInfoHeader ||
+      (lang === "ru" ? "Конкатенация строк" : "String concatenation"),
+  );
+  setText(
+    "concatInfoIntro",
+    t?.ConcatInfoIntro ||
+      (lang === "ru"
+        ? "Конкатенация — это соединение строк в одну строку."
+        : "Concatenation means joining strings into one string."),
+  );
+  setText(
+    "concatInfoIdea",
+    t?.ConcatInfoIdea ||
+      (lang === "ru"
+        ? "Идея простая: берём кусочки текста и “склеиваем” их вместе."
+        : "The idea is simple: take parts and join them together."),
+  );
+  setText(
+    "concatExamplesHeader",
+    t?.ConcatExamplesHeader || (lang === "ru" ? "Примеры:" : "Examples:"),
+  );
+  setText("concatJsPlusDesc", t?.ConcatJsPlusDesc);
+  setText("concatJsTemplateDesc", t?.ConcatJsTemplateDesc);
+  setText("concatPyPlusDesc", t?.ConcatPyPlusDesc);
+  setText("concatPyFStringDesc", t?.ConcatPyFStringDesc);
+  setText("concatLuaDotsDesc", t?.ConcatLuaDotsDesc);
+  setText("concatLuaFormatDesc", t?.ConcatLuaFormatDesc);
+  setText(
+    "concatInfoNote",
+    t?.ConcatInfoNote ||
+      (lang === "ru"
+        ? "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку."
+        : "Note: when joining a string and a number, you may need to convert the number to a string first."),
+  );
 }
 
 localizeTaskSidebarStaticUI(defaultLang);

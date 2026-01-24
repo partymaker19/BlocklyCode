@@ -18,6 +18,7 @@ export type TaskId =
   | "var_my_age"
   | "calc_sum"
   | "greet_concat"
+  | "inc_counter"
   | "sub_10_4"
   | "sum_array"
   | "min_max"
@@ -117,10 +118,27 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: use variables (set/get), the text_join block from Text, and a print/output block.",
     validate: validateGreetConcat,
   },
+  inc_counter: {
+    id: "inc_counter",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 6: Счётчик инкремент"
+        : "Task 6: Increment counter",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте переменную <strong><code>counter</code></strong> со значением <strong>0</strong>. Затем увеличьте её значение на <strong>1</strong> (используйте блок <strong>counter = counter + 1</strong>). Выведите новое значение."
+        : "Create a variable <strong><code>counter</code></strong> with the value <strong>0</strong>. Then increase it by <strong>1</strong> (use <strong>counter = counter + 1</strong>). Print the new value.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: сначала counter=0, потом сделайте counter=counter+1 и выведите counter."
+        : "Hint: first set counter=0, then do counter=counter+1 and print counter.",
+    validate: validateIncCounter,
+  },
   sub_10_4: {
     id: "sub_10_4",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 6: 10 − 4" : "Task 6: 10 − 4"),
+    title: (lang) => (lang === "ru" ? "Задача 7: 10 − 4" : "Task 7: 10 − 4"),
     description: (lang) =>
       lang === "ru"
         ? "Вычтите <strong>4</strong> из <strong>10</strong> и выведите результат в окно вывода: должно получиться <strong>6</strong>."
@@ -135,7 +153,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "sum_array",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 7: Сумма массива" : "Task 7: Array sum",
+      lang === "ru" ? "Задача 8: Сумма массива" : "Task 8: Array sum",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл."
@@ -150,7 +168,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "min_max",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 8: Минимум и максимум" : "Task 8: Min and Max",
+      lang === "ru" ? "Задача 9: Минимум и максимум" : "Task 9: Min and Max",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две."
@@ -166,8 +184,8 @@ const tasks: Record<TaskId, TaskDef> = {
     difficulty: "advanced",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 9: Частоты символов"
-        : "Task 9: Character frequencies",
+        ? "Задача 10: Частоты символов"
+        : "Task 10: Character frequencies",
     description: (lang) =>
       lang === "ru"
         ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -194,6 +212,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "var_my_age",
     "calc_sum",
     "greet_concat",
+    "inc_counter",
     "sub_10_4",
   ],
   advanced: ["sum_array", "min_max", "char_freq"],
@@ -641,6 +660,143 @@ async function validateGreetConcat(
   return { ok, stars };
 }
 
+async function validateIncCounter(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+
+  const nonShadowBlocks = (() => {
+    try {
+      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    } catch {
+      return [];
+    }
+  })();
+
+  const getVarFieldText = (b: any): string => {
+    try {
+      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+      const t = typeof f?.getText === "function" ? f.getText() : "";
+      return String(t || "");
+    } catch {
+      return "";
+    }
+  };
+
+  const tryGetAssignedNumber = (setBlock: any): number | null => {
+    try {
+      const target =
+        typeof setBlock?.getInputTargetBlock === "function"
+          ? setBlock.getInputTargetBlock("VALUE")
+          : null;
+      if (!target || (target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
+
+  let initOk = false;
+  let incOk = false;
+  let hasGetCounter = false;
+  let hasPrint = false;
+  let usesMathChange = false;
+
+  for (const b of nonShadowBlocks) {
+    const t = (b as any).type;
+
+    if (t === "variables_set" && getVarFieldText(b) === "counter") {
+      const valueBlock =
+        typeof (b as any).getInputTargetBlock === "function"
+          ? (b as any).getInputTargetBlock("VALUE")
+          : null;
+
+      if (valueBlock && (valueBlock as any).type === "math_number") {
+        const n = tryGetAssignedNumber(b);
+        if (n === 0) initOk = true;
+      }
+
+      if (valueBlock && (valueBlock as any).type === "math_arithmetic") {
+        try {
+          const op =
+            typeof (valueBlock as any).getFieldValue === "function"
+              ? (valueBlock as any).getFieldValue("OP")
+              : undefined;
+          if (op !== "ADD") continue;
+
+          const left =
+            typeof (valueBlock as any).getInputTargetBlock === "function"
+              ? (valueBlock as any).getInputTargetBlock("A")
+              : null;
+          const right =
+            typeof (valueBlock as any).getInputTargetBlock === "function"
+              ? (valueBlock as any).getInputTargetBlock("B")
+              : null;
+
+          const isGetCounter = (x: any) =>
+            x &&
+            (x as any).type === "variables_get" &&
+            getVarFieldText(x) === "counter";
+          const isOne = (x: any) => {
+            if (!x || (x as any).type !== "math_number") return false;
+            const raw =
+              typeof (x as any).getFieldValue === "function"
+                ? (x as any).getFieldValue("NUM")
+                : undefined;
+            return String(raw).trim() === "1";
+          };
+
+          if (
+            (isGetCounter(left) && isOne(right)) ||
+            (isOne(left) && isGetCounter(right))
+          )
+            incOk = true;
+        } catch {}
+      }
+    }
+
+    if (t === "math_change" && getVarFieldText(b) === "counter") {
+      usesMathChange = true;
+      try {
+        const delta =
+          typeof (b as any).getInputTargetBlock === "function"
+            ? (b as any).getInputTargetBlock("DELTA")
+            : null;
+        if (delta && (delta as any).type === "math_number") {
+          const raw =
+            typeof (delta as any).getFieldValue === "function"
+              ? (delta as any).getFieldValue("NUM")
+              : undefined;
+          if (String(raw).trim() === "1") incOk = true;
+        }
+      } catch {}
+    }
+
+    if (t === "variables_get" && getVarFieldText(b) === "counter")
+      hasGetCounter = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok = initOk && incOk && hasGetCounter && lines.includes("1");
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    if (hasPrint && count <= 7) stars = 3;
+    else if (count <= 10) stars = 2;
+    else stars = 1;
+  }
+
+  if (ok && usesMathChange && count <= 6) stars = 3;
+  return { ok, stars };
+}
+
 async function validateSub10Minus4(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -878,15 +1034,21 @@ export function setActiveTask(taskId: TaskId) {
   const concatInfo = document.getElementById(
     "concatInfoSection",
   ) as HTMLDivElement | null;
+  const incDecInfo = document.getElementById(
+    "incDecInfoSection",
+  ) as HTMLDivElement | null;
   const showDataTypes = activeTaskId === "add_2_7";
   const showVariableInfo =
     activeTaskId === "var_my_age" || activeTaskId === "calc_sum";
   const showConcatInfo = activeTaskId === "greet_concat";
-  const showConsole = !showDataTypes && !showVariableInfo && !showConcatInfo;
+  const showIncDecInfo = activeTaskId === "inc_counter";
+  const showConsole =
+    !showDataTypes && !showVariableInfo && !showConcatInfo && !showIncDecInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
   if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";
+  if (incDecInfo) incDecInfo.style.display = showIncDecInfo ? "" : "none";
 }
 
 export function initTaskValidation(

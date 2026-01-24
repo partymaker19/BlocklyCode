@@ -1436,6 +1436,36 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
         ? "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку."
         : "Note: when joining a string and a number, you may need to convert the number to a string first."),
   );
+
+  setText(
+    "incDecInfoHeader",
+    t?.IncDecInfoHeader ||
+      (lang === "ru" ? "Инкремент и декремент" : "Increment and decrement"),
+  );
+  setText(
+    "incDecInfoIntro",
+    t?.IncDecInfoIntro ||
+      (lang === "ru"
+        ? "Инкремент — это увеличение значения на 1, декремент — уменьшение на 1."
+        : "Increment means increasing a value by 1, decrement means decreasing it by 1."),
+  );
+  setText(
+    "incDecExamplesHeader",
+    t?.IncDecExamplesHeader || (lang === "ru" ? "Примеры:" : "Examples:"),
+  );
+  setText("incDecJsIncDesc", t?.IncDecIncDesc);
+  setText("incDecJsDecDesc", t?.IncDecDecDesc);
+  setText("incDecPyIncDesc", t?.IncDecIncDesc);
+  setText("incDecPyDecDesc", t?.IncDecDecDesc);
+  setText("incDecLuaIncDesc", t?.IncDecIncDesc);
+  setText("incDecLuaDecDesc", t?.IncDecDecDesc);
+  setText(
+    "incDecInfoNote",
+    t?.IncDecInfoNote ||
+      (lang === "ru"
+        ? "В Blockly это обычно делается так: берём текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную."
+        : "In Blockly you usually do it like this: take the current value, add 1, and assign it back to the same variable."),
+  );
 }
 
 localizeTaskSidebarStaticUI(defaultLang);

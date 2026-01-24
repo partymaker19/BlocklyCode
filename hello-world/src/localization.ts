@@ -351,6 +351,14 @@ export function localizeImportUI(lang: AppLang): void {
           ConcatLuaFormatDesc: "форматирование строки",
           ConcatInfoNote:
             "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку.",
+          IncDecInfoHeader: "Инкремент и декремент",
+          IncDecInfoIntro:
+            "Инкремент — это увеличение значения на 1, декремент — уменьшение на 1.",
+          IncDecExamplesHeader: "Примеры:",
+          IncDecIncDesc: "увеличить на 1",
+          IncDecDecDesc: "уменьшить на 1",
+          IncDecInfoNote:
+            "В Blockly это обычно делается так: берём текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную.",
           RunFirst: "Сначала запустите код",
           TaskDifficultyBasic: "Основа",
           TaskDifficultyAdvanced: "Продвинутый",
@@ -440,6 +448,14 @@ export function localizeImportUI(lang: AppLang): void {
           ConcatLuaFormatDesc: "string formatting",
           ConcatInfoNote:
             "Note: when joining a string and a number, you may need to convert the number to a string first.",
+          IncDecInfoHeader: "Increment and decrement",
+          IncDecInfoIntro:
+            "Increment means increasing a value by 1, decrement means decreasing it by 1.",
+          IncDecExamplesHeader: "Examples:",
+          IncDecIncDesc: "increase by 1",
+          IncDecDecDesc: "decrease by 1",
+          IncDecInfoNote:
+            "In Blockly you usually do it like this: take the current value, add 1, and assign it back to the same variable.",
           RunFirst: "Run the code first",
           TaskDifficultyBasic: "Basic",
           TaskDifficultyAdvanced: "Advanced",

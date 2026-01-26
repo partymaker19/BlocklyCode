@@ -1138,6 +1138,43 @@
       flex: 1 1 0;
     }
 
+    #taskSidebar .task-hint-details {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+
+    #taskSidebar .task-hint-details>summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    #taskSidebar .task-hint-details[open]>summary {
+      margin-bottom: 8px;
+    }
+
+    #taskSidebar .task-hint {
+      margin: 0;
+      color: #374151;
+      line-height: 1.35;
+    }
+
+    html[data-theme='dark'] #taskSidebar .task-hint-details {
+      border-color: #334155;
+      background: #0b1220;
+    }
+
+    html[data-theme='dark'] #taskSidebar .task-hint-details>summary {
+      color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] #taskSidebar .task-hint {
+      color: #cbd5e1;
+    }
+
     #taskSidebar .task-difficulty-screen {
       display: none;
       height: 100%;
@@ -1855,7 +1892,10 @@
         <div class="task-body">
           <p class="task-desc">Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong>
           </p>
-          <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
+          <details id="taskHintDetails" class="task-hint-details">
+            <summary id="taskHintSummary">Подсказка</summary>
+            <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
+          </details>
           <div class="task-criteria">
             <span id="taskStarsCriteriaLabel">Критерии звёзд:</span>
             <ul>
@@ -2009,30 +2049,31 @@
             <ul>
               <li><strong>JavaScript:</strong>
                 <ul>
-                  <li><code id="incDecJsIncCode">counter = counter + 1</code> — <span
-                      id="incDecJsIncDesc">увеличить на 1</span></li>
-                  <li><code id="incDecJsDecCode">counter = counter - 1</code> — <span
-                      id="incDecJsDecDesc">уменьшить на 1</span></li>
+                  <li><code id="incDecJsIncCode">counter = counter + 1</code> — <span id="incDecJsIncDesc">увеличить на
+                      1</span></li>
+                  <li><code id="incDecJsDecCode">counter = counter - 1</code> — <span id="incDecJsDecDesc">уменьшить на
+                      1</span></li>
                 </ul>
               </li>
               <li><strong>Python:</strong>
                 <ul>
-                  <li><code id="incDecPyIncCode">counter = counter + 1</code> — <span
-                      id="incDecPyIncDesc">увеличить на 1</span></li>
-                  <li><code id="incDecPyDecCode">counter = counter - 1</code> — <span
-                      id="incDecPyDecDesc">уменьшить на 1</span></li>
+                  <li><code id="incDecPyIncCode">counter = counter + 1</code> — <span id="incDecPyIncDesc">увеличить на
+                      1</span></li>
+                  <li><code id="incDecPyDecCode">counter = counter - 1</code> — <span id="incDecPyDecDesc">уменьшить на
+                      1</span></li>
                 </ul>
               </li>
               <li><strong>Lua:</strong>
                 <ul>
-                  <li><code id="incDecLuaIncCode">counter = counter + 1</code> — <span
-                      id="incDecLuaIncDesc">увеличить на 1</span></li>
-                  <li><code id="incDecLuaDecCode">counter = counter - 1</code> — <span
-                      id="incDecLuaDecDesc">уменьшить на 1</span></li>
+                  <li><code id="incDecLuaIncCode">counter = counter + 1</code> — <span id="incDecLuaIncDesc">увеличить
+                      на 1</span></li>
+                  <li><code id="incDecLuaDecCode">counter = counter - 1</code> — <span id="incDecLuaDecDesc">уменьшить
+                      на 1</span></li>
                 </ul>
               </li>
             </ul>
-            <p id="incDecInfoNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно делается так: берём
+            <p id="incDecInfoNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно делается так:
+              берём
               текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную.</p>
           </div>
         </div>

@@ -1308,6 +1308,9 @@ export function setActiveTask(taskId: TaskId) {
   const hintEl = document.querySelector(
     "#taskSidebar .task-hint",
   ) as HTMLElement | null;
+  const hintDetails = document.getElementById(
+    "taskHintDetails",
+  ) as HTMLDetailsElement | null;
   const feedbackEl = document.getElementById(
     "taskFeedback",
   ) as HTMLDivElement | null;
@@ -1323,6 +1326,7 @@ export function setActiveTask(taskId: TaskId) {
   if (titleEl) titleEl.textContent = tdef.title(lang);
   if (descEl) descEl.innerHTML = tdef.description(lang);
   if (hintEl) hintEl.textContent = tdef.hint(lang);
+  if (hintDetails) hintDetails.open = false;
   if (feedbackEl) feedbackEl.textContent = "";
   if (starsEl) starsEl.innerHTML = "";
   const nextId = getNextTaskId(activeTaskId);

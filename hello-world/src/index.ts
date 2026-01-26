@@ -1224,6 +1224,11 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
       t?.CheckSolution ||
       (lang === "ru" ? "Проверить решение" : "Check solution");
 
+  const hintSummary = document.getElementById("taskHintSummary");
+  if (hintSummary)
+    (hintSummary as HTMLElement).textContent =
+      t?.TaskHintLabel || (lang === "ru" ? "Подсказка" : "Hint");
+
   const diffBasic = document.getElementById("taskDifficultyBasic");
   if (diffBasic)
     (diffBasic as HTMLElement).textContent =

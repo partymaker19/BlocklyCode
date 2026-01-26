@@ -43,6 +43,7 @@
     "fengari-web": "^0.1.4",
     "konva": "^9.3.22",
     "perfect-freehand": "^1.2.2",
+    "php-wasm": "^0.0.9-alpha-32",
     "pyodide": "^0.28.2"
   }
 }

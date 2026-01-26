@@ -1,6 +1,11 @@
 // Shared types for worker messaging and supported languages
 
-export type SupportedLanguage = "javascript" | "python" | "lua" | "typescript";
+export type SupportedLanguage =
+  | "javascript"
+  | "python"
+  | "lua"
+  | "typescript"
+  | "php";
 
 // Message sent from main thread to worker
 export type WorkerInMsg =

@@ -8,6 +8,7 @@ import * as Blockly from "blockly/core";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
+import { phpGenerator } from "blockly/php";
 import type {
   SupportedLanguage,
   WorkerOutMsg,
@@ -30,10 +31,12 @@ function getErrorMessage(err: unknown): string {
  */
 function generateCode(
   workspace: Blockly.WorkspaceSvg,
-  language: SupportedLanguage
+  language: SupportedLanguage,
 ): string {
   try {
     switch (language) {
+      case "php":
+        return phpGenerator.workspaceToCode(workspace);
       case "python":
         return pythonGenerator.workspaceToCode(workspace);
       case "lua":
@@ -57,7 +60,7 @@ function generateCode(
  */
 function executeJavaScriptCode(
   code: string,
-  outputElement: HTMLElement | null
+  outputElement: HTMLElement | null,
 ): void {
   if (!code.trim()) return;
 
@@ -99,7 +102,7 @@ function executeJavaScriptCode(
         appendLine(
           args
             .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
-            .join(" ")
+            .join(" "),
         );
       };
       console.warn = (...args: unknown[]) => {
@@ -110,7 +113,7 @@ function executeJavaScriptCode(
           args
             .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
             .join(" "),
-          "#b58900"
+          "#b58900",
         );
       };
       console.error = (...args: unknown[]) => {
@@ -121,7 +124,7 @@ function executeJavaScriptCode(
           args
             .map((a) => (typeof a === "string" ? a : JSON.stringify(a)))
             .join(" "),
-          "red"
+          "red",
         );
       };
     }
@@ -131,7 +134,7 @@ function executeJavaScriptCode(
 
     // Compile once without eval for better performance and safety
     const fn = new Function("print", String(code)) as (
-      print: (s: unknown) => void
+      print: (s: unknown) => void,
     ) => void;
     fn(jsPrint);
   } catch (error: unknown) {
@@ -158,7 +161,7 @@ async function executeInSandbox(
   language: SupportedLanguage,
   code: string,
   outputElement: HTMLElement | null,
-  timeoutMs = 1000
+  timeoutMs = 1000,
 ): Promise<void> {
   if (!code.trim() || !outputElement) return;
 
@@ -179,7 +182,7 @@ async function executeInSandbox(
   } catch (e: unknown) {
     appendLine(
       `Не удалось создать sandbox воркер: ${getErrorMessage(e)}`,
-      "red"
+      "red",
     );
     // Фолбэк на старый JS рантайм, если воркер недоступен
     if (language === "javascript" || language === "typescript") {
@@ -187,16 +190,18 @@ async function executeInSandbox(
     } else {
       appendLine(
         "Выполнение для данного языка недоступно без воркера.",
-        "#666"
+        "#666",
       );
     }
     return;
   }
 
-  // Таймаут выполнения: для Python увеличиваем минимум из-за холодного старта Pyodide
-  // и возможной медленной сети на проде
+  // Таймаут выполнения: для Python и PHP увеличиваем минимум из-за холодного старта
+  // рантайма (Pyodide / php-wasm) и возможной медленной сети на проде
   let effectiveTimeout =
-    language === "python" ? Math.max(timeoutMs, 60000) : timeoutMs;
+    language === "python" || language === "php"
+      ? Math.max(timeoutMs, 60000)
+      : timeoutMs;
   // Если в коде используется input(), даём пользователю больше времени на ввод
   const usesInput = /\binput\s*\(/.test(code);
   if (
@@ -208,23 +213,26 @@ async function executeInSandbox(
   ) {
     effectiveTimeout = Math.max(effectiveTimeout, 30000);
   }
-  const enableMainTimer = language !== "python";
+  const enableMainTimer = language !== "python" && language !== "php";
   const timer = enableMainTimer
-    ? setTimeout(() => {
-        try {
-          // Снимаем слушатель, чтобы избежать утечек и лишних вызовов
-          worker?.removeEventListener("message", onMessage);
-          worker?.terminate();
-        } catch {}
-        // Сообщение о прерывании показываем только для JS/TS.
-        // Для Python/Lua прерывание по времени сообщается самим рантаймом.
-        if (language === "javascript" || language === "typescript") {
-          appendLine(
-            `Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`,
-            "#b58900"
-          );
-        }
-      }, Math.max(0, effectiveTimeout - 50))
+    ? setTimeout(
+        () => {
+          try {
+            // Снимаем слушатель, чтобы избежать утечек и лишних вызовов
+            worker?.removeEventListener("message", onMessage);
+            worker?.terminate();
+          } catch {}
+          // Сообщение о прерывании показываем только для JS/TS.
+          // Для Python/Lua прерывание по времени сообщается самим рантаймом.
+          if (language === "javascript" || language === "typescript") {
+            appendLine(
+              `Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`,
+              "#b58900",
+            );
+          }
+        },
+        Math.max(0, effectiveTimeout - 50),
+      )
     : null;
 
   const onMessage = (ev: MessageEvent<WorkerOutMsg>) => {
@@ -280,7 +288,7 @@ export async function runCode(
   workspace: Blockly.WorkspaceSvg | null,
   language: SupportedLanguage,
   codeDisplayElement: ChildNode | null,
-  outputElement: HTMLElement | null
+  outputElement: HTMLElement | null,
 ): Promise<void> {
   if (!workspace) return;
 
@@ -303,7 +311,7 @@ export async function runCode(
       const errorEl = document.createElement("p");
       errorEl.style.color = "red";
       errorEl.textContent = `Ошибка генерации/выполнения: ${getErrorMessage(
-        error
+        error,
       )}`;
       outputElement.appendChild(errorEl);
     }
@@ -314,7 +322,7 @@ export async function runCode(
 export async function runCodeString(
   language: SupportedLanguage,
   sourceCode: string,
-  outputElement: HTMLElement | null
+  outputElement: HTMLElement | null,
 ): Promise<void> {
   try {
     if (outputElement) outputElement.innerHTML = "";

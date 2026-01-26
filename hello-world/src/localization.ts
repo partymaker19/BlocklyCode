@@ -302,6 +302,9 @@ export function localizeImportUI(lang: AppLang): void {
           ConsoleLuaPrintTextVarCode: 'print("текст", переменная)',
           ConsoleLuaFormatCode:
             'print(string.format("Значение: %s", переменная))',
+          ConsolePhpEchoTextCode: 'echo "текст" . PHP_EOL;',
+          ConsolePhpEchoNumberCode: "echo число . PHP_EOL;",
+          ConsolePhpEchoTextVarCode: 'echo "текст " . $переменная . PHP_EOL;',
           DataTypesHeader: "Типы данных:",
           DataTypesDescription:
             "Текст (строка) нужно оборачивать в кавычки, а числа — нет.",
@@ -413,6 +416,9 @@ export function localizeImportUI(lang: AppLang): void {
           ConsoleLuaPrintNumberCode: "print(number)",
           ConsoleLuaPrintTextVarCode: 'print("text", variable)',
           ConsoleLuaFormatCode: 'print(string.format("Value: %s", variable))',
+          ConsolePhpEchoTextCode: 'echo "text" . PHP_EOL;',
+          ConsolePhpEchoNumberCode: "echo number . PHP_EOL;",
+          ConsolePhpEchoTextVarCode: 'echo "text " . $variable . PHP_EOL;',
           DataTypesHeader: "Data types:",
           DataTypesDescription:
             "Text (a string) requires quotes, but numbers do not.",

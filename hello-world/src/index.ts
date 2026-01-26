@@ -10,9 +10,11 @@ import { blocks as algorithmBlocks } from "./blocks/algorithms";
 import { forBlock } from "./generators/javascript";
 import { forBlock as forBlockPython } from "./generators/python";
 import { forBlock as forBlockLua } from "./generators/lua";
+import { forBlock as forBlockPhp } from "./generators/php";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
+import { phpGenerator } from "blockly/php";
 import { save, load } from "./serialization";
 import {
   setupAppBootstrap,
@@ -94,6 +96,7 @@ Blockly.common.defineBlocks(algorithmBlocks);
 Object.assign(javascriptGenerator.forBlock, forBlock);
 Object.assign(pythonGenerator.forBlock, forBlockPython);
 Object.assign(luaGenerator.forBlock, forBlockLua);
+Object.assign(phpGenerator.forBlock, forBlockPhp);
 // Регистрием пользовательские блоки и контекстное меню удаления
 registerCustomBlocks();
 setupCustomBlockContextMenu();
@@ -161,6 +164,9 @@ const genLangPyBtn = document.getElementById(
 const genLangLuaBtn = document.getElementById(
   "genLangLua",
 ) as HTMLButtonElement | null;
+const genLangPhpBtn = document.getElementById(
+  "genLangPhp",
+) as HTMLButtonElement | null;
 // Кнопки выбора языка генератора в шапке
 const genLangHeaderContainer = document.getElementById(
   "genLangHeaderSelect",
@@ -215,7 +221,8 @@ const themeLabelDark = document.getElementById(
   "theme-dark",
 ) as HTMLSpanElement | null;
 
-let selectedGeneratorLanguage: "javascript" | "python" | "lua" = "javascript";
+let selectedGeneratorLanguage: "javascript" | "python" | "lua" | "php" =
+  "javascript";
 
 // Theme state
 type AppTheme = "light" | "dark";
@@ -458,8 +465,8 @@ if (taskSolutionBtn) {
   });
 }
 
-function setActiveGenLangButton(lang: "javascript" | "python" | "lua") {
-  [genLangJsBtn, genLangPyBtn, genLangLuaBtn].forEach(
+function setActiveGenLangButton(lang: "javascript" | "python" | "lua" | "php") {
+  [genLangJsBtn, genLangPyBtn, genLangLuaBtn, genLangPhpBtn].forEach(
     (btn) => btn && btn.classList.remove("active"),
   );
   if (lang === "javascript") {
@@ -471,6 +478,9 @@ function setActiveGenLangButton(lang: "javascript" | "python" | "lua") {
   if (lang === "lua") {
     if (genLangLuaBtn) genLangLuaBtn.classList.add("active");
   }
+  if (lang === "php") {
+    if (genLangPhpBtn) genLangPhpBtn.classList.add("active");
+  }
   // sync custom header dropdown label and selected state
   if (genLangHeaderSelectedOption) {
     const label =
@@ -478,7 +488,9 @@ function setActiveGenLangButton(lang: "javascript" | "python" | "lua") {
         ? "JavaScript"
         : lang === "python"
           ? "Python"
-          : "Lua";
+          : lang === "lua"
+            ? "Lua"
+            : "PHP";
     genLangHeaderSelectedOption.textContent = label;
   }
   if (genLangHeaderDropdownOptions) {
@@ -592,12 +604,16 @@ function setGeneratorPlaceholder(lang: "ru" | "en") {
       ru: "Например:\nconst value = luaGenerator.valueToCode(block, 'VALUE', Order.NONE) || \"'0'\";\\nreturn `print(${value})\\n`;",
       en: "Example:\nconst value = luaGenerator.valueToCode(block, 'VALUE', Order.NONE) || \"'0'\";\\nreturn `print(${value})\\n`;",
     },
+    php: {
+      ru: "Пример:\n// PHP генератор функции пишется на JS (как и для других языков).\nconst value = phpGenerator.valueToCode(block, 'VALUE', Order.NONE) || '0';\nreturn `echo ${value};\\n`;",
+      en: "Example:\n// PHP generator function is written in JS (like other languages).\nconst value = phpGenerator.valueToCode(block, 'VALUE', Order.NONE) || '0';\nreturn `echo ${value};\\n`;",
+    },
   };
   const placeholder = placeholders[selectedGeneratorLanguage][lang];
   blockGeneratorTextarea.placeholder = placeholder;
 }
 
-function setGenLang(lang: "javascript" | "python" | "lua") {
+function setGenLang(lang: "javascript" | "python" | "lua" | "php") {
   selectedGeneratorLanguage = lang;
   setActiveGenLangButton(lang);
   updatePresetsByGenLang();
@@ -614,6 +630,8 @@ if (genLangPyBtn)
   genLangPyBtn.addEventListener("click", () => setGenLang("python"));
 if (genLangLuaBtn)
   genLangLuaBtn.addEventListener("click", () => setGenLang("lua"));
+if (genLangPhpBtn)
+  genLangPhpBtn.addEventListener("click", () => setGenLang("php"));
 // Обработчики для кастомного dropdown в шапке
 if (
   genLangHeaderContainer &&
@@ -634,7 +652,8 @@ if (
       const value = (opt as HTMLElement).dataset.value as
         | "javascript"
         | "python"
-        | "lua";
+        | "lua"
+        | "php";
       setGenLang(value);
       genLangHeaderContainer.classList.remove("open");
       genLangHeaderDropdownOptions.style.display = "none";
@@ -1300,6 +1319,9 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("consoleLuaPrintNumberCode", t?.ConsoleLuaPrintNumberCode);
   setText("consoleLuaPrintTextVarCode", t?.ConsoleLuaPrintTextVarCode);
   setText("consoleLuaFormatCode", t?.ConsoleLuaFormatCode);
+  setText("consolePhpEchoTextCode", t?.ConsolePhpEchoTextCode);
+  setText("consolePhpEchoNumberCode", t?.ConsolePhpEchoNumberCode);
+  setText("consolePhpEchoTextVarCode", t?.ConsolePhpEchoTextVarCode);
 
   const textDesc =
     t?.ConsoleTextDesc || (lang === "ru" ? "вывод текста" : "print text");
@@ -1332,6 +1354,9 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("consoleLuaPrintNumberDesc", numberDesc);
   setText("consoleLuaPrintTextVarDesc", textVarDesc);
   setText("consoleLuaFormatDesc", luaFormatDesc);
+  setText("consolePhpEchoTextDesc", textDesc);
+  setText("consolePhpEchoNumberDesc", numberDesc);
+  setText("consolePhpEchoTextVarDesc", textVarDesc);
 
   setText(
     "dataTypesHeader",

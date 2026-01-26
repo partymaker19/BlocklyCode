@@ -1765,6 +1765,7 @@
               <div class="option" data-value="javascript">JavaScript</div>
               <div class="option" data-value="python">Python</div>
               <div class="option" data-value="lua">Lua</div>
+              <div class="option" data-value="php">PHP</div>
             </div>
           </div>
         </div>
@@ -1950,6 +1951,16 @@
                       id="consoleLuaPrintTextVarDesc">вывод текста и значения</span></li>
                   <li><code id="consoleLuaFormatCode">print(string.format("Значение: %s", переменная))</code> — <span
                       id="consoleLuaFormatDesc">форматирование строк</span></li>
+                </ul>
+              </li>
+              <li><strong>PHP:</strong>
+                <ul>
+                  <li><code id="consolePhpEchoTextCode">echo "текст" . PHP_EOL;</code> — <span
+                      id="consolePhpEchoTextDesc">вывод текста</span></li>
+                  <li><code id="consolePhpEchoNumberCode">echo число . PHP_EOL;</code> — <span
+                      id="consolePhpEchoNumberDesc">вывод числа</span></li>
+                  <li><code id="consolePhpEchoTextVarCode">echo "текст " . $переменная . PHP_EOL;</code> — <span
+                      id="consolePhpEchoTextVarDesc">вывод текста и значения</span></li>
                 </ul>
               </li>
             </ul>
@@ -2168,6 +2179,7 @@ end</code></pre>
           <button id="genLangJs" class="lang-tab active">JavaScript</button>
           <button id="genLangPy" class="lang-tab">Python</button>
           <button id="genLangLua" class="lang-tab">Lua</button>
+          <button id="genLangPhp" class="lang-tab">PHP</button>
         </div>
         <div id="presetsLabel" class="presets-label"></div>
         <div class="presets-container">

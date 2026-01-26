@@ -4,24 +4,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as Blockly from 'blockly/core';
-import { javascriptGenerator } from 'blockly/javascript';
-import { pythonGenerator } from 'blockly/python';
-import { luaGenerator } from 'blockly/lua';
-import {Order} from 'blockly/javascript';
-import {Order as PythonOrder} from 'blockly/python';
-import {Order as LuaOrder} from 'blockly/lua';
+import * as Blockly from "blockly/core";
+import { javascriptGenerator } from "blockly/javascript";
+import { pythonGenerator } from "blockly/python";
+import { luaGenerator } from "blockly/lua";
+import { phpGenerator } from "blockly/php";
+import { Order } from "blockly/javascript";
+import { Order as PythonOrder } from "blockly/python";
+import { Order as LuaOrder } from "blockly/lua";
+import { Order as PhpOrder } from "blockly/php";
 
 export interface CustomBlock {
   definition: { type: string } & Record<string, unknown>;
   generator?: string;
-  generatorLanguage?: 'javascript' | 'python' | 'lua'; // Новое поле для языка генератора
+  generatorLanguage?: "javascript" | "python" | "lua" | "php"; // Новое поле для языка генератора
   id: string;
   name: string;
   created: number;
 }
 
-const CUSTOM_BLOCKS_KEY = 'custom_blocks';
+const CUSTOM_BLOCKS_KEY = "custom_blocks";
 
 /**
  * Получить все пользовательские блоки из localStorage
@@ -31,7 +33,7 @@ export function getCustomBlocks(): CustomBlock[] {
     const stored = localStorage.getItem(CUSTOM_BLOCKS_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error('Error loading custom blocks:', error);
+    console.error("Error loading custom blocks:", error);
     return [];
   }
 }
@@ -43,7 +45,7 @@ function saveCustomBlocks(blocks: CustomBlock[]) {
   try {
     localStorage.setItem(CUSTOM_BLOCKS_KEY, JSON.stringify(blocks));
   } catch (error) {
-    console.error('Error saving custom blocks:', error);
+    console.error("Error saving custom blocks:", error);
   }
 }
 
@@ -53,29 +55,31 @@ function saveCustomBlocks(blocks: CustomBlock[]) {
 export function addCustomBlock(
   definition: { type: string } & Record<string, unknown>,
   generator?: string,
-  generatorLanguage?: 'javascript' | 'python' | 'lua'
+  generatorLanguage?: "javascript" | "python" | "lua" | "php",
 ): boolean {
   try {
     // Валидация определения блока
-    if (!definition || typeof definition !== 'object') {
-      throw new Error('Invalid block definition');
+    if (!definition || typeof definition !== "object") {
+      throw new Error("Invalid block definition");
     }
-    
-    if (!definition.type || typeof definition.type !== 'string') {
-      throw new Error('Block must have a valid type');
+
+    if (!definition.type || typeof definition.type !== "string") {
+      throw new Error("Block must have a valid type");
     }
 
     // Проверить, что блок уже не существует
     const existingBlocks = getCustomBlocks();
-    const existsIndex = existingBlocks.findIndex(b => b.definition.type === definition.type);
-    
+    const existsIndex = existingBlocks.findIndex(
+      (b) => b.definition.type === definition.type,
+    );
+
     const newBlock: CustomBlock = {
       definition,
       generator,
-      generatorLanguage: generatorLanguage || 'javascript', // По умолчанию JavaScript
+      generatorLanguage: generatorLanguage || "javascript", // По умолчанию JavaScript
       id: definition.type,
       name: definition.type,
-      created: Date.now()
+      created: Date.now(),
     };
 
     if (existsIndex >= 0) {
@@ -89,7 +93,7 @@ export function addCustomBlock(
     saveCustomBlocks(existingBlocks);
     return true;
   } catch (error) {
-    console.error('Error adding custom block:', error);
+    console.error("Error adding custom block:", error);
     return false;
   }
 }
@@ -100,16 +104,16 @@ export function addCustomBlock(
 export function removeCustomBlock(blockType: string): boolean {
   try {
     const blocks = getCustomBlocks();
-    const filtered = blocks.filter(b => b.definition.type !== blockType);
-    
+    const filtered = blocks.filter((b) => b.definition.type !== blockType);
+
     if (filtered.length !== blocks.length) {
       saveCustomBlocks(filtered);
       return true;
     }
-    
+
     return false;
   } catch (error) {
-    console.error('Error removing custom block:', error);
+    console.error("Error removing custom block:", error);
     return false;
   }
 }
@@ -119,132 +123,189 @@ export function removeCustomBlock(blockType: string): boolean {
  */
 export function registerCustomBlocks() {
   const customBlocks = getCustomBlocks();
-  
+
   if (customBlocks.length === 0) {
     return;
   }
 
   // Создаем объект с определениями блоков
   const blockDefinitions: { [key: string]: any } = {};
-  
-  customBlocks.forEach(block => {
+
+  customBlocks.forEach((block) => {
     // Добавляем init функцию, которая инициализирует блок из JSON-определения
     const definition = {
       ...block.definition,
-      init: function(this: Blockly.Block) {
+      init: function (this: Blockly.Block) {
         // Полная инициализация из JSON, чтобы корректно отрисовывались поля/входы/сообщения
         this.jsonInit(block.definition);
-      }
+      },
     };
-    
+
     blockDefinitions[block.definition.type] = definition;
-    
+
     // Регистрируем генератор, если он есть
     if (block.generator) {
       try {
-        console.log(`Registering generator for block ${block.definition.type} (${block.generatorLanguage || 'javascript'}):`, block.generator);
-        
+        console.log(
+          `Registering generator for block ${block.definition.type} (${block.generatorLanguage || "javascript"}):`,
+          block.generator,
+        );
+
         // Очищаем код генератора от TypeScript конструкций и экранируем шаблоны
-        let cleanGenerator = stripTypeScriptFromJs(block.generator || '');
-        
+        let cleanGenerator = stripTypeScriptFromJs(block.generator || "");
+
         // Определяем целевой генератор и Order в зависимости от языка
-        let targetGenerator: typeof javascriptGenerator | typeof pythonGenerator | typeof luaGenerator;
-        let targetOrder: typeof Order | typeof PythonOrder | typeof LuaOrder;
-        
+        let targetGenerator:
+          | typeof javascriptGenerator
+          | typeof pythonGenerator
+          | typeof luaGenerator
+          | typeof phpGenerator;
+        let targetOrder:
+          | typeof Order
+          | typeof PythonOrder
+          | typeof LuaOrder
+          | typeof PhpOrder;
+
         switch (block.generatorLanguage) {
-          case 'python':
+          case "python":
             targetGenerator = pythonGenerator;
             targetOrder = PythonOrder;
             break;
-          case 'lua':
+          case "lua":
             targetGenerator = luaGenerator;
             targetOrder = LuaOrder;
             break;
-          case 'javascript':
+          case "php":
+            targetGenerator = phpGenerator;
+            targetOrder = PhpOrder;
+            break;
+          case "javascript":
           default:
             targetGenerator = javascriptGenerator;
             targetOrder = Order;
             break;
         }
-        
+
         // Создаем функцию генератора через Function constructor с лучшей обработкой ошибок
-        (targetGenerator.forBlock as any)[block.definition.type] = function(blockInstance: Blockly.Block) {
-          console.log(`Executing generator for block ${blockInstance.type} (${block.generatorLanguage || 'javascript'})`);
+        (targetGenerator.forBlock as any)[block.definition.type] = function (
+          blockInstance: Blockly.Block,
+        ) {
+          console.log(
+            `Executing generator for block ${blockInstance.type} (${block.generatorLanguage || "javascript"})`,
+          );
           try {
             // Создаем тело функции генератора без использования шаблонных литералов,
             // чтобы не ломать пользовательский код с бэктиками и ${}
             const body =
-              'try {\n' +
+              "try {\n" +
               cleanGenerator +
-              '\n} catch (error) {\n' +
+              "\n} catch (error) {\n" +
               "  const msg = (error && error.message) ? error.message : String(error);\n" +
               "  console.error('Error in user generator:', error);\n" +
               "  return '// Error in generator: ' + msg + '\\n';\n" +
-              '}';
-            
+              "}";
+
             // Создаем функцию генератора, предоставляя доступ к генераторам через глобальные объекты
             // Это позволяет пользовательскому коду использовать `pythonGenerator`, `luaGenerator` и `javascriptGenerator`
             const generatorFunction = new Function(
-              'block', 
-              'Order', 
-              'javascriptGenerator', 
-              'pythonGenerator', 
-              'luaGenerator',
-              body
+              "block",
+              "Order",
+              "javascriptGenerator",
+              "pythonGenerator",
+              "luaGenerator",
+              "phpGenerator",
+              body,
             );
             const result = generatorFunction(
-              blockInstance, 
-              targetOrder, 
-              javascriptGenerator, 
-              pythonGenerator, 
-              luaGenerator
+              blockInstance,
+              targetOrder,
+              javascriptGenerator,
+              pythonGenerator,
+              luaGenerator,
+              phpGenerator,
             );
             console.log(`Generator result for ${blockInstance.type}:`, result);
             return result || `// Custom block: ${blockInstance.type}\n`;
           } catch (error) {
-            const msg = (error && typeof (error as any).message === 'string') ? (error as any).message : String(error);
-            console.error(`Runtime error in generator for ${blockInstance.type}:`, error);
+            const msg =
+              error && typeof (error as any).message === "string"
+                ? (error as any).message
+                : String(error);
+            console.error(
+              `Runtime error in generator for ${blockInstance.type}:`,
+              error,
+            );
             return `// Runtime error in generator: ${msg}\n`;
           }
         };
-        console.log(`Successfully registered generator for ${block.definition.type}`);
+        console.log(
+          `Successfully registered generator for ${block.definition.type}`,
+        );
       } catch (error) {
-        console.error(`Error registering generator for block ${block.definition.type}:`, error);
+        console.error(
+          `Error registering generator for block ${block.definition.type}:`,
+          error,
+        );
         // Создаем простой генератор по умолчанию для всех трех языков
-        const fallbackGenerator = function(block: Blockly.Block) {
+        const fallbackGenerator = function (block: Blockly.Block) {
           return `// Custom block: ${block.type}\n`;
         };
-        (javascriptGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
-        (pythonGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
-        (luaGenerator.forBlock as any)[block.definition.type] = fallbackGenerator;
+        (javascriptGenerator.forBlock as any)[block.definition.type] =
+          fallbackGenerator;
+        (pythonGenerator.forBlock as any)[block.definition.type] =
+          fallbackGenerator;
+        (luaGenerator.forBlock as any)[block.definition.type] =
+          fallbackGenerator;
+        (phpGenerator.forBlock as any)[block.definition.type] =
+          fallbackGenerator;
       }
     } else {
       // Встроенные генераторы для некоторых типов блоков
-      if (block.definition.type === 'return_value') {
+      if (block.definition.type === "return_value") {
         // Генераторы для блока return отдельно для каждого языка
-        const returnGeneratorJs = function(block: Blockly.Block) {
-          const value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
+        const returnGeneratorJs = function (block: Blockly.Block) {
+          const value =
+            javascriptGenerator.valueToCode(block, "VALUE", Order.NONE) ||
+            "null";
           return `return ${value};\n`;
         };
-        const returnGeneratorPy = function(block: Blockly.Block) {
-          const value = pythonGenerator.valueToCode(block, 'VALUE', PythonOrder.NONE) || 'None';
+        const returnGeneratorPy = function (block: Blockly.Block) {
+          const value =
+            pythonGenerator.valueToCode(block, "VALUE", PythonOrder.NONE) ||
+            "None";
           return `return ${value}\n`;
         };
-        const returnGeneratorLua = function(block: Blockly.Block) {
-          const value = luaGenerator.valueToCode(block, 'VALUE', LuaOrder.NONE) || 'nil';
+        const returnGeneratorLua = function (block: Blockly.Block) {
+          const value =
+            luaGenerator.valueToCode(block, "VALUE", LuaOrder.NONE) || "nil";
           return `return ${value}\n`;
         };
-        (javascriptGenerator.forBlock as any)[block.definition.type] = returnGeneratorJs;
-        (pythonGenerator.forBlock as any)[block.definition.type] = returnGeneratorPy;
-        (luaGenerator.forBlock as any)[block.definition.type] = returnGeneratorLua;
+        const returnGeneratorPhp = function (block: Blockly.Block) {
+          const value =
+            phpGenerator.valueToCode(block, "VALUE", PhpOrder.NONE) || "null";
+          return `return ${value};\n`;
+        };
+        (javascriptGenerator.forBlock as any)[block.definition.type] =
+          returnGeneratorJs;
+        (pythonGenerator.forBlock as any)[block.definition.type] =
+          returnGeneratorPy;
+        (luaGenerator.forBlock as any)[block.definition.type] =
+          returnGeneratorLua;
+        (phpGenerator.forBlock as any)[block.definition.type] =
+          returnGeneratorPhp;
       } else {
         // Генератор по умолчанию для остальных блоков
-        const defaultGenerator = function(block: Blockly.Block) {
+        const defaultGenerator = function (block: Blockly.Block) {
           return `// Custom block: ${block.type}\n`;
         };
-        (javascriptGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
-        (pythonGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
-        (luaGenerator.forBlock as any)[block.definition.type] = defaultGenerator;
+        (javascriptGenerator.forBlock as any)[block.definition.type] =
+          defaultGenerator;
+        (pythonGenerator.forBlock as any)[block.definition.type] =
+          defaultGenerator;
+        (luaGenerator.forBlock as any)[block.definition.type] =
+          defaultGenerator;
+        (phpGenerator.forBlock as any)[block.definition.type] =
+          defaultGenerator;
       }
     }
   });
@@ -258,23 +319,23 @@ export function registerCustomBlocks() {
  */
 export function getCustomBlocksToolboxCategory(): Blockly.utils.toolbox.StaticCategoryInfo | null {
   const customBlocks = getCustomBlocks();
-  
+
   if (customBlocks.length === 0) {
     return null;
   }
 
   return {
-    kind: 'category',
-    name: 'My Blocks', // Будет переведено в toolbox
-    colour: '#9C27B0',
+    kind: "category",
+    name: "My Blocks", // Будет переведено в toolbox
+    colour: "#9C27B0",
     id: undefined,
     categorystyle: undefined,
     cssconfig: undefined,
     hidden: undefined,
-    contents: customBlocks.map(block => ({
-      kind: 'block',
-      type: block.definition.type
-    }))
+    contents: customBlocks.map((block) => ({
+      kind: "block",
+      type: block.definition.type,
+    })),
   };
 }
 
@@ -284,7 +345,7 @@ export function getCustomBlocksToolboxCategory(): Blockly.utils.toolbox.StaticCa
 export function importBlockFromJson(
   jsonString: string,
   generatorCode?: string,
-  generatorLanguage?: 'javascript' | 'python' | 'lua'
+  generatorLanguage?: "javascript" | "python" | "lua" | "php",
 ): { success: boolean; error?: string; blockType?: string } {
   try {
     const parsed = JSON.parse(jsonString);
@@ -306,24 +367,40 @@ export function importBlockFromJson(
     }
 
     // Базовая валидация определения
-    if (!definition || typeof definition !== 'object') {
-      return { success: false, error: 'Некорректный JSON определения блока' };
+    if (!definition || typeof definition !== "object") {
+      return { success: false, error: "Некорректный JSON определения блока" };
     }
     if (!definition.type) {
-      return { success: false, error: 'В определении блока отсутствует поле "type"' };
+      return {
+        success: false,
+        error: 'В определении блока отсутствует поле "type"',
+      };
     }
-    if (!('message0' in definition) && !('message1' in definition)) {
-      return { success: false, error: 'В определении блока отсутствует поле message0/message1' };
+    if (!("message0" in definition) && !("message1" in definition)) {
+      return {
+        success: false,
+        error: "В определении блока отсутствует поле message0/message1",
+      };
     }
 
     // Очистка TS-конструкций для JS генератора
-    if (generatorLanguage === 'javascript' && typeof generatorCode === 'string') {
+    if (
+      generatorLanguage === "javascript" &&
+      typeof generatorCode === "string"
+    ) {
       generatorCode = stripTypeScriptFromJs(generatorCode);
     }
 
-    const success = addCustomBlock(definition, generatorCode ?? inlineGenerator, generatorLanguage);
+    const success = addCustomBlock(
+      definition,
+      generatorCode ?? inlineGenerator,
+      generatorLanguage,
+    );
     if (!success) {
-      return { success: false, error: 'Блок с таким типом уже существует или не удалось сохранить' };
+      return {
+        success: false,
+        error: "Блок с таким типом уже существует или не удалось сохранить",
+      };
     }
 
     return { success: true, blockType: definition.type };
@@ -334,9 +411,9 @@ export function importBlockFromJson(
 
 // Helper to strip TypeScript constructs from user-supplied JS generator code
 function stripTypeScriptFromJs(code: string): string {
-  let out = code ?? '';
-  out = out.replace(/\s+as\s+[\w\.\[\]<>\|]+/g, '');
-  out = out.replace(/:\s*[\w\.\[\]<>\|\s,?]+/g, '');
-  out = out.replace(/<[^>]+>/g, '');
+  let out = code ?? "";
+  out = out.replace(/\s+as\s+[\w\.\[\]<>\|]+/g, "");
+  out = out.replace(/:\s*[\w\.\[\]<>\|\s,?]+/g, "");
+  out = out.replace(/<[^>]+>/g, "");
   return out;
 }

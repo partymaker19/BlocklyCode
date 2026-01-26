@@ -52,7 +52,7 @@ function syncInput(prompt: string): string {
     const len = ctrl[1] | 0;
     const dec = new TextDecoder();
     const text = dec.decode(
-      data.slice(0, Math.max(0, Math.min(len, data.length)))
+      data.slice(0, Math.max(0, Math.min(len, data.length))),
     );
     return text;
   } catch (e: any) {
@@ -127,7 +127,7 @@ function runJS(code: string, timeoutMs?: number) {
       "windowRef",
       "globalRef",
       "syncInputRef",
-      prelude + "\n" + String(code)
+      prelude + "\n" + String(code),
     ) as (
       print: (s: unknown) => void,
       printColored: (s: unknown, color: unknown) => void,
@@ -135,7 +135,7 @@ function runJS(code: string, timeoutMs?: number) {
       selfRef: unknown,
       windowRef: unknown,
       globalRef: unknown,
-      syncInputRef: (p: string) => string
+      syncInputRef: (p: string) => string,
     ) => void;
     fn(
       print,
@@ -144,7 +144,7 @@ function runJS(code: string, timeoutMs?: number) {
       self as unknown,
       self as unknown,
       self as unknown,
-      syncInput
+      syncInput,
     );
     post({ type: "done" });
   } catch (e: unknown) {
@@ -162,7 +162,7 @@ async function runPython(code: string, timeoutMs?: number) {
   try {
     post({ type: "status", text: "Загрузка Pyodide..." });
     (self as any).importScripts(
-      "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js"
+      "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js",
     );
     const loadPyodide = (self as any).loadPyodide;
     const pyodide = await loadPyodide({
@@ -218,13 +218,13 @@ sys.settrace(_trace)
 
     // Переопределяем input -> синхронный ввод через SharedArrayBuffer
     pyodide.globals.set("input", (prompt: any) =>
-      syncInput(String(prompt ?? ""))
+      syncInput(String(prompt ?? "")),
     );
 
     try {
       // Обёртка: добавляем удобную функцию print_colored
       await pyodide.runPythonAsync(
-        "def print_colored(s, c):\n    print_to_dom_color(str(s), str(c))"
+        "def print_colored(s, c):\n    print_to_dom_color(str(s), str(c))",
       );
       await pyodide.runPythonAsync(code);
     } finally {
@@ -359,6 +359,142 @@ async function runLua(code: string, timeoutMs?: number) {
   }
 }
 
+let _phpWasmLoaded: Promise<{
+  php: any;
+  flushStdout: () => void;
+  flushStderr: () => void;
+}> | null = null;
+async function loadPhpWasm(): Promise<{
+  php: any;
+  flushStdout: () => void;
+  flushStderr: () => void;
+}> {
+  if (_phpWasmLoaded) return _phpWasmLoaded;
+  _phpWasmLoaded = (async () => {
+    const href = (self as any).location?.href || "";
+    const jsUrl = href
+      ? new URL("libs/php-wasm/php-worker.js", href).toString()
+      : "libs/php-wasm/php-worker.js";
+    try {
+      (self as any).importScripts(jsUrl);
+    } catch (e) {
+      throw new Error("php-wasm не удалось загрузить");
+    }
+    const factory = (self as any).PHP;
+    if (!factory) {
+      throw new Error("php-wasm не инициализирован");
+    }
+    const locateFile = (path: string) => {
+      const base = href
+        ? new URL("libs/php-wasm/", href).toString()
+        : "libs/php-wasm/";
+      try {
+        return new URL(path, base).toString();
+      } catch {
+        return base + path;
+      }
+    };
+    const stdoutDec = new TextDecoder("utf-8");
+    let stdoutBuf = "";
+    const stdoutState = (bytes: Uint8Array) => {
+      stdoutBuf += stdoutDec.decode(bytes, { stream: true });
+      while (true) {
+        const nl = stdoutBuf.indexOf("\n");
+        if (nl === -1) break;
+        const line = stdoutBuf.slice(0, nl).replace(/\r$/, "");
+        stdoutBuf = stdoutBuf.slice(nl + 1);
+        if (line.length) post({ type: "stdout", text: line });
+      }
+    };
+
+    const stderrDec = new TextDecoder("utf-8");
+    let stderrBuf = "";
+    const stderrState = (bytes: Uint8Array) => {
+      stderrBuf += stderrDec.decode(bytes, { stream: true });
+      while (true) {
+        const nl = stderrBuf.indexOf("\n");
+        if (nl === -1) break;
+        const line = stderrBuf.slice(0, nl).replace(/\r$/, "");
+        stderrBuf = stderrBuf.slice(nl + 1);
+        if (line.length) post({ type: "stderr", text: line });
+      }
+    };
+
+    const php = await factory({
+      locateFile,
+      print: (s: any) => {
+        const text = String(s ?? "");
+        const parts = text.split(/\r?\n/);
+        for (const line of parts) {
+          if (!line) continue;
+          post({ type: "stdout", text: line });
+        }
+      },
+      printErr: (s: any) => {
+        const text = String(s ?? "");
+        const parts = text.split(/\r?\n/);
+        for (const line of parts) {
+          if (!line) continue;
+          post({ type: "stderr", text: line });
+        }
+      },
+    });
+
+    try {
+      php.stdout = stdoutState;
+      php.stderr = stderrState;
+    } catch {}
+    try {
+      php.ccall("pib_storage_init", "number", [], []);
+    } catch {}
+    try {
+      if (!php.FS.analyzePath("/preload").exists) php.FS.mkdir("/preload");
+    } catch {}
+    try {
+      php.FS.writeFile("/php.ini", "\n", { encoding: "utf8" });
+    } catch {}
+    await php.ccall("pib_init", "number", ["string"], ["embed"], {
+      async: true,
+    });
+    const flushStdout = () => {
+      const line = stdoutBuf.replace(/\r?\n/g, "").trimEnd();
+      if (line.length) post({ type: "stdout", text: line });
+      stdoutBuf = "";
+    };
+    const flushStderr = () => {
+      const line = stderrBuf.replace(/\r?\n/g, "").trimEnd();
+      if (line.length) post({ type: "stderr", text: line });
+      stderrBuf = "";
+    };
+
+    return { php, flushStdout, flushStderr };
+  })();
+  return _phpWasmLoaded;
+}
+
+async function runPhp(code: string, timeoutMs?: number) {
+  try {
+    post({ type: "status", text: "Загрузка PHP..." });
+    const loaded = await loadPhpWasm();
+    const php = loaded.php;
+
+    _deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
+    post({ type: "status", text: "" });
+    const trimmed = String(code ?? "");
+    const source = trimmed.trimStart().startsWith("<?")
+      ? trimmed
+      : `<?php\n${trimmed}\n?>`;
+    await php.ccall("pib_run", "number", ["string"], [`?>${source}`], {
+      async: true,
+    });
+    loaded.flushStdout();
+    loaded.flushStderr();
+    post({ type: "done" });
+  } catch (e: any) {
+    post({ type: "error", message: String(e?.message || e) });
+  }
+}
+
 self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
   const msg = ev.data as WorkerInMsg;
   // Обрабатываем объединённый тип: запуск кода или ответ ввода
@@ -376,6 +512,8 @@ self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
         runPython(code, timeoutMs);
       } else if (language === "lua") {
         runLua(code, timeoutMs);
+      } else if (language === "php") {
+        runPhp(code, timeoutMs);
       } else {
         post({ type: "error", message: `Неизвестный язык: ${language}` });
       }

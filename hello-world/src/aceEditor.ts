@@ -2,6 +2,7 @@ import type * as Blockly from "blockly/core";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
+import { phpGenerator } from "blockly/php";
 import type { SupportedLanguage } from "./types/messages";
 import { getAppLang, getAceUIStrings } from "./localization";
 
@@ -16,6 +17,7 @@ import "ace-builds/src-noconflict/keybinding-emacs";
 import "ace-builds/src-noconflict/snippets/javascript";
 import "ace-builds/src-noconflict/snippets/python";
 import "ace-builds/src-noconflict/snippets/lua";
+import "ace-builds/src-noconflict/snippets/php";
 
 (ace as any).config.set("basePath", "ace");
 (ace as any).config.set("modePath", "ace");
@@ -23,9 +25,11 @@ import "ace-builds/src-noconflict/snippets/lua";
 (ace as any).config.set("workerPath", "ace");
 
 type AceMode = { $id?: string } | any;
-interface AceDocument { getAllLines(): string[] }
+interface AceDocument {
+  getAllLines(): string[];
+}
 interface AceSession {
-  setMode(mode: string): void;
+  setMode(mode: any): void;
   getMode(): AceMode;
   getLength(): number;
   setTabSize(size: number): void;
@@ -113,13 +117,15 @@ function saveAceSettings(settings: Partial<AceSettings>) {
 let braceHighlightEnabled = false;
 let braceMarkerIds: number[] = [];
 // Отложенное содержимое для Ace до инициализации редактора
-let pendingAceInit: { code: string; mode: string } | null = null;
+let pendingAceInit: { code: string; mode: any } | null = null;
 
 function clearBraceMarkers() {
   if (!aceEditor) return;
   const session = aceEditor.session;
   for (const id of braceMarkerIds) {
-    try { session.removeMarker(id); } catch {}
+    try {
+      session.removeMarker(id);
+    } catch {}
   }
   braceMarkerIds = [];
 }
@@ -139,7 +145,7 @@ function updateBraceMarkers() {
   let depth = 0;
 
   let inBlockComment = false;
-  let inString: '"' | "'" | '`' | null = null;
+  let inString: '"' | "'" | "`" | null = null;
   let stringEscape = false;
 
   for (let row = 0; row < lines.length; row++) {
@@ -147,24 +153,24 @@ function updateBraceMarkers() {
     let inLineComment = false;
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
-      const prev = i > 0 ? line[i - 1] : '';
-      const next = i + 1 < line.length ? line[i + 1] : '';
+      const prev = i > 0 ? line[i - 1] : "";
+      const next = i + 1 < line.length ? line[i + 1] : "";
 
       // Handle end of block comment
       if (inBlockComment) {
-        if (prev === '*' && ch === '/' && i > 0) {
+        if (prev === "*" && ch === "/" && i > 0) {
           inBlockComment = false;
         }
         continue;
       }
 
       // Handle line comments //
-      if (!inString && !inLineComment && ch === '/' && next === '/') {
+      if (!inString && !inLineComment && ch === "/" && next === "/") {
         inLineComment = true; // rest of line ignored
         break;
       }
       // Handle start of block comment /* */
-      if (!inString && ch === '/' && next === '*') {
+      if (!inString && ch === "/" && next === "*") {
         inBlockComment = true;
         i++; // skip '*'
         continue;
@@ -176,7 +182,7 @@ function updateBraceMarkers() {
           stringEscape = false;
           continue;
         }
-        if (ch === '\\') {
+        if (ch === "\\") {
           stringEscape = true;
           continue;
         }
@@ -185,30 +191,40 @@ function updateBraceMarkers() {
         }
         continue;
       } else {
-        if (ch === '"' || ch === '\'' || ch === '`') {
+        if (ch === '"' || ch === "'" || ch === "`") {
           inString = ch as any;
           stringEscape = false;
           continue;
         }
       }
 
-      if (ch === '{') {
+      if (ch === "{") {
         depth += 1;
         stack.push({ row, col: i, depth });
         // Добавляем маркер для самой открывающей скобки
         const level = ((depth - 1) % 6) + 1; // 1..6
         const openRange = new Range(row, i, row, i + 1);
         try {
-          const idOpen = session.addMarker(openRange, `brace-level-${level}`, 'text', true);
+          const idOpen = session.addMarker(
+            openRange,
+            `brace-level-${level}`,
+            "text",
+            true,
+          );
           braceMarkerIds.push(idOpen);
         } catch {}
-      } else if (ch === '}') {
+      } else if (ch === "}") {
         const open = stack.pop();
-        const level = open ? (((open.depth - 1) % 6) + 1) : (((depth - 1) % 6) + 1);
+        const level = open ? ((open.depth - 1) % 6) + 1 : ((depth - 1) % 6) + 1;
         // Добавляем маркер для закрывающей скобки
         const closeRange = new Range(row, i, row, i + 1);
         try {
-          const idClose = session.addMarker(closeRange, `brace-level-${level}`, 'text', true);
+          const idClose = session.addMarker(
+            closeRange,
+            `brace-level-${level}`,
+            "text",
+            true,
+          );
           braceMarkerIds.push(idClose);
         } catch {}
         if (depth > 0) depth -= 1;
@@ -224,11 +240,11 @@ export function getAceEditor(): AceEditor | null {
 // Синхронизация ACE редактора с текущей рабочей областью Blockly
 export function updateAceEditorFromWorkspace(
   workspace: Blockly.Workspace | Blockly.WorkspaceSvg,
-  lang: SupportedLanguage
+  lang: SupportedLanguage,
 ) {
   // Определяем генератор и режим подсветки
   let code = "";
-  let mode = "ace/mode/javascript";
+  let mode: any = "ace/mode/javascript";
   try {
     if (lang === "python") {
       code = pythonGenerator.workspaceToCode(workspace);
@@ -236,6 +252,9 @@ export function updateAceEditorFromWorkspace(
     } else if (lang === "lua") {
       code = luaGenerator.workspaceToCode(workspace);
       mode = "ace/mode/lua";
+    } else if (lang === "php") {
+      code = phpGenerator.workspaceToCode(workspace);
+      mode = { path: "ace/mode/php", inline: true };
     } else {
       code = javascriptGenerator.workspaceToCode(workspace);
       mode = "ace/mode/javascript";
@@ -250,7 +269,9 @@ export function updateAceEditorFromWorkspace(
     if (braceHighlightEnabled) {
       braceHighlightEnabled = false;
       try {
-        const btn = document.getElementById("aceBracesBtn") as HTMLButtonElement | null;
+        const btn = document.getElementById(
+          "aceBracesBtn",
+        ) as HTMLButtonElement | null;
         if (btn) {
           btn.classList.remove("active");
           btn.setAttribute("aria-pressed", "false");
@@ -307,11 +328,16 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     // Register popular snippets and custom completers
     try {
       const langTools = (ace as any).require("ace/ext/language_tools");
-      const snippetManager = (ace as any).require("ace/snippets").snippetManager;
+      const snippetManager = (ace as any).require(
+        "ace/snippets",
+      ).snippetManager;
 
       // Helper to register snippet objects for a language
-      const registerSnippets = (lang: string, snippets: Array<{ name: string; tabTrigger: string; content: string }>) => {
-        const list = snippets.map(s => ({
+      const registerSnippets = (
+        lang: string,
+        snippets: Array<{ name: string; tabTrigger: string; content: string }>,
+      ) => {
+        const list = snippets.map((s) => ({
           content: s.content,
           name: s.name,
           tabTrigger: s.tabTrigger,
@@ -322,48 +348,158 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
 
       // JavaScript snippets (including console.log)
       registerSnippets("javascript", [
-        { name: "console.log", tabTrigger: "clg", content: "console.log(${1});" },
-        { name: "console.error", tabTrigger: "cle", content: "console.error(${1});" },
-        { name: "console.warn", tabTrigger: "clw", content: "console.warn(${1});" },
-        { name: "function", tabTrigger: "fn", content: "function ${1:name}(${2:args}) {\n\t${3}// body\n}" },
-        { name: "arrow function", tabTrigger: "afn", content: "const ${1:name} = (${2:args}) => {\n\t${3}// body\n};" },
-        { name: "for index", tabTrigger: "fori", content: "for (let ${1:i} = 0; ${1} < ${2:arr}.length; ${1}++) {\n\t${3}// body\n}" },
-        { name: "try/catch", tabTrigger: "tryc", content: "try {\n\t${1}// body\n} catch (${2:e}) {\n\tconsole.error(${2});\n}" },
-        { name: "import", tabTrigger: "imp", content: "import ${1:what} from '${2:module}';" },
-        { name: "export default", tabTrigger: "expd", content: "export default ${1:name};" },
+        {
+          name: "console.log",
+          tabTrigger: "clg",
+          content: "console.log(${1});",
+        },
+        {
+          name: "console.error",
+          tabTrigger: "cle",
+          content: "console.error(${1});",
+        },
+        {
+          name: "console.warn",
+          tabTrigger: "clw",
+          content: "console.warn(${1});",
+        },
+        {
+          name: "function",
+          tabTrigger: "fn",
+          content: "function ${1:name}(${2:args}) {\n\t${3}// body\n}",
+        },
+        {
+          name: "arrow function",
+          tabTrigger: "afn",
+          content: "const ${1:name} = (${2:args}) => {\n\t${3}// body\n};",
+        },
+        {
+          name: "for index",
+          tabTrigger: "fori",
+          content:
+            "for (let ${1:i} = 0; ${1} < ${2:arr}.length; ${1}++) {\n\t${3}// body\n}",
+        },
+        {
+          name: "try/catch",
+          tabTrigger: "tryc",
+          content:
+            "try {\n\t${1}// body\n} catch (${2:e}) {\n\tconsole.error(${2});\n}",
+        },
+        {
+          name: "import",
+          tabTrigger: "imp",
+          content: "import ${1:what} from '${2:module}';",
+        },
+        {
+          name: "export default",
+          tabTrigger: "expd",
+          content: "export default ${1:name};",
+        },
       ]);
 
       // Python snippets
       registerSnippets("python", [
         { name: "print", tabTrigger: "pr", content: "print(${1})" },
-        { name: "def", tabTrigger: "def", content: "def ${1:name}(${2:args}):\n\t${3:pass}" },
-        { name: "for range", tabTrigger: "forr", content: "for ${1:i} in range(${2:n}):\n\t${3:pass}" },
-        { name: "if __name__ == '__main__'", tabTrigger: "ifmain", content: "if __name__ == '__main__':\n\t${1}" },
-        { name: "with", tabTrigger: "with", content: "with ${1:expr} as ${2:var}:\n\t${3:pass}" },
-        { name: "class", tabTrigger: "class", content: "class ${1:Name}:\n\tdef __init__(self, ${2:args}):\n\t\t${3:pass}" },
-        { name: "try/except", tabTrigger: "trye", content: "try:\n\t${1:pass}\nexcept ${2:Exception} as ${3:e}:\n\tprint(${3})" },
+        {
+          name: "def",
+          tabTrigger: "def",
+          content: "def ${1:name}(${2:args}):\n\t${3:pass}",
+        },
+        {
+          name: "for range",
+          tabTrigger: "forr",
+          content: "for ${1:i} in range(${2:n}):\n\t${3:pass}",
+        },
+        {
+          name: "if __name__ == '__main__'",
+          tabTrigger: "ifmain",
+          content: "if __name__ == '__main__':\n\t${1}",
+        },
+        {
+          name: "with",
+          tabTrigger: "with",
+          content: "with ${1:expr} as ${2:var}:\n\t${3:pass}",
+        },
+        {
+          name: "class",
+          tabTrigger: "class",
+          content:
+            "class ${1:Name}:\n\tdef __init__(self, ${2:args}):\n\t\t${3:pass}",
+        },
+        {
+          name: "try/except",
+          tabTrigger: "trye",
+          content:
+            "try:\n\t${1:pass}\nexcept ${2:Exception} as ${3:e}:\n\tprint(${3})",
+        },
       ]);
 
       // Lua snippets
       registerSnippets("lua", [
         { name: "print", tabTrigger: "pr", content: "print(${1})" },
-        { name: "function", tabTrigger: "fn", content: "function ${1:name}(${2:args})\n\t${3} \nend" },
-        { name: "for i", tabTrigger: "fori", content: "for ${1:i}=1, ${2:n} do\n\t${3}\nend" },
-        { name: "pairs", tabTrigger: "pairs", content: "for ${1:k}, ${2:v} in pairs(${3:t}) do\n\t${4}\nend" },
-        { name: "ipairs", tabTrigger: "ipairs", content: "for ${1:i}, ${2:v} in ipairs(${3:t}) do\n\t${4}\nend" },
-        { name: "local", tabTrigger: "loc", content: "local ${1:name} = ${2:value}" },
+        {
+          name: "function",
+          tabTrigger: "fn",
+          content: "function ${1:name}(${2:args})\n\t${3} \nend",
+        },
+        {
+          name: "for i",
+          tabTrigger: "fori",
+          content: "for ${1:i}=1, ${2:n} do\n\t${3}\nend",
+        },
+        {
+          name: "pairs",
+          tabTrigger: "pairs",
+          content: "for ${1:k}, ${2:v} in pairs(${3:t}) do\n\t${4}\nend",
+        },
+        {
+          name: "ipairs",
+          tabTrigger: "ipairs",
+          content: "for ${1:i}, ${2:v} in ipairs(${3:t}) do\n\t${4}\nend",
+        },
+        {
+          name: "local",
+          tabTrigger: "loc",
+          content: "local ${1:name} = ${2:value}",
+        },
       ]);
 
       // Custom completer for JavaScript console.* helpers
       const consoleCompleter = {
-        getCompletions(editor: any, session: any, pos: any, prefix: string, cb: Function) {
+        getCompletions(
+          editor: any,
+          session: any,
+          pos: any,
+          prefix: string,
+          cb: Function,
+        ) {
           const id = session.getMode()?.$id || "";
           if (!/javascript$/.test(id)) return cb(null, []);
           const items = [
-            { caption: "console.log()", snippet: "console.log(${1});", meta: "console", score: 10000 },
-            { caption: "console.error()", snippet: "console.error(${1});", meta: "console", score: 9999 },
-            { caption: "console.warn()", snippet: "console.warn(${1});", meta: "console", score: 9998 },
-            { caption: "console.table()", snippet: "console.table(${1});", meta: "console", score: 9997 },
+            {
+              caption: "console.log()",
+              snippet: "console.log(${1});",
+              meta: "console",
+              score: 10000,
+            },
+            {
+              caption: "console.error()",
+              snippet: "console.error(${1});",
+              meta: "console",
+              score: 9999,
+            },
+            {
+              caption: "console.warn()",
+              snippet: "console.warn(${1});",
+              meta: "console",
+              score: 9998,
+            },
+            {
+              caption: "console.table()",
+              snippet: "console.table(${1});",
+              meta: "console",
+              score: 9997,
+            },
           ];
           cb(null, items);
         },
@@ -386,87 +522,89 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
   if (currentTheme === "dark") {
     aceEditor?.setTheme("ace/theme/monokai");
     const themeSelect = document.getElementById(
-      "aceThemeSelect"
+      "aceThemeSelect",
     ) as HTMLSelectElement | null;
     if (themeSelect) themeSelect.value = "ace/theme/monokai";
   }
 
   // Hook up toolbar controls
   const themeSelect = document.getElementById(
-    "aceThemeSelect"
+    "aceThemeSelect",
   ) as HTMLSelectElement | null;
   const fontSizeInput = document.getElementById(
-    "aceFontSize"
+    "aceFontSize",
   ) as HTMLInputElement | null;
   const tabSizeInput = document.getElementById(
-    "aceTabSize"
+    "aceTabSize",
   ) as HTMLInputElement | null;
   const wrapCheckbox = document.getElementById(
-    "aceWrap"
+    "aceWrap",
   ) as HTMLInputElement | null;
   const invisiblesCheckbox = document.getElementById(
-    "aceInvisibles"
+    "aceInvisibles",
   ) as HTMLInputElement | null;
   const activeLineCheckbox = document.getElementById(
-    "aceActiveLine"
+    "aceActiveLine",
   ) as HTMLInputElement | null;
   const printMarginCheckbox = document.getElementById(
-    "acePrintMargin"
+    "acePrintMargin",
   ) as HTMLInputElement | null;
   const gutterCheckbox = document.getElementById(
-    "aceGutter"
+    "aceGutter",
   ) as HTMLInputElement | null;
   const softTabsCheckbox = document.getElementById(
-    "aceSoftTabs"
+    "aceSoftTabs",
   ) as HTMLInputElement | null;
   const foldWidgetsCheckbox = document.getElementById(
-    "aceFoldWidgets"
+    "aceFoldWidgets",
   ) as HTMLInputElement | null;
   const keybindingSelect = document.getElementById(
-    "aceKeybinding"
+    "aceKeybinding",
   ) as HTMLSelectElement | null;
 
   const copyBtn = document.getElementById(
-    "copyCodeBtn"
+    "copyCodeBtn",
   ) as HTMLButtonElement | null;
   const downloadBtn = document.getElementById(
-    "downloadCodeBtn"
+    "downloadCodeBtn",
   ) as HTMLButtonElement | null;
 
   const searchBtn = document.getElementById(
-    "aceSearchBtn"
+    "aceSearchBtn",
   ) as HTMLButtonElement | null;
   const replaceBtn = document.getElementById(
-    "aceReplaceBtn"
+    "aceReplaceBtn",
   ) as HTMLButtonElement | null;
   const gotoBtn = document.getElementById(
-    "aceGotoBtn"
+    "aceGotoBtn",
   ) as HTMLButtonElement | null;
   const formatBtn = document.getElementById(
-    "aceFormatBtn"
+    "aceFormatBtn",
   ) as HTMLButtonElement | null;
-  const runBtn = document.getElementById("aceRunBtn") as HTMLButtonElement | null;
+  const runBtn = document.getElementById(
+    "aceRunBtn",
+  ) as HTMLButtonElement | null;
   const shortcutsBtn = document.getElementById(
-    "aceShortcutsBtn"
+    "aceShortcutsBtn",
   ) as HTMLButtonElement | null;
 
   const settingsToggle = document.getElementById(
-    "aceSettingsToggle"
+    "aceSettingsToggle",
   ) as HTMLButtonElement | null;
   const settingsPanel = document.getElementById(
-    "aceSettingsPanel"
+    "aceSettingsPanel",
   ) as HTMLDivElement | null;
   const aceSaveBtn = document.getElementById(
-    "aceSaveSettings"
+    "aceSaveSettings",
   ) as HTMLButtonElement | null;
 
   const statusBar = document.getElementById(
-    "editorStatusbar"
+    "editorStatusbar",
   ) as HTMLDivElement | null;
 
   // Also resolve braces button
   const bracesBtn = document.getElementById(
-    "aceBracesBtn"
+    "aceBracesBtn",
   ) as HTMLButtonElement | null;
 
   // Apply saved Ace settings on init (deferred)
@@ -539,14 +677,20 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
   if (fontSizeInput)
     fontSizeInput.addEventListener("input", () => {
       if (aceEditor && fontSizeInput.value) {
-        const fontSize = Math.max(10, Math.min(24, parseInt(fontSizeInput.value, 10)));
+        const fontSize = Math.max(
+          10,
+          Math.min(24, parseInt(fontSizeInput.value, 10)),
+        );
         aceEditor.setFontSize(fontSize);
       }
     });
   if (tabSizeInput)
     tabSizeInput.addEventListener("input", () => {
       if (aceEditor && tabSizeInput.value) {
-        const tabSize = Math.max(2, Math.min(8, parseInt(tabSizeInput.value, 10)));
+        const tabSize = Math.max(
+          2,
+          Math.min(8, parseInt(tabSizeInput.value, 10)),
+        );
         aceEditor.session.setTabSize(tabSize);
       }
     });
@@ -624,25 +768,49 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       if (!aceEditor) return;
       const text = aceEditor.getValue();
       const lang = getSelectedLanguage();
-      const ext = lang === "python" ? "py" : lang === "lua" ? "lua" : "js";
+      const ext =
+        lang === "python"
+          ? "py"
+          : lang === "lua"
+            ? "lua"
+            : lang === "php"
+              ? "php"
+              : "js";
       const suggested = `code.${ext}`;
       const w: any = window as any;
       try {
         if (typeof w.showSaveFilePicker === "function") {
           const types = [
             {
-              description: lang === "python" ? "Python" : lang === "lua" ? "Lua" : "JavaScript",
+              description:
+                lang === "python"
+                  ? "Python"
+                  : lang === "lua"
+                    ? "Lua"
+                    : lang === "php"
+                      ? "PHP"
+                      : "JavaScript",
               accept: { "text/plain": [`.${ext}`] },
             },
           ];
           try {
-            const handle = await w.showSaveFilePicker({ suggestedName: suggested, types });
+            const handle = await w.showSaveFilePicker({
+              suggestedName: suggested,
+              types,
+            });
             const writable = await handle.createWritable();
-            await writable.write(new Blob([text], { type: "text/plain;charset=utf-8" }));
+            await writable.write(
+              new Blob([text], { type: "text/plain;charset=utf-8" }),
+            );
             await writable.close();
           } catch (e: any) {
             // Если пользователь отменил диалог или запретил доступ — ничего не сохраняем и не делаем фолбэк
-            if (e && (e.name === "AbortError" || e.name === "NotAllowedError" || e.name === "SecurityError")) {
+            if (
+              e &&
+              (e.name === "AbortError" ||
+                e.name === "NotAllowedError" ||
+                e.name === "SecurityError")
+            ) {
               return;
             }
             // В остальных случаях (например, неподдерживаемый контекст) — попробуем фолбэк ниже
@@ -653,9 +821,13 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         // игнорируем и перейдём к фолбэку ниже
       }
       // Фолбэк: обычная загрузка. Если пользователь нажмёт Отмена в prompt — ничего не сохраняем
-      const name = (typeof w?.prompt === "function"
-        ? w.prompt(getAppLang() === "ru" ? "Имя файла:" : "File name:", suggested)
-        : null);
+      const name =
+        typeof w?.prompt === "function"
+          ? w.prompt(
+              getAppLang() === "ru" ? "Имя файла:" : "File name:",
+              suggested,
+            )
+          : null;
       if (!name) return;
       const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
       const a = document.createElement("a");
@@ -738,7 +910,8 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       }
       if (invisiblesCheckbox) {
         next.showInvisibles = !!invisiblesCheckbox.checked;
-        if (aceEditor) aceEditor.setShowInvisibles(!!invisiblesCheckbox.checked);
+        if (aceEditor)
+          aceEditor.setShowInvisibles(!!invisiblesCheckbox.checked);
       }
       if (activeLineCheckbox) {
         next.highlightActiveLine = !!activeLineCheckbox.checked;
@@ -752,28 +925,36 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       }
       if (gutterCheckbox) {
         next.showGutter = !!gutterCheckbox.checked;
-        if (aceEditor) aceEditor.setOption("showGutter", !!gutterCheckbox.checked);
+        if (aceEditor)
+          aceEditor.setOption("showGutter", !!gutterCheckbox.checked);
       }
       if (softTabsCheckbox) {
         next.useSoftTabs = !!softTabsCheckbox.checked;
-        if (aceEditor) aceEditor.session.setUseSoftTabs(!!softTabsCheckbox.checked);
+        if (aceEditor)
+          aceEditor.session.setUseSoftTabs(!!softTabsCheckbox.checked);
       }
       if (foldWidgetsCheckbox) {
         next.showFoldWidgets = !!foldWidgetsCheckbox.checked;
-        if (aceEditor) aceEditor.setShowFoldWidgets(!!foldWidgetsCheckbox.checked);
+        if (aceEditor)
+          aceEditor.setShowFoldWidgets(!!foldWidgetsCheckbox.checked);
       }
       if (keybindingSelect && keybindingSelect.value) {
         const val = keybindingSelect.value;
         next.keybinding = val;
         if (aceEditor) {
           if (val === "vim") aceEditor.setKeyboardHandler("ace/keyboard/vim");
-          else if (val === "emacs") aceEditor.setKeyboardHandler("ace/keyboard/emacs");
+          else if (val === "emacs")
+            aceEditor.setKeyboardHandler("ace/keyboard/emacs");
           else aceEditor.setKeyboardHandler(null);
         }
       }
       saveAceSettings(next);
 
-      if (settingsPanel && settingsToggle && settingsPanel.classList.contains("open")) {
+      if (
+        settingsPanel &&
+        settingsToggle &&
+        settingsPanel.classList.contains("open")
+      ) {
         settingsPanel.classList.remove("open");
         settingsToggle.setAttribute("aria-expanded", "false");
         settingsToggle.focus();
@@ -803,7 +984,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       settingsPanel.classList.add("open");
       settingsToggle.setAttribute("aria-expanded", "true");
       const firstFocusable = settingsPanel.querySelector(
-        'input, select, button, [href], [tabindex]:not([tabindex="-1"])'
+        'input, select, button, [href], [tabindex]:not([tabindex="-1"])',
       ) as HTMLElement | null;
       if (firstFocusable) firstFocusable.focus();
     };
@@ -880,11 +1061,15 @@ export function refreshAceUILanguage() {
   try {
     const ui = getAceUIStrings(getAppLang());
     // Обновить текст кнопки сохранения настроек
-    const saveBtn = document.getElementById("aceSaveSettings") as HTMLButtonElement | null;
+    const saveBtn = document.getElementById(
+      "aceSaveSettings",
+    ) as HTMLButtonElement | null;
     if (saveBtn) saveBtn.textContent = ui.save;
 
     // Обновить статус-бар редактора
-    const statusBar = document.getElementById("editorStatusbar") as HTMLDivElement | null;
+    const statusBar = document.getElementById(
+      "editorStatusbar",
+    ) as HTMLDivElement | null;
     if (statusBar && aceEditor) {
       const pos = aceEditor.getCursorPosition();
       const row = pos.row + 1;

@@ -2076,6 +2076,77 @@
               берём
               текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную.</p>
           </div>
+          <div id="conditionInfoSection" class="console-output-info" style="display:none;">
+            <h4 id="conditionInfoHeader">Условные конструкции (if/else)</h4>
+            <p id="conditionInfoIntro">Условие позволяет программе принимать решения: если выражение истинно (true) —
+              выполняется один блок кода, если ложно (false) — другой или ничего.</p>
+            <h4 id="conditionInfoExamplesHeader" style="margin-top:12px;">Примеры:</h4>
+            <ul>
+              <li><strong>JavaScript:</strong>
+                <ul>
+                  <li><code id="conditionJsIfCode">if (score &gt;= 50) { console.log("Passed"); }</code> — <span
+                      id="conditionJsIfDesc">выполнить действие при условии</span></li>
+                  <li><code id="conditionJsIfElseCode">if (age &gt;= 18) { ... } else { ... }</code> — <span
+                      id="conditionJsIfElseDesc">две ветки: если / иначе</span></li>
+                </ul>
+              </li>
+              <li><strong>Python:</strong>
+                <ul>
+                  <li>
+                    <pre class="cond-code"><code id="conditionPyIfCode">if score &gt;= 50:
+  print("Passed")</code></pre>
+                    — <span id="conditionPyIfDesc">условие с отступами</span>
+                  </li>
+                  <li>
+                    <pre class="cond-code"><code id="conditionPyIfElseCode">if age &gt;= 18:
+  ...
+else:
+  ...</code></pre>
+                    — <span id="conditionPyIfElseDesc">ветка else</span>
+                  </li>
+                </ul>
+              </li>
+              <li><strong>Lua:</strong>
+                <ul>
+                  <li>
+                    <pre class="cond-code"><code id="conditionLuaIfCode">if score &gt;= 50 then
+  print("Passed")
+end</code></pre>
+                    — <span id="conditionLuaIfDesc">if ... then ... end</span>
+                  </li>
+                  <li>
+                    <pre class="cond-code"><code id="conditionLuaIfElseCode">if age &gt;= 18 then
+  ...
+else
+  ...
+end</code></pre>
+                    — <span id="conditionLuaIfElseDesc">ветка else</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <h4 id="conditionInfoOpsHeader" style="margin-top:12px;">Операторы сравнения</h4>
+            <p id="conditionInfoOpsIntro">Операторы сравнения возвращают логическое значение: <code>true</code> или
+              <code>false</code>.
+            </p>
+            <ul class="cond-ops">
+              <li><code>&gt;</code> — <span id="condOpGtDesc">больше</span></li>
+              <li><code>&lt;</code> — <span id="condOpLtDesc">меньше</span></li>
+              <li><code>&gt;=</code> — <span id="condOpGteDesc">больше или равно</span></li>
+              <li><code>&lt;=</code> — <span id="condOpLteDesc">меньше или равно</span></li>
+              <li><code>==</code> — <span id="condOpEqDesc">сравнение: равно</span></li>
+              <li><code>!=</code> — <span id="condOpNeqDesc">сравнение: не равно</span></li>
+              <li><code>~=</code> — <span id="condOpNeqLuaDesc">не равно (в Lua)</span></li>
+            </ul>
+            <p id="condOpEqNote" style="font-size: 0.9em; font-style: italic;">Важно: <code>==</code> — это сравнение, а
+              <code>=</code> — присваивание (например, <code>x = 5</code>). А <code>!=</code> означает “не равно” (в Lua
+              —
+              <code>~=</code>).
+            </p>
+            <p id="conditionInfoNote" style="font-size: 0.9em; font-style: italic;">Если нужно “ничего не делать” —
+              просто
+              оставьте ветку else пустой или не добавляйте её.</p>
+          </div>
         </div>
       </div>
     </aside>

@@ -360,6 +360,20 @@ export function localizeImportUI(lang: AppLang): void {
           IncDecDecDesc: "уменьшить на 1",
           IncDecInfoNote:
             "В Blockly это обычно делается так: берём текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную.",
+          ConditionInfoHeader: "Условные конструкции (if/else)",
+          ConditionInfoIntro:
+            "Условный оператор if/else позволяет программе принимать решения. Сначала вычисляется логическое выражение (условие), затем в зависимости от результата выполняется одна ветка кода (if) или другая (else). Так мы можем реагировать на разные ситуации — например, выводить сообщение только при выполнении нужного условия.",
+          ConditionInfoExamplesHeader: "Примеры:",
+          ConditionJsIfDesc: "выполнить действие при условии",
+          ConditionJsIfElseDesc: "две ветки: если / иначе",
+          ConditionPyIfDesc: "условие с отступами",
+          ConditionPyIfElseDesc: "ветка else",
+          ConditionLuaIfDesc: "if ... then ... end",
+          ConditionLuaIfElseDesc: "ветка else",
+          ConditionInfoOpsHeader: "Операторы сравнения",
+          ConditionInfoOpsText: ">, <, ==, != (в Lua — ~=).",
+          ConditionInfoNote:
+            "Если нужно “ничего не делать” — просто оставьте ветку else пустой или не добавляйте её.",
           RunFirst: "Сначала запустите код",
           TaskDifficultyBasic: "Основа",
           TaskDifficultyAdvanced: "Продвинутый",
@@ -458,6 +472,20 @@ export function localizeImportUI(lang: AppLang): void {
           IncDecDecDesc: "decrease by 1",
           IncDecInfoNote:
             "In Blockly you usually do it like this: take the current value, add 1, and assign it back to the same variable.",
+          ConditionInfoHeader: "Conditional statements (if/else)",
+          ConditionInfoIntro:
+            "The if/else statement lets a program make decisions. First a boolean expression (condition) is evaluated; depending on the result, either the if-branch or the else-branch runs. This lets you react to different situations — for example, only print a message when some requirement is met.",
+          ConditionInfoExamplesHeader: "Examples:",
+          ConditionJsIfDesc: "run code when the condition is true",
+          ConditionJsIfElseDesc: "two branches: if / else",
+          ConditionPyIfDesc: "indentation matters",
+          ConditionPyIfElseDesc: "else branch",
+          ConditionLuaIfDesc: "if ... then ... end",
+          ConditionLuaIfElseDesc: "else branch",
+          ConditionInfoOpsHeader: "Comparison operators",
+          ConditionInfoOpsText: ">, <, ==, != (Lua uses ~=).",
+          ConditionInfoNote:
+            "If you need to “do nothing”, leave the else branch empty or omit it.",
           RunFirst: "Run the code first",
           TaskDifficultyBasic: "Basic",
           TaskDifficultyAdvanced: "Advanced",

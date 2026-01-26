@@ -1471,6 +1471,51 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
         ? "В Blockly это обычно делается так: берём текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную."
         : "In Blockly you usually do it like this: take the current value, add 1, and assign it back to the same variable."),
   );
+
+  setText(
+    "conditionInfoHeader",
+    t?.ConditionInfoHeader ||
+      (lang === "ru"
+        ? "Условные конструкции (if/else)"
+        : "Conditional statements (if/else)"),
+  );
+  setText(
+    "conditionInfoIntro",
+    t?.ConditionInfoIntro ||
+      (lang === "ru"
+        ? "Условный оператор if/else позволяет программе принимать решения. Сначала вычисляется логическое выражение (условие), затем в зависимости от результата выполняется одна ветка кода (if) или другая (else). Так можно реагировать на разные ситуации — например, выводить сообщение только при выполнении нужного условия."
+        : "The if/else statement lets a program make decisions. First a boolean expression (condition) is evaluated; depending on the result, either the if-branch or the else-branch runs. This lets you react to different situations — for example, only print a message when some requirement is met."),
+  );
+  setText(
+    "conditionInfoExamplesHeader",
+    t?.ConditionInfoExamplesHeader ||
+      (lang === "ru" ? "Примеры:" : "Examples:"),
+  );
+  setText("conditionJsIfDesc", t?.ConditionJsIfDesc);
+  setText("conditionJsIfElseDesc", t?.ConditionJsIfElseDesc);
+  setText("conditionPyIfDesc", t?.ConditionPyIfDesc);
+  setText("conditionPyIfElseDesc", t?.ConditionPyIfElseDesc);
+  setText("conditionLuaIfDesc", t?.ConditionLuaIfDesc);
+  setText("conditionLuaIfElseDesc", t?.ConditionLuaIfElseDesc);
+  setText(
+    "conditionInfoOpsHeader",
+    t?.ConditionInfoOpsHeader ||
+      (lang === "ru" ? "Операторы сравнения" : "Comparison operators"),
+  );
+  setText(
+    "conditionInfoOpsIntro",
+    t?.ConditionInfoOpsText ||
+      (lang === "ru"
+        ? "Операторы сравнения возвращают логическое значение: true (истина) или false (ложь)."
+        : "Comparison operators return a boolean value: true or false."),
+  );
+  setText(
+    "conditionInfoNote",
+    t?.ConditionInfoNote ||
+      (lang === "ru"
+        ? "Если нужно “ничего не делать” — просто оставьте ветку else пустой или не добавляйте её."
+        : "If you need to “do nothing”, leave the else branch empty or omit it."),
+  );
 }
 
 localizeTaskSidebarStaticUI(defaultLang);

@@ -21,6 +21,7 @@ export type TaskId =
   | "inc_counter"
   | "discount_calc"
   | "sub_10_4"
+  | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
   | "min_max"
@@ -78,8 +79,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 3: My first variable",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте переменную с именем <strong><code>myAge</code></strong> и сохраните в неё число. Затем выведите значение этой переменной в окно вывода.<br><br><strong>Пример:</strong> вы устанавливаете значение <strong>10</strong>, и в окне вывода появляется <strong>10</strong>.<br><br><strong>Дополнительно (для исследования):</strong> после того как получилось, попробуйте изменить число в переменной или создать новую переменную с другим именем (например, <strong><code>birthYear</code></strong>) и вывести её."
-        : "Create a variable named <strong><code>myAge</code></strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong><code>birthYear</code></strong>) and printing it.",
+        ? "Создайте переменную с именем <strong>myAge</strong> и сохраните в неё число. Затем выведите значение этой переменной в окно вывода.<br><br><strong>Пример:</strong> вы устанавливаете значение <strong>10</strong>, и в окне вывода появляется <strong>10</strong>.<br><br><strong>Дополнительно (для исследования):</strong> после того как получилось, попробуйте изменить число в переменной или создать новую переменную с другим именем (например, <strong>birthYear</strong>) и вывести её."
+        : "Create a variable named <strong>myAge</strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong>birthYear</strong>) and printing it.",
     hint: (lang) =>
       lang === "ru"
         ? 'Подсказка: используйте "create variable..." в категории Variables, затем блок присваивания значения (например, число из Math) и блок вывода.'
@@ -112,8 +113,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 5: Greeting machine",
     description: (lang) =>
       lang === "ru"
-        ? 'Создайте текстовую переменную <strong><code>name</code></strong> и сохраните в неё ваше имя (например, <strong>"Anna"</strong>). Используйте соединение строк (конкатенацию), чтобы собрать и вывести фразу <strong>"Hello, " + name + "!"</strong>.'
-        : 'Create a text variable <strong><code>name</code></strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.',
+        ? 'Создайте текстовую переменную <strong>name</strong> и сохраните в неё ваше имя (например, <strong>"Anna"</strong>). Используйте соединение строк (конкатенацию), чтобы собрать и вывести фразу <strong>"Hello, " + name + "!"</strong>.'
+        : 'Create a text variable <strong>name</strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.',
     hint: (lang) =>
       lang === "ru"
         ? "Подсказка: используйте переменные (set/get), блок text_join из категории Текст и блок вывода."
@@ -154,10 +155,25 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: use variables (set/get) and arithmetic blocks. Build the expression step by step and print the result.",
     validate: validateDiscountCalc,
   },
+  first_condition: {
+    id: "first_condition",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 8: Первое условие" : "Task 8: First condition",
+    description: (lang) =>
+      lang === "ru"
+        ? 'Создайте переменную <strong>temperature</strong> и сохраните в неё какое-либо число. Задача: проверьте, что температура выше нуля. Если это так — выведите фразу <strong>"The weather is warm"</strong>. Если нет — не выводите ничего.'
+        : 'Create a variable <strong>temperature</strong> and store any number in it. Task: check that the temperature is above zero. If yes, print <strong>"The weather is warm"</strong>. If not, print nothing.',
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте if/else (Logic) и сравнение (Logic), например temperature > 0."
+        : "Hint: use if/else (Logic) and a comparison (Logic), e.g. temperature > 0.",
+    validate: validateFirstCondition,
+  },
   sub_10_4: {
     id: "sub_10_4",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 8: 10 − 4" : "Task 8: 10 − 4"),
+    title: (lang) => (lang === "ru" ? "Задача 9: 10 − 4" : "Task 9: 10 − 4"),
     description: (lang) =>
       lang === "ru"
         ? "Вычтите <strong>4</strong> из <strong>10</strong> и выведите результат в окно вывода: должно получиться <strong>6</strong>."
@@ -187,7 +203,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "sum_array",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 9: Сумма массива" : "Task 9: Array sum",
+      lang === "ru" ? "Задача 10: Сумма массива" : "Task 10: Array sum",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл."
@@ -202,7 +218,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "min_max",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 10: Минимум и максимум" : "Task 10: Min and Max",
+      lang === "ru" ? "Задача 11: Минимум и максимум" : "Task 11: Min and Max",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две."
@@ -218,8 +234,8 @@ const tasks: Record<TaskId, TaskDef> = {
     difficulty: "advanced",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 11: Частоты символов"
-        : "Task 11: Character frequencies",
+        ? "Задача 12: Частоты символов"
+        : "Task 12: Character frequencies",
     description: (lang) =>
       lang === "ru"
         ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -248,6 +264,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "greet_concat",
     "inc_counter",
     "discount_calc",
+    "first_condition",
     "sub_10_4",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
@@ -970,6 +987,136 @@ async function validateDiscountCalc(
   return { ok, stars };
 }
 
+async function validateFirstCondition(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+
+  const nonShadowBlocks = (() => {
+    try {
+      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    } catch {
+      return [];
+    }
+  })();
+
+  const getVarFieldText = (b: any): string => {
+    try {
+      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+      const t = typeof f?.getText === "function" ? f.getText() : "";
+      return String(t || "");
+    } catch {
+      return "";
+    }
+  };
+
+  const tryGetAssignedNumber = (setBlock: any): number | null => {
+    try {
+      const target =
+        typeof setBlock?.getInputTargetBlock === "function"
+          ? setBlock.getInputTargetBlock("VALUE")
+          : null;
+      if (!target || (target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
+
+  let hasSetTemperature = false;
+  let hasGetTemperature = false;
+  let hasIf = false;
+  let hasCompare = false;
+  let hasGreaterThanZero = false;
+  let hasPrint = false;
+  let tempValue: number | null = null;
+
+  for (const b of nonShadowBlocks) {
+    const t = (b as any).type;
+
+    if (t === "variables_set" && getVarFieldText(b) === "temperature") {
+      hasSetTemperature = true;
+      const n = tryGetAssignedNumber(b);
+      if (n !== null) tempValue = n;
+    }
+
+    if (t === "variables_get" && getVarFieldText(b) === "temperature")
+      hasGetTemperature = true;
+
+    if (t === "controls_if") hasIf = true;
+    if (t === "logic_compare") {
+      hasCompare = true;
+      try {
+        const op =
+          typeof (b as any).getFieldValue === "function"
+            ? (b as any).getFieldValue("OP")
+            : undefined;
+        if (op === "GT" || op === "GTE") {
+          const left =
+            typeof (b as any).getInputTargetBlock === "function"
+              ? (b as any).getInputTargetBlock("A")
+              : null;
+          const right =
+            typeof (b as any).getInputTargetBlock === "function"
+              ? (b as any).getInputTargetBlock("B")
+              : null;
+          const isTemp = (x: any) =>
+            x &&
+            (x as any).type === "variables_get" &&
+            getVarFieldText(x) === "temperature";
+          const isZero = (x: any) => {
+            if (!x || (x as any).type !== "math_number") return false;
+            const raw =
+              typeof (x as any).getFieldValue === "function"
+                ? (x as any).getFieldValue("NUM")
+                : undefined;
+            return String(raw).trim() === "0";
+          };
+          if (
+            (isTemp(left) && isZero(right)) ||
+            (isZero(left) && isTemp(right))
+          ) {
+            hasGreaterThanZero = true;
+          }
+        }
+      } catch {}
+    }
+
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const hasWarmOutput = lines.some((l) =>
+    l.trim().toLowerCase().includes("the weather is warm"),
+  );
+
+  const ok =
+    hasSetTemperature &&
+    hasGetTemperature &&
+    hasIf &&
+    hasCompare &&
+    hasPrint &&
+    hasWarmOutput &&
+    tempValue !== null &&
+    tempValue > 0;
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = hasGreaterThanZero && hasIf && hasCompare;
+    if (usedCore && count <= 14) stars = 3;
+    else if (count <= 18) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateNumberAnalyzer(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -1350,18 +1497,28 @@ export function setActiveTask(taskId: TaskId) {
   const incDecInfo = document.getElementById(
     "incDecInfoSection",
   ) as HTMLDivElement | null;
+  const conditionInfo = document.getElementById(
+    "conditionInfoSection",
+  ) as HTMLDivElement | null;
   const showDataTypes = activeTaskId === "add_2_7";
   const showVariableInfo =
     activeTaskId === "var_my_age" || activeTaskId === "calc_sum";
   const showConcatInfo = activeTaskId === "greet_concat";
   const showIncDecInfo = activeTaskId === "inc_counter";
+  const showConditionInfo = activeTaskId === "first_condition";
   const showConsole =
-    !showDataTypes && !showVariableInfo && !showConcatInfo && !showIncDecInfo;
+    !showDataTypes &&
+    !showVariableInfo &&
+    !showConcatInfo &&
+    !showIncDecInfo &&
+    !showConditionInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
   if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";
   if (incDecInfo) incDecInfo.style.display = showIncDecInfo ? "" : "none";
+  if (conditionInfo)
+    conditionInfo.style.display = showConditionInfo ? "" : "none";
 }
 
 export function initTaskValidation(

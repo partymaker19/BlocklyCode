@@ -19,7 +19,9 @@ export type TaskId =
   | "calc_sum"
   | "greet_concat"
   | "inc_counter"
+  | "discount_calc"
   | "sub_10_4"
+  | "a1_number_analyzer"
   | "sum_array"
   | "min_max"
   | "char_freq";
@@ -127,7 +129,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 6: Increment counter",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте переменную <strong><code>counter</code></strong> со значением <strong>0</strong>. Затем увеличьте её значение на <strong>1</strong> (используйте блок <strong>counter = counter + 1</strong>). Выведите новое значение."
+        ? "Создайте переменную <strong>counter</strong> со значением <strong>0</strong>. Затем увеличьте её значение на <strong>1</strong> (используйте блок <strong>counter = counter + 1</strong>). Выведите новое значение."
         : "Create a variable <strong><code>counter</code></strong> with the value <strong>0</strong>. Then increase it by <strong>1</strong> (use <strong>counter = counter + 1</strong>). Print the new value.",
     hint: (lang) =>
       lang === "ru"
@@ -135,10 +137,27 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: first set counter=0, then do counter=counter+1 and print counter.",
     validate: validateIncCounter,
   },
+  discount_calc: {
+    id: "discount_calc",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 7: Умный калькулятор скидок"
+        : "Task 7: Smart Discount Calculator",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте переменную <strong>price</strong> и сохраните в неё цену товара (например, <strong>1000</strong>). Создайте вторую переменную <strong>discount</strong> и сохраните в неё размер скидки в процентах (например, <strong>15</strong>). Вычислите и выведите <strong>финальную цену</strong> по формуле: <strong>price - (price * discount / 100)</strong>."
+        : "Create a variable <strong><code>price</code></strong> and store the item price in it (e.g. <strong>1000</strong>). Create a second variable <strong><code>discount</code></strong> and store the discount percent in it (e.g. <strong>15</strong>). Compute and print the <strong>final price</strong> using: <strong>price - (price * discount / 100)</strong>.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: понадобятся переменные (set/get) и арифметические блоки. Соберите выражение по шагам и выведите результат."
+        : "Hint: use variables (set/get) and arithmetic blocks. Build the expression step by step and print the result.",
+    validate: validateDiscountCalc,
+  },
   sub_10_4: {
     id: "sub_10_4",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 7: 10 − 4" : "Task 7: 10 − 4"),
+    title: (lang) => (lang === "ru" ? "Задача 8: 10 − 4" : "Task 8: 10 − 4"),
     description: (lang) =>
       lang === "ru"
         ? "Вычтите <strong>4</strong> из <strong>10</strong> и выведите результат в окно вывода: должно получиться <strong>6</strong>."
@@ -149,11 +168,26 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: use the subtraction block from Math and a print/output block.",
     validate: validateSub10Minus4,
   },
+  a1_number_analyzer: {
+    id: "a1_number_analyzer",
+    difficulty: "advanced",
+    title: (lang) =>
+      lang === "ru" ? "Задача A1: Анализ числа" : "Task A1: Number Analyzer",
+    description: (lang) =>
+      lang === "ru"
+        ? 'Создайте переменную <strong>number</strong> и сохраните в неё любое целое число. Программа должна определить и вывести два факта о нём (каждый с новой строки):<br>1) чётное или нечётное (например, <strong>"The number is even"</strong>)<br>2) положительное, отрицательное или ноль (например, <strong>"The number is positive"</strong>).'
+        : 'Create a variable <strong>number</strong> and store any integer in it. Print two facts (each on a new line):<br>1) even or odd (e.g. <strong>"The number is even"</strong>)<br>2) positive, negative, or zero (e.g. <strong>"The number is positive"</strong>).',
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте if/else, сравнения (>, <, ==) и остаток от деления (%)."
+        : "Hint: use if/else, comparisons (>, <, ==) and modulo (%).",
+    validate: validateNumberAnalyzer,
+  },
   sum_array: {
     id: "sum_array",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 8: Сумма массива" : "Task 8: Array sum",
+      lang === "ru" ? "Задача 9: Сумма массива" : "Task 9: Array sum",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл."
@@ -168,7 +202,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "min_max",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 9: Минимум и максимум" : "Task 9: Min and Max",
+      lang === "ru" ? "Задача 10: Минимум и максимум" : "Task 10: Min and Max",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две."
@@ -184,8 +218,8 @@ const tasks: Record<TaskId, TaskDef> = {
     difficulty: "advanced",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 10: Частоты символов"
-        : "Task 10: Character frequencies",
+        ? "Задача 11: Частоты символов"
+        : "Task 11: Character frequencies",
     description: (lang) =>
       lang === "ru"
         ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -213,9 +247,10 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "calc_sum",
     "greet_concat",
     "inc_counter",
+    "discount_calc",
     "sub_10_4",
   ],
-  advanced: ["sum_array", "min_max", "char_freq"],
+  advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
 const PROGRESS_KEY = "task_progress_v1";
 
@@ -794,6 +829,280 @@ async function validateIncCounter(
   }
 
   if (ok && usesMathChange && count <= 6) stars = 3;
+  return { ok, stars };
+}
+
+async function validateDiscountCalc(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines();
+
+  const nonShadowBlocks = (() => {
+    try {
+      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    } catch {
+      return [];
+    }
+  })();
+
+  const getVarFieldText = (b: any): string => {
+    try {
+      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+      const t = typeof f?.getText === "function" ? f.getText() : "";
+      return String(t || "");
+    } catch {
+      return "";
+    }
+  };
+
+  const tryGetAssignedNumber = (setBlock: any): number | null => {
+    try {
+      const target =
+        typeof setBlock?.getInputTargetBlock === "function"
+          ? setBlock.getInputTargetBlock("VALUE")
+          : null;
+      if (!target || (target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  let priceVal: number | null = null;
+  let discountVal: number | null = null;
+  let hasSetPrice = false;
+  let hasSetDiscount = false;
+  let hasGetPrice = false;
+  let hasGetDiscount = false;
+  let hasPrint = false;
+
+  let usedMinus = false;
+  let usedMultiply = false;
+  let usedDivide = false;
+  let usedPercentConst = false;
+
+  for (const b of nonShadowBlocks) {
+    const t = (b as any).type;
+
+    if (t === "variables_set") {
+      const name = getVarFieldText(b);
+      if (name === "price") {
+        hasSetPrice = true;
+        const n = tryGetAssignedNumber(b);
+        if (n !== null) priceVal = n;
+      }
+      if (name === "discount") {
+        hasSetDiscount = true;
+        const n = tryGetAssignedNumber(b);
+        if (n !== null) discountVal = n;
+      }
+    }
+
+    if (t === "variables_get") {
+      const name = getVarFieldText(b);
+      if (name === "price") hasGetPrice = true;
+      if (name === "discount") hasGetDiscount = true;
+    }
+
+    if (t === "math_arithmetic") {
+      try {
+        const op =
+          typeof (b as any).getFieldValue === "function"
+            ? (b as any).getFieldValue("OP")
+            : undefined;
+        if (op === "MINUS") usedMinus = true;
+        if (op === "MULTIPLY") usedMultiply = true;
+        if (op === "DIVIDE") usedDivide = true;
+      } catch {}
+    }
+
+    if (t === "math_number") {
+      try {
+        const raw =
+          typeof (b as any).getFieldValue === "function"
+            ? (b as any).getFieldValue("NUM")
+            : undefined;
+        if (String(raw).trim() === "100") usedPercentConst = true;
+      } catch {}
+    }
+
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const expected = (() => {
+    if (priceVal === null || discountVal === null) return null;
+    return priceVal - (priceVal * discountVal) / 100;
+  })();
+
+  const hasExpectedInOutput = (() => {
+    if (expected === null) return false;
+    const s = String(expected);
+    const re = new RegExp(`(^|\\b)${escapeRe(s)}(\\b|$)`);
+    return lines.some((l) => re.test(l));
+  })();
+
+  const ok =
+    hasSetPrice &&
+    hasSetDiscount &&
+    hasGetPrice &&
+    hasGetDiscount &&
+    hasPrint &&
+    expected !== null &&
+    hasExpectedInOutput;
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    const usedFormulaHints =
+      usedMinus && usedMultiply && usedDivide && usedPercentConst;
+    if (usedFormulaHints && count <= 14) stars = 3;
+    else if (count <= 18) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateNumberAnalyzer(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines().map((l) => l.trim());
+
+  const nonShadowBlocks = (() => {
+    try {
+      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    } catch {
+      return [];
+    }
+  })();
+
+  const getVarFieldText = (b: any): string => {
+    try {
+      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+      const t = typeof f?.getText === "function" ? f.getText() : "";
+      return String(t || "");
+    } catch {
+      return "";
+    }
+  };
+
+  const tryGetAssignedInt = (setBlock: any): number | null => {
+    try {
+      const target =
+        typeof setBlock?.getInputTargetBlock === "function"
+          ? setBlock.getInputTargetBlock("VALUE")
+          : null;
+      if (!target || (target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return null;
+      if (!Number.isInteger(n)) return null;
+      return n;
+    } catch {
+      return null;
+    }
+  };
+
+  let n: number | null = null;
+  let hasSetNumber = false;
+  let hasGetNumber = false;
+  let usedIfElse = false;
+  let usedCompare = false;
+  let usedModulo = false;
+  let hasPrint = false;
+
+  for (const b of nonShadowBlocks) {
+    const t = (b as any).type;
+    if (t === "variables_set" && getVarFieldText(b) === "number") {
+      hasSetNumber = true;
+      const cand = tryGetAssignedInt(b);
+      if (cand !== null) n = cand;
+    }
+    if (t === "variables_get" && getVarFieldText(b) === "number")
+      hasGetNumber = true;
+
+    if (t === "controls_if") {
+      try {
+        const elseCount =
+          typeof (b as any).elseCount_ === "number" ? (b as any).elseCount_ : 0;
+        const hasElseInput =
+          typeof (b as any).getInput === "function" &&
+          !!(b as any).getInput("ELSE");
+        if (elseCount > 0 || hasElseInput) usedIfElse = true;
+      } catch {}
+    }
+
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const expected = (() => {
+    if (n === null) return null;
+    const parity = n % 2 === 0 ? "even" : "odd";
+    const sign = n > 0 ? "positive" : n < 0 ? "negative" : "zero";
+    return {
+      evenLine: `The number is ${parity}`.toLowerCase(),
+      signLine: `The number is ${sign}`.toLowerCase(),
+      ruEvenLine:
+        n % 2 === 0
+          ? "Число чётное".toLowerCase()
+          : "Число нечётное".toLowerCase(),
+      ruSignLine:
+        n > 0
+          ? "Число положительное".toLowerCase()
+          : n < 0
+            ? "Число отрицательное".toLowerCase()
+            : "Число равно нулю".toLowerCase(),
+    };
+  })();
+
+  const normalized = lines.map((l) => l.replace(/[.!]+$/g, "").toLowerCase());
+
+  const hasParityLine = (() => {
+    if (!expected) return false;
+    return (
+      normalized.includes(expected.evenLine) ||
+      normalized.includes(expected.ruEvenLine)
+    );
+  })();
+
+  const hasSignLine = (() => {
+    if (!expected) return false;
+    return (
+      normalized.includes(expected.signLine) ||
+      normalized.includes(expected.ruSignLine)
+    );
+  })();
+
+  const ok =
+    hasSetNumber &&
+    hasGetNumber &&
+    hasPrint &&
+    n !== null &&
+    hasParityLine &&
+    hasSignLine;
+
+  const count = getBlockCount(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = usedIfElse && usedCompare && usedModulo;
+    if (usedCore && count <= 18) stars = 3;
+    else if (count <= 24) stars = 2;
+    else stars = 1;
+  }
+
   return { ok, stars };
 }
 

@@ -609,11 +609,24 @@ function setGeneratorPlaceholder(lang: "ru" | "en") {
       en: "Example:\n// PHP generator function is written in JS (like other languages).\nconst value = phpGenerator.valueToCode(block, 'VALUE', Order.NONE) || '0';\nreturn `echo ${value};\\n`;",
     },
   };
-  const placeholder = placeholders[selectedGeneratorLanguage][lang];
+  const placeholder =
+    (placeholders as any)?.[selectedGeneratorLanguage]?.[lang] ||
+    placeholders.javascript[lang];
   blockGeneratorTextarea.placeholder = placeholder;
 }
 
-function setGenLang(lang: "javascript" | "python" | "lua" | "php") {
+function normalizeGenLang(
+  raw: unknown,
+): "javascript" | "python" | "lua" | "php" | null {
+  const v = String(raw || "").trim().toLowerCase();
+  if (v === "javascript" || v === "python" || v === "lua" || v === "php")
+    return v;
+  return null;
+}
+
+function setGenLang(rawLang: unknown) {
+  const lang = normalizeGenLang(rawLang);
+  if (!lang) return;
   selectedGeneratorLanguage = lang;
   setActiveGenLangButton(lang);
   updatePresetsByGenLang();
@@ -649,11 +662,8 @@ if (
   genLangHeaderDropdownOptions.querySelectorAll(".option").forEach((opt) => {
     opt.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      const value = (opt as HTMLElement).dataset.value as
-        | "javascript"
-        | "python"
-        | "lua"
-        | "php";
+      const el = ev.currentTarget as HTMLElement | null;
+      const value = el?.dataset?.value || el?.innerText || "";
       setGenLang(value);
       genLangHeaderContainer.classList.remove("open");
       genLangHeaderDropdownOptions.style.display = "none";

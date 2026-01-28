@@ -618,7 +618,9 @@ function setGeneratorPlaceholder(lang: "ru" | "en") {
 function normalizeGenLang(
   raw: unknown,
 ): "javascript" | "python" | "lua" | "php" | null {
-  const v = String(raw || "").trim().toLowerCase();
+  const v = String(raw || "")
+    .trim()
+    .toLowerCase();
   if (v === "javascript" || v === "python" || v === "lua" || v === "php")
     return v;
   return null;
@@ -1439,6 +1441,10 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
         ? "Переменная — это “коробка” с именем, в которой можно хранить значение (например, число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте — тогда не надо искать и править число везде."
         : "A variable is like a named “box” that stores a value (for example, a number). It’s useful when you want to reuse the same value or change it in one place instead of editing it everywhere."),
   );
+  setText(
+    "variableInfoExamplesHeader",
+    t?.VariableInfoExamplesHeader || (lang === "ru" ? "Примеры:" : "Examples:"),
+  );
 
   setText(
     "concatInfoHeader",
@@ -1469,6 +1475,8 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("concatPyFStringDesc", t?.ConcatPyFStringDesc);
   setText("concatLuaDotsDesc", t?.ConcatLuaDotsDesc);
   setText("concatLuaFormatDesc", t?.ConcatLuaFormatDesc);
+  setText("concatPhpDotsDesc", t?.ConcatPhpDotsDesc);
+  setText("concatPhpInterpDesc", t?.ConcatPhpInterpDesc);
   setText(
     "concatInfoNote",
     t?.ConcatInfoNote ||
@@ -1499,6 +1507,8 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("incDecPyDecDesc", t?.IncDecDecDesc);
   setText("incDecLuaIncDesc", t?.IncDecIncDesc);
   setText("incDecLuaDecDesc", t?.IncDecDecDesc);
+  setText("incDecPhpIncDesc", t?.IncDecPhpIncDesc);
+  setText("incDecPhpDecDesc", t?.IncDecPhpDecDesc);
   setText(
     "incDecInfoNote",
     t?.IncDecInfoNote ||
@@ -1532,6 +1542,8 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("conditionPyIfElseDesc", t?.ConditionPyIfElseDesc);
   setText("conditionLuaIfDesc", t?.ConditionLuaIfDesc);
   setText("conditionLuaIfElseDesc", t?.ConditionLuaIfElseDesc);
+  setText("conditionPhpIfDesc", t?.ConditionPhpIfDesc);
+  setText("conditionPhpIfElseDesc", t?.ConditionPhpIfElseDesc);
   setText(
     "conditionInfoOpsHeader",
     t?.ConditionInfoOpsHeader ||

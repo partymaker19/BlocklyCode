@@ -113,8 +113,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 5: Greeting machine",
     description: (lang) =>
       lang === "ru"
-        ? 'Создайте текстовую переменную <strong>name</strong> и сохраните в неё ваше имя (например, <strong>"Anna"</strong>). Используйте соединение строк (конкатенацию), чтобы собрать и вывести фразу <strong>"Hello, " + name + "!"</strong>.'
-        : 'Create a text variable <strong>name</strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.',
+        ? 'Создайте текстовую переменную <strong>name</strong> и сохраните в неё ваше имя (например, <strong>"Anna"</strong>). Используйте соединение строк (конкатенацию), чтобы собрать и вывести фразу <strong>"Hello, " + name + "!"</strong>.<br><br><strong>Для PHP:</strong> <strong>"Hello, " . $name . "!"</strong> (в PHP строки склеиваются через <code>.</code>).'
+        : 'Create a text variable <strong>name</strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.<br><br><strong>For PHP:</strong> <strong>"Hello, " . $name . "!"</strong> (PHP uses <code>.</code> to concatenate strings).',
     hint: (lang) =>
       lang === "ru"
         ? "Подсказка: используйте переменные (set/get), блок text_join из категории Текст и блок вывода."

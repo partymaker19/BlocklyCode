@@ -2017,6 +2017,13 @@
             <p id="variableInfoText">Переменная — это “коробка” с именем, в которой можно хранить значение (например,
               число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте —
               тогда не надо искать и править число везде.</p>
+            <h4 id="variableInfoExamplesHeader" style="margin-top:12px;">Примеры:</h4>
+            <ul>
+              <li><strong>JavaScript:</strong> <code id="variableInfoJsCode">let myAge = 10</code></li>
+              <li><strong>Python:</strong> <code id="variableInfoPyCode">myAge = 10</code></li>
+              <li><strong>Lua:</strong> <code id="variableInfoLuaCode">local myAge = 10</code></li>
+              <li><strong>PHP:</strong> <code id="variableInfoPhpCode">$myAge = 10;</code></li>
+            </ul>
           </div>
           <div id="concatInfoSection" class="console-output-info" style="display:none;">
             <h4 id="concatInfoHeader">Конкатенация строк</h4>
@@ -2049,6 +2056,14 @@
                       id="concatLuaFormatDesc">форматирование строки</span></li>
                 </ul>
               </li>
+              <li><strong>PHP:</strong>
+                <ul>
+                  <li><code id="concatPhpDotsCode">"Hello, " . $name . "!"</code> — <span
+                      id="concatPhpDotsDesc">оператор . склеивает строки</span></li>
+                  <li><code id="concatPhpInterpCode">"Hello, {$name}!"</code> — <span
+                      id="concatPhpInterpDesc">интерполяция в двойных кавычках</span></li>
+                </ul>
+              </li>
             </ul>
             <p id="concatInfoNote" style="font-size: 0.9em; font-style: italic;">Примечание: если “склеиваете” строку и
               число, иногда нужно сначала превратить число в строку.</p>
@@ -2079,6 +2094,16 @@
                   <li><code id="incDecLuaIncCode">counter = counter + 1</code> — <span id="incDecLuaIncDesc">увеличить
                       на 1</span></li>
                   <li><code id="incDecLuaDecCode">counter = counter - 1</code> — <span id="incDecLuaDecDesc">уменьшить
+                      на 1</span></li>
+                </ul>
+              </li>
+              <li><strong>PHP:</strong>
+                <ul>
+                  <li><code id="incDecPhpIncCode">$counter = $counter + 1;</code> — <span
+                      id="incDecPhpIncDesc">увеличить
+                      на 1</span></li>
+                  <li><code id="incDecPhpDecCode">$counter = $counter - 1;</code> — <span
+                      id="incDecPhpDecDesc">уменьшить
                       на 1</span></li>
                 </ul>
               </li>
@@ -2133,6 +2158,14 @@ else
 end</code></pre>
                     — <span id="conditionLuaIfElseDesc">ветка else</span>
                   </li>
+                </ul>
+              </li>
+              <li><strong>PHP:</strong>
+                <ul>
+                  <li><code id="conditionPhpIfCode">if ($score &gt;= 50) { echo "Passed" . PHP_EOL; }</code> — <span
+                      id="conditionPhpIfDesc">выполнить действие при условии</span></li>
+                  <li><code id="conditionPhpIfElseCode">if ($age &gt;= 18) { ... } else { ... }</code> — <span
+                      id="conditionPhpIfElseDesc">две ветки: если / иначе</span></li>
                 </ul>
               </li>
             </ul>

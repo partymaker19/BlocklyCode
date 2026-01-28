@@ -342,6 +342,7 @@ export function localizeImportUI(lang: AppLang): void {
           VariableInfoHeader: "Что такое переменная?",
           VariableInfoText:
             "Переменная — это “коробка” с именем, в которой можно хранить значение (например, число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте — тогда не надо искать и править число везде.",
+          VariableInfoExamplesHeader: "Примеры:",
           ConcatInfoHeader: "Конкатенация строк",
           ConcatInfoIntro: "Конкатенация — это соединение строк в одну строку.",
           ConcatInfoIdea:
@@ -353,6 +354,8 @@ export function localizeImportUI(lang: AppLang): void {
           ConcatPyFStringDesc: "f-строка (удобно вставлять переменные)",
           ConcatLuaDotsDesc: "оператор .. склеивает строки",
           ConcatLuaFormatDesc: "форматирование строки",
+          ConcatPhpDotsDesc: "оператор . склеивает строки",
+          ConcatPhpInterpDesc: "интерполяция в двойных кавычках",
           ConcatInfoNote:
             "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку.",
           IncDecInfoHeader: "Инкремент и декремент",
@@ -361,6 +364,8 @@ export function localizeImportUI(lang: AppLang): void {
           IncDecExamplesHeader: "Примеры:",
           IncDecIncDesc: "увеличить на 1",
           IncDecDecDesc: "уменьшить на 1",
+          IncDecPhpIncDesc: "увеличить на 1",
+          IncDecPhpDecDesc: "уменьшить на 1",
           IncDecInfoNote:
             "В Blockly это обычно делается так: берём текущее значение переменной, прибавляем 1 и снова присваиваем в ту же переменную.",
           ConditionInfoHeader: "Условные конструкции (if/else)",
@@ -373,6 +378,8 @@ export function localizeImportUI(lang: AppLang): void {
           ConditionPyIfElseDesc: "ветка else",
           ConditionLuaIfDesc: "if ... then ... end",
           ConditionLuaIfElseDesc: "ветка else",
+          ConditionPhpIfDesc: "выполнить действие при условии",
+          ConditionPhpIfElseDesc: "две ветки: если / иначе",
           ConditionInfoOpsHeader: "Операторы сравнения",
           ConditionInfoOpsText: ">, <, ==, != (в Lua — ~=).",
           ConditionInfoNote:
@@ -456,6 +463,7 @@ export function localizeImportUI(lang: AppLang): void {
           VariableInfoHeader: "What is a variable?",
           VariableInfoText:
             "A variable is like a named “box” that stores a value (for example, a number). It’s useful when you want to reuse the same value or change it in one place instead of editing it everywhere.",
+          VariableInfoExamplesHeader: "Examples:",
           ConcatInfoHeader: "String concatenation",
           ConcatInfoIntro:
             "Concatenation means joining strings into one string.",
@@ -468,6 +476,8 @@ export function localizeImportUI(lang: AppLang): void {
           ConcatPyFStringDesc: "f-string (easy variable interpolation)",
           ConcatLuaDotsDesc: "the .. operator joins strings",
           ConcatLuaFormatDesc: "string formatting",
+          ConcatPhpDotsDesc: "the . operator joins strings",
+          ConcatPhpInterpDesc: "interpolation in double quotes",
           ConcatInfoNote:
             "Note: when joining a string and a number, you may need to convert the number to a string first.",
           IncDecInfoHeader: "Increment and decrement",
@@ -476,6 +486,8 @@ export function localizeImportUI(lang: AppLang): void {
           IncDecExamplesHeader: "Examples:",
           IncDecIncDesc: "increase by 1",
           IncDecDecDesc: "decrease by 1",
+          IncDecPhpIncDesc: "increase by 1",
+          IncDecPhpDecDesc: "decrease by 1",
           IncDecInfoNote:
             "In Blockly you usually do it like this: take the current value, add 1, and assign it back to the same variable.",
           ConditionInfoHeader: "Conditional statements (if/else)",
@@ -488,6 +500,8 @@ export function localizeImportUI(lang: AppLang): void {
           ConditionPyIfElseDesc: "else branch",
           ConditionLuaIfDesc: "if ... then ... end",
           ConditionLuaIfElseDesc: "else branch",
+          ConditionPhpIfDesc: "run code when the condition is true",
+          ConditionPhpIfElseDesc: "two branches: if / else",
           ConditionInfoOpsHeader: "Comparison operators",
           ConditionInfoOpsText: ">, <, ==, != (Lua uses ~=).",
           ConditionInfoNote:

@@ -11,10 +11,8 @@ import "@blockly/field-date";
 import "@blockly/field-slider";
 import "@blockly/field-colour-hsv-sliders";
 
-// Create a custom block called 'add_text' that adds
-// text to the output div on the sample app.
-// This is just an example and you should replace this with your
-// own custom blocks.
+// Пример кастомного блока add_text, который выводит текст в окно вывода приложения.
+// При необходимости можно заменить/расширить этот блок своими блоками.
 const addText = {
   type: "add_text",
   // Используем ключ локализации
@@ -145,7 +143,7 @@ const dateValue = {
     this.setColour(120);
     this.setOutput(true, "String");
     this.setTooltip(
-      (Blockly as any).Msg.DATE_VALUE_TOOLTIP || "Date field value"
+      (Blockly as any).Msg.DATE_VALUE_TOOLTIP || "Date field value",
     );
   },
 };
@@ -172,7 +170,7 @@ const sliderValue = {
     this.setColour(40);
     this.setOutput(true, "Number");
     this.setTooltip(
-      (Blockly as any).Msg.SLIDER_VALUE_TOOLTIP || "Slider field value"
+      (Blockly as any).Msg.SLIDER_VALUE_TOOLTIP || "Slider field value",
     );
   },
 };
@@ -195,7 +193,7 @@ const hsvColourValue = {
     this.setColour(290);
     this.setOutput(true, "String");
     this.setTooltip(
-      (Blockly as any).Msg.HSV_VALUE_TOOLTIP || "HSV colour field"
+      (Blockly as any).Msg.HSV_VALUE_TOOLTIP || "HSV colour field",
     );
   },
 };
@@ -232,9 +230,8 @@ const pyInputNumber = {
   },
 };
 
-// Create the block definitions for the JSON-only blocks.
-// This does not register their definitions with Blockly.
-// This file has no side effects!
+// Создаём определения блоков из JSON-конфигураций.
+// Регистрация самих блоков в Blockly выполняется в index.ts.
 export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   addText,
   angleDemo,

@@ -1,3 +1,4 @@
+// Клиентская обвязка авторизации: хранит текущего пользователя и работает с /api/auth/*
 export type Provider = "google" | "yandex" | "github";
 
 export interface AuthUser {
@@ -26,9 +27,10 @@ function mapUser(data: unknown): AuthUser | null {
   if (data == null) return null;
   if (typeof data !== "object") return null;
   const obj = data as Record<string, unknown>;
-  const rawUser = obj.user && typeof obj.user === "object" && obj.user != null
-    ? (obj.user as Record<string, unknown>)
-    : obj;
+  const rawUser =
+    obj.user && typeof obj.user === "object" && obj.user != null
+      ? (obj.user as Record<string, unknown>)
+      : obj;
   const idVal = (rawUser["id"] ?? rawUser["_id"]) as unknown;
   const emailVal = rawUser["email"] as unknown;
   const nameVal = (rawUser["name"] ?? rawUser["username"]) as unknown;
@@ -49,7 +51,7 @@ export async function initAuth(): Promise<AuthUser | null> {
       notify();
       return null;
     }
-    const payload: unknown = await res.json().catch(() => ({} as unknown));
+    const payload: unknown = await res.json().catch(() => ({}) as unknown);
     currentUser = mapUser(payload);
   } catch {
     currentUser = null;
@@ -92,7 +94,10 @@ export function loginWithProvider(provider: Provider) {
   window.location.href = `/api/auth/${provider}`;
 }
 
-export async function loginWithEmail(email: string, password: string): Promise<AuthUser | null> {
+export async function loginWithEmail(
+  email: string,
+  password: string,
+): Promise<AuthUser | null> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -102,13 +107,16 @@ export async function loginWithEmail(email: string, password: string): Promise<A
   if (!res.ok) {
     throw new Error("Login failed");
   }
-  const payload: unknown = await res.json().catch(() => ({} as unknown));
+  const payload: unknown = await res.json().catch(() => ({}) as unknown);
   currentUser = mapUser(payload);
   notify();
   return currentUser;
 }
 
-export async function registerWithEmail(email: string, password: string): Promise<AuthUser | null> {
+export async function registerWithEmail(
+  email: string,
+  password: string,
+): Promise<AuthUser | null> {
   const res = await fetch("/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -118,7 +126,7 @@ export async function registerWithEmail(email: string, password: string): Promis
   if (!res.ok) {
     throw new Error("Registration failed");
   }
-  const payload: unknown = await res.json().catch(() => ({} as unknown));
+  const payload: unknown = await res.json().catch(() => ({}) as unknown);
   currentUser = mapUser(payload);
   notify();
   return currentUser;

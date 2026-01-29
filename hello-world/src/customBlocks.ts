@@ -409,7 +409,7 @@ export function importBlockFromJson(
   }
 }
 
-// Helper to strip TypeScript constructs from user-supplied JS generator code
+// Удаляем TypeScript-конструкции из JS-генератора, который вводит пользователь
 function stripTypeScriptFromJs(code: string): string {
   let out = code ?? "";
   out = out.replace(/\s+as\s+[\w\.\[\]<>\|]+/g, "");

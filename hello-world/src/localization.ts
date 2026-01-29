@@ -1,5 +1,5 @@
 /**
- * Localization utilities for the app (Blockly locale + UI texts + toolbox names)
+ * Утилиты локализации приложения: локаль Blockly + тексты UI + имена категорий тулбокса
  */
 import * as BlocklyCore from "blockly/core";
 import * as EnLocale from "blockly/msg/en";
@@ -50,7 +50,7 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = "Поле выбора цвета HSV";
     (BlocklyCore as any).Msg.PY_INPUT = "Ввод текста";
     (BlocklyCore as any).Msg.PY_INPUT_NUMBER = "Ввод числа";
-    // Search plugin localization
+    // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Поиск блоков";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =
       "Введите текст для поиска блоков";
@@ -70,7 +70,7 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = "HSV color picker field";
     (BlocklyCore as any).Msg.PY_INPUT = "Text input";
     (BlocklyCore as any).Msg.PY_INPUT_NUMBER = "Number input";
-    // Search plugin localization
+    // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Search blocks";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =
       "Type to search for blocks";
@@ -132,7 +132,7 @@ export function localizedToolbox(
         cat.name = t[cat.name as keyof typeof t];
       }
     }
-    // Localize the search category name (custom toolbox item)
+    // Локализуем имя категории поиска (кастомный элемент тулбокса)
     if ((item as any).kind === "search") {
       (item as any).name = t.Search;
     }
@@ -261,9 +261,9 @@ export function localizeImportUI(lang: AppLang): void {
   if (cancelBtn) (cancelBtn as HTMLButtonElement).textContent = t.Cancel;
   if (confirmBtn) (confirmBtn as HTMLButtonElement).textContent = t.Import;
 
-  // Store localized strings for use in other functions
+  // Сохраняем набор строк, чтобы использовать в других модулях
   (window as any)._currentLocalizedStrings = t as any;
-  // Extend with task-related strings
+  // Дополняем строками для задач/проверки
   const taskStrings =
     lang === "ru"
       ? {
@@ -516,7 +516,7 @@ export function localizeImportUI(lang: AppLang): void {
   };
 }
 
-// Added: localize tooltips and aria-labels across the app
+// Локализация tooltip/aria-label по всему приложению
 export function localizeTooltips(lang: AppLang): void {
   const setAttrs = (
     el: Element | null,
@@ -593,12 +593,12 @@ export function localizeTooltips(lang: AppLang): void {
     },
   }[lang];
 
-  // Header tooltips
+  // Подсказки в шапке
   setAttrs(document.querySelector(".language-switch"), { title: t.appLang });
   setAttrs(document.querySelector(".theme-switch"), { title: t.appTheme });
   setAttrs(document.querySelector(".gen-lang-dropdown"), { title: t.genLang });
 
-  // Ace toolbar buttons
+  // Кнопки панели Ace
   const byId = (id: string) => document.getElementById(id);
   const setBtn = (id: string, text: string) => {
     const el = byId(id);
@@ -615,7 +615,7 @@ export function localizeTooltips(lang: AppLang): void {
   setBtn("aceShortcutsBtn", t.shortcuts);
   setBtn("aceSettingsToggle", t.settings);
   setBtn("aceRunBtn", t.run);
-  // Header Save/Load XML buttons
+  // Кнопки сохранения/загрузки XML в шапке
   setBtn("saveXmlBtn", lang === "ru" ? "Сохранить (XML)" : "Save (XML)");
   setBtn("loadXmlBtn", lang === "ru" ? "Загрузить (XML)" : "Load (XML)");
 
@@ -625,7 +625,7 @@ export function localizeTooltips(lang: AppLang): void {
   setAttrs(byId("editor"), { "aria-label": t.editorRegion });
   setAttrs(byId("closeModal"), { "aria-label": t.close });
 
-  // Annotation toolbar
+  // Панель аннотаций
   setAttrs(byId("annotToolbar"), { "aria-label": t.annotTools });
   setAttrs(byId("annotateToggleBtn"), { title: t.annotate });
   setAttrs(byId("annotBrush"), { title: t.brush });
@@ -639,7 +639,7 @@ export function localizeTooltips(lang: AppLang): void {
   setAttrs(byId("annotClear"), { title: t.clear });
 }
 
-// Added: localize labels and options inside Ace Settings panel
+// Локализация подписей и опций внутри панели настроек Ace
 export function localizeAceSettingsPanel(lang: AppLang): void {
   const t = {
     en: {
@@ -693,7 +693,7 @@ export function localizeAceSettingsPanel(lang: AppLang): void {
   setText("aceFoldWidgetsLabel", t.foldWidgets);
   setText("aceKeybindingLabel", t.keybinding);
 
-  // Update keybinding "default" option text
+  // Обновляем подпись режима клавиш "по умолчанию"
   const kb = document.getElementById(
     "aceKeybinding",
   ) as HTMLSelectElement | null;
@@ -702,7 +702,7 @@ export function localizeAceSettingsPanel(lang: AppLang): void {
     if (opt) opt.textContent = t.keybindingDefault;
   }
 
-  // Update theme select option names for Light and Monokai
+  // Обновляем имена тем (Light/Monokai)
   const themeSel = document.getElementById(
     "aceThemeSelect",
   ) as HTMLSelectElement | null;
@@ -718,7 +718,7 @@ export function localizeAceSettingsPanel(lang: AppLang): void {
   }
 }
 
-// Added: strings for Ace runtime UI (statusbar, toasts)
+// Строки для UI Ace во время работы (statusbar, уведомления)
 export type AceUIStrings = {
   copySuccess: string;
   save: string;
@@ -745,7 +745,7 @@ export function getAceUIStrings(lang: AppLang): AceUIStrings {
   };
 }
 
-// Localize Help UI: button text/labels and modal title
+// Локализация окна справки: кнопки/подписи и заголовок модалки
 export function localizeHelpUI(lang: AppLang): void {
   const t = {
     en: {

@@ -15,7 +15,6 @@ import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import { luaGenerator } from "blockly/lua";
 import { phpGenerator } from "blockly/php";
-import { save, load } from "./serialization";
 import {
   setupAppBootstrap,
   persistWorkspaceDebounced,
@@ -32,6 +31,8 @@ import {
   setActiveDifficulty,
   getActiveDifficulty,
 } from "./tasks";
+import { countNonShadowBlocks } from "./workspaceUtils";
+import { saveTextFile } from "./fileSave";
 import {
   registerCustomBlocks,
   importBlockFromJson,
@@ -53,11 +54,11 @@ import {
   updateAceEditorFromWorkspace,
   getAceEditor,
 } from "./aceEditor";
-import { clearOutput, runCode } from "./codeExecution";
+import { clearOutput } from "./codeExecution";
 import Konva from "konva";
-// Import dark theme
+// Тёмная тема Blockly
 import DarkTheme from "@blockly/theme-dark";
-// Toolbox search plugin (localized)
+// Поиск по тулбоксу (локализованный плагин)
 import "./toolbox_search_localized";
 import * as BlockDynamicConnection from "@blockly/block-dynamic-connection";
 import { KeyboardNavigation } from "@blockly/keyboard-navigation";
@@ -74,8 +75,7 @@ try {
   KeyboardNavigation.registerNavigationDeferringToolbox();
 } catch {}
 
-// Register the blocks and generator with Blockly
-// Регистрация будет выполнена после применения локали, чтобы подтянуть правильные строки
+// Регистрируем блоки/генераторы после применения локали, чтобы подтянуть правильные строки
 
 // Настройки локализации приложения
 const defaultLang = getAppLang();
@@ -87,8 +87,84 @@ localizeAceSettingsPanel(defaultLang);
 
 // Объявляем флаг регистрации контекстного меню до первого вызова
 let customBlockContextRegistered = false;
-let modalDragInitialized = false;
 const ENABLE_KBD_NAV = true;
+
+// Общее ограниченное перетаскивание модальных окон за заголовок (используется несколькими модалками)
+const modalDragHandles = new WeakSet<HTMLElement>();
+
+function makeModalDraggable(
+  content: HTMLElement,
+  header: HTMLElement,
+  ignoreCloseSelector: string,
+  minTop = 10,
+) {
+  if (modalDragHandles.has(header)) return;
+  modalDragHandles.add(header);
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+  let cachedWidth = 0;
+  let cachedHeight = 0;
+  let dragScheduled = false;
+  let pendingLeft = 0;
+  let pendingTop = 0;
+
+  function onMouseDown(ev: MouseEvent) {
+    if (ev.button !== 0) return;
+    const target = ev.target as HTMLElement | null;
+    if (target && ignoreCloseSelector && target.closest(ignoreCloseSelector))
+      return;
+    ev.preventDefault();
+    isDragging = true;
+
+    const rect = content.getBoundingClientRect();
+    content.style.left = rect.left + "px";
+    content.style.top = rect.top + "px";
+    content.style.transform = "none";
+    content.style.animation = "none";
+
+    cachedWidth = rect.width;
+    cachedHeight = rect.height;
+
+    offsetX = ev.clientX - rect.left;
+    offsetY = ev.clientY - rect.top;
+
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+  function onMouseMove(ev: MouseEvent) {
+    if (!isDragging) return;
+    pendingLeft = ev.clientX - offsetX;
+    pendingTop = ev.clientY - offsetY;
+    if (dragScheduled) return;
+    dragScheduled = true;
+    requestAnimationFrame(() => {
+      dragScheduled = false;
+      let nextLeft = pendingLeft;
+      let nextTop = pendingTop;
+      const maxLeft = window.innerWidth - cachedWidth;
+      const maxTop = window.innerHeight - cachedHeight;
+      if (nextLeft < 0) nextLeft = 0;
+      else if (nextLeft > maxLeft) nextLeft = maxLeft;
+      if (nextTop < minTop) nextTop = minTop;
+      else if (nextTop > maxTop) nextTop = maxTop;
+      content.style.left = `${nextLeft}px`;
+      content.style.top = `${nextTop}px`;
+    });
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    document.body.style.userSelect = "";
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  }
+
+  header.addEventListener("mousedown", onMouseDown);
+}
 
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
@@ -101,8 +177,7 @@ Object.assign(phpGenerator.forBlock, forBlockPhp);
 registerCustomBlocks();
 setupCustomBlockContextMenu();
 
-// Set up UI elements and inject Blockly
-// removed unused codeDiv: Ace editor is the single source of truth for generated code
+// Инициализация UI и внедрение Blockly
 const outputDiv = document.getElementById("output");
 const blocklyDiv = document.getElementById("blocklyDiv");
 const importBtn = document.getElementById(
@@ -127,7 +202,7 @@ const blockGeneratorTextarea = document.getElementById(
   "blockGenerator",
 ) as HTMLTextAreaElement | null;
 
-// Task UI elements: header toggle button and left sidebar
+// Элементы UI задач: кнопка в шапке и левая панель
 const taskSolutionBtn = document.getElementById(
   "taskSolutionBtn",
 ) as HTMLButtonElement | null;
@@ -187,7 +262,7 @@ const generatorOkEl = document.getElementById(
   "generatorOk",
 ) as HTMLDivElement | null;
 
-// Task sidebar elements
+// Элементы боковой панели задач
 const checkTaskBtn = document.getElementById(
   "checkTaskBtn",
 ) as HTMLButtonElement | null;
@@ -210,7 +285,7 @@ const taskDifficultyAdvancedBtn = document.getElementById(
   "taskDifficultyAdvanced",
 ) as HTMLButtonElement | null;
 
-// Theme elements
+// Элементы переключения темы
 const themeSwitchInput = document.getElementById(
   "themeSwitchInput",
 ) as HTMLInputElement | null;
@@ -224,7 +299,7 @@ const themeLabelDark = document.getElementById(
 let selectedGeneratorLanguage: "javascript" | "python" | "lua" | "php" =
   "javascript";
 
-// Theme state
+// Состояние темы
 type AppTheme = "light" | "dark";
 const APP_THEME_KEY = "app_theme";
 let appTheme: AppTheme = "light";
@@ -280,18 +355,6 @@ const supportCardNumberEl = document.getElementById(
 const copyCardStatusEl = document.getElementById(
   "copyCardStatus",
 ) as HTMLDivElement | null;
-
-// ===== Блок: счётчик блоков в тулбоксе =====
-function getWorkspaceBlockCount(): number {
-  try {
-    if (!ws) return 0;
-    // Не учитываем теневые блоки
-    return ws.getAllBlocks(false).filter((b: Blockly.Block) => !b.isShadow())
-      .length;
-  } catch {
-    return 0;
-  }
-}
 
 function ensureToolboxBlockCounter(): HTMLDivElement | null {
   const toolboxDiv = document.querySelector(
@@ -352,7 +415,7 @@ function updateToolboxBlockCounterLabel(): void {
   const el = ensureToolboxBlockCounter();
   if (!el) return;
   const lang = getAppLang();
-  const count = getWorkspaceBlockCount();
+  const count = countNonShadowBlocks(ws);
   el.textContent =
     lang === "ru"
       ? `Блоков на рабочем поле: ${count}`
@@ -361,7 +424,7 @@ function updateToolboxBlockCounterLabel(): void {
 }
 // ===== конец блока счётчика блоков =====
 
-// Helper: get active Blockly theme
+// Вспомогательное: получить текущую тему Blockly
 function getBlocklyTheme() {
   return appTheme === "dark"
     ? (DarkTheme as unknown as Blockly.Theme)
@@ -402,13 +465,9 @@ function initThemeSwitchUI() {
   });
 }
 
-// Task sidebar toggle
+// Открытие/закрытие панели задач слева
 function toggleTaskSidebar(force?: boolean) {
   if (!taskSidebar || !pageContainer || !blocklyDiv || !outputPaneEl) return;
-
-  const BACKUP_KEY = "layout.split.v.backup";
-  const sidebarWidth =
-    (taskSidebar as HTMLDivElement).getBoundingClientRect().width || 340;
 
   const isOpen = taskSidebar.classList.contains("open");
   const next = force !== undefined ? force : !isOpen;
@@ -423,38 +482,7 @@ function toggleTaskSidebar(force?: boolean) {
     taskSolutionBtn.setAttribute("aria-pressed", next ? "true" : "false");
   }
 
-  // Shrink only the left workspace when sidebar opens; right pane stays anchored
-  const total = (pageContainer as HTMLDivElement).clientWidth;
-  const RESIZER_W = Math.max(4, verticalResizer?.offsetWidth || 6);
-  const minLeft = 320; // min width for blockly
-  const minRight = 300; // min width for output
-  const clamp = (val: number, min: number, max: number) =>
-    Math.max(min, Math.min(max, val));
-
-  const currentLeft = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
-    .width;
-
-  if (next) {
-    // Opening: save previous left width and shrink by sidebar width
-    localStorage.setItem(BACKUP_KEY, String(currentLeft));
-    const targetLeft = clamp(
-      currentLeft - sidebarWidth,
-      minLeft,
-      total - minRight - RESIZER_W,
-    );
-    // keep left pane width unchanged when toggling sidebar; do not modify its flex here
-    // keep outputPane fixed at 301px via CSS; do not adjust its flex here
-  } else {
-    // Closing: restore previous left width if saved, else add sidebar width back
-    const saved = parseFloat(localStorage.getItem(BACKUP_KEY) || "0");
-    const restored = saved > 0 ? saved : currentLeft + sidebarWidth;
-    const targetLeft = clamp(restored, minLeft, total - minRight - RESIZER_W);
-    // keep left pane width unchanged when toggling sidebar; do not modify its flex here
-    // keep outputPane fixed at 301px via CSS; do not adjust its flex here
-    localStorage.removeItem(BACKUP_KEY);
-  }
-
-  // Resize after layout change (coalesced)
+  // После изменения layout нужно пересчитать размеры Blockly и Ace
   scheduleUIResize();
 }
 
@@ -481,7 +509,7 @@ function setActiveGenLangButton(lang: "javascript" | "python" | "lua" | "php") {
   if (lang === "php") {
     if (genLangPhpBtn) genLangPhpBtn.classList.add("active");
   }
-  // sync custom header dropdown label and selected state
+  // Синхронизация подписи и выбранного пункта в dropdown в шапке
   if (genLangHeaderSelectedOption) {
     const label =
       lang === "javascript"
@@ -541,7 +569,7 @@ function updatePresetsByGenLang() {
       presetNotice.textContent = "";
     }
   } else {
-    // lua
+    // Язык Lua
     // local переменная, print и return
     letBtn.disabled = false;
     letBtn.textContent =
@@ -635,7 +663,7 @@ function setGenLang(rawLang: unknown) {
   validateGeneratorUI();
   const currentLang = getAppLang();
   setGeneratorPlaceholder(currentLang);
-  // sync ACE editor (без авто-выполнения)
+  // Синхронизация Ace с workspace (без авто-выполнения)
   scheduleAceSync();
 }
 
@@ -1113,7 +1141,7 @@ function applyPreset(kind: "let" | "const" | "print" | "return") {
       }
     }
   } else {
-    // lua
+    // Генератор для Lua
     if (kind === "let") {
       const blockType = `lua_local_variable`;
       const jsonDef = {
@@ -1630,7 +1658,7 @@ if (langSwitchInput) {
   });
 }
 
-// Annotation tools and state
+// Аннотации: инструменты и состояние
 type Tool = "brush" | "line" | "arrow" | "rect";
 
 class AnnotationManager {
@@ -1701,7 +1729,7 @@ class AnnotationManager {
 
   private initStage() {
     if (!this.overlay) return;
-    // compute area below header
+    // вычисляем область под шапкой
     const header = document.getElementById("header");
     const topOffset = header ? header.getBoundingClientRect().height : 0;
     const width = window.innerWidth;
@@ -1713,7 +1741,7 @@ class AnnotationManager {
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
 
-    // pointer events
+    // события указателя (Pointer Events)
     this.stage.on("mousedown touchstart", (e) => this.onPointerDown(e));
     this.stage.on("mousemove touchmove", (e) => this.onPointerMove(e));
     this.stage.on("mouseup touchend", (e) => this.onPointerUp(e));
@@ -1866,7 +1894,7 @@ class AnnotationManager {
     if (this.tool === "arrow") {
       const line = this.currentShape as Konva.Line;
       const pts = line.points();
-      // draw simple arrow head
+      // рисуем простой наконечник стрелки
       const [x1, y1, x2, y2] = pts;
       const angle = Math.atan2(y2 - y1, x2 - x1);
       const headLen = 10 + this.size * 1.5;
@@ -1931,7 +1959,7 @@ class AnnotationManager {
 }
 
 function setupAnnotationUI() {
-  // Ensure elements exist before init
+  // Проверяем наличие элементов перед инициализацией
   const overlay = document.getElementById("annotationOverlay");
   const toolbar = document.getElementById("annotToolbar");
   const btn = document.getElementById("annotateToggleBtn");
@@ -1939,19 +1967,19 @@ function setupAnnotationUI() {
   (window as any).__annotationManager = new AnnotationManager();
 }
 
-// Call after initial UI and workspace are ready
+// Вызывается после инициализации UI и workspace
 setupAnnotationUI();
 
-// Initialize external Ace Editor module
+// Инициализация Ace Editor
 setupAceEditor(() => selectedGeneratorLanguage);
 
-// After Ace is initialized, sync UI strings with current app language
+// После инициализации Ace синхронизируем строки UI с текущим языком приложения
 try {
   const { refreshAceUILanguage } = require("./aceEditor");
   if (typeof refreshAceUILanguage === "function") refreshAceUILanguage();
 } catch {}
 
-// Split layout elements
+// Элементы split-layout (ресайзеры)
 const pageContainer = document.getElementById(
   "pageContainer",
 ) as HTMLDivElement | null;
@@ -1966,7 +1994,7 @@ const horizontalResizer = document.getElementById(
   "horizontalResizer",
 ) as HTMLDivElement | null;
 
-// Coalesce UI-dependent resizes (Blockly svg + Ace) in a single rAF tick
+// Объединяем пересчёт размеров (Blockly + Ace) в один rAF-тик
 let __uiResizeScheduled = false;
 function scheduleUIResize() {
   if (__uiResizeScheduled) return;
@@ -1985,7 +2013,7 @@ function scheduleUIResize() {
 
 // (scheduleAceSync перемещён выше для избежания TDZ)
 
-// Ensure final resize after flex-basis transition completes
+// Делаем финальный resize после завершения transition по flex-basis
 if (blocklyDiv) {
   blocklyDiv.addEventListener("transitionend", (e: TransitionEvent) => {
     if (e.propertyName === "flex-basis" || e.propertyName === "flex") {
@@ -2010,15 +2038,15 @@ if (outputPaneEl) {
   const RESIZER_H = Math.max(4, horizontalResizer?.offsetHeight || 6);
 
   function resizeAceSoon() {
-    // Keep name for compatibility; delegate to unified scheduler
+    // Оставлено для совместимости: делегируем в единый планировщик
     scheduleUIResize();
   }
 
   function applyVerticalByRatio(ratio: number) {
-    // Clamp ratio by min widths
+    // Ограничиваем ratio минимальными ширинами
     const total = (pageContainer as HTMLDivElement).clientWidth;
-    const minLeft = 320; // blockly min width
-    const minRight = 300; // outputPane min width
+    const minLeft = 320; // минимальная ширина Blockly
+    const minRight = 300; // минимальная ширина панели кода/вывода
     const minRatio = minLeft / total;
     const maxRatio = 1 - (minRight + RESIZER_W) / total;
     const r = Math.max(minRatio, Math.min(maxRatio, ratio));
@@ -2029,15 +2057,15 @@ if (outputPaneEl) {
     (blocklyDiv as HTMLDivElement).style.flex = `0 0 ${leftPx}px`;
     (outputPaneEl as HTMLDivElement).style.flex = `0 0 ${rightPx}px`;
 
-    // Resize dependent widgets (coalesced)
+    // Перерисовываем зависимые виджеты (объединённо)
     scheduleUIResize();
   }
 
   function applyHorizontalByRatio(ratio: number) {
     if (!codePaneEl || !outputPaneEl) return;
     const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
-    const minTop = 140; // codePane min height (toolbar+editor)
-    const minBottom = 80; // output min height
+    const minTop = 140; // минимальная высота редактора (панель+код)
+    const minBottom = 80; // минимальная высота окна вывода
     const minR = minTop / totalH;
     const maxR = 1 - (minBottom + RESIZER_H) / totalH;
     const r = Math.max(minR, Math.min(maxR, ratio));
@@ -2050,9 +2078,9 @@ if (outputPaneEl) {
     resizeAceSoon();
   }
 
-  // Pointer-based dragging (unified for mouse/touch)
+  // Drag на Pointer Events (единый путь для мыши/тача)
 
-  // Vertical drag (Pointer Events)
+  // Вертикальный drag (Pointer Events)
   if (verticalResizer) {
     const startV = (e: PointerEvent) => {
       e.preventDefault();
@@ -2069,7 +2097,7 @@ if (outputPaneEl) {
         try {
           verticalResizer.releasePointerCapture(e.pointerId);
         } catch {}
-        // Save ratio
+        // Сохраняем ratio
         const left = (blocklyDiv as HTMLDivElement).getBoundingClientRect()
           .width;
         const total = (pageContainer as HTMLDivElement).clientWidth;
@@ -2085,7 +2113,7 @@ if (outputPaneEl) {
     verticalResizer.addEventListener("pointerdown", startV);
   }
 
-  // Horizontal drag (Pointer Events)
+  // Горизонтальный drag (Pointer Events)
   if (horizontalResizer && codePaneEl) {
     const startH = (e: PointerEvent) => {
       e.preventDefault();
@@ -2102,7 +2130,7 @@ if (outputPaneEl) {
         try {
           horizontalResizer.releasePointerCapture(e.pointerId);
         } catch {}
-        // Save ratio
+        // Сохраняем ratio
         const h = (codePaneEl as HTMLDivElement).getBoundingClientRect().height;
         const totalH = (outputPaneEl as HTMLDivElement).clientHeight;
         localStorage.setItem(H_KEY, String(h / totalH));
@@ -2117,13 +2145,13 @@ if (outputPaneEl) {
     horizontalResizer.addEventListener("pointerdown", startH);
   }
 
-  // Apply saved ratios or sensible defaults
+  // Применяем сохранённые ratio или значения по умолчанию
   const savedV = parseFloat(localStorage.getItem(V_KEY) || "0");
   if (savedV > 0 && savedV < 1) applyVerticalByRatio(savedV);
   const savedH = parseFloat(localStorage.getItem(H_KEY) || "0");
   if (savedH > 0 && savedH < 1) applyHorizontalByRatio(savedH);
 
-  // Throttle reapplying ratios on window resize to a single rAF per frame
+  // Ограничиваем перерасчёт на resize окна до одного rAF на кадр
   let __splitReapplyScheduled = false;
   window.addEventListener("resize", () => {
     if (__splitReapplyScheduled) return;
@@ -2148,15 +2176,6 @@ function openImportModal() {
   importModal.style.display = "block";
   // Центрируем окно по умолчанию каждый раз при открытии
   if (modalContent) {
-    const rect = modalContent.getBoundingClientRect();
-    const centerLeft = Math.max(
-      0,
-      Math.round(window.innerWidth / 2 - rect.width / 2),
-    );
-    const centerTop = Math.max(
-      0,
-      Math.round(window.innerHeight / 2 - rect.height / 2),
-    );
     // Используем transform для центрирования, как в CSS
     modalContent.style.left = "50%";
     modalContent.style.top = "50%";
@@ -2164,8 +2183,9 @@ function openImportModal() {
     // Важно: включаем анимацию только при открытии, чтобы она не мешала drag
     modalContent.style.animation = "";
   }
-  // Инициализируем перетаскивание один раз
-  initImportModalDrag();
+  if (modalContent && modalHeader) {
+    makeModalDraggable(modalContent, modalHeader, "#closeModal");
+  }
   // В модалке по умолчанию активируем выбранный ранее язык
   setActiveGenLangButton(selectedGeneratorLanguage);
 }
@@ -2175,91 +2195,6 @@ function closeImportModal() {
   importModal.style.display = "none";
   if (blockJsonTextarea) blockJsonTextarea.value = "";
   if (blockGeneratorTextarea) blockGeneratorTextarea.value = "";
-}
-
-// Включает перетаскивание модального окна за заголовок
-function initImportModalDrag() {
-  if (modalDragInitialized) return;
-  if (!modalHeader || !modalContent) return;
-
-  // После проверок сохраняем не-null ссылки для замыкания
-  const content = modalContent as HTMLDivElement;
-  const header = modalHeader as HTMLDivElement;
-
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-  let cachedWidth = 0;
-  let cachedHeight = 0;
-  let dragScheduled = false;
-  let pendingLeft = 0;
-  let pendingTop = 0;
-
-  function onMouseDown(ev: MouseEvent) {
-    // Начинаем drag только левой кнопкой
-    if (ev.button !== 0) return;
-    // Если клик по кнопке закрытия — не перетаскиваем
-    const target = ev.target as HTMLElement | null;
-    if (target && target.closest("#closeModal")) return;
-    ev.preventDefault();
-    isDragging = true;
-
-    // Получаем текущие координаты окна
-    const rect = content.getBoundingClientRect();
-
-    // Фикс: отключаем анимацию/трансформации и фиксируем текущие координаты,
-    // чтобы вертикальный drag не блокировался CSS-анимацией translateY
-    content.style.left = rect.left + "px";
-    content.style.top = rect.top + "px";
-    content.style.transform = "none";
-    content.style.animation = "none";
-
-    // Кэшируем размеры, чтобы не читать rect на каждом движении
-    cachedWidth = rect.width;
-    cachedHeight = rect.height;
-
-    // Вычисляем смещение курсора относительно левого верхнего угла окна
-    offsetX = ev.clientX - rect.left;
-    offsetY = ev.clientY - rect.top;
-
-    document.body.style.userSelect = "none";
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  }
-
-  function onMouseMove(ev: MouseEvent) {
-    if (!isDragging) return;
-    pendingLeft = ev.clientX - offsetX;
-    pendingTop = ev.clientY - offsetY;
-    if (dragScheduled) return;
-    dragScheduled = true;
-    requestAnimationFrame(() => {
-      dragScheduled = false;
-      let nextLeft = pendingLeft;
-      let nextTop = pendingTop;
-      const width = cachedWidth;
-      const height = cachedHeight;
-      const maxLeft = window.innerWidth - width;
-      const maxTop = window.innerHeight - height;
-      const minTop = 10;
-      if (nextLeft < 0) nextLeft = 0;
-      else if (nextLeft > maxLeft) nextLeft = maxLeft;
-      if (nextTop < minTop) nextTop = minTop;
-      else if (nextTop > maxTop) nextTop = maxTop;
-      content.style.left = `${nextLeft}px`;
-      content.style.top = `${nextTop}px`;
-    });
-  }
-
-  function onMouseUp() {
-    isDragging = false;
-    document.body.style.userSelect = "";
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  }
-
-  header.addEventListener("mousedown", onMouseDown);
-  modalDragInitialized = true;
 }
 
 function refreshWorkspaceWithCustomToolbox() {
@@ -2423,7 +2358,7 @@ function refreshWorkspaceWithCustomToolbox() {
       }
       // Авто-разворачивание и инициализация мультитекстового поля
 
-      // Keep ACE editor content in sync (без авто-выполнения)
+      // Держим Ace в синхронизации (без авто-выполнения)
       scheduleAceSync();
 
       // Если блок был удален, очищаем окно вывода
@@ -2485,7 +2420,7 @@ function refreshWorkspaceWithCustomToolbox() {
     });
   }
   setDifficultyUI();
-  // Initial sync after workspace init (без авто-выполнения)
+  // Первичная синхронизация после инициализации workspace (без авто-выполнения)
   scheduleAceSync();
   // Начальная отрисовка счётчика
   // На всякий случай немного отложим, чтобы DOM тулбокса гарантированно создался
@@ -2510,41 +2445,16 @@ if (saveXmlBtn) {
         .toISOString()
         .replace(/[:.]/g, "-")
         .slice(0, 19)}.xml`;
-      const w: any = window as any;
-      if (typeof w.showSaveFilePicker === "function") {
-        const handle = await w.showSaveFilePicker({
-          suggestedName: suggested,
-          types: [
-            {
-              description: "Blockly XML",
-              accept: { "application/xml": [".xml"] },
-            },
-          ],
-        });
-        const writable = await handle.createWritable();
-        await writable.write(
-          new Blob([xmlText], { type: "application/xml;charset=utf-8" }),
-        );
-        await writable.close();
-      } else {
-        const name =
-          (typeof w?.prompt === "function"
-            ? w.prompt(
-                getAppLang() === "ru" ? "Имя файла:" : "File name:",
-                suggested,
-              )
-            : null) || suggested;
-        const blob = new Blob([xmlText], {
-          type: "application/xml;charset=utf-8",
-        });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      }
+      await saveTextFile({
+        suggestedName: suggested,
+        text: xmlText,
+        description: "Blockly XML",
+        accept: { "application/xml": [".xml"] },
+        mime: "application/xml;charset=utf-8",
+        promptLabel: getAppLang() === "ru" ? "Имя файла:" : "File name:",
+      });
     } catch (e) {
-      console.error("Save XML failed", e);
+      console.error("Не удалось сохранить XML", e);
     }
   });
 }
@@ -2561,18 +2471,18 @@ if (loadXmlInput) {
     const file = loadXmlInput.files[0];
     try {
       const text = await file.text();
-      // Parse XML text via DOMParser instead of Blockly.Xml.textToDom for compatibility
+      // Парсим XML через DOMParser (для совместимости), а не через Blockly.Xml.textToDom
       const doc = new DOMParser().parseFromString(text, "text/xml");
       const xml = doc.documentElement as Element;
       Blockly.Events.disable();
       ws.clear();
       Blockly.Xml.domToWorkspace(xml, ws);
       Blockly.Events.enable();
-      // Sync ACE editor after load
+      // Синхронизируем Ace после загрузки
       scheduleAceSync();
       // Обновить счётчик блоков
       updateToolboxBlockCounterLabel();
-      // Persist via selected provider (bootstrap)
+      // Сохраняем через выбранный провайдер (bootstrap)
       persistWorkspaceDebounced(ws);
     } catch (e) {
       console.error("Load XML failed", e);
@@ -2955,83 +2865,11 @@ function initHelpModal() {
     const helpModalHeader = helpModalContent?.querySelector(".modal-header");
 
     if (helpModalContent && helpModalHeader) {
-      // Копируем логику ограниченного перетаскивания, как у окна импорта
-      let isDragging = false;
-      let offsetX = 0;
-      let offsetY = 0;
-      let cachedWidth = 0;
-      let cachedHeight = 0;
-      let dragScheduled = false;
-      let pendingLeft = 0;
-      let pendingTop = 0;
-
-      function onMouseDown(e: Event) {
-        const ev = e as MouseEvent;
-        // Только левая кнопка мыши
-        if (ev.button !== 0) return;
-        // Не начинаем перетаскивание, если клик по кнопке закрытия
-        const target = ev.target as HTMLElement | null;
-        if (target && target.closest("#closeHelpModal")) return;
-        ev.preventDefault();
-        isDragging = true;
-
-        // Текущие координаты и размеры
-        const rect = (
-          helpModalContent as HTMLDivElement
-        ).getBoundingClientRect();
-
-        // Фиксируем абсолютные координаты и отключаем трансформации/анимации
-        (helpModalContent as HTMLDivElement).style.left = rect.left + "px";
-        (helpModalContent as HTMLDivElement).style.top = rect.top + "px";
-        (helpModalContent as HTMLDivElement).style.transform = "none";
-        (helpModalContent as HTMLDivElement).style.animation = "none";
-
-        // Кэшируем размеры
-        cachedWidth = rect.width;
-        cachedHeight = rect.height;
-
-        // Смещение курсора относительно окна
-        offsetX = ev.clientX - rect.left;
-        offsetY = ev.clientY - rect.top;
-
-        document.body.style.userSelect = "none";
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-      }
-
-      function onMouseMove(e: Event) {
-        const ev = e as MouseEvent;
-        if (!isDragging) return;
-        pendingLeft = ev.clientX - offsetX;
-        pendingTop = ev.clientY - offsetY;
-        if (dragScheduled) return;
-        dragScheduled = true;
-        requestAnimationFrame(() => {
-          dragScheduled = false;
-          let nextLeft = pendingLeft;
-          let nextTop = pendingTop;
-          const width = cachedWidth;
-          const height = cachedHeight;
-          const maxLeft = window.innerWidth - width;
-          const maxTop = window.innerHeight - height;
-          const minTop = 10; // не позволяем прятать заголовок за верхней границей
-          if (nextLeft < 0) nextLeft = 0;
-          else if (nextLeft > maxLeft) nextLeft = maxLeft;
-          if (nextTop < minTop) nextTop = minTop;
-          else if (nextTop > maxTop) nextTop = maxTop;
-          (helpModalContent as HTMLDivElement).style.left = `${nextLeft}px`;
-          (helpModalContent as HTMLDivElement).style.top = `${nextTop}px`;
-        });
-      }
-
-      function onMouseUp(_e?: Event) {
-        isDragging = false;
-        document.body.style.userSelect = "";
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseup", onMouseUp);
-      }
-
-      helpModalHeader.addEventListener("mousedown", onMouseDown);
+      makeModalDraggable(
+        helpModalContent as HTMLElement,
+        helpModalHeader as HTMLElement,
+        "#closeHelpModal",
+      );
     }
   }
 }

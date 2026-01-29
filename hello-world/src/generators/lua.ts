@@ -12,9 +12,8 @@ type BlockGenerator = (
   generator: Blockly.CodeGenerator
 ) => string | [string, number];
 export const forBlock: Record<string, BlockGenerator> = Object.create(null);
-// Export all the code generators for our custom blocks for Lua,
-// but don't register them with Blockly yet.
-// This file has no side effects!
+// Экспортируем генераторы кода для наших кастомных блоков (Lua),
+// но не регистрируем их в Blockly напрямую: регистрация делается в index.ts.
 
 forBlock["add_text"] = function (
   block: Blockly.Block,

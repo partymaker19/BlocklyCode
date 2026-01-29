@@ -7,17 +7,16 @@
 // Удалён импорт локализации, так как локали теперь применяются в index.ts
 
 /*
-This toolbox contains nearly every single built-in block that Blockly offers,
-in addition to the custom block 'add_text' this sample app adds.
-You probably don't need every single block, and should consider either rewriting
-your toolbox from scratch, or carefully choosing whether you need each block
-listed here.
+Этот тулбокс содержит почти все встроенные блоки Blockly,
+а также кастомные блоки, которые добавляет приложение (например, add_text).
+Скорее всего вам не нужны все блоки сразу — можно собрать тулбокс с нуля
+или оставить только те категории/блоки, которые реально используются.
 */
 
 import * as Blockly from "blockly/core";
 
 /**
- * Get localized toolbox configuration
+ * Возвращает конфигурацию тулбокса (имена категорий локализуются отдельно)
  */
 export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
   return {
@@ -460,5 +459,5 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
   };
 }
 
-// Backward compatibility
+// Совместимость со старым импортом toolbox
 export const toolbox = getLocalizedToolbox();

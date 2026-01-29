@@ -80,8 +80,14 @@ const config = {
           to: "libs/fengari-web.js",
         },
         // Copy php-wasm runtime files for PHP execution in the sandbox worker
-        { from: "node_modules/php-wasm/php-worker.js", to: "libs/php-wasm/php-worker.js" },
-        { from: "node_modules/php-wasm/*.wasm", to: "libs/php-wasm/[name][ext]" },
+        {
+          from: "node_modules/php-wasm/php-worker.js",
+          to: "libs/php-wasm/php-worker.js",
+        },
+        {
+          from: "node_modules/php-wasm/*.wasm",
+          to: "libs/php-wasm/[name][ext]",
+        },
         { from: "node_modules/php-wasm/*.so", to: "libs/php-wasm/[name][ext]" },
       ],
     }),

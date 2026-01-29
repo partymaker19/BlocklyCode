@@ -112,7 +112,7 @@ export async function selectStorageProvider(
     indicatorUpdater?.({ kind: provider.kind, lastSavedAt });
     return provider.kind;
   }
-  // auto
+  // Автовыбор провайдера
   const authed = await isAuthedOnServer();
   if (authed) {
     provider = new ServerStorageProvider();

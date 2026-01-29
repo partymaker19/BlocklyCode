@@ -1,4 +1,4 @@
-// Sandbox Web Worker: безопасное выполнение кода для JS/Python/Lua с выводом и сообщениями
+// Веб-воркер-песочница: безопасное выполнение кода (JS/Python/Lua/PHP) с выводом и сообщениями
 import type { WorkerInMsg, WorkerOutMsg } from "./types/messages";
 
 // Ограничиваем количество строк, отправляемых в главный поток, чтобы снизить нагрузку
@@ -22,7 +22,7 @@ function post(msg: WorkerOutMsg) {
     }
     (self as any).postMessage(msg);
   } catch {
-    // ignore
+    // игнорируем
   }
 }
 

@@ -5,8 +5,9 @@ import { luaGenerator } from "blockly/lua";
 import { phpGenerator } from "blockly/php";
 import type { SupportedLanguage } from "./types/messages";
 import { getAppLang, getAceUIStrings } from "./localization";
+import { saveTextFile } from "./fileSave";
 
-// Ace imports and configuration
+// Импорты Ace и базовая настройка путей/расширений
 import ace from "ace-builds/src-noconflict/ace";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
@@ -88,9 +89,6 @@ interface AceSettings {
   keybinding?: string;
 }
 
-// Держим настройки только в памяти до явного сохранения в приложении
-let aceSettingsMemory: AceSettings = {};
-
 function loadAceSettings(): AceSettings {
   try {
     const saved = localStorage.getItem(ACE_SETTINGS_KEY);
@@ -109,11 +107,11 @@ function saveAceSettings(settings: Partial<AceSettings>) {
     const updated = { ...current, ...settings };
     localStorage.setItem(ACE_SETTINGS_KEY, JSON.stringify(updated));
   } catch {
-    // ignore errors
+    // игнорируем ошибки сохранения (например, запрет на localStorage)
   }
 }
 
-// Brace highlighting state
+// Состояние подсветки парных фигурных скобок
 let braceHighlightEnabled = false;
 let braceMarkerIds: number[] = [];
 // Отложенное содержимое для Ace до инициализации редактора
@@ -156,7 +154,7 @@ function updateBraceMarkers() {
       const prev = i > 0 ? line[i - 1] : "";
       const next = i + 1 < line.length ? line[i + 1] : "";
 
-      // Handle end of block comment
+      // Обрабатываем конец блочного комментария
       if (inBlockComment) {
         if (prev === "*" && ch === "/" && i > 0) {
           inBlockComment = false;
@@ -164,19 +162,19 @@ function updateBraceMarkers() {
         continue;
       }
 
-      // Handle line comments //
+      // Обрабатываем однострочные комментарии //
       if (!inString && !inLineComment && ch === "/" && next === "/") {
-        inLineComment = true; // rest of line ignored
+        inLineComment = true; // оставшуюся часть строки игнорируем
         break;
       }
-      // Handle start of block comment /* */
+      // Обрабатываем начало блочного комментария /* */
       if (!inString && ch === "/" && next === "*") {
         inBlockComment = true;
-        i++; // skip '*'
+        i++; // пропускаем '*'
         continue;
       }
 
-      // Handle strings ' " ` with escapes
+      // Обрабатываем строки (' " `) с экранированием
       if (inString) {
         if (stringEscape) {
           stringEscape = false;
@@ -325,14 +323,14 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     aceEditor.setShowFoldWidgets(true);
     aceEditor.setShowInvisibles(false);
 
-    // Register popular snippets and custom completers
+    // Регистрируем сниппеты и автодополнение (в дополнение к дефолтному)
     try {
       const langTools = (ace as any).require("ace/ext/language_tools");
       const snippetManager = (ace as any).require(
         "ace/snippets",
       ).snippetManager;
 
-      // Helper to register snippet objects for a language
+      // Вспомогательное: регистрация набора сниппетов для языка
       const registerSnippets = (
         lang: string,
         snippets: Array<{ name: string; tabTrigger: string; content: string }>,
@@ -346,7 +344,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         snippetManager.register(list, lang);
       };
 
-      // JavaScript snippets (including console.log)
+      // Сниппеты для JavaScript (включая console.log)
       registerSnippets("javascript", [
         {
           name: "console.log",
@@ -366,24 +364,24 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         {
           name: "function",
           tabTrigger: "fn",
-          content: "function ${1:name}(${2:args}) {\n\t${3}// body\n}",
+          content: "function ${1:name}(${2:args}) {\n\t${3}// тело\n}",
         },
         {
           name: "arrow function",
           tabTrigger: "afn",
-          content: "const ${1:name} = (${2:args}) => {\n\t${3}// body\n};",
+          content: "const ${1:name} = (${2:args}) => {\n\t${3}// тело\n};",
         },
         {
           name: "for index",
           tabTrigger: "fori",
           content:
-            "for (let ${1:i} = 0; ${1} < ${2:arr}.length; ${1}++) {\n\t${3}// body\n}",
+            "for (let ${1:i} = 0; ${1} < ${2:arr}.length; ${1}++) {\n\t${3}// тело\n}",
         },
         {
           name: "try/catch",
           tabTrigger: "tryc",
           content:
-            "try {\n\t${1}// body\n} catch (${2:e}) {\n\tconsole.error(${2});\n}",
+            "try {\n\t${1}// тело\n} catch (${2:e}) {\n\tconsole.error(${2});\n}",
         },
         {
           name: "import",
@@ -397,7 +395,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         },
       ]);
 
-      // Python snippets
+      // Сниппеты для Python
       registerSnippets("python", [
         { name: "print", tabTrigger: "pr", content: "print(${1})" },
         {
@@ -434,7 +432,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         },
       ]);
 
-      // Lua snippets
+      // Сниппеты для Lua
       registerSnippets("lua", [
         { name: "print", tabTrigger: "pr", content: "print(${1})" },
         {
@@ -464,7 +462,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         },
       ]);
 
-      // Custom completer for JavaScript console.* helpers
+      // Дополнительное автодополнение для JavaScript (console.*)
       const consoleCompleter = {
         getCompletions(
           editor: any,
@@ -509,12 +507,12 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         },
       } as any;
 
-      // Ensure our completer is active in addition to defaults
+      // Подключаем наш completer поверх стандартных
       if (langTools && typeof langTools.addCompleter === "function") {
         langTools.addCompleter(consoleCompleter);
       }
     } catch {
-      // non-fatal if snippets/completer cannot be registered
+      // не критично, если сниппеты/автодополнение не удалось зарегистрировать
     }
   }
 
@@ -527,7 +525,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     if (themeSelect) themeSelect.value = "ace/theme/monokai";
   }
 
-  // Hook up toolbar controls
+  // Привязываем кнопки панели инструментов
   const themeSelect = document.getElementById(
     "aceThemeSelect",
   ) as HTMLSelectElement | null;
@@ -602,12 +600,12 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     "editorStatusbar",
   ) as HTMLDivElement | null;
 
-  // Also resolve braces button
+  // Кнопка подсветки парных фигурных скобок
   const bracesBtn = document.getElementById(
     "aceBracesBtn",
   ) as HTMLButtonElement | null;
 
-  // Apply saved Ace settings on init (deferred)
+  // Применяем сохранённые настройки Ace при старте (отложенно)
   setTimeout(() => {
     try {
       const saved = loadAceSettings();
@@ -777,64 +775,21 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
               ? "php"
               : "js";
       const suggested = `code.${ext}`;
-      const w: any = window as any;
-      try {
-        if (typeof w.showSaveFilePicker === "function") {
-          const types = [
-            {
-              description:
-                lang === "python"
-                  ? "Python"
-                  : lang === "lua"
-                    ? "Lua"
-                    : lang === "php"
-                      ? "PHP"
-                      : "JavaScript",
-              accept: { "text/plain": [`.${ext}`] },
-            },
-          ];
-          try {
-            const handle = await w.showSaveFilePicker({
-              suggestedName: suggested,
-              types,
-            });
-            const writable = await handle.createWritable();
-            await writable.write(
-              new Blob([text], { type: "text/plain;charset=utf-8" }),
-            );
-            await writable.close();
-          } catch (e: any) {
-            // Если пользователь отменил диалог или запретил доступ — ничего не сохраняем и не делаем фолбэк
-            if (
-              e &&
-              (e.name === "AbortError" ||
-                e.name === "NotAllowedError" ||
-                e.name === "SecurityError")
-            ) {
-              return;
-            }
-            // В остальных случаях (например, неподдерживаемый контекст) — попробуем фолбэк ниже
-          }
-          // Если showSaveFilePicker существует, но сохранение не удалось по иной причине — перейдём к фолбэку ниже
-        }
-      } catch {
-        // игнорируем и перейдём к фолбэку ниже
-      }
-      // Фолбэк: обычная загрузка. Если пользователь нажмёт Отмена в prompt — ничего не сохраняем
-      const name =
-        typeof w?.prompt === "function"
-          ? w.prompt(
-              getAppLang() === "ru" ? "Имя файла:" : "File name:",
-              suggested,
-            )
-          : null;
-      if (!name) return;
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      await saveTextFile({
+        suggestedName: suggested,
+        text,
+        description:
+          lang === "python"
+            ? "Python"
+            : lang === "lua"
+              ? "Lua"
+              : lang === "php"
+                ? "PHP"
+                : "JavaScript",
+        accept: { "text/plain": [`.${ext}`] },
+        mime: "text/plain;charset=utf-8",
+        promptLabel: getAppLang() === "ru" ? "Имя файла:" : "File name:",
+      });
     });
 
   if (searchBtn)
@@ -859,7 +814,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
         const beautify = (ace as any).require("ace/ext/beautify");
         beautify.beautify(aceEditor.session);
       } catch (e) {
-        // silently ignore
+        // не критично: просто не форматируем
       }
     });
   if (runBtn)
@@ -968,7 +923,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       }, 1200);
     });
 
-  // Brace highlighting toggle
+  // Переключатель подсветки парных фигурных скобок
   if (bracesBtn)
     bracesBtn.addEventListener("click", () => {
       braceHighlightEnabled = !braceHighlightEnabled;
@@ -977,7 +932,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
       updateBraceMarkers();
     });
 
-  // Settings panel toggle and accessibility
+  // Открытие/закрытие панели настроек + доступность
   if (settingsToggle && settingsPanel) {
     const isOpen = () => settingsPanel.classList.contains("open");
     const openPanel = () => {
@@ -1020,7 +975,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     });
   }
 
-  // Statusbar updates
+  // Обновление статус-бара
   function updateStatusBar() {
     if (!aceEditor || !statusBar) return;
     const pos = aceEditor.getCursorPosition();
@@ -1037,12 +992,12 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
     updateStatusBar();
   }
 
-  // Update brace markers on content changes if enabled
+  // Обновляем маркеры подсветки скобок при изменении текста (если включено)
   if (aceEditor) {
     aceEditor.session.on("change", () => {
       if (braceHighlightEnabled) updateBraceMarkers();
     });
-    // Also update on mode change or fold changes that might reflow rendering
+    // Также обновляем при смене режима/структуры, чтобы корректно пересчитать позиции
     aceEditor.on("changeMode", () => {
       if (braceHighlightEnabled) updateBraceMarkers();
     });

@@ -1,5 +1,6 @@
 import * as Blockly from "blockly";
 import { getAppLang } from "./localization";
+import { countNonShadowBlocks, getNonShadowBlocks } from "./workspaceUtils";
 
 export type InitTaskValidationOptions = {
   checkButton: HTMLButtonElement | null;
@@ -33,7 +34,7 @@ type TaskDef = {
   id: TaskId;
   difficulty: TaskDifficulty;
   title: (lang: "ru" | "en") => string;
-  description: (lang: "ru" | "en") => string; // can contain HTML
+  description: (lang: "ru" | "en") => string; // может содержать HTML
   hint: (lang: "ru" | "en") => string;
   validate: (
     ws: Blockly.WorkspaceSvg,
@@ -287,7 +288,7 @@ function saveProgress(p: Progress) {
   try {
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
   } catch {
-    /* noop */
+    /* ничего */
   }
 }
 
@@ -339,7 +340,7 @@ export function getActiveTask(): TaskId {
   return activeTaskId;
 }
 
-// ---------- Helpers ----------
+// ---------- Вспомогательные функции ----------
 function collectPrintedLines(el: HTMLDivElement | null): string[] {
   if (!el) return [];
   return Array.from(el.querySelectorAll("p"))
@@ -352,14 +353,37 @@ function getVisibleOutputLines(): string[] {
   return collectPrintedLines(out);
 }
 
-function getBlockCount(ws: Blockly.WorkspaceSvg | null | undefined): number {
+function getVarFieldText(b: any): string {
   try {
-    if (!ws) return 0;
-    return ws.getAllBlocks(false).filter((b: Blockly.Block) => !b.isShadow())
-      .length;
+    const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
+    const t = typeof f?.getText === "function" ? f.getText() : "";
+    return String(t || "");
   } catch {
-    return 0;
+    return "";
   }
+}
+
+function tryGetAssignedNumber(setBlock: any): number | null {
+  try {
+    const target =
+      typeof setBlock?.getInputTargetBlock === "function"
+        ? setBlock.getInputTargetBlock("VALUE")
+        : null;
+    if (!target || (target as any).type !== "math_number") return null;
+    const raw =
+      typeof (target as any).getFieldValue === "function"
+        ? (target as any).getFieldValue("NUM")
+        : undefined;
+    if (raw === undefined || raw === null) return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+function escapeRe(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function validateHelloWorld(
@@ -369,11 +393,11 @@ async function validateHelloWorld(
   const expected = "Hello World!";
   const ok = lines.includes(expected);
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (count <= 2)
-      stars = 3; // print + text
+      stars = 3; // печать + текст
     else if (count <= 4) stars = 2;
     else stars = 1;
   } else {
@@ -386,15 +410,15 @@ async function validateAdd2Plus7(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
-  const expected = "9"; // must print 9
+  const expected = "9"; // должно вывести 9
   const ok = lines.includes(expected);
 
-  // Heuristics for stars: prefer using math_arithmetic with ADD and numbers 2 and 7
+  // Эвристика по звёздам: желательно использовать math_arithmetic с ADD и числами 2 и 7
   let hasAddition = false;
   let has2 = false;
   let has7 = false;
   try {
-    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    const blocks = getNonShadowBlocks(ws);
     for (const b of blocks) {
       if ((b as any).type === "math_arithmetic") {
         const op =
@@ -413,14 +437,14 @@ async function validateAdd2Plus7(
       }
     }
   } catch {
-    // ignore
+    // игнорируем
   }
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (hasAddition && has2 && has7 && count <= 4)
-      stars = 3; // print + math_arithmetic + 2 numbers
+      stars = 3; // печать + math_arithmetic + 2 числа
     else if (count <= 6) stars = 2;
     else stars = 1;
   } else {
@@ -434,23 +458,7 @@ async function validateVarMyAge(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let assignedValue: string | null = null;
   let hasSetMyAge = false;
@@ -487,8 +495,6 @@ async function validateVarMyAge(
     }
   }
 
-  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
   const ok = (() => {
     if (!assignedValue) return false;
     const re = new RegExp(`(^|\\b)${escapeRe(assignedValue)}(\\b|$)`);
@@ -496,7 +502,7 @@ async function validateVarMyAge(
     return hasSetMyAge && hasGetMyAge && hasValueInOutput;
   })();
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (hasSetMyAge && hasGetMyAge && hasPrint && assignedValue && count <= 5)
@@ -512,44 +518,7 @@ async function validateCalcSum(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
-
-  const tryGetAssignedNumber = (setBlock: any): number | null => {
-    try {
-      const target =
-        typeof setBlock?.getInputTargetBlock === "function"
-          ? setBlock.getInputTargetBlock("VALUE")
-          : null;
-      if (!target || (target as any).type !== "math_number") return null;
-      const raw =
-        typeof (target as any).getFieldValue === "function"
-          ? (target as any).getFieldValue("NUM")
-          : undefined;
-      if (raw === undefined || raw === null) return null;
-      const n = Number(raw);
-      return Number.isFinite(n) ? n : null;
-    } catch {
-      return null;
-    }
-  };
-
-  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let aVal: number | null = null;
   let bVal: number | null = null;
@@ -646,7 +615,7 @@ async function validateCalcSum(
     );
   })();
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (hasPrint && count <= 10) stars = 3;
@@ -661,23 +630,7 @@ async function validateGreetConcat(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let hasSetName = false;
   let hasGetName = false;
@@ -702,7 +655,7 @@ async function validateGreetConcat(
     (usedTextJoin || usedTextAppend) &&
     lines.some((l) => /^Hello,\s*.+!$/.test(l.trim()));
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (hasPrint && usedTextJoin && count <= 9) stars = 3;
@@ -717,42 +670,7 @@ async function validateIncCounter(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
-
-  const tryGetAssignedNumber = (setBlock: any): number | null => {
-    try {
-      const target =
-        typeof setBlock?.getInputTargetBlock === "function"
-          ? setBlock.getInputTargetBlock("VALUE")
-          : null;
-      if (!target || (target as any).type !== "math_number") return null;
-      const raw =
-        typeof (target as any).getFieldValue === "function"
-          ? (target as any).getFieldValue("NUM")
-          : undefined;
-      if (raw === undefined || raw === null) return null;
-      const n = Number(raw);
-      return Number.isFinite(n) ? n : null;
-    } catch {
-      return null;
-    }
-  };
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let initOk = false;
   let incOk = false;
@@ -837,7 +755,7 @@ async function validateIncCounter(
 
   const ok = initOk && incOk && hasGetCounter && lines.includes("1");
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (hasPrint && count <= 7) stars = 3;
@@ -854,44 +772,7 @@ async function validateDiscountCalc(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
-
-  const tryGetAssignedNumber = (setBlock: any): number | null => {
-    try {
-      const target =
-        typeof setBlock?.getInputTargetBlock === "function"
-          ? setBlock.getInputTargetBlock("VALUE")
-          : null;
-      if (!target || (target as any).type !== "math_number") return null;
-      const raw =
-        typeof (target as any).getFieldValue === "function"
-          ? (target as any).getFieldValue("NUM")
-          : undefined;
-      if (raw === undefined || raw === null) return null;
-      const n = Number(raw);
-      return Number.isFinite(n) ? n : null;
-    } catch {
-      return null;
-    }
-  };
-
-  const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let priceVal: number | null = null;
   let discountVal: number | null = null;
@@ -975,7 +856,7 @@ async function validateDiscountCalc(
     expected !== null &&
     hasExpectedInOutput;
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     const usedFormulaHints =
@@ -992,42 +873,7 @@ async function validateFirstCondition(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines();
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
-
-  const tryGetAssignedNumber = (setBlock: any): number | null => {
-    try {
-      const target =
-        typeof setBlock?.getInputTargetBlock === "function"
-          ? setBlock.getInputTargetBlock("VALUE")
-          : null;
-      if (!target || (target as any).type !== "math_number") return null;
-      const raw =
-        typeof (target as any).getFieldValue === "function"
-          ? (target as any).getFieldValue("NUM")
-          : undefined;
-      if (raw === undefined || raw === null) return null;
-      const n = Number(raw);
-      return Number.isFinite(n) ? n : null;
-    } catch {
-      return null;
-    }
-  };
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let hasSetTemperature = false;
   let hasGetTemperature = false;
@@ -1105,7 +951,7 @@ async function validateFirstCondition(
     tempValue !== null &&
     tempValue > 0;
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     const usedCore = hasGreaterThanZero && hasIf && hasCompare;
@@ -1122,23 +968,7 @@ async function validateNumberAnalyzer(
 ): Promise<{ ok: boolean; stars: number }> {
   const lines = getVisibleOutputLines().map((l) => l.trim());
 
-  const nonShadowBlocks = (() => {
-    try {
-      return ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    } catch {
-      return [];
-    }
-  })();
-
-  const getVarFieldText = (b: any): string => {
-    try {
-      const f = typeof b?.getField === "function" ? b.getField("VAR") : null;
-      const t = typeof f?.getText === "function" ? f.getText() : "";
-      return String(t || "");
-    } catch {
-      return "";
-    }
-  };
+  const nonShadowBlocks = getNonShadowBlocks(ws);
 
   const tryGetAssignedInt = (setBlock: any): number | null => {
     try {
@@ -1241,7 +1071,7 @@ async function validateNumberAnalyzer(
     hasParityLine &&
     hasSignLine;
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     const usedCore = usedIfElse && usedCompare && usedModulo;
@@ -1263,28 +1093,26 @@ async function validateSub10Minus4(
   let hasSubtract = false;
   let has10 = false;
   let has4 = false;
-  try {
-    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    for (const b of blocks) {
-      if ((b as any).type === "math_arithmetic") {
-        const op =
-          typeof (b as any).getFieldValue === "function"
-            ? (b as any).getFieldValue("OP")
-            : undefined;
-        if (op === "MINUS") hasSubtract = true;
-      }
-      if ((b as any).type === "math_number") {
-        const num =
-          typeof (b as any).getFieldValue === "function"
-            ? (b as any).getFieldValue("NUM")
-            : undefined;
-        if (String(num) === "10") has10 = true;
-        if (String(num) === "4") has4 = true;
-      }
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    if ((b as any).type === "math_arithmetic") {
+      const op =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("OP")
+          : undefined;
+      if (op === "MINUS") hasSubtract = true;
     }
-  } catch {}
+    if ((b as any).type === "math_number") {
+      const num =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("NUM")
+          : undefined;
+      if (String(num) === "10") has10 = true;
+      if (String(num) === "4") has4 = true;
+    }
+  }
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (hasSubtract && has10 && has4 && count <= 4) stars = 3;
@@ -1302,12 +1130,12 @@ async function validateSumArray(
   const lines = getVisibleOutputLines();
   const ok = lines.some((l) => /(^|\b)15(\b|$)/.test(l));
 
-  // Heuristics for stars: SUM via math_on_list or forEach
+  // Эвристика по звёздам: либо SUM через math_on_list, либо суммирование в цикле forEach
   let usedMathOnList = false;
   let usedForEach = false;
   let usedListCreate = false;
   try {
-    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
+    const blocks = getNonShadowBlocks(ws);
     for (const b of blocks) {
       const t = (b as any).type;
       if (t === "lists_create_with") usedListCreate = true;
@@ -1316,7 +1144,7 @@ async function validateSumArray(
     }
   } catch {}
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (usedMathOnList && usedListCreate && count <= 6) stars = 3;
@@ -1341,23 +1169,21 @@ async function validateMinMax(
   let usedMathOnList = false;
   let usedMin = false;
   let usedMax = false;
-  try {
-    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    for (const b of blocks) {
-      if ((b as any).type === "math_on_list") {
-        usedMathOnList = true;
-        // some versions encode MODE field
-        const mode =
-          typeof (b as any).getFieldValue === "function"
-            ? (b as any).getFieldValue("OP") || (b as any).getFieldValue("MODE")
-            : undefined;
-        if (String(mode).toUpperCase().includes("MIN")) usedMin = true;
-        if (String(mode).toUpperCase().includes("MAX")) usedMax = true;
-      }
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    if ((b as any).type === "math_on_list") {
+      usedMathOnList = true;
+      // в разных версиях Blockly используется поле OP или MODE
+      const mode =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("OP") || (b as any).getFieldValue("MODE")
+          : undefined;
+      if (String(mode).toUpperCase().includes("MIN")) usedMin = true;
+      if (String(mode).toUpperCase().includes("MAX")) usedMax = true;
     }
-  } catch {}
+  }
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (usedMathOnList && usedMin && usedMax && count <= 8) stars = 3;
@@ -1377,25 +1203,23 @@ async function validateCharFreq(
   );
   const ok = checks.every(Boolean);
 
-  // Prefer dictionary blocks usage
+  // Эвристика: желательно использовать блоки словаря
   let usedDict = false;
-  try {
-    const blocks = ws.getAllBlocks(false).filter((b: any) => !b.isShadow());
-    for (const b of blocks) {
-      const t = (b as any).type;
-      if (
-        t === "dict_create" ||
-        t === "dict_set" ||
-        t === "dict_get" ||
-        t === "dict_has_key"
-      ) {
-        usedDict = true;
-        break;
-      }
+  const dictBlocks = getNonShadowBlocks(ws);
+  for (const b of dictBlocks) {
+    const t = (b as any).type;
+    if (
+      t === "dict_create" ||
+      t === "dict_set" ||
+      t === "dict_get" ||
+      t === "dict_has_key"
+    ) {
+      usedDict = true;
+      break;
     }
-  } catch {}
+  }
 
-  const count = getBlockCount(ws);
+  const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
     if (usedDict && count <= 14) stars = 3;

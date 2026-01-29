@@ -1,30 +1,29 @@
 /**
- * Localized version of the toolbox search plugin
- * Based on @blockly/toolbox-search but with full localization support
+ * Локализованная версия плагина поиска по тулбоксу
+ * Основано на @blockly/toolbox-search, но с полной поддержкой локализации
  */
-import * as Blockly from 'blockly/core';
+import * as Blockly from "blockly/core";
 
 /**
- * A class that provides methods for indexing and searching blocks.
+ * Класс для индексации и поиска блоков по тексту/типу.
  */
 class BlockSearcher {
   private trigramsToBlocks = new Map<string, Set<string>>();
 
   /**
-   * Populates the cached map of trigrams to the blocks they correspond to.
+   * Заполняет кэш сопоставления «триграмма → набор типов блоков».
    *
-   * This method must be called before blockTypesMatching(). Behind the
-   * scenes, it creates a workspace, loads the specified block types on it,
-   * indexes their types and human-readable text, and cleans up after
-   * itself.
+   * Этот метод нужно вызвать перед blockTypesMatching(). Внутри он создаёт
+   * временный workspace, инстанцирует указанные типы блоков, индексирует их
+   * типы и читаемые тексты, а затем освобождает ресурсы.
    *
-   * @param blockTypes A list of block types to index.
+   * @param blockTypes Список типов блоков для индексации.
    */
   indexBlocks(blockTypes: string[]): void {
     const blockCreationWorkspace = new Blockly.Workspace();
     blockTypes.forEach((blockType) => {
       const block = blockCreationWorkspace.newBlock(blockType);
-      this.indexBlockText(blockType.replace(/_/g, ' '), blockType);
+      this.indexBlockText(blockType.replace(/_/g, " "), blockType);
       block.inputList.forEach((input) => {
         input.fieldRow.forEach((field) => {
           this.indexDropdownOption(field, blockType);
@@ -32,14 +31,16 @@ class BlockSearcher {
         });
       });
     });
-    try { blockCreationWorkspace.dispose(); } catch {}
+    try {
+      blockCreationWorkspace.dispose();
+    } catch {}
   }
 
   /**
-   * Check if the field is a dropdown, and index every text in the option
+   * Если поле — dropdown, индексирует тексты всех опций.
    *
-   * @param field We need to check the type of field
-   * @param blockType The block type to associate the trigrams with.
+   * @param field Поле блока (может быть dropdown).
+   * @param blockType Тип блока, с которым связываем найденные триграммы.
    */
   private indexDropdownOption(field: Blockly.Field, blockType: string): void {
     if (field instanceof Blockly.FieldDropdown) {
@@ -47,13 +48,14 @@ class BlockSearcher {
       // создании блока в временном воркспейсе, что приводит к ошибке при вызове
       // dropdownCreate/getOptions. Пропускаем такие поля и аккуратно обрабатываем
       // любые исключения при запросе опций.
-      const isVariableField = (field as any) instanceof (Blockly as any).FieldVariable;
+      const isVariableField =
+        (field as any) instanceof (Blockly as any).FieldVariable;
       if (isVariableField) return;
       try {
         field.getOptions(true).forEach((option) => {
-          if (typeof option[0] === 'string') {
+          if (typeof option[0] === "string") {
             this.indexBlockText(option[0], blockType);
-          } else if ('alt' in option[0]) {
+          } else if ("alt" in option[0]) {
             this.indexBlockText(option[0].alt, blockType);
           }
         });
@@ -64,10 +66,10 @@ class BlockSearcher {
   }
 
   /**
-   * Filters the available blocks based on the current query string.
+   * Возвращает список типов блоков, подходящих под строку поиска.
    *
-   * @param query The text to use to match blocks against.
-   * @returns A list of block types matching the query.
+   * @param query Текст, по которому ищем совпадения.
+   * @returns Список типов блоков, подходящих под запрос.
    */
   blockTypesMatching(query: string): string[] {
     return [
@@ -83,11 +85,10 @@ class BlockSearcher {
   }
 
   /**
-   * Generates trigrams for the given text and associates them with the given
-   * block type.
+   * Генерирует триграммы для текста и привязывает их к типу блока.
    *
-   * @param text The text to generate trigrams of.
-   * @param blockType The block type to associate the trigrams with.
+   * @param text Текст, из которого генерируем триграммы.
+   * @param blockType Тип блока, с которым связываем триграммы.
    */
   private indexBlockText(text: string, blockType: string): void {
     this.generateTrigrams(text).forEach((trigram) => {
@@ -98,10 +99,10 @@ class BlockSearcher {
   }
 
   /**
-   * Generates a list of trigrams for a given string.
+   * Генерирует список триграмм для строки.
    *
-   * @param input The string to generate trigrams of.
-   * @returns A list of trigrams of the given string.
+   * @param input Строка, из которой генерируем триграммы.
+   * @returns Список триграмм.
    */
   private generateTrigrams(input: string): string[] {
     const normalizedInput = input.toLowerCase();
@@ -117,11 +118,11 @@ class BlockSearcher {
   }
 
   /**
-   * Returns the intersection of two sets.
+   * Возвращает пересечение двух множеств.
    *
-   * @param a The first set.
-   * @param b The second set.
-   * @returns The intersection of the two sets.
+   * @param a Первое множество.
+   * @param b Второе множество.
+   * @returns Пересечение множеств.
    */
   private getIntersection(a: Set<string>, b: Set<string>): Set<string> {
     return new Set([...a].filter((value) => b.has(value)));
@@ -129,23 +130,21 @@ class BlockSearcher {
 }
 
 /**
- * A toolbox category that provides a search field and displays matching blocks
- * in its flyout, with localization support.
+ * Категория тулбокса с полем поиска и выводом подходящих блоков во flyout.
+ * Поддерживает локализованные подписи/плейсхолдеры.
  */
 export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
-  private static readonly START_SEARCH_SHORTCUT = 'startSearch';
-  static readonly SEARCH_CATEGORY_KIND = 'search';
+  private static readonly START_SEARCH_SHORTCUT = "startSearch";
+  static readonly SEARCH_CATEGORY_KIND = "search";
   private searchField?: HTMLInputElement;
   private blockSearcher = new BlockSearcher();
 
   /**
-   * Initializes a LocalizedToolboxSearchCategory.
+   * Создаёт экземпляр категории поиска.
    *
-   * @param categoryDef The information needed to create a category in the
-   *     toolbox.
-   * @param parentToolbox The parent toolbox for the category.
-   * @param opt_parent The parent category or null if the category does not have
-   *     a parent.
+   * @param categoryDef Данные, необходимые для создания категории в тулбоксе.
+   * @param parentToolbox Родительский тулбокс для этой категории.
+   * @param opt_parent Родительская категория (если есть).
    */
   constructor(
     categoryDef: Blockly.utils.toolbox.CategoryInfo,
@@ -158,21 +157,22 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 
   /**
-   * Initializes the search field toolbox category.
+   * Инициализирует категорию поиска и поле ввода.
    *
-   * @returns The <div> that will be displayed in the toolbox.
+   * @returns <div>, который будет отображаться в тулбоксе.
    */
   protected override createDom_(): HTMLDivElement {
     const dom = super.createDom_();
-    this.searchField = document.createElement('input');
-    this.searchField.type = 'search';
-    // Use localized placeholder instead of hardcoded 'Search'
-    this.searchField.placeholder = (Blockly as any).Msg.SEARCH_PLACEHOLDER || 'Search';
+    this.searchField = document.createElement("input");
+    this.searchField.type = "search";
+    // Используем локализованный placeholder вместо жёстко заданного 'Search'
+    this.searchField.placeholder =
+      (Blockly as any).Msg.SEARCH_PLACEHOLDER || "Search";
     this.workspace_.RTL
-      ? (this.searchField.style.marginRight = '8px')
-      : (this.searchField.style.marginLeft = '8px');
-    this.searchField.addEventListener('keyup', (event) => {
-      if (event.key === 'Escape') {
+      ? (this.searchField.style.marginRight = "8px")
+      : (this.searchField.style.marginLeft = "8px");
+    this.searchField.addEventListener("keyup", (event) => {
+      if (event.key === "Escape") {
         this.parentToolbox_.clearSelection();
         return true;
       }
@@ -184,15 +184,18 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 
   /**
-   * Returns the numerical position of this category in its parent toolbox.
+   * Возвращает позицию категории поиска в родительском тулбоксе.
    *
-   * @returns The zero-based index of this category in its parent toolbox, or -1
-   *    if it cannot be determined, e.g. if this is a nested category.
+   * @returns Индекс категории в родительском тулбоксе (с 0), либо -1, если
+   *    определить невозможно (например, для вложенной категории).
    */
   private getPosition(): number {
     const categories = this.workspace_.options.languageTree?.contents || [];
     for (let i = 0; i < categories.length; i++) {
-      if (categories[i].kind === LocalizedToolboxSearchCategory.SEARCH_CATEGORY_KIND) {
+      if (
+        categories[i].kind ===
+        LocalizedToolboxSearchCategory.SEARCH_CATEGORY_KIND
+      ) {
         return i;
       }
     }
@@ -201,7 +204,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 
   /**
-   * Registers a shortcut for displaying the toolbox search category.
+   * Регистрирует шорткат для открытия категории поиска.
    */
   private registerShortcut(): void {
     const shortcut = Blockly.ShortcutRegistry.registry.createSerializedKey(
@@ -221,29 +224,28 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 
   /**
-   * Returns a list of block types that are present in the toolbox definition.
+   * Возвращает список типов блоков, присутствующих в конфигурации тулбокса.
    *
-   * @param schema A toolbox item definition.
-   * @param allBlocks The set of all available blocks that have been encountered
-   *     so far.
+   * @param schema Описание элемента тулбокса.
+   * @param allBlocks Множество типов блоков, найденных при обходе.
    */
   private getAvailableBlocks(
     schema: Blockly.utils.toolbox.ToolboxItemInfo,
     allBlocks: Set<string>,
   ): void {
-    if ('contents' in schema) {
+    if ("contents" in schema) {
       schema.contents.forEach((contents) => {
         this.getAvailableBlocks(contents, allBlocks);
       });
-    } else if (schema.kind.toLowerCase() === 'block') {
-      if ('type' in schema && schema.type) {
+    } else if (schema.kind.toLowerCase() === "block") {
+      if ("type" in schema && schema.type) {
         allBlocks.add(schema.type);
       }
     }
   }
 
   /**
-   * Builds the BlockSearcher index based on the available blocks.
+   * Строит индекс BlockSearcher по доступным блокам.
    */
   private initBlockSearcher(): void {
     const availableBlocks = new Set<string>();
@@ -254,9 +256,9 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 
   /**
-   * Handles a click on this toolbox category.
+   * Обрабатывает клик по категории поиска.
    *
-   * @param e The click event.
+   * @param e Событие клика.
    */
   override onClick(e: Event): void {
     super.onClick(e);
@@ -266,9 +268,9 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 
   /**
-   * Handles changes in the selection state of this category.
+   * Обрабатывает изменение состояния выбора категории.
    *
-   * @param isSelected Whether or not the category is now selected.
+   * @param isSelected Выбрана ли сейчас эта категория.
    */
   override setSelected(isSelected: boolean): void {
     super.setSelected(isSelected);
@@ -277,21 +279,21 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
       this.searchField.focus();
       this.matchBlocks();
     } else {
-      this.searchField.value = '';
+      this.searchField.value = "";
       this.searchField.blur();
     }
   }
 
   /**
-   * Filters the available blocks based on the current query string.
+   * Фильтрует доступные блоки по текущей строке поиска.
    */
   private matchBlocks(): void {
-    const query = this.searchField?.value || '';
+    const query = this.searchField?.value || "";
 
     this.flyoutItems_ = query
       ? this.blockSearcher.blockTypesMatching(query).map((blockType) => {
           return {
-            kind: 'block',
+            kind: "block",
             type: blockType,
           };
         })
@@ -299,18 +301,20 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
 
     if (!this.flyoutItems_.length) {
       this.flyoutItems_.push({
-        kind: 'label',
+        kind: "label",
         text:
           query.length < 3
-            ? (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH || 'Type to search for blocks'
-            : (Blockly as any).Msg.SEARCH_NO_MATCHING || 'No matching blocks found',
+            ? (Blockly as any).Msg.SEARCH_TYPE_TO_SEARCH ||
+              "Type to search for blocks"
+            : (Blockly as any).Msg.SEARCH_NO_MATCHING ||
+              "No matching blocks found",
       });
     }
     this.parentToolbox_.refreshSelection();
   }
 
   /**
-   * Disposes of this category.
+   * Освобождает ресурсы категории.
    */
   override dispose(): void {
     super.dispose();
@@ -320,7 +324,7 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
   }
 }
 
-// Register our localized version instead of the original
+// Регистрируем локализованную версию вместо оригинального плагина
 Blockly.registry.register(
   Blockly.registry.Type.TOOLBOX_ITEM,
   LocalizedToolboxSearchCategory.SEARCH_CATEGORY_KIND,

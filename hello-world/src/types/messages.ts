@@ -1,4 +1,4 @@
-// Shared types for worker messaging and supported languages
+// Общие типы: поддерживаемые языки и сообщения между UI и WebWorker
 
 export type SupportedLanguage =
   | "javascript"
@@ -7,7 +7,7 @@ export type SupportedLanguage =
   | "typescript"
   | "php";
 
-// Message sent from main thread to worker
+// Сообщение из основного потока (UI) в воркер
 export type WorkerInMsg =
   | {
       language: SupportedLanguage;
@@ -16,7 +16,7 @@ export type WorkerInMsg =
     }
   | { type: "input_response"; value: string };
 
-// Messages sent from worker to main thread
+// Сообщения из воркера в основной поток (UI)
 export type WorkerOutMsg =
   | { type: "stdout"; text: string }
   | { type: "stderr"; text: string }

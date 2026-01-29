@@ -12,9 +12,8 @@ type BlockGenerator = (
   generator: Blockly.CodeGenerator
 ) => string | [string, number];
 export const forBlock: Record<string, BlockGenerator> = Object.create(null);
-// Export all the code generators for our custom blocks,
-// but don't register them with Blockly yet.
-// This file has no side effects!
+// Экспортируем генераторы кода для наших кастомных блоков (JavaScript),
+// но не регистрируем их в Blockly напрямую: регистрация делается в index.ts.
 
 forBlock["add_text"] = function (
   block: Blockly.Block,
@@ -27,21 +26,10 @@ forBlock["add_text"] = function (
 // Генератор для блока angle_demo
 forBlock["angle_demo"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  _generator: Blockly.CodeGenerator
 ) {
   const angleStr = block.getFieldValue("ANGLE");
   const angle = angleStr ? Number(angleStr) : 0;
-  const addText = generator.provideFunction_(
-    "addText",
-    `function ${generator.FUNCTION_NAME_PLACEHOLDER_}(text) {
-
-  // Add text to the output area.
-  const outputDiv = document.getElementById('output');
-  const textEl = document.createElement('p');
-  textEl.innerText = text;
-  outputDiv.appendChild(textEl);
-}`
-  );
   const code = `console.log('Angle:', String(${angle}));\n`;
   return code;
 };
@@ -116,20 +104,9 @@ forBlock["angle_value"] = function (
 // Генератор для блока bitmap_demo
 forBlock["bitmap_demo"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  _generator: Blockly.CodeGenerator
 ) {
   const bitmapData = String(block.getFieldValue("FIELDNAME") || "");
-  const addText = generator.provideFunction_(
-    "addText",
-    `function ${generator.FUNCTION_NAME_PLACEHOLDER_}(text) {
-
-  // Add text to the output area.
-  const outputDiv = document.getElementById('output');
-  const textEl = document.createElement('p');
-  textEl.innerText = text;
-  outputDiv.appendChild(textEl);
-}`
-  );
   const code = `console.log('Bitmap data:', ${JSON.stringify(bitmapData)});\n`;
   return code;
 };

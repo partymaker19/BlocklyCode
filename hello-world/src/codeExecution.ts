@@ -19,7 +19,7 @@ export type { SupportedLanguage } from "./types/messages";
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   try {
-    // Some errors can be plain objects/strings
+    // Иногда ошибка приходит не как Error, а как строка/объект
     return String((err as { message?: unknown })?.message ?? err);
   } catch {
     return "Unknown error";
@@ -27,7 +27,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 /**
- * Generates code from a Blockly workspace based on the selected language
+ * Генерирует код из Blockly workspace для выбранного языка
  */
 function generateCode(
   workspace: Blockly.WorkspaceSvg,
@@ -42,8 +42,8 @@ function generateCode(
       case "lua":
         return luaGenerator.workspaceToCode(workspace);
       case "typescript":
-        // TypeScript uses the same generator as JavaScript
-        // but we could add type annotations in the future
+        // TypeScript использует тот же генератор, что и JavaScript
+        // (потенциально можно добавить аннотации типов позже)
         return javascriptGenerator.workspaceToCode(workspace);
       case "javascript":
       default:
@@ -56,7 +56,7 @@ function generateCode(
 }
 
 /**
- * Executes generated JavaScript code and handles output
+ * Выполняет JavaScript-код и выводит результат в панель вывода
  */
 function executeJavaScriptCode(
   code: string,
@@ -88,7 +88,7 @@ function executeJavaScriptCode(
     } catch {}
   };
 
-  // Preserve original console methods to restore later
+  // Сохраняем оригинальные методы console, чтобы восстановить их после выполнения
   const originalLog = console.log;
   const originalWarn = console.warn;
   const originalError = console.error;
@@ -129,10 +129,10 @@ function executeJavaScriptCode(
       };
     }
 
-    // Provide a print function to match Python/Lua UX
+    // Делаем print(...), чтобы UX совпадал с Python/Lua
     const jsPrint = (s: unknown) => appendLine(String(s ?? ""));
 
-    // Compile once without eval for better performance and safety
+    // Компилируем один раз через Function (без eval) — проще контролировать окружение
     const fn = new Function("print", String(code)) as (
       print: (s: unknown) => void,
     ) => void;
@@ -146,7 +146,7 @@ function executeJavaScriptCode(
       outputElement.appendChild(errorEl);
     }
   } finally {
-    // Restore console methods
+    // Восстанавливаем методы console
     console.log = originalLog;
     console.warn = originalWarn;
     console.error = originalError;
@@ -282,7 +282,7 @@ async function executeInSandbox(
 }
 
 /**
- * Main function to run code generation and execution
+ * Основная функция: генерация кода из Blockly и запуск (с выводом)
  */
 export async function runCode(
   workspace: Blockly.WorkspaceSvg | null,
@@ -318,7 +318,7 @@ export async function runCode(
   }
 }
 
-// Execute raw source code by language (used by Ace Run button)
+// Запуск «сырого» текста программы по выбранному языку (кнопка Run в Ace)
 export async function runCodeString(
   language: SupportedLanguage,
   sourceCode: string,
@@ -342,7 +342,7 @@ export async function runCodeString(
 }
 
 /**
- * Clears the output area
+ * Очищает окно вывода
  */
 export function clearOutput(outputElement: HTMLElement | null): void {
   if (outputElement) {

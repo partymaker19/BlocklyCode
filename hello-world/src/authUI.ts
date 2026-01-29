@@ -1,9 +1,12 @@
-import { addAuthChangeListener, loginWithEmail, registerWithEmail, logout, getCurrentUser } from "./authClient";
+import {
+  addAuthChangeListener,
+  loginWithEmail,
+  registerWithEmail,
+  logout,
+  getCurrentUser,
+} from "./authClient";
 
-function qs<T extends HTMLElement = HTMLElement>(sel: string): T | null {
-  return document.querySelector(sel) as T | null;
-}
-
+// UI для авторизации: модалка логина/регистрации и отображение статуса пользователя
 function byId<T extends HTMLElement = HTMLElement>(id: string): T | null {
   return document.getElementById(id) as T | null;
 }
@@ -16,7 +19,8 @@ function updateAuthUI() {
   const authed = !!user?.id;
   if (openBtn) openBtn.style.display = authed ? "none" : "inline-flex";
   if (userInfo) userInfo.style.display = authed ? "inline-flex" : "none";
-  if (userEmail) userEmail.textContent = user?.email || user?.name || user?.id || "";
+  if (userEmail)
+    userEmail.textContent = user?.email || user?.name || user?.id || "";
 }
 
 function openAuthModal() {
@@ -37,7 +41,7 @@ function closeAuthModal() {
 }
 
 export function initAuthUI() {
-  // Buttons and inputs
+  // Кнопки и поля ввода
   const openBtn = byId<HTMLButtonElement>("openAuthModalBtn");
   const closeBtn = byId<HTMLSpanElement>("closeAuthModal");
   const loginBtn = byId<HTMLButtonElement>("authLoginBtn");
@@ -47,14 +51,14 @@ export function initAuthUI() {
   const passInput = byId<HTMLInputElement>("authPassword");
   const modal = byId<HTMLDivElement>("authModal");
 
-  // Open/close
+  // Открыть/закрыть
   openBtn?.addEventListener("click", () => openAuthModal());
   closeBtn?.addEventListener("click", () => closeAuthModal());
   modal?.addEventListener("click", (e) => {
     if (e.target === modal) closeAuthModal();
   });
 
-  // Actions
+  // Действия (вход/регистрация/выход)
   loginBtn?.addEventListener("click", async () => {
     const email = emailInput?.value?.trim() || "";
     const password = passInput?.value || "";
@@ -64,7 +68,9 @@ export function initAuthUI() {
       if (emailInput) emailInput.value = "";
       if (passInput) passInput.value = "";
     } catch (e) {
-      alert("Не удалось войти: " + (e instanceof Error ? e.message : String(e)));
+      alert(
+        "Не удалось войти: " + (e instanceof Error ? e.message : String(e)),
+      );
     }
   });
 
@@ -77,7 +83,10 @@ export function initAuthUI() {
       if (emailInput) emailInput.value = "";
       if (passInput) passInput.value = "";
     } catch (e) {
-      alert("Не удалось зарегистрироваться: " + (e instanceof Error ? e.message : String(e)));
+      alert(
+        "Не удалось зарегистрироваться: " +
+          (e instanceof Error ? e.message : String(e)),
+      );
     }
   });
 
@@ -87,7 +96,7 @@ export function initAuthUI() {
     } catch {}
   });
 
-  // React on auth changes
+  // Реакция на изменения авторизации
   addAuthChangeListener(() => updateAuthUI());
   updateAuthUI();
 }

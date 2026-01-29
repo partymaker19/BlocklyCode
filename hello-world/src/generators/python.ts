@@ -9,16 +9,15 @@ import * as Blockly from "blockly/core";
 
 type BlockGenerator = (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) => string | [string, number];
 export const forBlock: Record<string, BlockGenerator> = Object.create(null);
-// Export all the code generators for our custom blocks for Python,
-// but don't register them with Blockly yet.
-// This file has no side effects!
+// Экспортируем генераторы кода для наших кастомных блоков (Python),
+// но не регистрируем их в Blockly напрямую: регистрация делается в index.ts.
 
 forBlock["add_text"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const text = generator.valueToCode(block, "TEXT", PythonOrder.NONE) || "''";
   const color = generator.valueToCode(block, "COLOR", PythonOrder.NONE) || "";
@@ -31,7 +30,7 @@ forBlock["add_text"] = function (
 // Генератор для блока angle_demo (Python)
 forBlock["angle_demo"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const angleStr = block.getFieldValue("ANGLE");
   const angle = angleStr ? Number(angleStr) : 0;
@@ -42,7 +41,7 @@ forBlock["angle_demo"] = function (
 // Генератор для блока-выражения angle_value (Python)
 forBlock["angle_value"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const angleStr = block.getFieldValue("ANGLE");
   const angle = angleStr ? Number(angleStr) : 0;
@@ -53,14 +52,14 @@ forBlock["angle_value"] = function (
 // ===== Словарные блоки (Python) =====
 forBlock["dict_create"] = function (
   _block: Blockly.Block,
-  _generator: Blockly.CodeGenerator
+  _generator: Blockly.CodeGenerator,
 ) {
   return ["{}", PythonOrder.ATOMIC];
 };
 
 forBlock["dict_set"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const dict = generator.valueToCode(block, "DICT", PythonOrder.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", PythonOrder.NONE) || "''";
@@ -72,7 +71,7 @@ forBlock["dict_set"] = function (
 
 forBlock["dict_get"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const dict = generator.valueToCode(block, "DICT", PythonOrder.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", PythonOrder.NONE) || "''";
@@ -82,7 +81,7 @@ forBlock["dict_get"] = function (
 
 forBlock["dict_has_key"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const key = generator.valueToCode(block, "KEY", PythonOrder.NONE) || "''";
   const dict = generator.valueToCode(block, "DICT", PythonOrder.NONE) || "{}";
@@ -93,7 +92,7 @@ forBlock["dict_has_key"] = function (
 // Генератор для блока bitmap_demo (Python)
 forBlock["bitmap_demo"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   const bitmapData = String(block.getFieldValue("FIELDNAME") || "");
   const code = `print('Bitmap data: ' + ${JSON.stringify(bitmapData)})\n`;
@@ -103,7 +102,7 @@ forBlock["bitmap_demo"] = function (
 // Генератор для блока date_value (Python)
 forBlock["date_value"] = function (
   block: Blockly.Block,
-  _generator: Blockly.CodeGenerator
+  _generator: Blockly.CodeGenerator,
 ) {
   const value = String(block.getFieldValue("DATE") ?? "");
   return [JSON.stringify(value), PythonOrder.ATOMIC];
@@ -112,7 +111,7 @@ forBlock["date_value"] = function (
 // Генератор для блока slider_value (Python)
 forBlock["slider_value"] = function (
   block: Blockly.Block,
-  _generator: Blockly.CodeGenerator
+  _generator: Blockly.CodeGenerator,
 ) {
   const v = Number(block.getFieldValue("SLIDER") ?? 0);
   return [String(v), PythonOrder.ATOMIC];
@@ -120,7 +119,7 @@ forBlock["slider_value"] = function (
 
 forBlock["hsv_colour_value"] = function (
   block: Blockly.Block,
-  _generator: Blockly.CodeGenerator
+  _generator: Blockly.CodeGenerator,
 ) {
   const v = String(block.getFieldValue("COLOUR") ?? "#000000");
   return [JSON.stringify(v), PythonOrder.ATOMIC];
@@ -129,7 +128,7 @@ forBlock["hsv_colour_value"] = function (
 // Генератор для блока py_input (Python)
 forBlock["py_input"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   // Поле подсказки удалено, возвращаем просто input()
   // Значение может использоваться как строка или число.
@@ -141,7 +140,7 @@ forBlock["py_input"] = function (
 // Генератор для блока py_input_number (Python)
 forBlock["py_input_number"] = function (
   block: Blockly.Block,
-  generator: Blockly.CodeGenerator
+  generator: Blockly.CodeGenerator,
 ) {
   // Преобразуем ввод в число (float для универсальности)
   return ["float(input())", PythonOrder.ATOMIC];

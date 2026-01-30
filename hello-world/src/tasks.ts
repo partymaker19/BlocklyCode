@@ -26,6 +26,7 @@ export type TaskId =
   | "first_loop"
   | "sum_1_to_n"
   | "guess_game"
+  | "list_foreach"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -252,6 +253,23 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Hint: use a while loop (Loops) "while guess != secret" and an if/else if/else chain for lower/higher/equal.',
     validate: validateGuessGame,
   },
+  list_foreach: {
+    id: "list_foreach",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 14: Список и цикл forEach"
+        : "Task 14: List and forEach",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и сохраните его в переменную <strong>list</strong> (можно <strong>numbers</strong>).<br><br>Затем используйте блок из Loops <strong>«для каждого элемента k в списке»</strong> — это и есть <strong>forEach</strong>. Внутри цикла:<br>1) выведите текущий элемент (каждый с новой строки)<br>2) посчитайте сумму элементов в переменной <strong>sum</strong> и выведите сумму после цикла (должно получиться <strong>15</strong>).<br><br><strong>Важно:</strong> список может хранить не только числа, но и текст (строки), а иногда даже смешанные значения. А цикл <strong>forEach</strong> удобен именно для <strong>перебора элементов списка</strong>: он «идёт по списку» и даёт вам текущий элемент, в отличие от циклов <strong>for</strong> со счётчиком (когда вы управляете индексами/границами вручную) или <strong>while</strong> (когда повторяем, пока условие истинно)."
+        : "Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and store it in <strong>list</strong> (or <strong>numbers</strong>).<br><br>Then use the Loops block <strong>“for each item k in list”</strong> — this is the <strong>forEach</strong> idea. Inside the loop:<br>1) print the current item (one per line)<br>2) compute the sum in <strong>sum</strong> and print the final sum after the loop (it should be <strong>15</strong>).<br><br><strong>Note:</strong> a list can store not only numbers but also text (strings), and sometimes even mixed values. The <strong>forEach</strong> loop is great specifically for <strong>iterating over list elements</strong>: it walks through the list and gives you the current item, unlike a counter-based <strong>for</strong> (where you manage indexes/bounds) or <strong>while</strong> (repeat while a condition is true).",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: list=[1,2,3,4,5], sum=0. Внутри «для каждого элемента…»: вывести k и сделать sum = sum + k. После цикла вывести sum."
+        : "Hint: list=[1,2,3,4,5], sum=0. Inside “for each item …”: print k and do sum = sum + k. After the loop print sum.",
+    validate: validateListForEach,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -338,6 +356,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "first_loop",
     "sum_1_to_n",
     "guess_game",
+    "list_foreach",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -1634,6 +1653,97 @@ async function validateGuessGame(
   return { ok, stars };
 }
 
+async function validateListForEach(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const numericLines = lines
+    .map((l) => {
+      const n = Number(l);
+      return Number.isFinite(n) ? n : null;
+    })
+    .filter((v): v is number => v !== null);
+
+  const expectedList = [1, 2, 3, 4, 5];
+  const hasSequence = (() => {
+    for (
+      let start = 0;
+      start <= numericLines.length - expectedList.length;
+      start++
+    ) {
+      let ok = true;
+      for (let i = 0; i < expectedList.length; i++) {
+        if (numericLines[start + i] !== expectedList[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) return true;
+    }
+    return false;
+  })();
+
+  const hasSum = lines.some((l) => /(^|\b)15(\b|$)/.test(l));
+
+  let usedListCreate = false;
+  let usedForEach = false;
+  let hasSetList = false;
+  let hasGetList = false;
+  let hasSetSum = false;
+  let hasGetSum = false;
+  let hasPrint = false;
+
+  let usedMathChange = false;
+  let usedArithmetic = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "controls_forEach") usedForEach = true;
+
+    const v = getVarFieldText(b);
+    if (t === "variables_set" && (v === "list" || v === "numbers"))
+      hasSetList = true;
+    if (t === "variables_get" && (v === "list" || v === "numbers"))
+      hasGetList = true;
+    if (t === "variables_set" && (v === "sum" || v === "total"))
+      hasSetSum = true;
+    if (t === "variables_get" && (v === "sum" || v === "total"))
+      hasGetSum = true;
+
+    if (t === "math_change") usedMathChange = true;
+    if (t === "math_arithmetic") usedArithmetic = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok =
+    hasSequence &&
+    hasSum &&
+    usedForEach &&
+    usedListCreate &&
+    hasSetList &&
+    hasGetList &&
+    hasSetSum &&
+    hasGetSum &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      usedForEach && usedListCreate && (usedMathChange || usedArithmetic);
+    if (usedCore && count <= 16) stars = 3;
+    else if (count <= 24) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateSumArray(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -1825,6 +1935,9 @@ export function setActiveTask(taskId: TaskId) {
   const whileLoopInfo = document.getElementById(
     "whileLoopInfoSection",
   ) as HTMLDivElement | null;
+  const listInfo = document.getElementById(
+    "listInfoSection",
+  ) as HTMLDivElement | null;
   const dataTypesInfo = document.getElementById(
     "dataTypesInfoSection",
   ) as HTMLDivElement | null;
@@ -1848,6 +1961,7 @@ export function setActiveTask(taskId: TaskId) {
   const showForLoopInfo =
     activeTaskId === "first_loop" || activeTaskId === "sum_1_to_n";
   const showWhileLoopInfo = activeTaskId === "guess_game";
+  const showListInfo = activeTaskId === "list_foreach";
   const showConditionInfo =
     activeTaskId === "even_or_odd" ||
     activeTaskId === "time_of_day" ||
@@ -1859,11 +1973,13 @@ export function setActiveTask(taskId: TaskId) {
     !showIncDecInfo &&
     !showForLoopInfo &&
     !showWhileLoopInfo &&
+    !showListInfo &&
     !showConditionInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (forLoopInfo) forLoopInfo.style.display = showForLoopInfo ? "" : "none";
   if (whileLoopInfo)
     whileLoopInfo.style.display = showWhileLoopInfo ? "" : "none";
+  if (listInfo) listInfo.style.display = showListInfo ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
   if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";

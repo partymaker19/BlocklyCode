@@ -1585,6 +1585,45 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
         : "Comparison operators return a boolean value: true or false."),
   );
   setText(
+    "condOpGtDesc",
+    t?.CondOpGtDesc || (lang === "ru" ? "больше" : "greater than"),
+  );
+  setText(
+    "condOpLtDesc",
+    t?.CondOpLtDesc || (lang === "ru" ? "меньше" : "less than"),
+  );
+  setText(
+    "condOpGteDesc",
+    t?.CondOpGteDesc ||
+      (lang === "ru" ? "больше или равно" : "greater or equal"),
+  );
+  setText(
+    "condOpLteDesc",
+    t?.CondOpLteDesc || (lang === "ru" ? "меньше или равно" : "less or equal"),
+  );
+  setText(
+    "condOpEqDesc",
+    t?.CondOpEqDesc ||
+      (lang === "ru" ? "сравнение: равно" : "comparison: equal"),
+  );
+  setText(
+    "condOpNeqDesc",
+    t?.CondOpNeqDesc ||
+      (lang === "ru" ? "сравнение: не равно" : "comparison: not equal"),
+  );
+  setText(
+    "condOpNeqLuaDesc",
+    t?.CondOpNeqLuaDesc ||
+      (lang === "ru" ? "не равно (в Lua)" : "not equal (in Lua: ~=)"),
+  );
+  setText(
+    "condOpEqNote",
+    t?.CondOpEqNote ||
+      (lang === "ru"
+        ? "Важно: == — это сравнение, а = — присваивание (например, x = 5). А != означает “не равно” (в Lua — ~=)."
+        : "Important: == means comparison, while = means assignment (e.g., x = 5). And != means “not equal” (in Lua it is ~=)."),
+  );
+  setText(
     "conditionInfoNote",
     t?.ConditionInfoNote ||
       (lang === "ru"

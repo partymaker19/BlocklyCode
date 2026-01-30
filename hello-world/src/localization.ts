@@ -382,6 +382,15 @@ export function localizeImportUI(lang: AppLang): void {
           ConditionPhpIfElseDesc: "две ветки: если / иначе",
           ConditionInfoOpsHeader: "Операторы сравнения",
           ConditionInfoOpsText: ">, <, ==, != (в Lua — ~=).",
+          CondOpGtDesc: "больше",
+          CondOpLtDesc: "меньше",
+          CondOpGteDesc: "больше или равно",
+          CondOpLteDesc: "меньше или равно",
+          CondOpEqDesc: "сравнение: равно",
+          CondOpNeqDesc: "сравнение: не равно",
+          CondOpNeqLuaDesc: "не равно (в Lua)",
+          CondOpEqNote:
+            "Важно: == — это сравнение, а = — присваивание (например, x = 5). А != означает “не равно” (в Lua — ~=).",
           ConditionInfoNote:
             "Если нужно “ничего не делать” — просто оставьте ветку else пустой или не добавляйте её.",
           RunFirst: "Сначала запустите код",
@@ -504,6 +513,15 @@ export function localizeImportUI(lang: AppLang): void {
           ConditionPhpIfElseDesc: "two branches: if / else",
           ConditionInfoOpsHeader: "Comparison operators",
           ConditionInfoOpsText: ">, <, ==, != (Lua uses ~=).",
+          CondOpGtDesc: "greater than",
+          CondOpLtDesc: "less than",
+          CondOpGteDesc: "greater or equal",
+          CondOpLteDesc: "less or equal",
+          CondOpEqDesc: "comparison: equal",
+          CondOpNeqDesc: "comparison: not equal",
+          CondOpNeqLuaDesc: "not equal (in Lua: ~=)",
+          CondOpEqNote:
+            "Important: == means comparison, while = means assignment (e.g., x = 5). And != means “not equal” (in Lua it is ~=).",
           ConditionInfoNote:
             "If you need to “do nothing”, leave the else branch empty or omit it.",
           RunFirst: "Run the code first",

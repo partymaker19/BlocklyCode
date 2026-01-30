@@ -613,6 +613,38 @@
       font-size: 0.9em;
     }
 
+    .console-output-info pre {
+      margin: 8px 0 0 0;
+      padding: 10px 12px;
+      background: #e9ecef;
+      border-radius: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .console-output-info pre code {
+      display: block;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      font-size: 0.88em;
+      line-height: 1.35;
+    }
+
+    .console-output-info ul.code-examples {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .console-output-info ul.code-examples>li {
+      margin: 10px 0;
+    }
+
     html[data-theme='dark'] .console-output-info {
       background: #1e293b;
       border-left-color: #3b82f6;
@@ -626,6 +658,10 @@
     html[data-theme='dark'] .console-output-info code {
       background: #0f172a;
       color: #93c5fd;
+    }
+
+    html[data-theme='dark'] .console-output-info pre {
+      background: #0f172a;
     }
 
     #blocklyDiv {
@@ -1968,6 +2004,115 @@
               отображаться в окне
               вывода
               справа внизу.</p>
+          </div>
+          <div id="forLoopInfoSection" class="console-output-info" style="display:none;">
+            <h4>Цикл for со счётчиком</h4>
+            <p>
+              Цикл <strong>for</strong> со счётчиком — это повторение действий, где переменная (например,
+              <code>i</code>)
+            </p>
+            <h4 style="margin-top:12px;">Из чего состоит</h4>
+            <ul>
+              <li><strong>Старт</strong>: с какого значения начинаем (например, 0)</li>
+              <li><strong>Финиш/условие</strong>: до какого значения идём (например, до 10 включительно)</li>
+              <li><strong>Шаг</strong>: как меняем счётчик (обычно +1)</li>
+              <li><strong>Тело цикла</strong>: что делаем на каждом шаге (например, печатаем <code>i</code>)</li>
+            </ul>
+            <h4 style="margin-top:12px;">Пример (0…10, каждое число с новой строки)</h4>
+            <ul class="code-examples">
+              <li><strong>JavaScript</strong>
+                <pre><code>for (let i = 0; i &lt;= 10; i += 1) {
+  console.log(i);
+}</code></pre>
+              </li>
+              <li><strong>Python</strong>
+                <pre><code>for i in range(0, 11, 1):
+    print(i)</code></pre>
+              </li>
+              <li><strong>Lua</strong>
+                <pre><code>for i = 0, 10, 1 do
+  print(i)
+end</code></pre>
+              </li>
+              <li><strong>PHP</strong>
+                <pre><code>for ($i = 0; $i &lt;= 10; $i++) {
+  echo $i . PHP_EOL;
+}</code></pre>
+              </li>
+            </ul>
+            <h4 style="margin-top:12px;">Частые ошибки</h4>
+            <ul>
+              <li><strong>0…9 вместо 0…10</strong>: забыли “включительно” (JS: <code>&lt;= 10</code>, Python:
+                <code>range(0, 11)</code>)
+              </li>
+              <li><strong>Неправильный шаг</strong>: при шаге 2 получится 0, 2, 4, …, 10</li>
+              <li><strong>Печать не счётчика</strong>: внутри цикла нужно выводить именно переменную цикла</li>
+            </ul>
+            <p style="font-size: 0.9em; font-style: italic;">
+              В Blockly это обычно блок “for” (Loops) с полями FROM/TO/BY и переменной-счётчиком.
+            </p>
+          </div>
+          <div id="whileLoopInfoSection" class="console-output-info" style="display:none;">
+            <h4>Цикл while</h4>
+            <p>
+              Цикл <strong>while</strong> повторяет действия, пока условие истинно. Он полезен, когда заранее
+              неизвестно,
+              сколько раз нужно повторить (например, «пока не угадали число»).
+            </p>
+            <h4 style="margin-top:12px;">Как устроен</h4>
+            <ul>
+              <li><strong>Условие</strong>: проверяется перед каждым шагом (если false — цикл заканчивается)</li>
+              <li><strong>Тело цикла</strong>: действия, которые выполняются на каждом повторении</li>
+              <li><strong>Изменение</strong>: внутри цикла нужно менять значение, влияющее на условие</li>
+            </ul>
+            <h4 style="margin-top:12px;">Отличия от for</h4>
+            <ul>
+              <li><strong>for</strong>: заранее известны старт/финиш/шаг (например, 0…10)</li>
+              <li><strong>while</strong>: повторяем «пока …», количество повторов заранее неизвестно</li>
+            </ul>
+            <h4 style="margin-top:12px;">Простой пример: повторяем, пока не ввели 7</h4>
+            <ul class="code-examples">
+              <li><strong>JavaScript</strong>
+                <pre><code>let guess = Number(input());
+while (guess !== 7) {
+  console.log("Ещё раз");
+  guess = Number(input());
+}
+console.log("Угадал!");</code></pre>
+              </li>
+              <li><strong>Python</strong>
+                <pre><code>guess = float(input())
+while guess != 7:
+    print("Ещё раз")
+    guess = float(input())
+print("Угадал!")</code></pre>
+              </li>
+              <li><strong>Lua</strong>
+                <pre><code>local guess = tonumber(input())
+while guess ~= 7 do
+  print("Ещё раз")
+  guess = tonumber(input())
+end
+print("Угадал!")</code></pre>
+              </li>
+              <li><strong>PHP</strong>
+                <pre><code>$guess = (float) input();
+while ($guess != 7) {
+  echo "Ещё раз" . PHP_EOL;
+  $guess = (float) input();
+}
+echo "Угадал!" . PHP_EOL;</code></pre>
+              </li>
+            </ul>
+            <h4 style="margin-top:12px;">Частые ошибки</h4>
+            <ul>
+              <li><strong>Бесконечный цикл</strong>: забыли обновить переменную внутри цикла</li>
+              <li><strong>Lua</strong>: «не равно» пишется как <code>~=</code></li>
+              <li><strong>Ввод</strong>: строку нужно превратить в число (Number/float/tonumber)</li>
+            </ul>
+            <p style="font-size: 0.9em; font-style: italic;">
+              В Blockly используйте блок while (Loops) и обновляйте переменную guess внутри цикла.
+            </p>
           </div>
           <div id="dataTypesInfoSection" class="console-output-info" style="display:none;">
             <h4 id="dataTypesHeader">Типы данных:</h4>

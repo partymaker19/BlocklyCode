@@ -21,7 +21,11 @@ export type TaskId =
   | "greet_concat"
   | "inc_counter"
   | "discount_calc"
-  | "sub_10_4"
+  | "even_or_odd"
+  | "time_of_day"
+  | "first_loop"
+  | "sum_1_to_n"
+  | "guess_game"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -171,19 +175,82 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: use if/else (Logic) and a comparison (Logic), e.g. temperature > 0.",
     validate: validateFirstCondition,
   },
-  sub_10_4: {
-    id: "sub_10_4",
+  even_or_odd: {
+    id: "even_or_odd",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 9: 10 − 4" : "Task 9: 10 − 4"),
+    title: (lang) =>
+      lang === "ru" ? "Задача 9: Чётное или нечётное" : "Task 9: Even or Odd",
     description: (lang) =>
       lang === "ru"
-        ? "Вычтите <strong>4</strong> из <strong>10</strong> и выведите результат в окно вывода: должно получиться <strong>6</strong>."
-        : "Subtract <strong>4</strong> from <strong>10</strong> and print the result to the output: it should be <strong>6</strong>.",
+        ? 'Создайте переменную <strong>number</strong> и сохраните в неё любое целое число. Напишите программу, которая определяет, является ли число <strong>чётным</strong> или <strong>нечётным</strong>, и выводит сообщение:<br><br>Если число чётное, выведите <strong>"Число чётное"</strong> (или <strong>"The number is even"</strong>).<br>Если число нечётное, выведите <strong>"Число нечётное"</strong> (или <strong>"The number is odd"</strong>).'
+        : 'Create a variable <strong>number</strong> and store any integer in it. Determine whether the number is <strong>even</strong> or <strong>odd</strong>, and print a message:<br><br>If even, print <strong>"The number is even"</strong>.<br>If odd, print <strong>"The number is odd"</strong>.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок вычитания из категории Математика и блок печати/вывода."
-        : "Hint: use the subtraction block from Math and a print/output block.",
-    validate: validateSub10Minus4,
+        ? "Подсказка: используйте if/else (Logic), остаток от деления (%) и сравнение number % 2 == 0."
+        : "Hint: use if/else (Logic), modulo (%) and the check number % 2 == 0.",
+    validate: validateEvenOrOdd,
+  },
+  time_of_day: {
+    id: "time_of_day",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 10: Время суток" : "Task 10: Time of Day",
+    description: (lang) =>
+      lang === "ru"
+        ? 'Создайте переменную <strong>hour</strong> и сохраните в неё текущий час (число от <strong>0</strong> до <strong>23</strong>). Напишите программу, которая определяет время суток и выводит сообщение:<br><br>Если <strong>hour</strong> от <strong>6</strong> до <strong>11</strong> → <strong>"Good morning!"</strong><br>Если <strong>hour</strong> от <strong>12</strong> до <strong>17</strong> → <strong>"Good afternoon!"</strong><br>Если <strong>hour</strong> от <strong>18</strong> до <strong>22</strong> → <strong>"Good evening!"</strong><br>Иначе → <strong>"Good night!"</strong>'
+        : 'Create a variable <strong>hour</strong> and store the current hour (0 to 23). Determine the time of day and print:<br><br>If <strong>hour</strong> is 6..11 → <strong>"Good morning!"</strong><br>If 12..17 → <strong>"Good afternoon!"</strong><br>If 18..22 → <strong>"Good evening!"</strong><br>Else → <strong>"Good night!"</strong>',
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте цепочку if/else if/else, сравнения (>=, <=) и вывод текста."
+        : "Hint: use an if/else if/else chain, comparisons (>=, <=) and print blocks.",
+    validate: validateTimeOfDay,
+  },
+  first_loop: {
+    id: "first_loop",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 11: Первый цикл" : "Task 11: First Loop",
+    description: (lang) =>
+      lang === "ru"
+        ? "Напишите программу, которая выводит в консоль все числа от <strong>0</strong> до <strong>10</strong> (включительно), каждое число с новой строки."
+        : "Write a program that prints all numbers from <strong>0</strong> to <strong>10</strong> (inclusive), one per line.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте цикл for (Loops) со счётчиком i: от 0 до 10, шаг 1. Внутри цикла выведите текущее значение i."
+        : "Hint: use a for loop (Loops) with a counter i: from 0 to 10, step 1. Print i inside the loop.",
+    validate: validateFirstLoop,
+  },
+  sum_1_to_n: {
+    id: "sum_1_to_n",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 12: Сумма чисел" : "Task 12: Sum of Numbers",
+    description: (lang) =>
+      lang === "ru"
+        ? "Напишите программу, которая вычисляет сумму всех целых чисел от <strong>1</strong> до <strong>N</strong>, где <strong>N</strong> сохранено в переменной <strong>n</strong>.<br><br>Пример: при <strong>n = 5</strong> нужно вывести <strong>15</strong>, при <strong>n = 10</strong> — <strong>55</strong>."
+        : "Write a program that computes the sum of all integers from <strong>1</strong> to <strong>N</strong>, where <strong>N</strong> is stored in the variable <strong>n</strong>.<br><br>Example: for <strong>n = 5</strong> print <strong>15</strong>, for <strong>n = 10</strong> print <strong>55</strong>.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте цикл for (Loops) со счётчиком от 1 до n и переменную-аккумулятор sum (sum = sum + i). Затем выведите sum."
+        : "Hint: use a for loop (Loops) from 1 to n and an accumulator variable sum (sum = sum + i). Then print sum.",
+    validate: validateSum1ToN,
+  },
+  guess_game: {
+    id: "guess_game",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 13: Игра «Угадай число»"
+        : "Task 13: Number Guessing Game",
+    description: (lang) =>
+      lang === "ru"
+        ? 'Создайте программу, в которой компьютер <strong>загадывает</strong> число от <strong>1</strong> до <strong>10</strong> (сохраните его в переменной <strong>secret</strong>), а пользователь пытается его угадать.<br><br>Используйте переменную <strong>guess</strong> для догадки. В цикле спрашивайте число у пользователя и сообщайте:<br>— если догадка меньше секрета: <strong>"Загаданное число больше!"</strong><br>— если догадка больше секрета: <strong>"Загаданное число меньше!"</strong><br>— если равно: <strong>"Поздравляем! Вы угадали число!"</strong><br><br>Для ввода используйте блок <strong>py_input_number</strong> (Custom).'
+        : 'Create a program where the computer chooses a number from <strong>1</strong> to <strong>10</strong> (store it in <strong>secret</strong>), and the user tries to guess it.<br><br>Use <strong>guess</strong> for the user\'s guess. In a loop, ask for a number and print:<br>— if guess is lower: <strong>"The secret number is higher!"</strong><br>— if guess is higher: <strong>"The secret number is lower!"</strong><br>— if equal: <strong>"Congratulations! You guessed the number!"</strong><br><br>Use the <strong>py_input_number</strong> block (Custom) for input.',
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте while (Loops) «пока guess ≠ secret». Внутри — if/else if/else для трёх случаев: меньше, больше, равно."
+        : 'Hint: use a while loop (Loops) "while guess != secret" and an if/else if/else chain for lower/higher/equal.',
+    validate: validateGuessGame,
   },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
@@ -204,7 +271,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "sum_array",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 10: Сумма массива" : "Task 10: Array sum",
+      lang === "ru" ? "Задача A2: Сумма массива" : "Task A2: Array sum",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и выведите их сумму: <strong>15</strong>. Можно использовать блоки из категории Списки/Математика или цикл."
@@ -219,7 +286,7 @@ const tasks: Record<TaskId, TaskDef> = {
     id: "min_max",
     difficulty: "advanced",
     title: (lang) =>
-      lang === "ru" ? "Задача 11: Минимум и максимум" : "Task 11: Min and Max",
+      lang === "ru" ? "Задача A3: Минимум и максимум" : "Task A3: Min and Max",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список <code>[5, 1, 9, 3, 7]</code> и выведите минимальное и максимальное значения: <strong>min=1</strong> и <strong>max=9</strong>. Допустимо выводить в одну строку или в две."
@@ -235,8 +302,8 @@ const tasks: Record<TaskId, TaskDef> = {
     difficulty: "advanced",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 12: Частоты символов"
-        : "Task 12: Character frequencies",
+        ? "Задача A4: Частоты символов"
+        : "Task A4: Character frequencies",
     description: (lang) =>
       lang === "ru"
         ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
@@ -266,7 +333,11 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "inc_counter",
     "discount_calc",
     "first_condition",
-    "sub_10_4",
+    "even_or_odd",
+    "time_of_day",
+    "first_loop",
+    "sum_1_to_n",
+    "guess_game",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -1083,44 +1154,483 @@ async function validateNumberAnalyzer(
   return { ok, stars };
 }
 
-async function validateSub10Minus4(
+async function validateEvenOrOdd(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
-  const expected = "6";
-  const ok = lines.includes(expected);
+  const lang = getAppLang();
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
 
-  let hasSubtract = false;
-  let has10 = false;
-  let has4 = false;
+  const normalized = lines.map((l) =>
+    l
+      .replace(/[.!]+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase(),
+  );
+
+  const tryGetAssignedInt = (setBlock: any): number | null => {
+    const n = tryGetAssignedNumber(setBlock);
+    if (n === null) return null;
+    if (!Number.isInteger(n)) return null;
+    return n;
+  };
+
+  let n: number | null = null;
+  let hasSetNumber = false;
+  let hasGetNumber = false;
+  let hasPrint = false;
+  let usedIf = false;
+  let usedIfElse = false;
+  let usedCompare = false;
+  let usedModulo = false;
+
   const blocks = getNonShadowBlocks(ws);
   for (const b of blocks) {
-    if ((b as any).type === "math_arithmetic") {
-      const op =
-        typeof (b as any).getFieldValue === "function"
-          ? (b as any).getFieldValue("OP")
-          : undefined;
-      if (op === "MINUS") hasSubtract = true;
+    const t = (b as any).type;
+    if (t === "variables_set" && getVarFieldText(b) === "number") {
+      hasSetNumber = true;
+      const assigned = tryGetAssignedInt(b);
+      if (assigned !== null) n = assigned;
     }
-    if ((b as any).type === "math_number") {
-      const num =
-        typeof (b as any).getFieldValue === "function"
-          ? (b as any).getFieldValue("NUM")
-          : undefined;
-      if (String(num) === "10") has10 = true;
-      if (String(num) === "4") has4 = true;
+    if (t === "variables_get" && getVarFieldText(b) === "number")
+      hasGetNumber = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+
+    if (t === "controls_if") {
+      usedIf = true;
+      try {
+        if (typeof (b as any).getInput === "function") {
+          const hasElseInput = !!(b as any).getInput("ELSE");
+          if (hasElseInput) usedIfElse = true;
+        }
+      } catch {}
     }
+
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "math_arithmetic") {
+      try {
+        const op =
+          typeof (b as any).getFieldValue === "function"
+            ? (b as any).getFieldValue("OP")
+            : undefined;
+        if (String(op).toUpperCase().includes("MOD")) usedModulo = true;
+      } catch {}
+    }
+  }
+
+  const ok = (() => {
+    if (!hasSetNumber || !hasGetNumber || !hasPrint) return false;
+    if (n === null) return false;
+    const parity = n % 2 === 0 ? "even" : "odd";
+    const enExpected = `the number is ${parity}`.toLowerCase();
+    const ruExpected =
+      parity === "even"
+        ? ["число чётное", "число четное"]
+        : ["число нечётное", "число нечетное"];
+    const hasEn = normalized.includes(enExpected);
+    const hasRu = ruExpected.some((s) => normalized.includes(s));
+    if (lang === "ru") return hasRu || hasEn;
+    return hasEn || hasRu;
+  })();
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = usedIfElse && usedCompare && usedModulo;
+    if (usedCore && count <= 10) stars = 3;
+    else if ((usedIf || usedCompare || usedModulo) && count <= 14) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+async function validateTimeOfDay(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lang = getAppLang();
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const normalized = lines.map((l) =>
+    l
+      .replace(/[.!]+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase(),
+  );
+
+  const tryGetAssignedInt = (setBlock: any): number | null => {
+    const n = tryGetAssignedNumber(setBlock);
+    if (n === null) return null;
+    if (!Number.isInteger(n)) return null;
+    return n;
+  };
+
+  let hour: number | null = null;
+  let hasSetHour = false;
+  let hasGetHour = false;
+  let hasPrint = false;
+
+  let ifBlocksCount = 0;
+  let hasElseIfChain = false;
+  let hasElseBranch = false;
+
+  let usedCompare = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "variables_set" && getVarFieldText(b) === "hour") {
+      hasSetHour = true;
+      const assigned = tryGetAssignedInt(b);
+      if (assigned !== null) hour = assigned;
+    }
+    if (t === "variables_get" && getVarFieldText(b) === "hour")
+      hasGetHour = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+
+    if (t === "controls_if") {
+      ifBlocksCount += 1;
+      try {
+        if (typeof (b as any).getInput === "function") {
+          let elseIfCount = 0;
+          for (let i = 1; i < 10; i++) {
+            if ((b as any).getInput(`IF${i}`)) elseIfCount += 1;
+            else break;
+          }
+          if (elseIfCount >= 2) hasElseIfChain = true;
+          if ((b as any).getInput("ELSE")) hasElseBranch = true;
+        }
+      } catch {}
+    }
+
+    if (t === "logic_compare") usedCompare = true;
+  }
+
+  const expectedKey = (() => {
+    if (hour === null) return null;
+    if (hour >= 6 && hour <= 11) return "morning";
+    if (hour >= 12 && hour <= 17) return "afternoon";
+    if (hour >= 18 && hour <= 22) return "evening";
+    return "night";
+  })();
+
+  const ok = (() => {
+    if (!hasSetHour || !hasGetHour || !hasPrint) return false;
+    if (!expectedKey) return false;
+    const enExpected =
+      expectedKey === "morning"
+        ? "good morning"
+        : expectedKey === "afternoon"
+          ? "good afternoon"
+          : expectedKey === "evening"
+            ? "good evening"
+            : "good night";
+    const ruExpected =
+      expectedKey === "morning"
+        ? ["доброе утро"]
+        : expectedKey === "afternoon"
+          ? ["добрый день"]
+          : expectedKey === "evening"
+            ? ["добрый вечер"]
+            : ["спокойной ночи", "доброй ночи"];
+
+    const hasEn = normalized.some((l) => l.includes(enExpected));
+    const hasRu = ruExpected.some((s) => normalized.some((l) => l.includes(s)));
+    if (lang === "ru") return hasRu || hasEn;
+    return hasEn || hasRu;
+  })();
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      ifBlocksCount === 1 && hasElseIfChain && hasElseBranch && usedCompare;
+    if (usedCore && count <= 18) stars = 3;
+    else if (count <= 26) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+async function validateFirstLoop(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const numericLines = lines
+    .map((l) => {
+      const n = Number(l);
+      return Number.isInteger(n) ? n : null;
+    })
+    .filter((v): v is number => v !== null);
+
+  const expected = Array.from({ length: 11 }, (_, i) => i);
+
+  const ok = (() => {
+    if (numericLines.length < expected.length) return false;
+    for (
+      let start = 0;
+      start <= numericLines.length - expected.length;
+      start++
+    ) {
+      let matches = true;
+      for (let i = 0; i < expected.length; i++) {
+        if (numericLines[start + i] !== expected[i]) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) return true;
+    }
+    return false;
+  })();
+
+  const tryGetInputNumber = (block: any, inputName: string): number | null => {
+    try {
+      const target =
+        typeof block?.getInputTargetBlock === "function"
+          ? block.getInputTargetBlock(inputName)
+          : null;
+      if (!target) return null;
+      if ((target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
+
+  let usedFor = false;
+  let forFromOk = false;
+  let forToOk = false;
+  let forByOk = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "controls_for") {
+      usedFor = true;
+      try {
+        const from = tryGetInputNumber(b, "FROM");
+        const to = tryGetInputNumber(b, "TO");
+        const by = tryGetInputNumber(b, "BY");
+        if (from === 0) forFromOk = true;
+        if (to === 10) forToOk = true;
+        if (by === 1) forByOk = true;
+      } catch {}
+    }
+    if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (hasSubtract && has10 && has4 && count <= 4) stars = 3;
-    else if (count <= 6) stars = 2;
+    const usedCore = usedFor && hasPrint && forFromOk && forToOk && forByOk;
+    if (usedCore && count <= 8) stars = 3;
+    else if (usedFor && hasPrint && count <= 12) stars = 2;
     else stars = 1;
-  } else {
-    stars = 0;
   }
+
+  return { ok, stars };
+}
+
+async function validateSum1ToN(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const tryGetAssignedInt = (setBlock: any): number | null => {
+    const n = tryGetAssignedNumber(setBlock);
+    if (n === null) return null;
+    if (!Number.isInteger(n)) return null;
+    return n;
+  };
+
+  let n: number | null = null;
+  let hasSetN = false;
+  let hasGetN = false;
+  let hasPrint = false;
+
+  let usedFor = false;
+  let usedAccumulator = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "variables_set" && getVarFieldText(b) === "n") {
+      hasSetN = true;
+      const assigned = tryGetAssignedInt(b);
+      if (assigned !== null) n = assigned;
+    }
+    if (t === "variables_get" && getVarFieldText(b) === "n") hasGetN = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+
+    if (t === "controls_for") usedFor = true;
+
+    if (t === "variables_set" && getVarFieldText(b) === "sum")
+      usedAccumulator = true;
+    if (t === "variables_set" && getVarFieldText(b) === "total")
+      usedAccumulator = true;
+  }
+
+  const expected = (() => {
+    if (n === null) return null;
+    if (n < 1) return null;
+    return (n * (n + 1)) / 2;
+  })();
+
+  const ok = (() => {
+    if (!hasSetN || !hasGetN || !hasPrint) return false;
+    if (expected === null) return false;
+    const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
+    return lines.some((l) => re.test(l));
+  })();
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = usedFor && usedAccumulator;
+    if (usedCore && count <= 14) stars = 3;
+    else if (count <= 20) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateGuessGame(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const normalized = lines.map((l) =>
+    l
+      .replace(/[.!]+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase(),
+  );
+
+  const blocks = getNonShadowBlocks(ws);
+
+  let hasSetSecret = false;
+  let hasGetSecret = false;
+  let hasSetGuess = false;
+  let hasGetGuess = false;
+  let usedInputNumber = false;
+  let usedWhile = false;
+  let usedIf = false;
+  let usedElseIf = false;
+  let usedElse = false;
+  let usedCompare = false;
+  let hasEq = false;
+  let hasLt = false;
+  let hasGt = false;
+  let hasNeq = false;
+  let hasPrint = false;
+
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "variables_set" && getVarFieldText(b) === "secret")
+      hasSetSecret = true;
+    if (t === "variables_get" && getVarFieldText(b) === "secret")
+      hasGetSecret = true;
+    if (t === "variables_set" && getVarFieldText(b) === "guess")
+      hasSetGuess = true;
+    if (t === "variables_get" && getVarFieldText(b) === "guess")
+      hasGetGuess = true;
+
+    if (t === "py_input_number") usedInputNumber = true;
+    if (t === "controls_whileUntil") usedWhile = true;
+    if (t === "controls_if") {
+      usedIf = true;
+      try {
+        if (typeof (b as any).getInput === "function") {
+          let elseIfCount = 0;
+          for (let i = 1; i < 10; i++) {
+            if ((b as any).getInput(`IF${i}`)) elseIfCount += 1;
+            else break;
+          }
+          if (elseIfCount >= 1) usedElseIf = true;
+          if ((b as any).getInput("ELSE")) usedElse = true;
+        }
+      } catch {}
+    }
+    if (t === "logic_compare") {
+      usedCompare = true;
+      try {
+        const op =
+          typeof (b as any).getFieldValue === "function"
+            ? (b as any).getFieldValue("OP")
+            : undefined;
+        if (op === "EQ") hasEq = true;
+        if (op === "LT") hasLt = true;
+        if (op === "GT") hasGt = true;
+        if (op === "NEQ") hasNeq = true;
+      } catch {}
+    }
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const hasFeedbackText = (() => {
+    const ruHigher = normalized.some((l) =>
+      l.includes("загаданное число больше"),
+    );
+    const ruLower = normalized.some((l) =>
+      l.includes("загаданное число меньше"),
+    );
+    const ruCongrats = normalized.some((l) => l.includes("поздравляем"));
+    const enHigher = normalized.some((l) => l.includes("higher"));
+    const enLower = normalized.some((l) => l.includes("lower"));
+    const enCongrats = normalized.some((l) => l.includes("congrat"));
+    return (
+      ruHigher || ruLower || ruCongrats || enHigher || enLower || enCongrats
+    );
+  })();
+
+  const ok =
+    hasSetSecret &&
+    hasSetGuess &&
+    usedInputNumber &&
+    usedWhile &&
+    usedIf &&
+    usedCompare &&
+    hasPrint &&
+    (hasFeedbackText || (hasGetSecret && hasGetGuess));
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      usedWhile &&
+      usedIf &&
+      usedElseIf &&
+      usedElse &&
+      usedInputNumber &&
+      hasEq &&
+      hasLt &&
+      hasGt;
+    if (usedCore && count <= 26) stars = 3;
+    else if (usedWhile && usedIf && usedCompare && count <= 34) stars = 2;
+    else stars = 1;
+  }
+
   return { ok, stars };
 }
 
@@ -1309,6 +1819,12 @@ export function setActiveTask(taskId: TaskId) {
   const consoleInfo = document.getElementById(
     "consoleOutputInfoSection",
   ) as HTMLDivElement | null;
+  const forLoopInfo = document.getElementById(
+    "forLoopInfoSection",
+  ) as HTMLDivElement | null;
+  const whileLoopInfo = document.getElementById(
+    "whileLoopInfoSection",
+  ) as HTMLDivElement | null;
   const dataTypesInfo = document.getElementById(
     "dataTypesInfoSection",
   ) as HTMLDivElement | null;
@@ -1329,14 +1845,25 @@ export function setActiveTask(taskId: TaskId) {
     activeTaskId === "var_my_age" || activeTaskId === "calc_sum";
   const showConcatInfo = activeTaskId === "greet_concat";
   const showIncDecInfo = activeTaskId === "inc_counter";
-  const showConditionInfo = activeTaskId === "first_condition";
+  const showForLoopInfo =
+    activeTaskId === "first_loop" || activeTaskId === "sum_1_to_n";
+  const showWhileLoopInfo = activeTaskId === "guess_game";
+  const showConditionInfo =
+    activeTaskId === "even_or_odd" ||
+    activeTaskId === "time_of_day" ||
+    activeTaskId === "first_condition";
   const showConsole =
     !showDataTypes &&
     !showVariableInfo &&
     !showConcatInfo &&
     !showIncDecInfo &&
+    !showForLoopInfo &&
+    !showWhileLoopInfo &&
     !showConditionInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
+  if (forLoopInfo) forLoopInfo.style.display = showForLoopInfo ? "" : "none";
+  if (whileLoopInfo)
+    whileLoopInfo.style.display = showWhileLoopInfo ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
   if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";

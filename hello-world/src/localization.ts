@@ -382,6 +382,99 @@ export function localizeImportUI(lang: AppLang): void {
           ConditionPhpIfElseDesc: "две ветки: если / иначе",
           ConditionInfoOpsHeader: "Операторы сравнения",
           ConditionInfoOpsText: ">, <, ==, != (в Lua — ~=).",
+          ForLoopInfoHeader: "Цикл for со счётчиком",
+          ForLoopIntroPrefix: "Цикл ",
+          ForLoopIntroMid:
+            " со счётчиком — это повторение действий, где переменная (например, ",
+          ForLoopIntroSuffix:
+            ") последовательно принимает значения с заданным шагом.",
+          ForLoopPartsHeader: "Из чего состоит",
+          ForLoopStartLabel: "Старт",
+          ForLoopStartDesc: ": с какого значения начинаем (например, 0)",
+          ForLoopEndLabel: "Финиш/условие",
+          ForLoopEndDesc:
+            ": до какого значения идём (например, до 10 включительно)",
+          ForLoopStepLabel: "Шаг",
+          ForLoopStepDesc: ": как меняем счётчик (обычно +1)",
+          ForLoopBodyLabel: "Тело цикла",
+          ForLoopBodyDescPrefix:
+            ": что делаем на каждом шаге (например, печатаем ",
+          ForLoopBodyDescSuffix: ")",
+          ForLoopExampleHeader: "Пример (0…10, каждое число с новой строки)",
+          ForLoopErrorsHeader: "Частые ошибки",
+          ForLoopErr1Title: "0…9 вместо 0…10",
+          ForLoopErr1TextBefore: ": забыли “включительно” (JS: ",
+          ForLoopErr1TextMiddle: ", Python: ",
+          ForLoopErr1TextAfter: ")",
+          ForLoopErr2Title: "Неправильный шаг",
+          ForLoopErr2Text: ": при шаге 2 получится 0, 2, 4, …, 10",
+          ForLoopErr3Title: "Печать не счётчика",
+          ForLoopErr3Text:
+            ": внутри цикла нужно выводить именно переменную цикла",
+          ForLoopNote:
+            "В Blockly это обычно блок “for” (Loops) с полями FROM/TO/BY и переменной-счётчиком.",
+          WhileLoopInfoHeader: "Цикл while",
+          WhileLoopIntroPrefix: "Цикл ",
+          WhileLoopIntroSuffix:
+            " повторяет действия, пока условие истинно. Он полезен, когда заранее неизвестно, сколько раз нужно повторить (например, «пока не угадали число»).",
+          WhileLoopPartsHeader: "Как устроен",
+          WhileLoopCondLabel: "Условие",
+          WhileLoopCondDesc:
+            ": проверяется перед каждым шагом (если false — цикл заканчивается)",
+          WhileLoopBodyLabel: "Тело цикла",
+          WhileLoopBodyDesc:
+            ": действия, которые выполняются на каждом повторении",
+          WhileLoopChangeLabel: "Изменение",
+          WhileLoopChangeDesc:
+            ": внутри цикла нужно менять значение, влияющее на условие",
+          WhileLoopDiffHeader: "Отличия от for",
+          WhileLoopDiffFor:
+            "for: заранее известны старт/финиш/шаг (например, 0…10)",
+          WhileLoopDiffWhile:
+            "while: повторяем «пока …», количество повторов заранее неизвестно",
+          WhileLoopExampleHeader: "Простой пример: повторяем, пока не ввели 7",
+          WhileLoopErrorsHeader: "Частые ошибки",
+          WhileLoopErr1Title: "Бесконечный цикл",
+          WhileLoopErr1Text: ": забыли обновить переменную внутри цикла",
+          WhileLoopErr2Title: "Lua",
+          WhileLoopErr2TextBefore: ": «не равно» пишется как ",
+          WhileLoopErr3Title: "Ввод",
+          WhileLoopErr3Text:
+            ": строку нужно превратить в число (Number/float/tonumber)",
+          WhileLoopNote:
+            "В Blockly используйте блок while (Loops) и обновляйте переменную guess внутри цикла.",
+          WhileJsCode:
+            'let guess = Number(input());\nwhile (guess !== 7) {\n  console.log("Ещё раз");\n  guess = Number(input());\n}\nconsole.log("Угадал!");',
+          WhilePyCode:
+            'guess = float(input())\nwhile guess != 7:\n    print("Ещё раз")\n    guess = float(input())\nprint("Угадал!")',
+          WhileLuaCode:
+            'local guess = tonumber(input())\nwhile guess ~= 7 do\n  print("Ещё раз")\n  guess = tonumber(input())\nend\nprint("Угадал!")',
+          WhilePhpCode:
+            '$guess = (float) input();\nwhile ($guess != 7) {\n  echo "Ещё раз" . PHP_EOL;\n  $guess = (float) input();\n}\necho "Угадал!" . PHP_EOL;',
+          ListInfoHeader: "Список (массив) и «для каждого элемента…» (forEach)",
+          ListInfoIntroBefore:
+            "Список (или массив) — это набор значений в одном месте. Например: ",
+          ListInfoIntroAfter:
+            ". У списка есть порядок: у каждого элемента есть номер (индекс).",
+          ListInfoWhyHeader: "Зачем нужны списки",
+          ListInfoWhy1:
+            "хранить много однотипных значений (числа, слова) вместе",
+          ListInfoWhy2: "перебирать элементы по одному и что-то с ними делать",
+          ListInfoWhy3: "считать сумму, количество, находить минимум/максимум",
+          ListInfoForEachHeader: "Что такое forEach",
+          ListInfoForEachBefore:
+            "forEach означает «для каждого элемента списка». В нашем интерфейсе этот блок называется ",
+          ListInfoForEachBlockName: "«для каждого элемента k в списке»",
+          ListInfoForEachAfter:
+            " — это одно и то же по смыслу. Он берёт элементы списка по очереди и внутри цикла даёт вам текущий элемент (например, ",
+          ListInfoForEachMid: " или ",
+          ListInfoForEachEnd: ").",
+          ListInfoExampleHeader: "Пример: вывести элементы и посчитать сумму",
+          ListInfoNoteBefore: "В задаче 14: создайте ",
+          ListInfoNoteMid: " (или ",
+          ListInfoNoteAfter:
+            "), затем используйте «для каждого элемента … в списке» и переменную-накопитель ",
+          ListInfoNoteEnd: ".",
           CondOpGtDesc: "больше",
           CondOpLtDesc: "меньше",
           CondOpGteDesc: "больше или равно",
@@ -513,6 +606,93 @@ export function localizeImportUI(lang: AppLang): void {
           ConditionPhpIfElseDesc: "two branches: if / else",
           ConditionInfoOpsHeader: "Comparison operators",
           ConditionInfoOpsText: ">, <, ==, != (Lua uses ~=).",
+          ForLoopInfoHeader: "Counter-based for loop",
+          ForLoopIntroPrefix: "A ",
+          ForLoopIntroMid:
+            " loop with a counter repeats actions while a variable (for example, ",
+          ForLoopIntroSuffix: ") takes values step by step.",
+          ForLoopPartsHeader: "What it consists of",
+          ForLoopStartLabel: "Start",
+          ForLoopStartDesc: ": the initial value (e.g. 0)",
+          ForLoopEndLabel: "End/condition",
+          ForLoopEndDesc: ": when to stop (e.g. up to 10, inclusive)",
+          ForLoopStepLabel: "Step",
+          ForLoopStepDesc: ": how the counter changes (usually +1)",
+          ForLoopBodyLabel: "Loop body",
+          ForLoopBodyDescPrefix: ": what we do each step (e.g. print ",
+          ForLoopBodyDescSuffix: ")",
+          ForLoopExampleHeader: "Example (0…10, one number per line)",
+          ForLoopErrorsHeader: "Common mistakes",
+          ForLoopErr1Title: "0…9 instead of 0…10",
+          ForLoopErr1TextBefore: ": forgot “inclusive” (JS: ",
+          ForLoopErr1TextMiddle: ", Python: ",
+          ForLoopErr1TextAfter: ")",
+          ForLoopErr2Title: "Wrong step",
+          ForLoopErr2Text: ": with step 2 you get 0, 2, 4, …, 10",
+          ForLoopErr3Title: "Printing the wrong thing",
+          ForLoopErr3Text:
+            ": inside the loop you should print the counter variable",
+          ForLoopNote:
+            "In Blockly this is typically the “for” (Loops) block with FROM/TO/BY and a counter variable.",
+          WhileLoopInfoHeader: "While loop",
+          WhileLoopIntroPrefix: "A ",
+          WhileLoopIntroSuffix:
+            " loop repeats actions while the condition is true. It’s useful when you don’t know in advance how many times you need to repeat (for example, “until you guess the number”).",
+          WhileLoopPartsHeader: "How it works",
+          WhileLoopCondLabel: "Condition",
+          WhileLoopCondDesc:
+            ": checked before each step (if false, the loop ends)",
+          WhileLoopBodyLabel: "Loop body",
+          WhileLoopBodyDesc: ": the actions that run on each iteration",
+          WhileLoopChangeLabel: "Change",
+          WhileLoopChangeDesc:
+            ": inside the loop you must change the value that affects the condition",
+          WhileLoopDiffHeader: "Difference from for",
+          WhileLoopDiffFor: "for: start/end/step are known (e.g. 0…10)",
+          WhileLoopDiffWhile:
+            "while: repeat “while …”, the number of iterations is not known in advance",
+          WhileLoopExampleHeader: "Simple example: repeat until you enter 7",
+          WhileLoopErrorsHeader: "Common mistakes",
+          WhileLoopErr1Title: "Infinite loop",
+          WhileLoopErr1Text: ": forgot to update the variable inside the loop",
+          WhileLoopErr2Title: "Lua",
+          WhileLoopErr2TextBefore: ": “not equal” is written as ",
+          WhileLoopErr3Title: "Input",
+          WhileLoopErr3Text:
+            ": convert the input string to a number (Number/float/tonumber)",
+          WhileLoopNote:
+            "In Blockly use the while (Loops) block and update guess inside the loop.",
+          WhileJsCode:
+            'let guess = Number(input());\nwhile (guess !== 7) {\n  console.log("Try again");\n  guess = Number(input());\n}\nconsole.log("Guessed!");',
+          WhilePyCode:
+            'guess = float(input())\nwhile guess != 7:\n    print("Try again")\n    guess = float(input())\nprint("Guessed!")',
+          WhileLuaCode:
+            'local guess = tonumber(input())\nwhile guess ~= 7 do\n  print("Try again")\n  guess = tonumber(input())\nend\nprint("Guessed!")',
+          WhilePhpCode:
+            '$guess = (float) input();\nwhile ($guess != 7) {\n  echo "Try again" . PHP_EOL;\n  $guess = (float) input();\n}\necho "Guessed!" . PHP_EOL;',
+          ListInfoHeader: "List (array) and “for each item …” (forEach)",
+          ListInfoIntroBefore:
+            "A list (or array) is a collection of values in one place. For example: ",
+          ListInfoIntroAfter:
+            ". A list has an order: each item has a position (index).",
+          ListInfoWhyHeader: "Why lists are useful",
+          ListInfoWhy1: "store many similar values (numbers, words) together",
+          ListInfoWhy2: "iterate over items and do something with each one",
+          ListInfoWhy3: "compute sum/count, find min/max",
+          ListInfoForEachHeader: "What is forEach",
+          ListInfoForEachBefore:
+            "forEach means “for each item in the list”. In our interface this block is called ",
+          ListInfoForEachBlockName: "“for each item k in list”",
+          ListInfoForEachAfter:
+            " — it’s the same idea. It goes through list items one by one and gives you the current item (for example, ",
+          ListInfoForEachMid: " or ",
+          ListInfoForEachEnd: ").",
+          ListInfoExampleHeader: "Example: print items and compute sum",
+          ListInfoNoteBefore: "In task 14: create ",
+          ListInfoNoteMid: " (or ",
+          ListInfoNoteAfter:
+            "), then use “for each item … in list” and an accumulator variable ",
+          ListInfoNoteEnd: ".",
           CondOpGtDesc: "greater than",
           CondOpLtDesc: "less than",
           CondOpGteDesc: "greater or equal",

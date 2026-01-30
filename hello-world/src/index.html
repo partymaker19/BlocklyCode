@@ -2006,19 +2006,24 @@
               справа внизу.</p>
           </div>
           <div id="forLoopInfoSection" class="console-output-info" style="display:none;">
-            <h4>Цикл for со счётчиком</h4>
+            <h4 id="forLoopInfoHeader">Цикл for со счётчиком</h4>
             <p>
-              Цикл <strong>for</strong> со счётчиком — это повторение действий, где переменная (например,
-              <code>i</code>)
+              <span id="forLoopIntroPrefix">Цикл </span><strong>for</strong><span id="forLoopIntroMid"> со счётчиком —
+                это повторение действий, где переменная (например, </span><code>i</code><span id="forLoopIntroSuffix">)
+                последовательно принимает значения с заданным шагом.</span>
             </p>
-            <h4 style="margin-top:12px;">Из чего состоит</h4>
+            <h4 id="forLoopPartsHeader" style="margin-top:12px;">Из чего состоит</h4>
             <ul>
-              <li><strong>Старт</strong>: с какого значения начинаем (например, 0)</li>
-              <li><strong>Финиш/условие</strong>: до какого значения идём (например, до 10 включительно)</li>
-              <li><strong>Шаг</strong>: как меняем счётчик (обычно +1)</li>
-              <li><strong>Тело цикла</strong>: что делаем на каждом шаге (например, печатаем <code>i</code>)</li>
+              <li><strong id="forLoopStartLabel">Старт</strong><span id="forLoopStartDesc">: с какого значения начинаем
+                  (например, 0)</span></li>
+              <li><strong id="forLoopEndLabel">Финиш/условие</strong><span id="forLoopEndDesc">: до какого значения идём
+                  (например, до 10 включительно)</span></li>
+              <li><strong id="forLoopStepLabel">Шаг</strong><span id="forLoopStepDesc">: как меняем счётчик (обычно
+                  +1)</span></li>
+              <li><strong id="forLoopBodyLabel">Тело цикла</strong><span id="forLoopBodyDescPrefix">: что делаем на
+                  каждом шаге (например, печатаем </span><code>i</code><span id="forLoopBodyDescSuffix">)</span></li>
             </ul>
-            <h4 style="margin-top:12px;">Пример (0…10, каждое число с новой строки)</h4>
+            <h4 id="forLoopExampleHeader" style="margin-top:12px;">Пример (0…10, каждое число с новой строки)</h4>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
                 <pre><code>for (let i = 0; i &lt;= 10; i += 1) {
@@ -2040,39 +2045,45 @@ end</code></pre>
 }</code></pre>
               </li>
             </ul>
-            <h4 style="margin-top:12px;">Частые ошибки</h4>
+            <h4 id="forLoopErrorsHeader" style="margin-top:12px;">Частые ошибки</h4>
             <ul>
-              <li><strong>0…9 вместо 0…10</strong>: забыли “включительно” (JS: <code>&lt;= 10</code>, Python:
-                <code>range(0, 11)</code>)
-              </li>
-              <li><strong>Неправильный шаг</strong>: при шаге 2 получится 0, 2, 4, …, 10</li>
-              <li><strong>Печать не счётчика</strong>: внутри цикла нужно выводить именно переменную цикла</li>
+              <li><strong id="forLoopErr1Title">0…9 вместо 0…10</strong><span id="forLoopErr1TextBefore">: забыли
+                  “включительно” (JS: </span><code>&lt;= 10</code><span id="forLoopErr1TextMiddle">, Python:
+                </span><code>range(0, 11)</code><span id="forLoopErr1TextAfter">)</span></li>
+              <li><strong id="forLoopErr2Title">Неправильный шаг</strong><span id="forLoopErr2Text">: при шаге 2
+                  получится 0, 2, 4, …, 10</span></li>
+              <li><strong id="forLoopErr3Title">Печать не счётчика</strong><span id="forLoopErr3Text">: внутри цикла
+                  нужно выводить именно переменную цикла</span></li>
             </ul>
-            <p style="font-size: 0.9em; font-style: italic;">
-              В Blockly это обычно блок “for” (Loops) с полями FROM/TO/BY и переменной-счётчиком.
-            </p>
+            <p id="forLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно блок “for” (Loops) с
+              полями FROM/TO/BY и переменной-счётчиком.</p>
           </div>
           <div id="whileLoopInfoSection" class="console-output-info" style="display:none;">
-            <h4>Цикл while</h4>
+            <h4 id="whileLoopInfoHeader">Цикл while</h4>
             <p>
-              Цикл <strong>while</strong> повторяет действия, пока условие истинно. Он полезен, когда заранее
-              неизвестно,
-              сколько раз нужно повторить (например, «пока не угадали число»).
-            <h4 style="margin-top:12px;">Как устроен</h4>
+              <span id="whileLoopIntroPrefix">Цикл </span><strong>while</strong><span id="whileLoopIntroSuffix">
+                повторяет действия, пока условие истинно. Он полезен, когда заранее неизвестно, сколько раз нужно
+                повторить (например, «пока не угадали число»).</span>
+            </p>
+            <h4 id="whileLoopPartsHeader" style="margin-top:12px;">Как устроен</h4>
             <ul>
-              <li><strong>Условие</strong>: проверяется перед каждым шагом (если false — цикл заканчивается)</li>
-              <li><strong>Тело цикла</strong>: действия, которые выполняются на каждом повторении</li>
-              <li><strong>Изменение</strong>: внутри цикла нужно менять значение, влияющее на условие</li>
+              <li><strong id="whileLoopCondLabel">Условие</strong><span id="whileLoopCondDesc">: проверяется перед
+                  каждым шагом (если false — цикл заканчивается)</span></li>
+              <li><strong id="whileLoopBodyLabel">Тело цикла</strong><span id="whileLoopBodyDesc">: действия, которые
+                  выполняются на каждом повторении</span></li>
+              <li><strong id="whileLoopChangeLabel">Изменение</strong><span id="whileLoopChangeDesc">: внутри цикла
+                  нужно менять значение, влияющее на условие</span></li>
             </ul>
-            <h4 style="margin-top:12px;">Отличия от for</h4>
+            <h4 id="whileLoopDiffHeader" style="margin-top:12px;">Отличия от for</h4>
             <ul>
-              <li><strong>for</strong>: заранее известны старт/финиш/шаг (например, 0…10)</li>
-              <li><strong>while</strong>: повторяем «пока …», количество повторов заранее неизвестно</li>
+              <li id="whileLoopDiffFor"><strong>for</strong>: заранее известны старт/финиш/шаг (например, 0…10)</li>
+              <li id="whileLoopDiffWhile"><strong>while</strong>: повторяем «пока …», количество повторов заранее
+                неизвестно</li>
             </ul>
-            <h4 style="margin-top:12px;">Простой пример: повторяем, пока не ввели 7</h4>
+            <h4 id="whileLoopExampleHeader" style="margin-top:12px;">Простой пример: повторяем, пока не ввели 7</h4>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
-                <pre><code>let guess = Number(input());
+                <pre><code id="whileJsCode">let guess = Number(input());
 while (guess !== 7) {
   console.log("Ещё раз");
   guess = Number(input());
@@ -2080,14 +2091,14 @@ while (guess !== 7) {
 console.log("Угадал!");</code></pre>
               </li>
               <li><strong>Python</strong>
-                <pre><code>guess = float(input())
+                <pre><code id="whilePyCode">guess = float(input())
 while guess != 7:
     print("Ещё раз")
     guess = float(input())
 print("Угадал!")</code></pre>
               </li>
               <li><strong>Lua</strong>
-                <pre><code>local guess = tonumber(input())
+                <pre><code id="whileLuaCode">local guess = tonumber(input())
 while guess ~= 7 do
   print("Ещё раз")
   guess = tonumber(input())
@@ -2095,7 +2106,7 @@ end
 print("Угадал!")</code></pre>
               </li>
               <li><strong>PHP</strong>
-                <pre><code>$guess = (float) input();
+                <pre><code id="whilePhpCode">$guess = (float) input();
 while ($guess != 7) {
   echo "Ещё раз" . PHP_EOL;
   $guess = (float) input();
@@ -2103,36 +2114,40 @@ while ($guess != 7) {
 echo "Угадал!" . PHP_EOL;</code></pre>
               </li>
             </ul>
-            <h4 style="margin-top:12px;">Частые ошибки</h4>
+            <h4 id="whileLoopErrorsHeader" style="margin-top:12px;">Частые ошибки</h4>
             <ul>
-              <li><strong>Бесконечный цикл</strong>: забыли обновить переменную внутри цикла</li>
-              <li><strong>Lua</strong>: «не равно» пишется как <code>~=</code></li>
-              <li><strong>Ввод</strong>: строку нужно превратить в число (Number/float/tonumber)</li>
+              <li><strong id="whileLoopErr1Title">Бесконечный цикл</strong><span id="whileLoopErr1Text">: забыли
+                  обновить переменную внутри цикла</span></li>
+              <li><strong id="whileLoopErr2Title">Lua</strong><span id="whileLoopErr2TextBefore">: «не равно» пишется
+                  как </span><code>~=</code></li>
+              <li><strong id="whileLoopErr3Title">Ввод</strong><span id="whileLoopErr3Text">: строку нужно превратить в
+                  число (Number/float/tonumber)</span></li>
             </ul>
-            <p style="font-size: 0.9em; font-style: italic;">
-              В Blockly используйте блок while (Loops) и обновляйте переменную guess внутри цикла.
-            </p>
+            <p id="whileLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly используйте блок while (Loops)
+              и обновляйте переменную guess внутри цикла.</p>
           </div>
           <div id="listInfoSection" class="console-output-info" style="display:none;">
-            <h4>Список (массив) и «для каждого элемента…» (forEach)</h4>
+            <h4 id="listInfoHeader">Список (массив) и «для каждого элемента…» (forEach)</h4>
             <p>
-              <strong>Список</strong> (или <strong>массив</strong>) — это набор значений в одном месте.
-              Например: <code>[1, 2, 3]</code>. У списка есть порядок: у каждого элемента есть номер (индекс).
+              <span id="listInfoIntroBefore">Список (или массив) — это набор значений в одном месте. Например:
+              </span><code>[1, 2, 3]</code><span id="listInfoIntroAfter">. У списка есть порядок: у каждого элемента
+                есть номер (индекс).</span>
             </p>
-            <h4 style="margin-top:12px;">Зачем нужны списки</h4>
+            <h4 id="listInfoWhyHeader" style="margin-top:12px;">Зачем нужны списки</h4>
             <ul>
-              <li>хранить много однотипных значений (числа, слова) вместе</li>
-              <li>перебирать элементы по одному и что-то с ними делать</li>
-              <li>считать сумму, количество, находить минимум/максимум</li>
+              <li id="listInfoWhy1">хранить много однотипных значений (числа, слова) вместе</li>
+              <li id="listInfoWhy2">перебирать элементы по одному и что-то с ними делать</li>
+              <li id="listInfoWhy3">считать сумму, количество, находить минимум/максимум</li>
             </ul>
-            <h4 style="margin-top:12px;">Что такое forEach</h4>
+            <h4 id="listInfoForEachHeader" style="margin-top:12px;">Что такое forEach</h4>
             <p>
-              <strong>forEach</strong> означает «для каждого элемента списка». В нашем интерфейсе этот блок называется
-              <strong>«для каждого элемента k в списке»</strong> — это одно и то же по смыслу.
-              Он берёт элементы списка по очереди и внутри цикла даёт вам текущий элемент (например, <code>k</code> или
-              <code>item</code>).
+              <span id="listInfoForEachBefore"><strong>forEach</strong> означает «для каждого элемента списка». В нашем
+                интерфейсе этот блок называется </span><strong id="listInfoForEachBlockName">«для каждого элемента k в
+                списке»</strong><span id="listInfoForEachAfter"> — это одно и то же по смыслу. Он берёт элементы списка
+                по очереди и внутри цикла даёт вам текущий элемент (например, </span><code>k</code><span
+                id="listInfoForEachMid"> или </span><code>item</code><span id="listInfoForEachEnd">).</span>
             </p>
-            <h4 style="margin-top:12px;">Пример: вывести элементы и посчитать сумму</h4>
+            <h4 id="listInfoExampleHeader" style="margin-top:12px;">Пример: вывести элементы и посчитать сумму</h4>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
                 <pre><code>const list = [1, 2, 3, 4, 5];
@@ -2170,10 +2185,10 @@ foreach ($list as $k) {
 echo $sum . PHP_EOL;</code></pre>
               </li>
             </ul>
-            <p style="font-size: 0.9em; font-style: italic;">
-              В задаче 14: создайте <code>list</code> (или <code>numbers</code>), затем используйте «для каждого
-              элемента
-              … в списке» и переменную-накопитель <code>sum</code>.
+            <p id="listInfoNote" style="font-size: 0.9em; font-style: italic;">
+              <span id="listInfoNoteBefore">В задаче 14: создайте </span><code>list</code><span id="listInfoNoteMid">
+                (или </span><code>numbers</code><span id="listInfoNoteAfter">), затем используйте «для каждого элемента
+                … в списке» и переменную-накопитель </span><code>sum</code><span id="listInfoNoteEnd">.</span>
             </p>
           </div>
           <div id="dataTypesInfoSection" class="console-output-info" style="display:none;">

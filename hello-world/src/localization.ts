@@ -343,6 +343,37 @@ export function localizeImportUI(lang: AppLang): void {
           VariableInfoText:
             "Переменная — это “коробка” с именем, в которой можно хранить значение (например, число). Это удобно, когда одно и то же значение нужно использовать много раз или менять в одном месте — тогда не надо искать и править число везде.",
           VariableInfoExamplesHeader: "Примеры:",
+          JsVarKindsHeader: "JavaScript: var, let и const",
+          JsVarKindsIntro:
+            "В JavaScript есть несколько способов объявить переменную. В современных примерах чаще используют let и const.",
+          JsVarVarCode: "var x = 1;",
+          JsVarVarDesc: "— старый вариант, область видимости функция",
+          JsVarLetCode: "let x = 1;",
+          JsVarLetDesc: "— можно менять значение, область видимости блок",
+          JsVarConstCode: "const x = 1;",
+          JsVarConstDesc: "— нельзя переназначить, область видимости блок",
+          JsVarKindsNote:
+            "Примечание: const запрещает переназначение переменной, но содержимое объекта/массива менять можно.",
+          JsScopeHeader: "Что такое “область видимости”",
+          JsScopeIntro:
+            "Область видимости — это место в коде, где переменная “видна” и её можно использовать. Если переменная объявлена внутри некоторого участка кода, то снаружи этого участка её может не быть видно.",
+          JsScopeFunctionLine:
+            "Function scope (область видимости функции): переменная видна внутри всей функции.",
+          JsScopeBlockLine:
+            "Block scope (область видимости блока): переменная видна только внутри фигурных скобок { ... } (например, внутри if / for).",
+          JsScopeExamplesHeader: "Мини-пример",
+          JsScopeVarTitle: "var (function scope)",
+          JsScopeVarExample:
+            "function demo() {\n  if (true) {\n    var a = 1;\n  }\n  console.log(a);\n}",
+          JsScopeVarExplain:
+            "Переменная a объявлена внутри if, но var делает её видимой во всей функции demo.",
+          JsScopeLetTitle: "let/const (block scope)",
+          JsScopeLetExample:
+            "function demo() {\n  if (true) {\n    let b = 2;\n  }\n  console.log(b);\n}",
+          JsScopeLetExplain:
+            "Переменная b видна только внутри блока if. Снаружи блока b “не существует”.",
+          JsScopeTip:
+            "Для новичков правило простое: в JavaScript почти всегда используйте const, а если нужно менять значение — let. var лучше избегать в новых примерах.",
           ConcatInfoHeader: "Конкатенация строк",
           ConcatInfoIntro: "Конкатенация — это соединение строк в одну строку.",
           ConcatInfoIdea:
@@ -566,6 +597,37 @@ export function localizeImportUI(lang: AppLang): void {
           VariableInfoText:
             "A variable is like a named “box” that stores a value (for example, a number). It’s useful when you want to reuse the same value or change it in one place instead of editing it everywhere.",
           VariableInfoExamplesHeader: "Examples:",
+          JsVarKindsHeader: "JavaScript: var, let and const",
+          JsVarKindsIntro:
+            "JavaScript has several ways to declare variables. In modern code you mostly use let and const.",
+          JsVarVarCode: "var x = 1;",
+          JsVarVarDesc: "— legacy keyword, function-scoped",
+          JsVarLetCode: "let x = 1;",
+          JsVarLetDesc: "— re-assignable, block-scoped",
+          JsVarConstCode: "const x = 1;",
+          JsVarConstDesc: "— not re-assignable, block-scoped",
+          JsVarKindsNote:
+            "Note: const prevents re-assignment, but objects/arrays can still be mutated.",
+          JsScopeHeader: "What is “scope”",
+          JsScopeIntro:
+            "Scope is the part of the code where a variable is “visible” and can be used. If a variable is declared inside some region, it may not be visible outside of it.",
+          JsScopeFunctionLine:
+            "Function scope: the variable is visible throughout the whole function.",
+          JsScopeBlockLine:
+            "Block scope: the variable is visible only inside curly braces { ... } (for example, inside if / for).",
+          JsScopeExamplesHeader: "Mini example",
+          JsScopeVarTitle: "var (function scope)",
+          JsScopeVarExample:
+            "function demo() {\n  if (true) {\n    var a = 1;\n  }\n  console.log(a);\n}",
+          JsScopeVarExplain:
+            "The variable a is declared inside if, but var makes it visible in the whole function demo.",
+          JsScopeLetTitle: "let/const (block scope)",
+          JsScopeLetExample:
+            "function demo() {\n  if (true) {\n    let b = 2;\n  }\n  console.log(b);\n}",
+          JsScopeLetExplain:
+            "The variable b is visible only inside the if block. Outside the block, b does not exist.",
+          JsScopeTip:
+            "Simple rule for beginners: in JavaScript use const by default, and use let when you need to re-assign. Avoid var in new code.",
           ConcatInfoHeader: "String concatenation",
           ConcatInfoIntro:
             "Concatenation means joining strings into one string.",

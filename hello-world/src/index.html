@@ -2246,6 +2246,75 @@ echo $sum . PHP_EOL;</code></pre>
               <li><strong>Lua:</strong> <code id="variableInfoLuaCode">local myAge = 10</code></li>
               <li><strong>PHP:</strong> <code id="variableInfoPhpCode">$myAge = 10;</code></li>
             </ul>
+            <h4 id="jsVarKindsHeader" style="margin-top:12px;">JavaScript: var, let и const</h4>
+            <p id="jsVarKindsIntro">
+              В JavaScript есть несколько способов объявить переменную. В современных примерах чаще используют
+              <code>let</code>
+              и <code>const</code>.
+            </p>
+            <ul class="code-examples">
+              <li>
+                <code id="jsVarVarCode">var x = 1;</code>
+                <span id="jsVarVarDesc">— старый вариант, область видимости функция</span>
+              </li>
+              <li>
+                <code id="jsVarLetCode">let x = 1;</code>
+                <span id="jsVarLetDesc">— можно менять значение, область видимости блок</span>
+              </li>
+              <li>
+                <code id="jsVarConstCode">const x = 1;</code>
+                <span id="jsVarConstDesc">— нельзя переназначить, область видимости блок</span>
+              </li>
+            </ul>
+            <p id="jsVarKindsNote" style="font-size: 0.9em; font-style: italic;">
+              Примечание: <code>const</code> запрещает переназначение переменной, но содержимое объекта/массива менять
+              можно.
+            </p>
+            <h4 id="jsScopeHeader" style="margin-top:12px;">Что такое “область видимости”</h4>
+            <p id="jsScopeIntro">
+              <strong>Область видимости</strong> — это место в коде, где переменная “видна” и её можно использовать.
+              Если
+              переменная объявлена внутри некоторого участка кода, то снаружи этого участка её может не быть видно.
+            </p>
+            <ul>
+              <li id="jsScopeFunctionLine">
+                <strong>Function scope</strong> (область видимости функции): переменная видна внутри всей функции.
+              </li>
+              <li id="jsScopeBlockLine">
+                <strong>Block scope</strong> (область видимости блока): переменная видна только внутри фигурных скобок
+                <code>{ ... }</code> (например, внутри <code>if</code> / <code>for</code>).
+              </li>
+            </ul>
+            <h4 id="jsScopeExamplesHeader" style="margin-top:12px;">Мини-пример</h4>
+            <ul class="code-examples">
+              <li>
+                <strong id="jsScopeVarTitle">var (function scope)</strong>
+                <pre><code id="jsScopeVarExample">function demo() {
+  if (true) {
+    var a = 1;
+  }
+  console.log(a);
+}</code></pre>
+                <div id="jsScopeVarExplain">Переменная a объявлена внутри if, но var делает её видимой во всей функции
+                  demo.</div>
+              </li>
+              <li>
+                <strong id="jsScopeLetTitle">let/const (block scope)</strong>
+                <pre><code id="jsScopeLetExample">function demo() {
+  if (true) {
+    let b = 2;
+  }
+  console.log(b);
+}</code></pre>
+                <div id="jsScopeLetExplain">Переменная b видна только внутри блока if. Снаружи блока b “не существует”.
+                </div>
+              </li>
+            </ul>
+            <p id="jsScopeTip" style="font-size: 0.9em; font-style: italic;">
+              Для новичков правило простое: в JavaScript почти всегда используйте <code>const</code>, а если нужно
+              менять
+              значение — <code>let</code>. <code>var</code> лучше избегать в новых примерах.
+            </p>
           </div>
           <div id="concatInfoSection" class="console-output-info" style="display:none;">
             <h4 id="concatInfoHeader">Конкатенация строк</h4>

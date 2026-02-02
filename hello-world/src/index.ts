@@ -1545,6 +1545,27 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
     "variableInfoExamplesHeader",
     t?.VariableInfoExamplesHeader || (lang === "ru" ? "Примеры:" : "Examples:"),
   );
+  setText("jsVarKindsHeader", t?.JsVarKindsHeader);
+  setText("jsVarKindsIntro", t?.JsVarKindsIntro);
+  setText("jsVarVarCode", t?.JsVarVarCode);
+  setText("jsVarVarDesc", t?.JsVarVarDesc);
+  setText("jsVarLetCode", t?.JsVarLetCode);
+  setText("jsVarLetDesc", t?.JsVarLetDesc);
+  setText("jsVarConstCode", t?.JsVarConstCode);
+  setText("jsVarConstDesc", t?.JsVarConstDesc);
+  setText("jsVarKindsNote", t?.JsVarKindsNote);
+  setText("jsScopeHeader", t?.JsScopeHeader);
+  setText("jsScopeIntro", t?.JsScopeIntro);
+  setText("jsScopeFunctionLine", t?.JsScopeFunctionLine);
+  setText("jsScopeBlockLine", t?.JsScopeBlockLine);
+  setText("jsScopeExamplesHeader", t?.JsScopeExamplesHeader);
+  setText("jsScopeVarTitle", t?.JsScopeVarTitle);
+  setText("jsScopeVarExample", t?.JsScopeVarExample);
+  setText("jsScopeVarExplain", t?.JsScopeVarExplain);
+  setText("jsScopeLetTitle", t?.JsScopeLetTitle);
+  setText("jsScopeLetExample", t?.JsScopeLetExample);
+  setText("jsScopeLetExplain", t?.JsScopeLetExplain);
+  setText("jsScopeTip", t?.JsScopeTip);
 
   setText(
     "concatInfoHeader",

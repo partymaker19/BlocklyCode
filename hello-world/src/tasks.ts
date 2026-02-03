@@ -27,6 +27,7 @@ export type TaskId =
   | "sum_1_to_n"
   | "guess_game"
   | "list_foreach"
+  | "sublist_foreach"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -270,6 +271,23 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: list=[1,2,3,4,5], sum=0. Inside “for each item …”: print k and do sum = sum + k. After the loop print sum.",
     validate: validateListForEach,
   },
+  sublist_foreach: {
+    id: "sublist_foreach",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 15: Подсписок и forEach"
+        : "Task 15: Sublist and forEach",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем возьмите из него <strong>подсписок</strong> с элементами <strong>3, 4, 5, 6, 7</strong> (то есть часть списка) и сохраните в переменную <strong>sub</strong>.<br><br>Используйте блок <strong>«для каждого элемента k в списке»</strong> (Loops), чтобы вывести элементы подсписка <strong>sub</strong> по одному (каждый с новой строки)."
+        : "Create a list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then take a <strong>sublist</strong> containing <strong>3, 4, 5, 6, 7</strong> (a part of the list) and store it in <strong>sub</strong>.<br><br>Use the <strong>“for each item k in list”</strong> block (Loops) to print items of <strong>sub</strong> one per line.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте блок из категории Списки «взять подсписок» (lists_getSublist). Потом forEach по sub и вывод k."
+        : "Hint: use the Lists block “get sub-list” (lists_getSublist). Then forEach over sub and print k.",
+    validate: validateSublistForEach,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -357,6 +375,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "sum_1_to_n",
     "guess_game",
     "list_foreach",
+    "sublist_foreach",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -1744,6 +1763,68 @@ async function validateListForEach(
   return { ok, stars };
 }
 
+async function validateSublistForEach(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const numericLines = lines
+    .map((l) => {
+      const n = Number(l);
+      return Number.isFinite(n) ? n : null;
+    })
+    .filter((v): v is number => v !== null);
+
+  const expected = [3, 4, 5, 6, 7];
+  const hasSequence = (() => {
+    for (
+      let start = 0;
+      start <= numericLines.length - expected.length;
+      start++
+    ) {
+      let ok = true;
+      for (let i = 0; i < expected.length; i++) {
+        if (numericLines[start + i] !== expected[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) return true;
+    }
+    return false;
+  })();
+
+  let usedListCreate = false;
+  let usedGetSublist = false;
+  let usedForEach = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "lists_getSublist") usedGetSublist = true;
+    if (t === "controls_forEach") usedForEach = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok =
+    hasSequence && usedListCreate && usedGetSublist && usedForEach && hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = usedListCreate && usedGetSublist && usedForEach;
+    if (usedCore && count <= 16) stars = 3;
+    else if (count <= 24) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateSumArray(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -1938,6 +2019,9 @@ export function setActiveTask(taskId: TaskId) {
   const listInfo = document.getElementById(
     "listInfoSection",
   ) as HTMLDivElement | null;
+  const sublistInfo = document.getElementById(
+    "sublistInfoSection",
+  ) as HTMLDivElement | null;
   const dataTypesInfo = document.getElementById(
     "dataTypesInfoSection",
   ) as HTMLDivElement | null;
@@ -1962,6 +2046,7 @@ export function setActiveTask(taskId: TaskId) {
     activeTaskId === "first_loop" || activeTaskId === "sum_1_to_n";
   const showWhileLoopInfo = activeTaskId === "guess_game";
   const showListInfo = activeTaskId === "list_foreach";
+  const showSublistInfo = activeTaskId === "sublist_foreach";
   const showConditionInfo =
     activeTaskId === "even_or_odd" ||
     activeTaskId === "time_of_day" ||
@@ -1974,12 +2059,14 @@ export function setActiveTask(taskId: TaskId) {
     !showForLoopInfo &&
     !showWhileLoopInfo &&
     !showListInfo &&
+    !showSublistInfo &&
     !showConditionInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (forLoopInfo) forLoopInfo.style.display = showForLoopInfo ? "" : "none";
   if (whileLoopInfo)
     whileLoopInfo.style.display = showWhileLoopInfo ? "" : "none";
   if (listInfo) listInfo.style.display = showListInfo ? "" : "none";
+  if (sublistInfo) sublistInfo.style.display = showSublistInfo ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
   if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";

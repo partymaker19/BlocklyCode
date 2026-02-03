@@ -506,6 +506,20 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoNoteAfter:
             "), затем используйте «для каждого элемента … в списке» и переменную-накопитель ",
           ListInfoNoteEnd: ".",
+          SublistInfoHeader: "Подсписок (sublist)",
+          SublistInfoIntroBefore: "Подсписок — это ",
+          SublistInfoIntroStrong: "часть списка",
+          SublistInfoIntroAfter:
+            ". Например, из списка [1..10] можно взять подсписок с элементами 3, 4, 5, 6, 7.",
+          SublistInfoHowHeader: "Как сделать в Blockly",
+          SublistInfoStep1:
+            "Создайте список 1…10 и сохраните его в переменную list",
+          SublistInfoStep2:
+            "Возьмите подсписок блоком «взять подсписок» (Lists → get sub-list) и сохраните в sub",
+          SublistInfoStep3:
+            "Сделайте «для каждого элемента k в списке» по sub и выводите k",
+          SublistInfoNote:
+            "Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.",
           CondOpGtDesc: "больше",
           CondOpLtDesc: "меньше",
           CondOpGteDesc: "больше или равно",
@@ -755,6 +769,19 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoNoteAfter:
             "), then use “for each item … in list” and an accumulator variable ",
           ListInfoNoteEnd: ".",
+          SublistInfoHeader: "Sublist",
+          SublistInfoIntroBefore: "A sublist is a ",
+          SublistInfoIntroStrong: "part of a list",
+          SublistInfoIntroAfter:
+            ". For example, from the list [1..10] you can take the sublist 3, 4, 5, 6, 7.",
+          SublistInfoHowHeader: "How to do it in Blockly",
+          SublistInfoStep1: "Create the list 1…10 and store it in list",
+          SublistInfoStep2:
+            "Use the Lists “get sub-list” block and store the result in sub",
+          SublistInfoStep3:
+            "Use “for each item k in list” over sub and print k",
+          SublistInfoNote:
+            "A sublist is useful when you need only a part of the elements, so you don’t need extra conditions inside the loop.",
           CondOpGtDesc: "greater than",
           CondOpLtDesc: "less than",
           CondOpGteDesc: "greater or equal",

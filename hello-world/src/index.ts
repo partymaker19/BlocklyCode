@@ -1419,6 +1419,16 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("listInfoNoteAfter", t?.ListInfoNoteAfter);
   setText("listInfoNoteEnd", t?.ListInfoNoteEnd);
 
+  setText("sublistInfoHeader", t?.SublistInfoHeader);
+  setText("sublistInfoIntroBefore", t?.SublistInfoIntroBefore);
+  setText("sublistInfoIntroStrong", t?.SublistInfoIntroStrong);
+  setText("sublistInfoIntroAfter", t?.SublistInfoIntroAfter);
+  setText("sublistInfoHowHeader", t?.SublistInfoHowHeader);
+  setText("sublistInfoStep1", t?.SublistInfoStep1);
+  setText("sublistInfoStep2", t?.SublistInfoStep2);
+  setText("sublistInfoStep3", t?.SublistInfoStep3);
+  setText("sublistInfoNote", t?.SublistInfoNote);
+
   setText("consoleJsLogTextCode", t?.ConsoleJsLogTextCode);
   setText("consoleJsLogNumberCode", t?.ConsoleJsLogNumberCode);
   setText("consoleJsLogTextVarCode", t?.ConsoleJsLogTextVarCode);
@@ -2475,6 +2485,116 @@ function refreshWorkspaceWithCustomToolbox() {
   }
 
   if (ws) {
+    let __ensuringInputShadows = false;
+    const ensureInputShadows = () => {
+      if (__ensuringInputShadows) return;
+      __ensuringInputShadows = true;
+      const eventsApi = (Blockly as any).Events;
+      const hadEventsApi =
+        eventsApi &&
+        typeof eventsApi.disable === "function" &&
+        typeof eventsApi.enable === "function";
+      try {
+        if (hadEventsApi) eventsApi.disable();
+        const cleanupOrphanAutoShadows = () => {
+          const all = ws.getAllBlocks(false);
+          for (const b of all) {
+            const anyB = b as any;
+            const isShadow =
+              typeof anyB.isShadow === "function" ? anyB.isShadow() : false;
+            if (!isShadow) continue;
+            if (anyB.data !== "__auto_shadow_placeholder__") continue;
+            const parent =
+              typeof anyB.getParent === "function" ? anyB.getParent() : null;
+            if (parent) continue;
+            try {
+              b.dispose(false);
+            } catch {}
+          }
+        };
+
+        cleanupOrphanAutoShadows();
+
+        const blocks = ws.getAllBlocks(false);
+        for (const b of blocks) {
+          const t = (b as any).type;
+          let shadowType: string | null = null;
+          let shadowFieldName: string | null = null;
+          let shadowFieldValue: string | null = null;
+
+          if (t === "lists_create_with") {
+            shadowType = "math_number";
+            shadowFieldName = "NUM";
+            shadowFieldValue = "0";
+          } else if (t === "text_join") {
+            shadowType = "text";
+            shadowFieldName = "TEXT";
+            shadowFieldValue = "";
+          } else {
+            continue;
+          }
+
+          const inputList = (b as any).inputList as Blockly.Input[] | undefined;
+          if (!Array.isArray(inputList)) continue;
+          for (const input of inputList) {
+            const name = (input as any)?.name;
+            if (typeof name !== "string" || !/^ADD\d+$/.test(name)) continue;
+            const conn = (input as any)
+              ?.connection as Blockly.Connection | null;
+            if (!conn || typeof (conn as any).targetBlock !== "function")
+              continue;
+            if ((conn as any).targetBlock()) continue;
+            const shadow = ws.newBlock(shadowType) as any;
+            if (typeof shadow.setShadow === "function") shadow.setShadow(true);
+            shadow.data = "__auto_shadow_placeholder__";
+            if (
+              typeof shadow.setFieldValue === "function" &&
+              shadowFieldName &&
+              shadowFieldValue !== null
+            ) {
+              shadow.setFieldValue(shadowFieldValue, shadowFieldName);
+            }
+            if (typeof shadow.initSvg === "function") shadow.initSvg();
+            if (typeof shadow.render === "function") shadow.render();
+            const outConn =
+              shadow.outputConnection as Blockly.Connection | null;
+            if (outConn && typeof outConn.connect === "function") {
+              outConn.connect(conn);
+            }
+          }
+        }
+      } catch {
+      } finally {
+        if (hadEventsApi) eventsApi.enable();
+        __ensuringInputShadows = false;
+      }
+    };
+
+    const mediaPath =
+      ((ws as any).options?.pathToMedia as string | undefined) ||
+      ((ws as any).options?.media as string | undefined) ||
+      "media/";
+    const clickSoundUrl = (() => {
+      const base = mediaPath.endsWith("/") ? mediaPath : `${mediaPath}/`;
+      try {
+        return new URL(`${base}click.mp3`, window.location.href).toString();
+      } catch {
+        return `${base}click.mp3`;
+      }
+    })();
+    const playClickSound = (() => {
+      let audio: HTMLAudioElement | null = null;
+      return () => {
+        try {
+          if (!audio) audio = new Audio(clickSoundUrl);
+          audio.currentTime = 0;
+          const p = audio.play();
+          if (p && typeof (p as any).catch === "function")
+            (p as any).catch(() => {});
+        } catch {}
+      };
+    })();
+
     ws.addChangeListener((e: Blockly.Events.Abstract) => {
       if (e.isUiEvent) return;
       // сохраняем через провайдер с дебаунсом
@@ -2488,6 +2608,32 @@ function refreshWorkspaceWithCustomToolbox() {
       ) {
         return;
       }
+      const et = (e as any).type;
+      const createType =
+        (Blockly as any).Events?.BLOCK_CREATE ||
+        ((Blockly as any).Events?.BLOCK_CREATE as any);
+      const isCreate =
+        et === createType || et === "create" || et === "block_create";
+      if (isCreate) {
+        try {
+          const ids: string[] = Array.isArray((e as any).ids)
+            ? (e as any).ids
+            : [];
+          const created = ids
+            .map((id) => ws.getBlockById(id))
+            .filter(Boolean) as Blockly.Block[];
+          const hasRealCreated = created.some((b) => {
+            const anyB = b as any;
+            const isShadow =
+              typeof anyB.isShadow === "function" ? anyB.isShadow() : false;
+            if (isShadow) return false;
+            if (anyB.data === "__auto_shadow_placeholder__") return false;
+            return true;
+          });
+          if (hasRealCreated) playClickSound();
+        } catch {}
+      }
+      ensureInputShadows();
       // Авто-разворачивание и инициализация мультитекстового поля
 
       // Держим Ace в синхронизации (без авто-выполнения)

@@ -2191,6 +2191,24 @@ echo $sum . PHP_EOL;</code></pre>
                 … в списке» и переменную-накопитель </span><code>sum</code><span id="listInfoNoteEnd">.</span>
             </p>
           </div>
+          <div id="sublistInfoSection" class="console-output-info" style="display:none;">
+            <h4 id="sublistInfoHeader">Подсписок (sublist)</h4>
+            <p>
+              <span id="sublistInfoIntroBefore">Подсписок — это </span><strong id="sublistInfoIntroStrong">часть
+                списка</strong><span id="sublistInfoIntroAfter">. Например, из списка [1..10] можно взять подсписок с
+                элементами 3, 4, 5, 6, 7.</span>
+            </p>
+            <h4 id="sublistInfoHowHeader" style="margin-top:12px;">Как сделать в Blockly</h4>
+            <ul>
+              <li id="sublistInfoStep1">Создайте список 1…10 и сохраните его в переменную list</li>
+              <li id="sublistInfoStep2">Возьмите подсписок блоком «взять подсписок» (Lists → get sub-list) и сохраните в
+                sub</li>
+              <li id="sublistInfoStep3">Сделайте «для каждого элемента k в списке» по sub и выводите k</li>
+            </ul>
+            <p id="sublistInfoNote" style="font-size: 0.9em; font-style: italic;">
+              Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.
+            </p>
+          </div>
           <div id="dataTypesInfoSection" class="console-output-info" style="display:none;">
             <h4 id="dataTypesHeader">Типы данных:</h4>
             <p id="dataTypesDescription">Текст (строка) нужно оборачивать в кавычки, а числа — нет.</p>

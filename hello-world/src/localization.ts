@@ -542,6 +542,27 @@ export function localizeImportUI(lang: AppLang): void {
             "В PHP array_slice: offset с 0 и length — сколько элементов.",
           SublistAltNote:
             "Альтернатива без подсписка: можно перебрать индексы 3…7 и печатать list[i].",
+          ListFilterHeader: "Фильтрация списка",
+          ListFilterIntro:
+            "Фильтрация — это когда мы перебираем элементы списка и оставляем только те, которые подходят под условие. Например: “только чётные числа”.",
+          ListFilterHowHeader: "Как сделать",
+          ListFilterStep1:
+            "Переберите list блоком «для каждого элемента k в списке»",
+          ListFilterStep2:
+            "Внутри цикла сделайте if с проверкой чётности: k % 2 == 0",
+          ListFilterStep3:
+            "Если условие истинно — выводите k и добавляйте его в sum",
+          ListFilterNote:
+            "Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.",
+          ListFilterLangHeader: "Примеры в языках",
+          ListFilterJsCode:
+            "const list = [1,2,3,4,5,6,7,8,9,10];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
+          ListFilterPyCode:
+            "list = [1,2,3,4,5,6,7,8,9,10]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
+          ListFilterLuaCode:
+            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
+          ListFilterPhpCode:
+            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
           CondOpGtDesc: "больше",
           CondOpLtDesc: "меньше",
           CondOpGteDesc: "больше или равно",
@@ -826,6 +847,24 @@ export function localizeImportUI(lang: AppLang): void {
             "In PHP array_slice uses a 0-based offset and a length.",
           SublistAltNote:
             "Alternative without a sublist: loop i from 3 to 7 and print list[i].",
+          ListFilterHeader: "List filtering",
+          ListFilterIntro:
+            "Filtering is when you iterate over a list and keep only the items that match a condition. For example: “only even numbers”.",
+          ListFilterHowHeader: "How to do it",
+          ListFilterStep1: "Iterate over list using “for each item k in list”",
+          ListFilterStep2: "Inside the loop, add an if: k % 2 == 0",
+          ListFilterStep3: "If true, print k and add it to sum",
+          ListFilterNote:
+            "Note: filtering doesn’t require creating a separate sublist — you can just print matching items inside the if.",
+          ListFilterLangHeader: "Language examples",
+          ListFilterJsCode:
+            "const list = [1,2,3,4,5,6,7,8,9,10];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
+          ListFilterPyCode:
+            "list = [1,2,3,4,5,6,7,8,9,10]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
+          ListFilterLuaCode:
+            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
+          ListFilterPhpCode:
+            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
           CondOpGtDesc: "greater than",
           CondOpLtDesc: "less than",
           CondOpGteDesc: "greater or equal",

@@ -2255,6 +2255,72 @@ foreach ($sub as $k) {
               Альтернатива без подсписка: можно перебрать индексы 3…7 и печатать list[i].
             </p>
           </div>
+          <div id="listFilterInfoSection" class="console-output-info" style="display:none;">
+            <h4 id="listFilterHeader">Фильтрация списка</h4>
+            <p id="listFilterIntro">
+              Фильтрация — это когда мы <strong>перебираем</strong> элементы списка и <strong>оставляем только
+                те</strong>,
+              которые подходят под условие. Например: “только чётные числа”.
+            </p>
+            <h4 id="listFilterHowHeader" style="margin-top:12px;">Как сделать</h4>
+            <ul>
+              <li id="listFilterStep1">Переберите list блоком «для каждого элемента k в списке»</li>
+              <li id="listFilterStep2">Внутри цикла сделайте if с проверкой чётности: k % 2 == 0</li>
+              <li id="listFilterStep3">Если условие истинно — выводите k и добавляйте его в sum</li>
+            </ul>
+            <p id="listFilterNote" style="font-size: 0.9em; font-style: italic;">
+              Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.
+            </p>
+            <h4 id="listFilterLangHeader" style="margin-top:12px;">Примеры в языках</h4>
+            <ul class="code-examples">
+              <li>
+                <strong>JavaScript</strong>
+                <pre><code id="listFilterJsCode">const list = [1,2,3,4,5,6,7,8,9,10];
+let sum = 0;
+list.forEach((k) => {
+  if (k % 2 === 0) {
+    console.log(k);
+    sum = sum + k;
+  }
+});
+console.log(sum);</code></pre>
+              </li>
+              <li>
+                <strong>Python</strong>
+                <pre><code id="listFilterPyCode">list = [1,2,3,4,5,6,7,8,9,10]
+sum = 0
+for k in list:
+    if k % 2 == 0:
+        print(k)
+        sum = sum + k
+print(sum)</code></pre>
+              </li>
+              <li>
+                <strong>Lua</strong>
+                <pre><code id="listFilterLuaCode">local list = {1,2,3,4,5,6,7,8,9,10}
+local sum = 0
+for _, k in ipairs(list) do
+  if k % 2 == 0 then
+    print(k)
+    sum = sum + k
+  end
+end
+print(sum)</code></pre>
+              </li>
+              <li>
+                <strong>PHP</strong>
+                <pre><code id="listFilterPhpCode">$list = [1,2,3,4,5,6,7,8,9,10];
+$sum = 0;
+foreach ($list as $k) {
+  if ($k % 2 == 0) {
+    echo $k . PHP_EOL;
+    $sum = $sum + $k;
+  }
+}
+echo $sum . PHP_EOL;</code></pre>
+              </li>
+            </ul>
+          </div>
           <div id="dataTypesInfoSection" class="console-output-info" style="display:none;">
             <h4 id="dataTypesHeader">Типы данных:</h4>
             <p id="dataTypesDescription">Текст (строка) нужно оборачивать в кавычки, а числа — нет.</p>

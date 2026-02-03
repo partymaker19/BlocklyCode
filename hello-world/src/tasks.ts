@@ -28,6 +28,7 @@ export type TaskId =
   | "guess_game"
   | "list_foreach"
   | "sublist_foreach"
+  | "list_filter_even"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -288,6 +289,23 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: use the Lists block “get sub-list” (lists_getSublist). Then forEach over sub and print k.",
     validate: validateSublistForEach,
   },
+  list_filter_even: {
+    id: "list_filter_even",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 16: Фильтрация списка"
+        : "Task 16: List filtering",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Loops <strong>«для каждого элемента k в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
+        : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then use the Loops block <strong>“for each item k in list”</strong> to iterate. Inside the loop, use an <strong>if</strong> to keep only <strong>even</strong> numbers and:<br>1) print each even number (one per line)<br>2) compute the sum of even numbers in <strong>sum</strong><br><br>After the loop, print the sum. You should get: <strong>2 4 6 8 10</strong> and the sum <strong>30</strong>.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: проверка чётности: k % 2 == 0 (Math → modulo, Logic → compare). Внутри if: вывести k и сделать sum = sum + k. После цикла вывести sum."
+        : "Hint: even check: k % 2 == 0 (Math → modulo, Logic → compare). Inside if: print k and do sum = sum + k. After the loop print sum.",
+    validate: validateListFilterEven,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -376,6 +394,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "guess_game",
     "list_foreach",
     "sublist_foreach",
+    "list_filter_even",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -1825,6 +1844,112 @@ async function validateSublistForEach(
   return { ok, stars };
 }
 
+async function validateListFilterEven(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const numericLines = lines
+    .map((l) => {
+      const n = Number(l);
+      return Number.isFinite(n) ? n : null;
+    })
+    .filter((v): v is number => v !== null);
+
+  const expected = [2, 4, 6, 8, 10];
+  const hasSequence = (() => {
+    for (
+      let start = 0;
+      start <= numericLines.length - expected.length;
+      start++
+    ) {
+      let ok = true;
+      for (let i = 0; i < expected.length; i++) {
+        if (numericLines[start + i] !== expected[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) return true;
+    }
+    return false;
+  })();
+
+  const hasSum = lines.some((l) => /(^|\b)30(\b|$)/.test(l));
+
+  let usedListCreate = false;
+  let usedForEach = false;
+  let usedIf = false;
+  let usedModulo = false;
+  let usedCompare = false;
+
+  let hasSetList = false;
+  let hasGetList = false;
+  let hasSetSum = false;
+  let hasGetSum = false;
+  let hasPrint = false;
+
+  let usedMathChange = false;
+  let usedArithmetic = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "controls_forEach") usedForEach = true;
+    if (t === "controls_if") usedIf = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "logic_compare") usedCompare = true;
+
+    const v = getVarFieldText(b);
+    if (t === "variables_set" && (v === "list" || v === "numbers"))
+      hasSetList = true;
+    if (t === "variables_get" && (v === "list" || v === "numbers"))
+      hasGetList = true;
+    if (t === "variables_set" && (v === "sum" || v === "total"))
+      hasSetSum = true;
+    if (t === "variables_get" && (v === "sum" || v === "total"))
+      hasGetSum = true;
+
+    if (t === "math_change") usedMathChange = true;
+    if (t === "math_arithmetic") usedArithmetic = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok =
+    hasSequence &&
+    hasSum &&
+    usedListCreate &&
+    usedForEach &&
+    usedIf &&
+    usedModulo &&
+    usedCompare &&
+    hasSetList &&
+    hasGetList &&
+    hasSetSum &&
+    hasGetSum &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      usedListCreate &&
+      usedForEach &&
+      usedIf &&
+      usedModulo &&
+      usedCompare &&
+      (usedMathChange || usedArithmetic);
+    if (usedCore && count <= 20) stars = 3;
+    else if (count <= 28) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateSumArray(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -2022,6 +2147,9 @@ export function setActiveTask(taskId: TaskId) {
   const sublistInfo = document.getElementById(
     "sublistInfoSection",
   ) as HTMLDivElement | null;
+  const listFilterInfo = document.getElementById(
+    "listFilterInfoSection",
+  ) as HTMLDivElement | null;
   const dataTypesInfo = document.getElementById(
     "dataTypesInfoSection",
   ) as HTMLDivElement | null;
@@ -2047,6 +2175,7 @@ export function setActiveTask(taskId: TaskId) {
   const showWhileLoopInfo = activeTaskId === "guess_game";
   const showListInfo = activeTaskId === "list_foreach";
   const showSublistInfo = activeTaskId === "sublist_foreach";
+  const showListFilterInfo = activeTaskId === "list_filter_even";
   const showConditionInfo =
     activeTaskId === "even_or_odd" ||
     activeTaskId === "time_of_day" ||
@@ -2060,6 +2189,7 @@ export function setActiveTask(taskId: TaskId) {
     !showWhileLoopInfo &&
     !showListInfo &&
     !showSublistInfo &&
+    !showListFilterInfo &&
     !showConditionInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (forLoopInfo) forLoopInfo.style.display = showForLoopInfo ? "" : "none";
@@ -2067,6 +2197,8 @@ export function setActiveTask(taskId: TaskId) {
     whileLoopInfo.style.display = showWhileLoopInfo ? "" : "none";
   if (listInfo) listInfo.style.display = showListInfo ? "" : "none";
   if (sublistInfo) sublistInfo.style.display = showSublistInfo ? "" : "none";
+  if (listFilterInfo)
+    listFilterInfo.style.display = showListFilterInfo ? "" : "none";
   if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
   if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
   if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";

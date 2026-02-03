@@ -520,6 +520,28 @@ export function localizeImportUI(lang: AppLang): void {
             "Сделайте «для каждого элемента k в списке» по sub и выводите k",
           SublistInfoNote:
             "Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.",
+          SublistLangHeader: "Примеры в языках",
+          SublistIndexNote:
+            "В JavaScript метод slice(start, end) берёт часть массива и возвращает новый массив (исходный не меняется). Индексация с 0, а end не включается. Поэтому чтобы получить 3…7, используем slice(2, 7).",
+          SublistJsHeader: "JavaScript: .slice(start, end)",
+          SublistJsCode:
+            "const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\nconst sub = list.slice(2, 7);\nsub.forEach((k) => console.log(k));",
+          SublistJsExplain: "start включается, end не включается.",
+          SublistPyHeader: "Python: list[start:end]",
+          SublistPyCode:
+            "list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nsub = list[2:7]\nfor k in sub:\n    print(k)",
+          SublistPyExplain: "start включается, end не включается.",
+          SublistLuaHeader: "Lua: собрать подсписок вручную",
+          SublistLuaCode:
+            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sub = {}\nfor i = 3, 7 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
+          SublistLuaExplain: "В Lua индексация обычно начинается с 1.",
+          SublistPhpHeader: "PHP: array_slice",
+          SublistPhpCode:
+            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sub = array_slice($list, 2, 5);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
+          SublistPhpExplain:
+            "В PHP array_slice: offset с 0 и length — сколько элементов.",
+          SublistAltNote:
+            "Альтернатива без подсписка: можно перебрать индексы 3…7 и печатать list[i].",
           CondOpGtDesc: "больше",
           CondOpLtDesc: "меньше",
           CondOpGteDesc: "больше или равно",
@@ -782,6 +804,28 @@ export function localizeImportUI(lang: AppLang): void {
             "Use “for each item k in list” over sub and print k",
           SublistInfoNote:
             "A sublist is useful when you need only a part of the elements, so you don’t need extra conditions inside the loop.",
+          SublistLangHeader: "Language examples",
+          SublistIndexNote:
+            "In JavaScript, slice(start, end) returns a new array containing a part of the array (the original is not modified). Indexing starts at 0 and end is excluded. So to get 3…7 you use slice(2, 7).",
+          SublistJsHeader: "JavaScript: .slice(start, end)",
+          SublistJsCode:
+            "const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\nconst sub = list.slice(2, 7);\nsub.forEach((k) => console.log(k));",
+          SublistJsExplain: "start is included, end is excluded.",
+          SublistPyHeader: "Python: list[start:end]",
+          SublistPyCode:
+            "list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nsub = list[2:7]\nfor k in sub:\n    print(k)",
+          SublistPyExplain: "start is included, end is excluded.",
+          SublistLuaHeader: "Lua: build a sublist manually",
+          SublistLuaCode:
+            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sub = {}\nfor i = 3, 7 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
+          SublistLuaExplain: "In Lua indexing usually starts at 1.",
+          SublistPhpHeader: "PHP: array_slice",
+          SublistPhpCode:
+            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sub = array_slice($list, 2, 5);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
+          SublistPhpExplain:
+            "In PHP array_slice uses a 0-based offset and a length.",
+          SublistAltNote:
+            "Alternative without a sublist: loop i from 3 to 7 and print list[i].",
           CondOpGtDesc: "greater than",
           CondOpLtDesc: "less than",
           CondOpGteDesc: "greater or equal",

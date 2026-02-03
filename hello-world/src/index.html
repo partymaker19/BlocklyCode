@@ -2208,6 +2208,52 @@ echo $sum . PHP_EOL;</code></pre>
             <p id="sublistInfoNote" style="font-size: 0.9em; font-style: italic;">
               Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.
             </p>
+            <h4 id="sublistLangHeader" style="margin-top:12px;">Примеры в языках</h4>
+            <p id="sublistIndexNote" style="font-size: 0.9em;">
+              В JavaScript индексация с 0, а второй параметр slice не включается. Поэтому чтобы получить 3…7, используем
+              slice(2, 7).
+            </p>
+            <ul class="code-examples">
+              <li>
+                <strong id="sublistJsHeader">JavaScript: .slice(start, end)</strong>
+                <pre><code id="sublistJsCode">const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const sub = list.slice(2, 7);
+sub.forEach((k) => console.log(k));</code></pre>
+                <div id="sublistJsExplain">start включается, end не включается.</div>
+              </li>
+              <li>
+                <strong id="sublistPyHeader">Python: list[start:end]</strong>
+                <pre><code id="sublistPyCode">list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+sub = list[2:7]
+for k in sub:
+    print(k)</code></pre>
+                <div id="sublistPyExplain">start включается, end не включается.</div>
+              </li>
+              <li>
+                <strong id="sublistLuaHeader">Lua: собрать подсписок вручную</strong>
+                <pre><code id="sublistLuaCode">local list = {1,2,3,4,5,6,7,8,9,10}
+local sub = {}
+for i = 3, 7 do
+  table.insert(sub, list[i])
+end
+for _, k in ipairs(sub) do
+  print(k)
+end</code></pre>
+                <div id="sublistLuaExplain">В Lua индексация обычно начинается с 1.</div>
+              </li>
+              <li>
+                <strong id="sublistPhpHeader">PHP: array_slice</strong>
+                <pre><code id="sublistPhpCode">$list = [1,2,3,4,5,6,7,8,9,10];
+$sub = array_slice($list, 2, 5);
+foreach ($sub as $k) {
+  echo $k . PHP_EOL;
+}</code></pre>
+                <div id="sublistPhpExplain">В PHP array_slice: offset с 0 и length — сколько элементов.</div>
+              </li>
+            </ul>
+            <p id="sublistAltNote" style="font-size: 0.9em; font-style: italic;">
+              Альтернатива без подсписка: можно перебрать индексы 3…7 и печатать list[i].
+            </p>
           </div>
           <div id="dataTypesInfoSection" class="console-output-info" style="display:none;">
             <h4 id="dataTypesHeader">Типы данных:</h4>

@@ -1428,6 +1428,21 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("sublistInfoStep2", t?.SublistInfoStep2);
   setText("sublistInfoStep3", t?.SublistInfoStep3);
   setText("sublistInfoNote", t?.SublistInfoNote);
+  setText("sublistLangHeader", t?.SublistLangHeader);
+  setText("sublistIndexNote", t?.SublistIndexNote);
+  setText("sublistJsHeader", t?.SublistJsHeader);
+  setText("sublistJsCode", t?.SublistJsCode);
+  setText("sublistJsExplain", t?.SublistJsExplain);
+  setText("sublistPyHeader", t?.SublistPyHeader);
+  setText("sublistPyCode", t?.SublistPyCode);
+  setText("sublistPyExplain", t?.SublistPyExplain);
+  setText("sublistLuaHeader", t?.SublistLuaHeader);
+  setText("sublistLuaCode", t?.SublistLuaCode);
+  setText("sublistLuaExplain", t?.SublistLuaExplain);
+  setText("sublistPhpHeader", t?.SublistPhpHeader);
+  setText("sublistPhpCode", t?.SublistPhpCode);
+  setText("sublistPhpExplain", t?.SublistPhpExplain);
+  setText("sublistAltNote", t?.SublistAltNote);
 
   setText("consoleJsLogTextCode", t?.ConsoleJsLogTextCode);
   setText("consoleJsLogNumberCode", t?.ConsoleJsLogNumberCode);

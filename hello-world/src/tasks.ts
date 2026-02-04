@@ -29,6 +29,7 @@ export type TaskId =
   | "list_foreach"
   | "sublist_foreach"
   | "list_filter_even"
+  | "list_filter_even_min_max"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -91,7 +92,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a variable named <strong>myAge</strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong>birthYear</strong>) and printing it.",
     hint: (lang) =>
       lang === "ru"
-        ? 'Подсказка: используйте "create variable..." в категории Variables, затем блок присваивания значения (например, число из Math) и блок вывода.'
+        ? "Подсказка: используйте «создать переменную…» в категории Переменные, затем блок присваивания значения (например, число из Математики) и блок вывода."
         : 'Hint: use "create variable..." in Variables, then a set-value block (e.g. a number from Math) and a print/output block.',
     validate: validateVarMyAge,
   },
@@ -174,7 +175,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>temperature</strong> and store any number in it. Task: check that the temperature is above zero. If yes, print <strong>"The weather is warm"</strong>. If not, print nothing.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте if/else (Logic) и сравнение (Logic), например temperature > 0."
+        ? "Подсказка: используйте if/else (Логика) и сравнение (Логика), например temperature > 0."
         : "Hint: use if/else (Logic) and a comparison (Logic), e.g. temperature > 0.",
     validate: validateFirstCondition,
   },
@@ -189,7 +190,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>number</strong> and store any integer in it. Determine whether the number is <strong>even</strong> or <strong>odd</strong>, and print a message:<br><br>If even, print <strong>"The number is even"</strong>.<br>If odd, print <strong>"The number is odd"</strong>.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте if/else (Logic), остаток от деления (%) и сравнение number % 2 == 0."
+        ? "Подсказка: используйте if/else (Логика), остаток от деления (%) и сравнение number % 2 == 0."
         : "Hint: use if/else (Logic), modulo (%) and the check number % 2 == 0.",
     validate: validateEvenOrOdd,
   },
@@ -219,7 +220,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Write a program that prints all numbers from <strong>0</strong> to <strong>10</strong> (inclusive), one per line.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цикл for (Loops) со счётчиком i: от 0 до 10, шаг 1. Внутри цикла выведите текущее значение i."
+        ? "Подсказка: используйте цикл for (Циклы) со счётчиком i: от 0 до 10, шаг 1. Внутри цикла выведите текущее значение i."
         : "Hint: use a for loop (Loops) with a counter i: from 0 to 10, step 1. Print i inside the loop.",
     validate: validateFirstLoop,
   },
@@ -234,7 +235,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Write a program that computes the sum of all integers from <strong>1</strong> to <strong>N</strong>, where <strong>N</strong> is stored in the variable <strong>n</strong>.<br><br>Example: for <strong>n = 5</strong> print <strong>15</strong>, for <strong>n = 10</strong> print <strong>55</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цикл for (Loops) со счётчиком от 1 до n и переменную-аккумулятор sum (sum = sum + i). Затем выведите sum."
+        ? "Подсказка: используйте цикл for (Циклы) со счётчиком от 1 до n и переменную-аккумулятор sum (sum = sum + i). Затем выведите sum."
         : "Hint: use a for loop (Loops) from 1 to n and an accumulator variable sum (sum = sum + i). Then print sum.",
     validate: validateSum1ToN,
   },
@@ -251,7 +252,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a program where the computer chooses a number from <strong>1</strong> to <strong>10</strong> (store it in <strong>secret</strong>), and the user tries to guess it.<br><br>Use <strong>guess</strong> for the user\'s guess. In a loop, ask for a number and print:<br>— if guess is lower: <strong>"The secret number is higher!"</strong><br>— if guess is higher: <strong>"The secret number is lower!"</strong><br>— if equal: <strong>"Congratulations! You guessed the number!"</strong><br><br>Use the <strong>py_input_number</strong> block (Custom) for input.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте while (Loops) «пока guess ≠ secret». Внутри — if/else if/else для трёх случаев: меньше, больше, равно."
+        ? "Подсказка: используйте while (Циклы) «пока guess ≠ secret». Внутри — if/else if/else для трёх случаев: меньше, больше, равно."
         : 'Hint: use a while loop (Loops) "while guess != secret" and an if/else if/else chain for lower/higher/equal.',
     validate: validateGuessGame,
   },
@@ -264,7 +265,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 14: List and forEach",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и сохраните его в переменную <strong>list</strong> (можно <strong>numbers</strong>).<br><br>Затем используйте блок из Loops <strong>«для каждого элемента k в списке»</strong> — это и есть <strong>forEach</strong>. Внутри цикла:<br>1) выведите текущий элемент (каждый с новой строки)<br>2) посчитайте сумму элементов в переменной <strong>sum</strong> и выведите сумму после цикла (должно получиться <strong>15</strong>).<br><br><strong>Важно:</strong> список может хранить не только числа, но и текст (строки), а иногда даже смешанные значения. А цикл <strong>forEach</strong> удобен именно для <strong>перебора элементов списка</strong>: он «идёт по списку» и даёт вам текущий элемент, в отличие от циклов <strong>for</strong> со счётчиком (когда вы управляете индексами/границами вручную) или <strong>while</strong> (когда повторяем, пока условие истинно)."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и сохраните его в переменную <strong>list</strong> (можно <strong>numbers</strong>).<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента k в списке»</strong> — это и есть <strong>forEach</strong>. Внутри цикла:<br>1) выведите текущий элемент (каждый с новой строки)<br>2) посчитайте сумму элементов в переменной <strong>sum</strong> и выведите сумму после цикла (должно получиться <strong>15</strong>).<br><br><strong>Важно:</strong> список может хранить не только числа, но и текст (строки), а иногда даже смешанные значения. А цикл <strong>forEach</strong> удобен именно для <strong>перебора элементов списка</strong>: он «идёт по списку» и даёт вам текущий элемент, в отличие от циклов <strong>for</strong> со счётчиком (когда вы управляете индексами/границами вручную) или <strong>while</strong> (когда повторяем, пока условие истинно)."
         : "Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and store it in <strong>list</strong> (or <strong>numbers</strong>).<br><br>Then use the Loops block <strong>“for each item k in list”</strong> — this is the <strong>forEach</strong> idea. Inside the loop:<br>1) print the current item (one per line)<br>2) compute the sum in <strong>sum</strong> and print the final sum after the loop (it should be <strong>15</strong>).<br><br><strong>Note:</strong> a list can store not only numbers but also text (strings), and sometimes even mixed values. The <strong>forEach</strong> loop is great specifically for <strong>iterating over list elements</strong>: it walks through the list and gives you the current item, unlike a counter-based <strong>for</strong> (where you manage indexes/bounds) or <strong>while</strong> (repeat while a condition is true).",
     hint: (lang) =>
       lang === "ru"
@@ -281,7 +282,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 15: Sublist and forEach",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем возьмите из него <strong>подсписок</strong> с элементами <strong>3, 4, 5, 6, 7</strong> (то есть часть списка) и сохраните в переменную <strong>sub</strong>.<br><br>Используйте блок <strong>«для каждого элемента k в списке»</strong> (Loops), чтобы вывести элементы подсписка <strong>sub</strong> по одному (каждый с новой строки)."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем возьмите из него <strong>подсписок</strong> с элементами <strong>3, 4, 5, 6, 7</strong> (то есть часть списка) и сохраните в переменную <strong>sub</strong>.<br><br>Используйте блок <strong>«для каждого элемента k в списке»</strong> (Циклы), чтобы вывести элементы подсписка <strong>sub</strong> по одному (каждый с новой строки)."
         : "Create a list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then take a <strong>sublist</strong> containing <strong>3, 4, 5, 6, 7</strong> (a part of the list) and store it in <strong>sub</strong>.<br><br>Use the <strong>“for each item k in list”</strong> block (Loops) to print items of <strong>sub</strong> one per line.",
     hint: (lang) =>
       lang === "ru"
@@ -298,13 +299,30 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 16: List filtering",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Loops <strong>«для каждого элемента k в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента k в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then use the Loops block <strong>“for each item k in list”</strong> to iterate. Inside the loop, use an <strong>if</strong> to keep only <strong>even</strong> numbers and:<br>1) print each even number (one per line)<br>2) compute the sum of even numbers in <strong>sum</strong><br><br>After the loop, print the sum. You should get: <strong>2 4 6 8 10</strong> and the sum <strong>30</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: проверка чётности: k % 2 == 0 (Math → modulo, Logic → compare). Внутри if: вывести k и сделать sum = sum + k. После цикла вывести sum."
-        : "Hint: even check: k % 2 == 0 (Math → modulo, Logic → compare). Inside if: print k and do sum = sum + k. After the loop print sum.",
+        ? "Подсказка: проверка чётности: «остаток от деления» (k на 2) равен 0 (Математика → остаток от деления, Логика → сравнение) или блок «k чётное». Внутри if: вывести k и сделать sum = sum + k. После цикла вывести sum."
+        : "Hint: even check: remainder of k ÷ 2 equals 0 (Math → remainder of, Logic → compare) or the “is even” block. Inside if: print k and do sum = sum + k. After the loop print sum.",
     validate: validateListFilterEven,
+  },
+  list_filter_even_min_max: {
+    id: "list_filter_even_min_max",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 17: Min/Max среди чётных"
+        : "Task 17: Min/Max among evens",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: удобно использовать блок <strong>Математика → «операции над списком»</strong> и выбрать MIN/MAX для списка evens."
+        : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add even numbers to a new list <strong>evens</strong> and print each even number (one per line).<br><br>After the loop, find and print:<br>— <strong>min=2</strong> (minimum among evens)<br>— <strong>max=10</strong> (maximum among evens)<br><br>Hint: use <strong>Math → “math on list”</strong> with MIN/MAX on the evens list.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: создайте evens (пустой список). Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное». Внутри if: добавьте k в evens (Списки → вставить/добавить в конец) и выведите k. После цикла: Математика → «операции над списком» MIN/MAX по evens и выведите min=… и max=…"
+        : "Hint: create evens (empty list). Even check: remainder of k ÷ 2 equals 0 or the “is even” block. Inside if: add k to evens (Lists → set/insert at end) and print k. After the loop: Math → “math on list” MIN/MAX on evens and print min=… and max=…",
+    validate: validateListFilterEvenMinMax,
   },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
@@ -395,6 +413,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "list_foreach",
     "sublist_foreach",
     "list_filter_even",
+    "list_filter_even_min_max",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -460,7 +479,9 @@ export function getNextTaskId(current: TaskId): TaskId | null {
 export function getPrevTaskId(current: TaskId): TaskId | null {
   const order = TASKS_ORDER_BY_DIFFICULTY[tasks[current].difficulty] || [];
   const idx = order.indexOf(current);
-  if (idx <= 0) return null;
+  if (idx < 0) return null;
+  if (order.length === 0) return null;
+  if (idx === 0) return order[order.length - 1] || null;
   return order[idx - 1] || null;
 }
 
@@ -1884,6 +1905,7 @@ async function validateListFilterEven(
   let usedIf = false;
   let usedModulo = false;
   let usedCompare = false;
+  let usedIsEven = false;
 
   let hasSetList = false;
   let hasGetList = false;
@@ -1902,6 +1924,15 @@ async function validateListFilterEven(
     if (t === "controls_if") usedIf = true;
     if (t === "math_modulo") usedModulo = true;
     if (t === "logic_compare") usedCompare = true;
+    if (t === "math_number_property") {
+      const prop =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("PROPERTY") ||
+            (b as any).getFieldValue("PROP") ||
+            (b as any).getFieldValue("OP")
+          : undefined;
+      if (String(prop).toUpperCase().includes("EVEN")) usedIsEven = true;
+    }
 
     const v = getVarFieldText(b);
     if (t === "variables_set" && (v === "list" || v === "numbers"))
@@ -1918,14 +1949,15 @@ async function validateListFilterEven(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
+  const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
+
   const ok =
     hasSequence &&
     hasSum &&
     usedListCreate &&
     usedForEach &&
     usedIf &&
-    usedModulo &&
-    usedCompare &&
+    usedEvenCheck &&
     hasSetList &&
     hasGetList &&
     hasSetSum &&
@@ -1939,11 +1971,117 @@ async function validateListFilterEven(
       usedListCreate &&
       usedForEach &&
       usedIf &&
-      usedModulo &&
-      usedCompare &&
+      usedEvenCheck &&
       (usedMathChange || usedArithmetic);
     if (usedCore && count <= 20) stars = 3;
     else if (count <= 28) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+async function validateListFilterEvenMinMax(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const numericLines = lines
+    .map((l) => {
+      const n = Number(l);
+      return Number.isFinite(n) ? n : null;
+    })
+    .filter((v): v is number => v !== null);
+
+  const expected = [2, 4, 6, 8, 10];
+  const hasSequence = (() => {
+    for (
+      let start = 0;
+      start <= numericLines.length - expected.length;
+      start++
+    ) {
+      let ok = true;
+      for (let i = 0; i < expected.length; i++) {
+        if (numericLines[start + i] !== expected[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) return true;
+    }
+    return false;
+  })();
+
+  const hasMin = lines.some((l) =>
+    /(^|\b)(min|минимум|мин)\s*[:=]?\s*2(\b|$)/i.test(l),
+  );
+  const hasMax = lines.some((l) =>
+    /(^|\b)(max|максимум|макс)\s*[:=]?\s*10(\b|$)/i.test(l),
+  );
+
+  let usedListCreate = false;
+  let usedForEach = false;
+  let usedIf = false;
+  let usedModulo = false;
+  let usedCompare = false;
+  let usedIsEven = false;
+  let usedMathOnList = false;
+  let usedMin = false;
+  let usedMax = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "controls_forEach") usedForEach = true;
+    if (t === "controls_if") usedIf = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_number_property") {
+      const prop =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("PROPERTY") ||
+            (b as any).getFieldValue("PROP") ||
+            (b as any).getFieldValue("OP")
+          : undefined;
+      if (String(prop).toUpperCase().includes("EVEN")) usedIsEven = true;
+    }
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+    if (t === "math_on_list") {
+      usedMathOnList = true;
+      const mode =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("OP") || (b as any).getFieldValue("MODE")
+          : undefined;
+      if (String(mode).toUpperCase().includes("MIN")) usedMin = true;
+      if (String(mode).toUpperCase().includes("MAX")) usedMax = true;
+    }
+  }
+
+  const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
+
+  const ok =
+    hasSequence &&
+    hasMin &&
+    hasMax &&
+    usedListCreate &&
+    usedForEach &&
+    usedIf &&
+    usedEvenCheck &&
+    usedMathOnList &&
+    usedMin &&
+    usedMax &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = usedForEach && usedIf && usedEvenCheck && usedMathOnList;
+    if (usedCore && count <= 28) stars = 3;
+    else if (count <= 40) stars = 2;
     else stars = 1;
   }
 
@@ -2175,7 +2313,9 @@ export function setActiveTask(taskId: TaskId) {
   const showWhileLoopInfo = activeTaskId === "guess_game";
   const showListInfo = activeTaskId === "list_foreach";
   const showSublistInfo = activeTaskId === "sublist_foreach";
-  const showListFilterInfo = activeTaskId === "list_filter_even";
+  const showListFilterInfo =
+    activeTaskId === "list_filter_even" ||
+    activeTaskId === "list_filter_even_min_max";
   const showConditionInfo =
     activeTaskId === "even_or_odd" ||
     activeTaskId === "time_of_day" ||

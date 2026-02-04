@@ -2023,39 +2023,39 @@
               <li><strong id="forLoopBodyLabel">Тело цикла</strong><span id="forLoopBodyDescPrefix">: что делаем на
                   каждом шаге (например, печатаем </span><code>i</code><span id="forLoopBodyDescSuffix">)</span></li>
             </ul>
-            <h4 id="forLoopExampleHeader" style="margin-top:12px;">Пример (0…10, каждое число с новой строки)</h4>
+            <h4 id="forLoopExampleHeader" style="margin-top:12px;">Пример (1…5, каждое число с новой строки)</h4>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
-                <pre><code>for (let i = 0; i &lt;= 10; i += 1) {
+                <pre><code>for (let i = 1; i &lt;= 5; i += 1) {
   console.log(i);
 }</code></pre>
               </li>
               <li><strong>Python</strong>
-                <pre><code>for i in range(0, 11, 1):
+                <pre><code>for i in range(1, 6, 1):
     print(i)</code></pre>
               </li>
               <li><strong>Lua</strong>
-                <pre><code>for i = 0, 10, 1 do
+                <pre><code>for i = 1, 5, 1 do
   print(i)
 end</code></pre>
               </li>
               <li><strong>PHP</strong>
-                <pre><code>for ($i = 0; $i &lt;= 10; $i++) {
+                <pre><code>for ($i = 1; $i &lt;= 5; $i++) {
   echo $i . PHP_EOL;
 }</code></pre>
               </li>
             </ul>
             <h4 id="forLoopErrorsHeader" style="margin-top:12px;">Частые ошибки</h4>
             <ul>
-              <li><strong id="forLoopErr1Title">0…9 вместо 0…10</strong><span id="forLoopErr1TextBefore">: забыли
-                  “включительно” (JS: </span><code>&lt;= 10</code><span id="forLoopErr1TextMiddle">, Python:
-                </span><code>range(0, 11)</code><span id="forLoopErr1TextAfter">)</span></li>
+              <li><strong id="forLoopErr1Title">1…4 вместо 1…5</strong><span id="forLoopErr1TextBefore">: забыли
+                  “включительно” (JS: </span><code>&lt;= 5</code><span id="forLoopErr1TextMiddle">, Python:
+                </span><code>range(1, 6)</code><span id="forLoopErr1TextAfter">)</span></li>
               <li><strong id="forLoopErr2Title">Неправильный шаг</strong><span id="forLoopErr2Text">: при шаге 2
-                  получится 0, 2, 4, …, 10</span></li>
+                  получится 1, 3, 5</span></li>
               <li><strong id="forLoopErr3Title">Печать не счётчика</strong><span id="forLoopErr3Text">: внутри цикла
                   нужно выводить именно переменную цикла</span></li>
             </ul>
-            <p id="forLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно блок “for” (Loops) с
+            <p id="forLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно блок “for” (Циклы) с
               полями FROM/TO/BY и переменной-счётчиком.</p>
           </div>
           <div id="whileLoopInfoSection" class="console-output-info" style="display:none;">
@@ -2076,42 +2076,42 @@ end</code></pre>
             </ul>
             <h4 id="whileLoopDiffHeader" style="margin-top:12px;">Отличия от for</h4>
             <ul>
-              <li id="whileLoopDiffFor"><strong>for</strong>: заранее известны старт/финиш/шаг (например, 0…10)</li>
+              <li id="whileLoopDiffFor"><strong>for</strong>: заранее известны старт/финиш/шаг (например, 1…5)</li>
               <li id="whileLoopDiffWhile"><strong>while</strong>: повторяем «пока …», количество повторов заранее
                 неизвестно</li>
             </ul>
-            <h4 id="whileLoopExampleHeader" style="margin-top:12px;">Простой пример: повторяем, пока не ввели 7</h4>
+            <h4 id="whileLoopExampleHeader" style="margin-top:12px;">Простой пример: повторяем, пока не ввели 5</h4>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
                 <pre><code id="whileJsCode">let guess = Number(input());
-while (guess !== 7) {
-  console.log("Ещё раз");
+while (guess !== 5) {
+  console.log("Попробуйте ещё");
   guess = Number(input());
 }
-console.log("Угадал!");</code></pre>
+console.log("Готово!");</code></pre>
               </li>
               <li><strong>Python</strong>
                 <pre><code id="whilePyCode">guess = float(input())
-while guess != 7:
-    print("Ещё раз")
+while guess != 5:
+    print("Попробуйте ещё")
     guess = float(input())
-print("Угадал!")</code></pre>
+print("Готово!")</code></pre>
               </li>
               <li><strong>Lua</strong>
                 <pre><code id="whileLuaCode">local guess = tonumber(input())
-while guess ~= 7 do
-  print("Ещё раз")
+while guess ~= 5 do
+  print("Попробуйте ещё")
   guess = tonumber(input())
 end
-print("Угадал!")</code></pre>
+print("Готово!")</code></pre>
               </li>
               <li><strong>PHP</strong>
                 <pre><code id="whilePhpCode">$guess = (float) input();
-while ($guess != 7) {
-  echo "Ещё раз" . PHP_EOL;
+while ($guess != 5) {
+  echo "Попробуйте ещё" . PHP_EOL;
   $guess = (float) input();
 }
-echo "Угадал!" . PHP_EOL;</code></pre>
+echo "Готово!" . PHP_EOL;</code></pre>
               </li>
             </ul>
             <h4 id="whileLoopErrorsHeader" style="margin-top:12px;">Частые ошибки</h4>
@@ -2123,7 +2123,7 @@ echo "Угадал!" . PHP_EOL;</code></pre>
               <li><strong id="whileLoopErr3Title">Ввод</strong><span id="whileLoopErr3Text">: строку нужно превратить в
                   число (Number/float/tonumber)</span></li>
             </ul>
-            <p id="whileLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly используйте блок while (Loops)
+            <p id="whileLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly используйте блок while (Циклы)
               и обновляйте переменную guess внутри цикла.</p>
           </div>
           <div id="listInfoSection" class="console-output-info" style="display:none;">
@@ -2146,6 +2146,10 @@ echo "Угадал!" . PHP_EOL;</code></pre>
                 списке»</strong><span id="listInfoForEachAfter"> — это одно и то же по смыслу. Он берёт элементы списка
                 по очереди и внутри цикла даёт вам текущий элемент (например, </span><code>k</code><span
                 id="listInfoForEachMid"> или </span><code>item</code><span id="listInfoForEachEnd">).</span>
+            </p>
+            <p id="listInfoJsNote" style="font-size: 0.9em; font-style: italic;">
+              В примере JavaScript показан современный способ перебора: <code>list.forEach(...)</code>. Blockly может
+              сгенерировать обычный цикл <code>for</code> — по смыслу это то же самое.
             </p>
             <h4 id="listInfoExampleHeader" style="margin-top:12px;">Пример: вывести элементы и посчитать сумму</h4>
             <ul class="code-examples">
@@ -2210,30 +2214,30 @@ echo $sum . PHP_EOL;</code></pre>
             </p>
             <h4 id="sublistLangHeader" style="margin-top:12px;">Примеры в языках</h4>
             <p id="sublistIndexNote" style="font-size: 0.9em;">
-              В JavaScript индексация с 0, а второй параметр slice не включается. Поэтому чтобы получить 3…7, используем
-              slice(2, 7).
+              В JavaScript индексация с 0, а второй параметр slice не включается. Например, чтобы взять элементы со 2-го
+              по 4-й, можно сделать slice(1, 4).
             </p>
             <ul class="code-examples">
               <li>
                 <strong id="sublistJsHeader">JavaScript: .slice(start, end)</strong>
-                <pre><code id="sublistJsCode">const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const sub = list.slice(2, 7);
+                <pre><code id="sublistJsCode">const list = [10, 20, 30, 40, 50, 60];
+const sub = list.slice(1, 4);
 sub.forEach((k) => console.log(k));</code></pre>
                 <div id="sublistJsExplain">start включается, end не включается.</div>
               </li>
               <li>
                 <strong id="sublistPyHeader">Python: list[start:end]</strong>
-                <pre><code id="sublistPyCode">list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-sub = list[2:7]
+                <pre><code id="sublistPyCode">list = [10, 20, 30, 40, 50, 60]
+sub = list[1:4]
 for k in sub:
     print(k)</code></pre>
                 <div id="sublistPyExplain">start включается, end не включается.</div>
               </li>
               <li>
                 <strong id="sublistLuaHeader">Lua: собрать подсписок вручную</strong>
-                <pre><code id="sublistLuaCode">local list = {1,2,3,4,5,6,7,8,9,10}
+                <pre><code id="sublistLuaCode">local list = {10,20,30,40,50,60}
 local sub = {}
-for i = 3, 7 do
+for i = 2, 4 do
   table.insert(sub, list[i])
 end
 for _, k in ipairs(sub) do
@@ -2243,8 +2247,8 @@ end</code></pre>
               </li>
               <li>
                 <strong id="sublistPhpHeader">PHP: array_slice</strong>
-                <pre><code id="sublistPhpCode">$list = [1,2,3,4,5,6,7,8,9,10];
-$sub = array_slice($list, 2, 5);
+                <pre><code id="sublistPhpCode">$list = [10,20,30,40,50,60];
+$sub = array_slice($list, 1, 3);
 foreach ($sub as $k) {
   echo $k . PHP_EOL;
 }</code></pre>
@@ -2261,7 +2265,6 @@ foreach ($sub as $k) {
               Фильтрация — это когда мы <strong>перебираем</strong> элементы списка и <strong>оставляем только
                 те</strong>,
               которые подходят под условие. Например: “только чётные числа”.
-            </p>
             <h4 id="listFilterHowHeader" style="margin-top:12px;">Как сделать</h4>
             <ul>
               <li id="listFilterStep1">Переберите list блоком «для каждого элемента k в списке»</li>
@@ -2272,10 +2275,14 @@ foreach ($sub as $k) {
               Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.
             </p>
             <h4 id="listFilterLangHeader" style="margin-top:12px;">Примеры в языках</h4>
+            <p id="listFilterJsNote" style="font-size: 0.9em; font-style: italic;">
+              В JavaScript можно писать по-разному: Blockly может сгенерировать цикл <code>for</code>, а в примерах ниже
+              показан вариант с <code>forEach</code>. Результат одинаковый.
+            </p>
             <ul class="code-examples">
               <li>
                 <strong>JavaScript</strong>
-                <pre><code id="listFilterJsCode">const list = [1,2,3,4,5,6,7,8,9,10];
+                <pre><code id="listFilterJsCode">const list = [3, 4, 7, 12, 15];
 let sum = 0;
 list.forEach((k) => {
   if (k % 2 === 0) {
@@ -2287,7 +2294,7 @@ console.log(sum);</code></pre>
               </li>
               <li>
                 <strong>Python</strong>
-                <pre><code id="listFilterPyCode">list = [1,2,3,4,5,6,7,8,9,10]
+                <pre><code id="listFilterPyCode">list = [3, 4, 7, 12, 15]
 sum = 0
 for k in list:
     if k % 2 == 0:
@@ -2297,7 +2304,7 @@ print(sum)</code></pre>
               </li>
               <li>
                 <strong>Lua</strong>
-                <pre><code id="listFilterLuaCode">local list = {1,2,3,4,5,6,7,8,9,10}
+                <pre><code id="listFilterLuaCode">local list = {3,4,7,12,15}
 local sum = 0
 for _, k in ipairs(list) do
   if k % 2 == 0 then
@@ -2309,7 +2316,7 @@ print(sum)</code></pre>
               </li>
               <li>
                 <strong>PHP</strong>
-                <pre><code id="listFilterPhpCode">$list = [1,2,3,4,5,6,7,8,9,10];
+                <pre><code id="listFilterPhpCode">$list = [3, 4, 7, 12, 15];
 $sum = 0;
 foreach ($list as $k) {
   if ($k % 2 == 0) {
@@ -2318,6 +2325,34 @@ foreach ($list as $k) {
   }
 }
 echo $sum . PHP_EOL;</code></pre>
+              </li>
+            </ul>
+            <h4 id="listFilterMinMaxHeader" style="margin-top:12px;">Минимум и максимум среди отфильтрованных</h4>
+            <p id="listFilterMinMaxText">
+              Частая задача: сначала отобрать элементы (например, чётные), а потом найти среди них минимум и максимум.
+              Один удобный способ — собрать отдельный список <code>evens</code>, а затем найти <code>min</code> и
+              <code>max</code> для этого списка.
+            </p>
+            <ul class="code-examples">
+              <li><strong>JavaScript</strong>
+                <pre><code id="listFilterMinMaxJsCode">const list = [5, 2, 9, 4, 1, 8];
+const evens = [];
+list.forEach((k) => {
+  if (k % 2 === 0) evens.push(k);
+});
+const min = Math.min(...evens);
+const max = Math.max(...evens);
+console.log(`min=${min}`);
+console.log(`max=${max}`);</code></pre>
+              </li>
+              <li><strong>Python</strong>
+                <pre><code id="listFilterMinMaxPyCode">list = [5, 2, 9, 4, 1, 8]
+evens = []
+for k in list:
+    if k % 2 == 0:
+        evens.append(k)
+print("min=" + str(min(evens)))
+print("max=" + str(max(evens)))</code></pre>
               </li>
             </ul>
           </div>
@@ -2454,34 +2489,34 @@ echo $sum . PHP_EOL;</code></pre>
             <ul>
               <li><strong>JavaScript:</strong>
                 <ul>
-                  <li><code id="concatJsPlusCode">"Hello, " + name + "!"</code> — <span id="concatJsPlusDesc">обычное
+                  <li><code id="concatJsPlusCode">"Город: " + city</code> — <span id="concatJsPlusDesc">обычное
                       сложение строк</span></li>
-                  <li><code id="concatJsTemplateCode">`Hello, ${name}!`</code> — <span
+                  <li><code id="concatJsTemplateCode">`Счёт: ${score}`</code> — <span
                       id="concatJsTemplateDesc">шаблонная
                       строка</span></li>
                 </ul>
               </li>
               <li><strong>Python:</strong>
                 <ul>
-                  <li><code id="concatPyPlusCode">"Hello, " + name + "!"</code> — <span id="concatPyPlusDesc">сложение
+                  <li><code id="concatPyPlusCode">"Город: " + city</code> — <span id="concatPyPlusDesc">сложение
                       строк</span></li>
-                  <li><code id="concatPyFStringCode">f"Hello, {name}!"</code> — <span id="concatPyFStringDesc">f-строка
+                  <li><code id="concatPyFStringCode">f"Счёт: {score}"</code> — <span id="concatPyFStringDesc">f-строка
                       (удобно вставлять переменные)</span></li>
                 </ul>
               </li>
               <li><strong>Lua:</strong>
                 <ul>
-                  <li><code id="concatLuaDotsCode">"Hello, " .. name .. "!"</code> — <span
-                      id="concatLuaDotsDesc">оператор .. склеивает строки</span></li>
-                  <li><code id="concatLuaFormatCode">string.format("Hello, %s!", name)</code> — <span
+                  <li><code id="concatLuaDotsCode">"Город: " .. city</code> — <span id="concatLuaDotsDesc">оператор ..
+                      склеивает строки</span></li>
+                  <li><code id="concatLuaFormatCode">string.format("Счёт: %s", score)</code> — <span
                       id="concatLuaFormatDesc">форматирование строки</span></li>
                 </ul>
               </li>
               <li><strong>PHP:</strong>
                 <ul>
-                  <li><code id="concatPhpDotsCode">"Hello, " . $name . "!"</code> — <span
-                      id="concatPhpDotsDesc">оператор . склеивает строки</span></li>
-                  <li><code id="concatPhpInterpCode">"Hello, {$name}!"</code> — <span
+                  <li><code id="concatPhpDotsCode">"Город: " . $city</code> — <span id="concatPhpDotsDesc">оператор .
+                      склеивает строки</span></li>
+                  <li><code id="concatPhpInterpCode">"Счёт: {$score}"</code> — <span
                       id="concatPhpInterpDesc">интерполяция в двойных кавычках</span></li>
                 </ul>
               </li>
@@ -2496,35 +2531,33 @@ echo $sum . PHP_EOL;</code></pre>
             <ul>
               <li><strong>JavaScript:</strong>
                 <ul>
-                  <li><code id="incDecJsIncCode">counter = counter + 1</code> — <span id="incDecJsIncDesc">увеличить на
+                  <li><code id="incDecJsIncCode">score = score + 1</code> — <span id="incDecJsIncDesc">увеличить на
                       1</span></li>
-                  <li><code id="incDecJsDecCode">counter = counter - 1</code> — <span id="incDecJsDecDesc">уменьшить на
+                  <li><code id="incDecJsDecCode">score = score - 1</code> — <span id="incDecJsDecDesc">уменьшить на
                       1</span></li>
                 </ul>
               </li>
               <li><strong>Python:</strong>
                 <ul>
-                  <li><code id="incDecPyIncCode">counter = counter + 1</code> — <span id="incDecPyIncDesc">увеличить на
+                  <li><code id="incDecPyIncCode">score = score + 1</code> — <span id="incDecPyIncDesc">увеличить на
                       1</span></li>
-                  <li><code id="incDecPyDecCode">counter = counter - 1</code> — <span id="incDecPyDecDesc">уменьшить на
+                  <li><code id="incDecPyDecCode">score = score - 1</code> — <span id="incDecPyDecDesc">уменьшить на
                       1</span></li>
                 </ul>
               </li>
               <li><strong>Lua:</strong>
                 <ul>
-                  <li><code id="incDecLuaIncCode">counter = counter + 1</code> — <span id="incDecLuaIncDesc">увеличить
+                  <li><code id="incDecLuaIncCode">score = score + 1</code> — <span id="incDecLuaIncDesc">увеличить
                       на 1</span></li>
-                  <li><code id="incDecLuaDecCode">counter = counter - 1</code> — <span id="incDecLuaDecDesc">уменьшить
+                  <li><code id="incDecLuaDecCode">score = score - 1</code> — <span id="incDecLuaDecDesc">уменьшить
                       на 1</span></li>
                 </ul>
               </li>
               <li><strong>PHP:</strong>
                 <ul>
-                  <li><code id="incDecPhpIncCode">$counter = $counter + 1;</code> — <span
-                      id="incDecPhpIncDesc">увеличить
+                  <li><code id="incDecPhpIncCode">$score = $score + 1;</code> — <span id="incDecPhpIncDesc">увеличить
                       на 1</span></li>
-                  <li><code id="incDecPhpDecCode">$counter = $counter - 1;</code> — <span
-                      id="incDecPhpDecDesc">уменьшить
+                  <li><code id="incDecPhpDecCode">$score = $score - 1;</code> — <span id="incDecPhpDecDesc">уменьшить
                       на 1</span></li>
                 </ul>
               </li>

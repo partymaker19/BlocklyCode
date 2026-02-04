@@ -1413,6 +1413,7 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("listInfoForEachAfter", t?.ListInfoForEachAfter);
   setText("listInfoForEachMid", t?.ListInfoForEachMid);
   setText("listInfoForEachEnd", t?.ListInfoForEachEnd);
+  setText("listInfoJsNote", t?.ListInfoJsNote);
   setText("listInfoExampleHeader", t?.ListInfoExampleHeader);
   setText("listInfoNoteBefore", t?.ListInfoNoteBefore);
   setText("listInfoNoteMid", t?.ListInfoNoteMid);
@@ -1451,10 +1452,15 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("listFilterStep3", t?.ListFilterStep3);
   setText("listFilterNote", t?.ListFilterNote);
   setText("listFilterLangHeader", t?.ListFilterLangHeader);
+  setText("listFilterJsNote", t?.ListFilterJsNote);
   setText("listFilterJsCode", t?.ListFilterJsCode);
   setText("listFilterPyCode", t?.ListFilterPyCode);
   setText("listFilterLuaCode", t?.ListFilterLuaCode);
   setText("listFilterPhpCode", t?.ListFilterPhpCode);
+  setText("listFilterMinMaxHeader", t?.ListFilterMinMaxHeader);
+  setText("listFilterMinMaxText", t?.ListFilterMinMaxText);
+  setText("listFilterMinMaxJsCode", t?.ListFilterMinMaxJsCode);
+  setText("listFilterMinMaxPyCode", t?.ListFilterMinMaxPyCode);
 
   setText("consoleJsLogTextCode", t?.ConsoleJsLogTextCode);
   setText("consoleJsLogNumberCode", t?.ConsoleJsLogNumberCode);

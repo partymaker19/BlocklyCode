@@ -421,29 +421,29 @@ export function localizeImportUI(lang: AppLang): void {
             ") последовательно принимает значения с заданным шагом.",
           ForLoopPartsHeader: "Из чего состоит",
           ForLoopStartLabel: "Старт",
-          ForLoopStartDesc: ": с какого значения начинаем (например, 0)",
+          ForLoopStartDesc: ": с какого значения начинаем (например, 1)",
           ForLoopEndLabel: "Финиш/условие",
           ForLoopEndDesc:
-            ": до какого значения идём (например, до 10 включительно)",
+            ": до какого значения идём (например, до 5 включительно)",
           ForLoopStepLabel: "Шаг",
           ForLoopStepDesc: ": как меняем счётчик (обычно +1)",
           ForLoopBodyLabel: "Тело цикла",
           ForLoopBodyDescPrefix:
             ": что делаем на каждом шаге (например, печатаем ",
           ForLoopBodyDescSuffix: ")",
-          ForLoopExampleHeader: "Пример (0…10, каждое число с новой строки)",
+          ForLoopExampleHeader: "Пример (1…5, каждое число с новой строки)",
           ForLoopErrorsHeader: "Частые ошибки",
-          ForLoopErr1Title: "0…9 вместо 0…10",
+          ForLoopErr1Title: "1…4 вместо 1…5",
           ForLoopErr1TextBefore: ": забыли “включительно” (JS: ",
           ForLoopErr1TextMiddle: ", Python: ",
           ForLoopErr1TextAfter: ")",
           ForLoopErr2Title: "Неправильный шаг",
-          ForLoopErr2Text: ": при шаге 2 получится 0, 2, 4, …, 10",
+          ForLoopErr2Text: ": при шаге 2 получится 1, 3, 5",
           ForLoopErr3Title: "Печать не счётчика",
           ForLoopErr3Text:
             ": внутри цикла нужно выводить именно переменную цикла",
           ForLoopNote:
-            "В Blockly это обычно блок “for” (Loops) с полями FROM/TO/BY и переменной-счётчиком.",
+            "В Blockly это обычно блок “for” (Циклы) с полями FROM/TO/BY и переменной-счётчиком.",
           WhileLoopInfoHeader: "Цикл while",
           WhileLoopIntroPrefix: "Цикл ",
           WhileLoopIntroSuffix:
@@ -460,10 +460,10 @@ export function localizeImportUI(lang: AppLang): void {
             ": внутри цикла нужно менять значение, влияющее на условие",
           WhileLoopDiffHeader: "Отличия от for",
           WhileLoopDiffFor:
-            "for: заранее известны старт/финиш/шаг (например, 0…10)",
+            "for: заранее известны старт/финиш/шаг (например, 1…5)",
           WhileLoopDiffWhile:
             "while: повторяем «пока …», количество повторов заранее неизвестно",
-          WhileLoopExampleHeader: "Простой пример: повторяем, пока не ввели 7",
+          WhileLoopExampleHeader: "Простой пример: повторяем, пока не ввели 5",
           WhileLoopErrorsHeader: "Частые ошибки",
           WhileLoopErr1Title: "Бесконечный цикл",
           WhileLoopErr1Text: ": забыли обновить переменную внутри цикла",
@@ -473,15 +473,15 @@ export function localizeImportUI(lang: AppLang): void {
           WhileLoopErr3Text:
             ": строку нужно превратить в число (Number/float/tonumber)",
           WhileLoopNote:
-            "В Blockly используйте блок while (Loops) и обновляйте переменную guess внутри цикла.",
+            "В Blockly используйте блок while (Циклы) и обновляйте переменную guess внутри цикла.",
           WhileJsCode:
-            'let guess = Number(input());\nwhile (guess !== 7) {\n  console.log("Ещё раз");\n  guess = Number(input());\n}\nconsole.log("Угадал!");',
+            'let guess = Number(input());\nwhile (guess !== 5) {\n  console.log("Попробуйте ещё");\n  guess = Number(input());\n}\nconsole.log("Готово!");',
           WhilePyCode:
-            'guess = float(input())\nwhile guess != 7:\n    print("Ещё раз")\n    guess = float(input())\nprint("Угадал!")',
+            'guess = float(input())\nwhile guess != 5:\n    print("Попробуйте ещё")\n    guess = float(input())\nprint("Готово!")',
           WhileLuaCode:
-            'local guess = tonumber(input())\nwhile guess ~= 7 do\n  print("Ещё раз")\n  guess = tonumber(input())\nend\nprint("Угадал!")',
+            'local guess = tonumber(input())\nwhile guess ~= 5 do\n  print("Попробуйте ещё")\n  guess = tonumber(input())\nend\nprint("Готово!")',
           WhilePhpCode:
-            '$guess = (float) input();\nwhile ($guess != 7) {\n  echo "Ещё раз" . PHP_EOL;\n  $guess = (float) input();\n}\necho "Угадал!" . PHP_EOL;',
+            '$guess = (float) input();\nwhile ($guess != 5) {\n  echo "Попробуйте ещё" . PHP_EOL;\n  $guess = (float) input();\n}\necho "Готово!" . PHP_EOL;',
           ListInfoHeader: "Список (массив) и «для каждого элемента…» (forEach)",
           ListInfoIntroBefore:
             "Список (или массив) — это набор значений в одном месте. Например: ",
@@ -500,6 +500,8 @@ export function localizeImportUI(lang: AppLang): void {
             " — это одно и то же по смыслу. Он берёт элементы списка по очереди и внутри цикла даёт вам текущий элемент (например, ",
           ListInfoForEachMid: " или ",
           ListInfoForEachEnd: ").",
+          ListInfoJsNote:
+            "В примере JavaScript показан современный способ перебора: list.forEach(...). Blockly может сгенерировать обычный цикл for — по смыслу это то же самое.",
           ListInfoExampleHeader: "Пример: вывести элементы и посчитать сумму",
           ListInfoNoteBefore: "В задаче 14: создайте ",
           ListInfoNoteMid: " (или ",
@@ -522,22 +524,22 @@ export function localizeImportUI(lang: AppLang): void {
             "Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.",
           SublistLangHeader: "Примеры в языках",
           SublistIndexNote:
-            "В JavaScript метод slice(start, end) берёт часть массива и возвращает новый массив (исходный не меняется). Индексация с 0, а end не включается. Поэтому чтобы получить 3…7, используем slice(2, 7).",
+            "В JavaScript метод slice(start, end) берёт часть массива и возвращает новый массив (исходный не меняется). Индексация с 0, а end не включается. Например, чтобы взять элементы со 2-го по 4-й, можно сделать slice(1, 4).",
           SublistJsHeader: "JavaScript: .slice(start, end)",
           SublistJsCode:
-            "const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\nconst sub = list.slice(2, 7);\nsub.forEach((k) => console.log(k));",
+            "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((k) => console.log(k));",
           SublistJsExplain: "start включается, end не включается.",
           SublistPyHeader: "Python: list[start:end]",
           SublistPyCode:
-            "list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nsub = list[2:7]\nfor k in sub:\n    print(k)",
+            "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor k in sub:\n    print(k)",
           SublistPyExplain: "start включается, end не включается.",
           SublistLuaHeader: "Lua: собрать подсписок вручную",
           SublistLuaCode:
-            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sub = {}\nfor i = 3, 7 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
+            "local list = {10,20,30,40,50,60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
           SublistLuaExplain: "В Lua индексация обычно начинается с 1.",
           SublistPhpHeader: "PHP: array_slice",
           SublistPhpCode:
-            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sub = array_slice($list, 2, 5);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
+            "$list = [10,20,30,40,50,60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
           SublistPhpExplain:
             "В PHP array_slice: offset с 0 и length — сколько элементов.",
           SublistAltNote:
@@ -555,14 +557,23 @@ export function localizeImportUI(lang: AppLang): void {
           ListFilterNote:
             "Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.",
           ListFilterLangHeader: "Примеры в языках",
+          ListFilterJsNote:
+            "В JavaScript можно писать по-разному: Blockly может сгенерировать цикл for, а в примерах ниже показан вариант с forEach. Результат одинаковый.",
           ListFilterJsCode:
-            "const list = [1,2,3,4,5,6,7,8,9,10];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
+            "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
           ListFilterPyCode:
-            "list = [1,2,3,4,5,6,7,8,9,10]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
+            "list = [3, 4, 7, 12, 15]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
           ListFilterLuaCode:
-            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
+            "local list = {3,4,7,12,15}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
           ListFilterPhpCode:
-            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
+            "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
+          ListFilterMinMaxHeader: "Минимум и максимум среди отфильтрованных",
+          ListFilterMinMaxText:
+            "Частая задача: сначала отобрать элементы (например, чётные), а потом найти среди них минимум и максимум. Один удобный способ — собрать отдельный список evens, а затем найти min и max для этого списка.",
+          ListFilterMinMaxJsCode:
+            "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((k) => {\n  if (k % 2 === 0) evens.push(k);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
+          ListFilterMinMaxPyCode:
+            'list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor k in list:\n    if k % 2 == 0:\n        evens.append(k)\nprint("min=" + str(min(evens)))\nprint("max=" + str(max(evens)))',
           CondOpGtDesc: "больше",
           CondOpLtDesc: "меньше",
           CondOpGteDesc: "больше или равно",
@@ -732,22 +743,22 @@ export function localizeImportUI(lang: AppLang): void {
           ForLoopIntroSuffix: ") takes values step by step.",
           ForLoopPartsHeader: "What it consists of",
           ForLoopStartLabel: "Start",
-          ForLoopStartDesc: ": the initial value (e.g. 0)",
+          ForLoopStartDesc: ": the initial value (e.g. 1)",
           ForLoopEndLabel: "End/condition",
-          ForLoopEndDesc: ": when to stop (e.g. up to 10, inclusive)",
+          ForLoopEndDesc: ": when to stop (e.g. up to 5, inclusive)",
           ForLoopStepLabel: "Step",
           ForLoopStepDesc: ": how the counter changes (usually +1)",
           ForLoopBodyLabel: "Loop body",
           ForLoopBodyDescPrefix: ": what we do each step (e.g. print ",
           ForLoopBodyDescSuffix: ")",
-          ForLoopExampleHeader: "Example (0…10, one number per line)",
+          ForLoopExampleHeader: "Example (1…5, one number per line)",
           ForLoopErrorsHeader: "Common mistakes",
-          ForLoopErr1Title: "0…9 instead of 0…10",
+          ForLoopErr1Title: "1…4 instead of 1…5",
           ForLoopErr1TextBefore: ": forgot “inclusive” (JS: ",
           ForLoopErr1TextMiddle: ", Python: ",
           ForLoopErr1TextAfter: ")",
           ForLoopErr2Title: "Wrong step",
-          ForLoopErr2Text: ": with step 2 you get 0, 2, 4, …, 10",
+          ForLoopErr2Text: ": with step 2 you get 1, 3, 5",
           ForLoopErr3Title: "Printing the wrong thing",
           ForLoopErr3Text:
             ": inside the loop you should print the counter variable",
@@ -767,10 +778,10 @@ export function localizeImportUI(lang: AppLang): void {
           WhileLoopChangeDesc:
             ": inside the loop you must change the value that affects the condition",
           WhileLoopDiffHeader: "Difference from for",
-          WhileLoopDiffFor: "for: start/end/step are known (e.g. 0…10)",
+          WhileLoopDiffFor: "for: start/end/step are known (e.g. 1…5)",
           WhileLoopDiffWhile:
             "while: repeat “while …”, the number of iterations is not known in advance",
-          WhileLoopExampleHeader: "Simple example: repeat until you enter 7",
+          WhileLoopExampleHeader: "Simple example: repeat until you enter 5",
           WhileLoopErrorsHeader: "Common mistakes",
           WhileLoopErr1Title: "Infinite loop",
           WhileLoopErr1Text: ": forgot to update the variable inside the loop",
@@ -782,13 +793,13 @@ export function localizeImportUI(lang: AppLang): void {
           WhileLoopNote:
             "In Blockly use the while (Loops) block and update guess inside the loop.",
           WhileJsCode:
-            'let guess = Number(input());\nwhile (guess !== 7) {\n  console.log("Try again");\n  guess = Number(input());\n}\nconsole.log("Guessed!");',
+            'let guess = Number(input());\nwhile (guess !== 5) {\n  console.log("Try again");\n  guess = Number(input());\n}\nconsole.log("Guessed!");',
           WhilePyCode:
-            'guess = float(input())\nwhile guess != 7:\n    print("Try again")\n    guess = float(input())\nprint("Guessed!")',
+            'guess = float(input())\nwhile guess != 5:\n    print("Try again")\n    guess = float(input())\nprint("Guessed!")',
           WhileLuaCode:
-            'local guess = tonumber(input())\nwhile guess ~= 7 do\n  print("Try again")\n  guess = tonumber(input())\nend\nprint("Guessed!")',
+            'local guess = tonumber(input())\nwhile guess ~= 5 do\n  print("Try again")\n  guess = tonumber(input())\nend\nprint("Guessed!")',
           WhilePhpCode:
-            '$guess = (float) input();\nwhile ($guess != 7) {\n  echo "Try again" . PHP_EOL;\n  $guess = (float) input();\n}\necho "Guessed!" . PHP_EOL;',
+            '$guess = (float) input();\nwhile ($guess != 5) {\n  echo "Try again" . PHP_EOL;\n  $guess = (float) input();\n}\necho "Guessed!" . PHP_EOL;',
           ListInfoHeader: "List (array) and “for each item …” (forEach)",
           ListInfoIntroBefore:
             "A list (or array) is a collection of values in one place. For example: ",
@@ -806,6 +817,8 @@ export function localizeImportUI(lang: AppLang): void {
             " — it’s the same idea. It goes through list items one by one and gives you the current item (for example, ",
           ListInfoForEachMid: " or ",
           ListInfoForEachEnd: ").",
+          ListInfoJsNote:
+            "In the JavaScript example we show a modern style: list.forEach(...). Blockly may generate a plain for loop instead — the meaning is the same.",
           ListInfoExampleHeader: "Example: print items and compute sum",
           ListInfoNoteBefore: "In task 14: create ",
           ListInfoNoteMid: " (or ",
@@ -827,22 +840,22 @@ export function localizeImportUI(lang: AppLang): void {
             "A sublist is useful when you need only a part of the elements, so you don’t need extra conditions inside the loop.",
           SublistLangHeader: "Language examples",
           SublistIndexNote:
-            "In JavaScript, slice(start, end) returns a new array containing a part of the array (the original is not modified). Indexing starts at 0 and end is excluded. So to get 3…7 you use slice(2, 7).",
+            "In JavaScript, slice(start, end) returns a new array containing a part of the array (the original is not modified). Indexing starts at 0 and end is excluded. For example, to take items 2..4 you can use slice(1, 4).",
           SublistJsHeader: "JavaScript: .slice(start, end)",
           SublistJsCode:
-            "const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\nconst sub = list.slice(2, 7);\nsub.forEach((k) => console.log(k));",
+            "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((k) => console.log(k));",
           SublistJsExplain: "start is included, end is excluded.",
           SublistPyHeader: "Python: list[start:end]",
           SublistPyCode:
-            "list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nsub = list[2:7]\nfor k in sub:\n    print(k)",
+            "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor k in sub:\n    print(k)",
           SublistPyExplain: "start is included, end is excluded.",
           SublistLuaHeader: "Lua: build a sublist manually",
           SublistLuaCode:
-            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sub = {}\nfor i = 3, 7 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
+            "local list = {10,20,30,40,50,60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
           SublistLuaExplain: "In Lua indexing usually starts at 1.",
           SublistPhpHeader: "PHP: array_slice",
           SublistPhpCode:
-            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sub = array_slice($list, 2, 5);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
+            "$list = [10,20,30,40,50,60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
           SublistPhpExplain:
             "In PHP array_slice uses a 0-based offset and a length.",
           SublistAltNote:
@@ -857,14 +870,23 @@ export function localizeImportUI(lang: AppLang): void {
           ListFilterNote:
             "Note: filtering doesn’t require creating a separate sublist — you can just print matching items inside the if.",
           ListFilterLangHeader: "Language examples",
+          ListFilterJsNote:
+            "In JavaScript you can write it in different ways: Blockly may generate a for loop, while the examples below use forEach. The result is the same.",
           ListFilterJsCode:
-            "const list = [1,2,3,4,5,6,7,8,9,10];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
+            "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
           ListFilterPyCode:
-            "list = [1,2,3,4,5,6,7,8,9,10]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
+            "list = [3, 4, 7, 12, 15]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
           ListFilterLuaCode:
-            "local list = {1,2,3,4,5,6,7,8,9,10}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
+            "local list = {3,4,7,12,15}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
           ListFilterPhpCode:
-            "$list = [1,2,3,4,5,6,7,8,9,10];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
+            "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
+          ListFilterMinMaxHeader: "Min and max among filtered items",
+          ListFilterMinMaxText:
+            "A common task: first keep only matching items (for example, evens), then find the minimum and maximum among them. A convenient approach is to build a separate evens list and then compute min and max for that list.",
+          ListFilterMinMaxJsCode:
+            "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((k) => {\n  if (k % 2 === 0) evens.push(k);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
+          ListFilterMinMaxPyCode:
+            'list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor k in list:\n    if k % 2 == 0:\n        evens.append(k)\nprint("min=" + str(min(evens)))\nprint("max=" + str(max(evens)))',
           CondOpGtDesc: "greater than",
           CondOpLtDesc: "less than",
           CondOpGteDesc: "greater or equal",

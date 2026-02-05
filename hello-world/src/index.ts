@@ -1459,6 +1459,11 @@ function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   setText("listFilterPhpCode", t?.ListFilterPhpCode);
   setText("listFilterMinMaxHeader", t?.ListFilterMinMaxHeader);
   setText("listFilterMinMaxText", t?.ListFilterMinMaxText);
+  setText("listFilterMinMaxNewHeader", t?.ListFilterMinMaxNewHeader);
+  setText("listFilterMinMaxPushText", t?.ListFilterMinMaxPushText);
+  setText("listFilterMinMaxDotText", t?.ListFilterMinMaxDotText);
+  setText("listFilterMinMaxApplyText", t?.ListFilterMinMaxApplyText);
+  setText("listFilterMinMaxAppendText", t?.ListFilterMinMaxAppendText);
   setText("listFilterMinMaxJsCode", t?.ListFilterMinMaxJsCode);
   setText("listFilterMinMaxPyCode", t?.ListFilterMinMaxPyCode);
 

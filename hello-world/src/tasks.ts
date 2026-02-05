@@ -30,6 +30,7 @@ export type TaskId =
   | "sublist_foreach"
   | "list_filter_even"
   | "list_filter_even_min_max"
+  | "list_filter_even_avg"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -316,13 +317,30 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 17: Min/Max among evens",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: удобно использовать блок <strong>Математика → «операции над списком»</strong> и выбрать MIN/MAX для списка evens."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: используйте блок <strong>Математика → «сумма списка»</strong> и в выпадающем списке выберите MIN/MAX для списка evens."
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add even numbers to a new list <strong>evens</strong> and print each even number (one per line).<br><br>After the loop, find and print:<br>— <strong>min=2</strong> (minimum among evens)<br>— <strong>max=10</strong> (maximum among evens)<br><br>Hint: use <strong>Math → “math on list”</strong> with MIN/MAX on the evens list.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте evens (пустой список). Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное». Внутри if: добавьте k в evens (Списки → вставить/добавить в конец) и выведите k. После цикла: Математика → «операции над списком» MIN/MAX по evens и выведите min=… и max=…"
+        ? "Подсказка: создайте evens (пустой список). Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное». Внутри if: добавьте k в evens (Списки → вставить/добавить в конец) и выведите k. После цикла: Математика → «сумма списка» и в выпадающем списке выберите MIN/MAX по evens, затем выведите min=… и max=…"
         : "Hint: create evens (empty list). Even check: remainder of k ÷ 2 equals 0 or the “is even” block. Inside if: add k to evens (Lists → set/insert at end) and print k. After the loop: Math → “math on list” MIN/MAX on evens and print min=… and max=…",
     validate: validateListFilterEvenMinMax,
+  },
+  list_filter_even_avg: {
+    id: "list_filter_even_avg",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 18: Количество и среднее"
+        : "Task 18: Count and average",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Для чётных чисел нужно посчитать:<br>— <strong>sum</strong> (сумма чётных)<br>— <strong>count</strong> (сколько чётных чисел)<br>— <strong>avg</strong> (среднее): <code>avg = sum / count</code><br><br>Выведите результат тремя строками:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>"
+        : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. For even numbers compute:<br>— <strong>sum</strong> (sum of evens)<br>— <strong>count</strong> (how many evens)<br>— <strong>avg</strong> (average): <code>avg = sum / count</code><br><br>Print three lines:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: перед циклом sum=0 и count=0. Внутри if для чётных: sum = sum + k и count = count + 1. После цикла: avg = sum / count. Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное»."
+        : "Hint: before the loop set sum=0 and count=0. Inside if for evens: sum = sum + k and count = count + 1. After the loop: avg = sum / count. Even check: remainder of k ÷ 2 equals 0 or the “is even” block.",
+    validate: validateListFilterEvenAvg,
   },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
@@ -350,7 +368,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and print their sum: <strong>15</strong>. You may use list/math blocks or a loop.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: попробуйте блок ‘операции над списком’ (SUM) или цикл forEach."
+        ? "Подсказка: попробуйте блок «Математика → сумма списка» (в выпадающем выбрать SUM) или цикл forEach."
         : "Hint: try ‘math on list’ (SUM) or a forEach loop.",
     validate: validateSumArray,
   },
@@ -365,7 +383,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a list <code>[5, 1, 9, 3, 7]</code> and print min and max: <strong>min=1</strong> and <strong>max=9</strong>. One or two lines are fine.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте ‘операции над списком’ MIN/MAX или напишите цикл."
+        ? "Подсказка: используйте блок «Математика → сумма списка» (в выпадающем выбрать MIN/MAX) или напишите цикл."
         : "Hint: use ‘math on list’ MIN/MAX or write a loop.",
     validate: validateMinMax,
   },
@@ -414,6 +432,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "sublist_foreach",
     "list_filter_even",
     "list_filter_even_min_max",
+    "list_filter_even_avg",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -2088,6 +2107,130 @@ async function validateListFilterEvenMinMax(
   return { ok, stars };
 }
 
+async function validateListFilterEvenAvg(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const hasCount = lines.some((l) => /(^|\b)count\s*[:=]?\s*5(\b|$)/i.test(l));
+  const hasSum = lines.some((l) => /(^|\b)sum\s*[:=]?\s*30(\b|$)/i.test(l));
+  const hasAvg = lines.some((l) => /(^|\b)avg\s*[:=]?\s*6(\b|$)/i.test(l));
+
+  let usedListCreate = false;
+  let usedForEach = false;
+  let usedIf = false;
+  let usedModulo = false;
+  let usedCompare = false;
+  let usedIsEven = false;
+
+  let hasSetList = false;
+  let hasGetList = false;
+  let hasSetSum = false;
+  let hasGetSum = false;
+  let hasSetCount = false;
+  let hasGetCount = false;
+  let hasSetAvg = false;
+  let hasGetAvg = false;
+
+  let hasPrint = false;
+  let usedMathChange = false;
+  let usedArithmetic = false;
+  let usedDivide = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "controls_forEach") usedForEach = true;
+    if (t === "controls_if") usedIf = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_number_property") {
+      const prop =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("PROPERTY") ||
+            (b as any).getFieldValue("PROP") ||
+            (b as any).getFieldValue("OP")
+          : undefined;
+      if (String(prop).toUpperCase().includes("EVEN")) usedIsEven = true;
+    }
+
+    const v = getVarFieldText(b);
+    if (t === "variables_set" && (v === "list" || v === "numbers"))
+      hasSetList = true;
+    if (t === "variables_get" && (v === "list" || v === "numbers"))
+      hasGetList = true;
+    if (t === "variables_set" && (v === "sum" || v === "total"))
+      hasSetSum = true;
+    if (t === "variables_get" && (v === "sum" || v === "total"))
+      hasGetSum = true;
+    if (t === "variables_set" && (v === "count" || v === "cnt"))
+      hasSetCount = true;
+    if (t === "variables_get" && (v === "count" || v === "cnt"))
+      hasGetCount = true;
+    if (
+      t === "variables_set" &&
+      (v === "avg" || v === "average" || v === "mean")
+    )
+      hasSetAvg = true;
+    if (
+      t === "variables_get" &&
+      (v === "avg" || v === "average" || v === "mean")
+    )
+      hasGetAvg = true;
+
+    if (t === "math_change") usedMathChange = true;
+    if (t === "math_arithmetic") {
+      usedArithmetic = true;
+      const op =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("OP")
+          : undefined;
+      if (String(op).toUpperCase().includes("DIVIDE")) usedDivide = true;
+    }
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
+
+  const ok =
+    hasCount &&
+    hasSum &&
+    hasAvg &&
+    usedListCreate &&
+    usedForEach &&
+    usedIf &&
+    usedEvenCheck &&
+    usedDivide &&
+    hasSetList &&
+    hasGetList &&
+    hasSetSum &&
+    hasGetSum &&
+    hasSetCount &&
+    hasGetCount &&
+    hasSetAvg &&
+    hasGetAvg &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      usedForEach &&
+      usedIf &&
+      usedEvenCheck &&
+      usedDivide &&
+      (usedMathChange || usedArithmetic);
+    if (usedCore && count <= 26) stars = 3;
+    else if (count <= 36) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateSumArray(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -2315,7 +2458,8 @@ export function setActiveTask(taskId: TaskId) {
   const showSublistInfo = activeTaskId === "sublist_foreach";
   const showListFilterInfo =
     activeTaskId === "list_filter_even" ||
-    activeTaskId === "list_filter_even_min_max";
+    activeTaskId === "list_filter_even_min_max" ||
+    activeTaskId === "list_filter_even_avg";
   const showConditionInfo =
     activeTaskId === "even_or_odd" ||
     activeTaskId === "time_of_day" ||

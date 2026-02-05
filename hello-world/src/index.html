@@ -2333,6 +2333,23 @@ echo $sum . PHP_EOL;</code></pre>
               Один удобный способ — собрать отдельный список <code>evens</code>, а затем найти <code>min</code> и
               <code>max</code> для этого списка.
             </p>
+            <h4 id="listFilterMinMaxNewHeader" style="margin-top:12px;">Новые слова в коде</h4>
+            <ul style="margin-top:6px;">
+              <li id="listFilterMinMaxPushText">
+                <code>evens.push(k)</code> — добавить элемент в конец массива <code>evens</code> (JavaScript).
+              </li>
+              <li id="listFilterMinMaxDotText">
+                Точка в <code>evens.push</code> означает «взять метод у объекта/массива»: у массива <code>evens</code>
+                есть метод <code>push</code>.
+              </li>
+              <li id="listFilterMinMaxApplyText">
+                Иногда генерация Blockly в JS использует <code>Math.min.apply(null, evens)</code> вместо
+                <code>Math.min(...evens)</code>. Это два способа «передать элементы массива как аргументы функции».
+              </li>
+              <li id="listFilterMinMaxAppendText">
+                <code>evens.append(k)</code> — добавить элемент в конец списка <code>evens</code> (Python).
+              </li>
+            </ul>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
                 <pre><code id="listFilterMinMaxJsCode">const list = [5, 2, 9, 4, 1, 8];

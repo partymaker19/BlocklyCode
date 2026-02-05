@@ -501,7 +501,7 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoForEachMid: " или ",
           ListInfoForEachEnd: ").",
           ListInfoJsNote:
-            "В примере JavaScript показан современный способ перебора: list.forEach(...). Blockly может сгенерировать обычный цикл for — по смыслу это то же самое.",
+            "В примере JavaScript показан современный способ перебора: list.forEach(...). Blockly может сгенерировать обычный цикл for — по смыслу это то же самое. Если хотите, вы можете создать себе пользовательский блок (в «Мои блоки») с генерацией forEach.",
           ListInfoExampleHeader: "Пример: вывести элементы и посчитать сумму",
           ListInfoNoteBefore: "В задаче 14: создайте ",
           ListInfoNoteMid: " (или ",
@@ -558,7 +558,7 @@ export function localizeImportUI(lang: AppLang): void {
             "Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.",
           ListFilterLangHeader: "Примеры в языках",
           ListFilterJsNote:
-            "В JavaScript можно писать по-разному: Blockly может сгенерировать цикл for, а в примерах ниже показан вариант с forEach. Результат одинаковый.",
+            "В JavaScript можно писать по-разному: Blockly может сгенерировать цикл for, а в примерах ниже показан вариант с forEach. Результат одинаковый. Если хотите, вы можете создать себе пользовательский блок (в «Мои блоки») с генерацией forEach.",
           ListFilterJsCode:
             "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
           ListFilterPyCode:
@@ -570,6 +570,15 @@ export function localizeImportUI(lang: AppLang): void {
           ListFilterMinMaxHeader: "Минимум и максимум среди отфильтрованных",
           ListFilterMinMaxText:
             "Частая задача: сначала отобрать элементы (например, чётные), а потом найти среди них минимум и максимум. Один удобный способ — собрать отдельный список evens, а затем найти min и max для этого списка.",
+          ListFilterMinMaxNewHeader: "Новые слова в коде",
+          ListFilterMinMaxPushText:
+            "evens.push(k) — добавить элемент в конец массива evens (JavaScript).",
+          ListFilterMinMaxDotText:
+            "Точка в evens.push означает «взять метод у объекта/массива»: у массива evens есть метод push.",
+          ListFilterMinMaxApplyText:
+            "Иногда генерация Blockly в JS использует Math.min.apply(null, evens) вместо Math.min(...evens). Это два способа «передать элементы массива как аргументы функции».",
+          ListFilterMinMaxAppendText:
+            "evens.append(k) — добавить элемент в конец списка evens (Python).",
           ListFilterMinMaxJsCode:
             "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((k) => {\n  if (k % 2 === 0) evens.push(k);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
           ListFilterMinMaxPyCode:
@@ -818,7 +827,7 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoForEachMid: " or ",
           ListInfoForEachEnd: ").",
           ListInfoJsNote:
-            "In the JavaScript example we show a modern style: list.forEach(...). Blockly may generate a plain for loop instead — the meaning is the same.",
+            "In the JavaScript example we show a modern style: list.forEach(...). Blockly may generate a plain for loop instead — the meaning is the same. If you want, you can create a custom block (in “My Blocks”) that generates forEach.",
           ListInfoExampleHeader: "Example: print items and compute sum",
           ListInfoNoteBefore: "In task 14: create ",
           ListInfoNoteMid: " (or ",
@@ -871,7 +880,7 @@ export function localizeImportUI(lang: AppLang): void {
             "Note: filtering doesn’t require creating a separate sublist — you can just print matching items inside the if.",
           ListFilterLangHeader: "Language examples",
           ListFilterJsNote:
-            "In JavaScript you can write it in different ways: Blockly may generate a for loop, while the examples below use forEach. The result is the same.",
+            "In JavaScript you can write it in different ways: Blockly may generate a for loop, while the examples below use forEach. The result is the same. If you want, you can create a custom block (in “My Blocks”) that generates forEach.",
           ListFilterJsCode:
             "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
           ListFilterPyCode:
@@ -883,6 +892,15 @@ export function localizeImportUI(lang: AppLang): void {
           ListFilterMinMaxHeader: "Min and max among filtered items",
           ListFilterMinMaxText:
             "A common task: first keep only matching items (for example, evens), then find the minimum and maximum among them. A convenient approach is to build a separate evens list and then compute min and max for that list.",
+          ListFilterMinMaxNewHeader: "New words in the code",
+          ListFilterMinMaxPushText:
+            "evens.push(k) — add an item to the end of the evens array (JavaScript).",
+          ListFilterMinMaxDotText:
+            "The dot in evens.push means “call a method on an object/array”: the evens array has a push method.",
+          ListFilterMinMaxApplyText:
+            "Sometimes Blockly’s JS generator uses Math.min.apply(null, evens) instead of Math.min(...evens). Both pass array items as function arguments.",
+          ListFilterMinMaxAppendText:
+            "evens.append(k) — add an item to the end of the evens list (Python).",
           ListFilterMinMaxJsCode:
             "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((k) => {\n  if (k % 2 === 0) evens.push(k);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
           ListFilterMinMaxPyCode:

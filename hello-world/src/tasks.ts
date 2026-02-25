@@ -127,7 +127,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a text variable <strong>name</strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.<br><br><strong>For PHP:</strong> <strong>"Hello, " . $name . "!"</strong> (PHP uses <code>.</code> to concatenate strings).',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте переменные (set/get), блок text_join из категории Текст и блок вывода."
+        ? "Подсказка: используйте блоки Переменные («присвоить» и «получить»), блок Текст → «создать текст из» и блок вывода «Добавить текст»."
         : "Hint: use variables (set/get), the text_join block from Text, and a print/output block.",
     validate: validateGreetConcat,
   },
@@ -161,7 +161,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a variable <strong><code>price</code></strong> and store the item price in it (e.g. <strong>1000</strong>). Create a second variable <strong><code>discount</code></strong> and store the discount percent in it (e.g. <strong>15</strong>). Compute and print the <strong>final price</strong> using: <strong>price - (price * discount / 100)</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: понадобятся переменные (set/get) и арифметические блоки. Соберите выражение по шагам и выведите результат."
+        ? "Подсказка: понадобятся блоки Переменные («присвоить» и «получить») и блоки арифметики из Математики. Соберите выражение по шагам и выведите результат."
         : "Hint: use variables (set/get) and arithmetic blocks. Build the expression step by step and print the result.",
     validate: validateDiscountCalc,
   },

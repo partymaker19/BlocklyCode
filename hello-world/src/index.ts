@@ -322,6 +322,56 @@ function scheduleAceSync() {
   });
 }
 
+function ensureVariablesSetHasDefaultZero(block: Blockly.Block) {
+  if (!block || (block as any).type !== "variables_set") return;
+  try {
+    const input =
+      typeof (block as any).getInput === "function"
+        ? (block as any).getInput("VALUE")
+        : null;
+    const conn = input?.connection || null;
+    if (!conn) return;
+    if (typeof conn.targetBlock === "function" && conn.targetBlock()) return;
+
+    const ws = (block as any).workspace as Blockly.WorkspaceSvg | undefined;
+    if (!ws) return;
+
+    const shadow = ws.newBlock("math_number") as any;
+    if (!shadow) return;
+    if (typeof shadow.setShadow === "function") shadow.setShadow(true);
+    if (typeof shadow.setFieldValue === "function")
+      shadow.setFieldValue("0", "NUM");
+    if (typeof shadow.initSvg === "function") shadow.initSvg();
+    if (typeof shadow.render === "function") shadow.render();
+    if (shadow.outputConnection && typeof conn.connect === "function") {
+      conn.connect(shadow.outputConnection);
+    }
+  } catch {}
+}
+
+function registerVariablesSetDefaultValue(workspace: Blockly.WorkspaceSvg) {
+  try {
+    workspace.addChangeListener((e: any) => {
+      let disabledEvents = false;
+      try {
+        if (!e || e.type !== (Blockly as any).Events?.BLOCK_CREATE) return;
+        if (e.recordUndo === false) return;
+        const ids: string[] = Array.isArray(e.ids) ? e.ids : [];
+        if (ids.length === 0) return;
+        (Blockly as any).Events?.disable?.();
+        disabledEvents = true;
+        for (const id of ids) {
+          const b = workspace.getBlockById(id);
+          if (b && (b as any).type === "variables_set")
+            ensureVariablesSetHasDefaultZero(b);
+        }
+      } finally {
+        if (disabledEvents) (Blockly as any).Events?.enable?.();
+      }
+    });
+  } catch {}
+}
+
 // Элементы модального окна справки
 const blockHelpBtn = document.getElementById(
   "blockHelpBtn",
@@ -2428,6 +2478,7 @@ function refreshWorkspaceWithCustomToolbox() {
     modalInputs: false,
     readOnly: false,
   });
+  registerVariablesSetDefaultValue(newWs as Blockly.WorkspaceSvg);
   try {
     if (ENABLE_KBD_NAV)
       (window as any).__keyboardNav = new KeyboardNavigation(newWs);

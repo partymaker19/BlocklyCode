@@ -209,6 +209,21 @@ const taskSolutionBtn = document.getElementById(
 const taskSidebar = document.getElementById(
   "taskSidebar",
 ) as HTMLDivElement | null;
+const mobileMenuBtn = document.getElementById(
+  "mobileMenuBtn",
+) as HTMLButtonElement | null;
+const mobileMenuBackdrop = document.getElementById(
+  "mobileMenuBackdrop",
+) as HTMLDivElement | null;
+const mobileMenuPanel = document.getElementById(
+  "mobileMenuPanel",
+) as HTMLDivElement | null;
+const mobileMenuCloseBtn = document.getElementById(
+  "mobileMenuCloseBtn",
+) as HTMLButtonElement | null;
+const mobileToolboxBackdrop = document.getElementById(
+  "mobileToolboxBackdrop",
+) as HTMLDivElement | null;
 
 const presetLetBtn = document.getElementById(
   "presetLet",
@@ -318,6 +333,22 @@ function scheduleAceSync() {
     __aceSyncScheduled = false;
     try {
       updateAceEditorFromWorkspace(ws, selectedGeneratorLanguage);
+    } catch {}
+  });
+}
+
+let __uiResizeScheduled = false;
+function scheduleUIResize() {
+  if (__uiResizeScheduled) return;
+  __uiResizeScheduled = true;
+  requestAnimationFrame(() => {
+    __uiResizeScheduled = false;
+    try {
+      (Blockly as any).svgResize?.(ws);
+    } catch {}
+    try {
+      const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
+      ed?.resize?.(true);
     } catch {}
   });
 }
@@ -466,10 +497,30 @@ function updateToolboxBlockCounterLabel(): void {
   if (!el) return;
   const lang = getAppLang();
   const count = countNonShadowBlocks(ws);
-  el.textContent =
-    lang === "ru"
-      ? `Блоков на рабочем поле: ${count}`
-      : `Blocks in workspace: ${count}`;
+  const isMobile = document.body.classList.contains("mobile");
+  const isToolboxOpen = document.body.classList.contains("toolbox-open");
+  if (isMobile && !isToolboxOpen) {
+    el.textContent = String(count);
+    el.setAttribute(
+      "aria-label",
+      lang === "ru"
+        ? `Блоков на рабочем поле: ${count}`
+        : `Blocks in workspace: ${count}`,
+    );
+    el.style.width = "34px";
+    el.style.textAlign = "center";
+    el.style.padding = "6px 0";
+    el.style.whiteSpace = "nowrap";
+  } else {
+    el.textContent =
+      lang === "ru"
+        ? `Блоков на рабочем поле: ${count}`
+        : `Blocks in workspace: ${count}`;
+    el.style.width = "" as any;
+    el.style.textAlign = "" as any;
+    el.style.padding = "6px 8px";
+    el.style.whiteSpace = "" as any;
+  }
   console.debug("[block-counter] updated", { count, lang });
 }
 // ===== конец блока счётчика блоков =====
@@ -517,7 +568,7 @@ function initThemeSwitchUI() {
 
 // Открытие/закрытие панели задач слева
 function toggleTaskSidebar(force?: boolean) {
-  if (!taskSidebar || !pageContainer || !blocklyDiv || !outputPaneEl) return;
+  if (!taskSidebar || !blocklyDiv) return;
 
   const isOpen = taskSidebar.classList.contains("open");
   const next = force !== undefined ? force : !isOpen;
@@ -526,8 +577,9 @@ function toggleTaskSidebar(force?: boolean) {
   if (next) {
     taskSidebar.classList.add("mode-select");
   }
+  const isMobile = document.body.classList.contains("mobile");
   const pc = document.getElementById("pageContainer") as HTMLDivElement | null;
-  if (pc) pc.classList.toggle("sidebar-open", next);
+  if (pc && !isMobile) pc.classList.toggle("sidebar-open", next);
   if (taskSolutionBtn) {
     taskSolutionBtn.setAttribute("aria-pressed", next ? "true" : "false");
   }
@@ -541,6 +593,205 @@ if (taskSolutionBtn) {
     e.stopPropagation();
     toggleTaskSidebar();
   });
+}
+
+function setMobileMenuOpen(open: boolean) {
+  if (!mobileMenuBackdrop) return;
+  mobileMenuBackdrop.style.display = open ? "" : "none";
+  mobileMenuBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
+  document.body.style.overflow = open ? "hidden" : "";
+}
+
+function setMobileToolboxOpen(open: boolean) {
+  const isMobile = document.body.classList.contains("mobile");
+  if (!isMobile) open = false;
+  document.body.classList.toggle("toolbox-open", open);
+  if (mobileToolboxBackdrop) {
+    mobileToolboxBackdrop.style.display = open ? "" : "none";
+    mobileToolboxBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
+  }
+  try {
+    const searchInput = document.querySelector(
+      ".blocklyToolboxCategory input[type='search']",
+    ) as HTMLInputElement | null;
+    const searchCategory = searchInput?.closest?.(
+      ".blocklyToolboxCategory",
+    ) as HTMLElement | null;
+    if (searchCategory) {
+      searchCategory.style.display = open ? "" : "none";
+    }
+  } catch {}
+  try {
+    updateToolboxBlockCounterLabel();
+  } catch {}
+  scheduleUIResize();
+}
+
+function initMobileToolboxUI(workspace: Blockly.WorkspaceSvg) {
+  try {
+    if (mobileToolboxBackdrop) {
+      const anyEl = mobileToolboxBackdrop as any;
+      if (!anyEl.__mobileToolboxInit) {
+        anyEl.__mobileToolboxInit = true;
+        mobileToolboxBackdrop.addEventListener("click", () => {
+          setMobileToolboxOpen(false);
+        });
+      }
+    }
+
+    const toolbox = (workspace as any).getToolbox?.();
+    const toolboxDiv =
+      toolbox && typeof toolbox.getHtmlDiv === "function"
+        ? (toolbox.getHtmlDiv() as HTMLDivElement)
+        : (document.querySelector(
+            ".blocklyToolboxDiv, .blocklyToolbox",
+          ) as HTMLDivElement | null);
+    if (toolboxDiv) {
+      const anyDiv = toolboxDiv as any;
+      if (!anyDiv.__mobileToolboxInit) {
+        anyDiv.__mobileToolboxInit = true;
+        toolboxDiv.addEventListener("pointerdown", (e: PointerEvent) => {
+          if (!document.body.classList.contains("mobile")) return;
+          if (!document.body.classList.contains("toolbox-open")) {
+            e.preventDefault();
+            e.stopPropagation();
+            setMobileToolboxOpen(true);
+          }
+        });
+        toolboxDiv.addEventListener("click", (e) => {
+          if (!document.body.classList.contains("mobile")) return;
+          if (!document.body.classList.contains("toolbox-open")) return;
+          const target = e.target as HTMLElement | null;
+          if (!target) return;
+          const cat = target.closest(
+            ".blocklyToolboxCategory",
+          ) as HTMLElement | null;
+          if (!cat) return;
+          if (cat.querySelector("input[type='search']")) return;
+          requestAnimationFrame(() => {
+            setMobileToolboxOpen(false);
+          });
+        });
+      }
+    }
+
+    const anyWs = workspace as any;
+    if (!anyWs.__mobileToolboxCloseInit) {
+      anyWs.__mobileToolboxCloseInit = true;
+      workspace.addChangeListener((e: any) => {
+        if (!document.body.classList.contains("mobile")) return;
+        if (!document.body.classList.contains("toolbox-open")) return;
+        if (!e || e.type !== (Blockly as any).Events?.BLOCK_CREATE) return;
+        if (e.recordUndo === false) return;
+        setMobileToolboxOpen(false);
+        try {
+          (workspace as any).getFlyout?.()?.hide?.();
+        } catch {}
+        try {
+          (workspace as any).getToolbox?.()?.clearSelection?.();
+        } catch {}
+      });
+    }
+  } catch {}
+}
+
+function initMobileUI() {
+  const mq = window.matchMedia("(max-width: 768px)");
+  const MOBILE_H_KEY = "layout.mobile.outputHeightPx";
+  const apply = () => {
+    const isMobile = mq.matches;
+    document.body.classList.toggle("mobile", isMobile);
+    if (!isMobile) {
+      setMobileMenuOpen(false);
+      setMobileToolboxOpen(false);
+      document.body.style.removeProperty("--mobile-output-height");
+    } else {
+      const op = document.getElementById("outputPane") as HTMLDivElement | null;
+      const bd = document.getElementById("blocklyDiv") as HTMLDivElement | null;
+      if (op) op.style.flex = "";
+      if (bd) bd.style.flex = "";
+      setMobileToolboxOpen(false);
+      const saved = parseFloat(localStorage.getItem(MOBILE_H_KEY) || "0");
+      if (saved > 0) {
+        document.body.style.setProperty("--mobile-output-height", `${saved}px`);
+      }
+    }
+    scheduleUIResize();
+  };
+  apply();
+  try {
+    mq.addEventListener("change", apply);
+  } catch {
+    try {
+      (mq as any).addListener(apply);
+    } catch {}
+  }
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setMobileMenuOpen(true);
+    });
+  }
+  if (mobileMenuCloseBtn) {
+    mobileMenuCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setMobileMenuOpen(false);
+    });
+  }
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.addEventListener("click", (e) => {
+      if (e.target === mobileMenuBackdrop) setMobileMenuOpen(false);
+    });
+  }
+  if (mobileMenuPanel) {
+    mobileMenuPanel.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement | null;
+      const actionEl = target?.closest?.("[data-action]") as HTMLElement | null;
+      const genLangEl = target?.closest?.(
+        "[data-genlang]",
+      ) as HTMLElement | null;
+      if (actionEl) {
+        const action = actionEl.getAttribute("data-action") || "";
+        if (action === "toggleLang") {
+          const input = document.getElementById(
+            "langSwitchInput",
+          ) as HTMLInputElement | null;
+          if (input) {
+            input.checked = !input.checked;
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+          setMobileMenuOpen(false);
+          return;
+        }
+        if (action === "toggleTheme") {
+          const input = document.getElementById(
+            "themeSwitchInput",
+          ) as HTMLInputElement | null;
+          if (input) {
+            input.checked = !input.checked;
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+          setMobileMenuOpen(false);
+          return;
+        }
+        const btn = document.getElementById(action) as HTMLElement | null;
+        if (btn) {
+          btn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        }
+        setMobileMenuOpen(false);
+        return;
+      }
+      if (genLangEl) {
+        const value = genLangEl.getAttribute("data-genlang") || "";
+        const option = document.querySelector(
+          `#dropdownOptions .option[data-value="${value}"]`,
+        ) as HTMLElement | null;
+        option?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        setMobileMenuOpen(false);
+      }
+    });
+  }
 }
 
 function setActiveGenLangButton(lang: "javascript" | "python" | "lua" | "php") {
@@ -1844,6 +2095,7 @@ if (__isInitialReload) {
 
 // Инициализация рабочей области при загрузке страницы
 refreshWorkspaceWithCustomToolbox();
+initMobileUI();
 
 // Обработчик переключения языка
 const langSwitchInput = document.getElementById(
@@ -2217,31 +2469,15 @@ const outputPaneEl = document.getElementById(
   "outputPane",
 ) as HTMLDivElement | null;
 const codePaneEl = document.getElementById("codePane") as HTMLDivElement | null;
+const mobileVerticalResizer = document.getElementById(
+  "mobileVerticalResizer",
+) as HTMLDivElement | null;
 const verticalResizer = document.getElementById(
   "verticalResizer",
 ) as HTMLDivElement | null;
 const horizontalResizer = document.getElementById(
   "horizontalResizer",
 ) as HTMLDivElement | null;
-
-// Объединяем пересчёт размеров (Blockly + Ace) в один rAF-тик
-let __uiResizeScheduled = false;
-function scheduleUIResize() {
-  if (__uiResizeScheduled) return;
-  __uiResizeScheduled = true;
-  requestAnimationFrame(() => {
-    __uiResizeScheduled = false;
-    try {
-      (Blockly as any).svgResize?.(ws);
-    } catch {}
-    try {
-      const ed = typeof getAceEditor === "function" ? getAceEditor() : null;
-      ed?.resize?.(true);
-    } catch {}
-  });
-}
-
-// (scheduleAceSync перемещён выше для избежания TDZ)
 
 // Делаем финальный resize после завершения transition по flex-basis
 if (blocklyDiv) {
@@ -2264,8 +2500,13 @@ if (outputPaneEl) {
 
   const V_KEY = "layout.split.v";
   const H_KEY = "layout.split.h";
+  const MOBILE_H_KEY = "layout.mobile.outputHeightPx";
   const RESIZER_W = Math.max(4, verticalResizer?.offsetWidth || 6);
   const RESIZER_H = Math.max(4, horizontalResizer?.offsetHeight || 6);
+  const MOBILE_RESIZER_H = Math.max(
+    6,
+    mobileVerticalResizer?.offsetHeight || 10,
+  );
 
   function resizeAceSoon() {
     // Оставлено для совместимости: делегируем в единый планировщик
@@ -2273,6 +2514,7 @@ if (outputPaneEl) {
   }
 
   function applyVerticalByRatio(ratio: number) {
+    if (document.body.classList.contains("mobile")) return;
     // Ограничиваем ratio минимальными ширинами
     const total = (pageContainer as HTMLDivElement).clientWidth;
     const minLeft = 320; // минимальная ширина Blockly
@@ -2313,6 +2555,7 @@ if (outputPaneEl) {
   // Вертикальный drag (Pointer Events)
   if (verticalResizer) {
     const startV = (e: PointerEvent) => {
+      if (document.body.classList.contains("mobile")) return;
       e.preventDefault();
       const rect = pageContainer.getBoundingClientRect();
       const onMove = (ev: PointerEvent) => {
@@ -2375,11 +2618,66 @@ if (outputPaneEl) {
     horizontalResizer.addEventListener("pointerdown", startH);
   }
 
+  // Mobile: вертикальный стек (Blockly сверху, outputPane снизу) — drag по высоте
+  if (mobileVerticalResizer) {
+    const applyMobileHeightPx = (outputHeightPx: number) => {
+      const isMobile = document.body.classList.contains("mobile");
+      if (!isMobile) return;
+      const rect = (pageContainer as HTMLDivElement).getBoundingClientRect();
+      const minOutput = 140;
+      const minBlockly = 160;
+      const maxOutput = Math.max(
+        minOutput,
+        Math.floor(rect.height - minBlockly - MOBILE_RESIZER_H),
+      );
+      const h = Math.max(minOutput, Math.min(maxOutput, outputHeightPx));
+      document.body.style.setProperty("--mobile-output-height", `${h}px`);
+      scheduleUIResize();
+    };
+
+    const startM = (e: PointerEvent) => {
+      e.preventDefault();
+      const rect = (pageContainer as HTMLDivElement).getBoundingClientRect();
+      const onMove = (ev: PointerEvent) => {
+        ev.preventDefault();
+        const y = ev.clientY - rect.top;
+        const outputHeight = rect.height - y - MOBILE_RESIZER_H;
+        applyMobileHeightPx(outputHeight);
+      };
+      const cleanup = () => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        try {
+          mobileVerticalResizer.releasePointerCapture(e.pointerId);
+        } catch {}
+        const computed = getComputedStyle(document.body).getPropertyValue(
+          "--mobile-output-height",
+        );
+        const px = parseFloat(computed || "0");
+        if (px > 0) localStorage.setItem(MOBILE_H_KEY, String(px));
+      };
+      const onUp = () => cleanup();
+      window.addEventListener("pointermove", onMove, { passive: false });
+      window.addEventListener("pointerup", onUp);
+      try {
+        mobileVerticalResizer.setPointerCapture(e.pointerId);
+      } catch {}
+    };
+    mobileVerticalResizer.addEventListener("pointerdown", startM);
+  }
+
   // Применяем сохранённые ratio или значения по умолчанию
   const savedV = parseFloat(localStorage.getItem(V_KEY) || "0");
   if (savedV > 0 && savedV < 1) applyVerticalByRatio(savedV);
   const savedH = parseFloat(localStorage.getItem(H_KEY) || "0");
   if (savedH > 0 && savedH < 1) applyHorizontalByRatio(savedH);
+  const savedMobileH = parseFloat(localStorage.getItem(MOBILE_H_KEY) || "0");
+  if (savedMobileH > 0) {
+    document.body.style.setProperty(
+      "--mobile-output-height",
+      `${savedMobileH}px`,
+    );
+  }
 
   // Ограничиваем перерасчёт на resize окна до одного rAF на кадр
   let __splitReapplyScheduled = false;
@@ -2389,9 +2687,14 @@ if (outputPaneEl) {
     requestAnimationFrame(() => {
       __splitReapplyScheduled = false;
       const v = parseFloat(localStorage.getItem(V_KEY) || "0");
-      if (v > 0 && v < 1) applyVerticalByRatio(v);
+      if (v > 0 && v < 1 && !document.body.classList.contains("mobile"))
+        applyVerticalByRatio(v);
       const h = parseFloat(localStorage.getItem(H_KEY) || "0");
       if (h > 0 && h < 1) applyHorizontalByRatio(h);
+      const mh = parseFloat(localStorage.getItem(MOBILE_H_KEY) || "0");
+      if (mh > 0 && document.body.classList.contains("mobile")) {
+        document.body.style.setProperty("--mobile-output-height", `${mh}px`);
+      }
     });
   });
 })();
@@ -2508,6 +2811,7 @@ function refreshWorkspaceWithCustomToolbox() {
       undefined,
     );
   ws = newWs as Blockly.WorkspaceSvg;
+  initMobileToolboxUI(ws);
 
   try {
     const multiOptions = {

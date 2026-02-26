@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>BlocklyCode</title>
   <style>
     html,
@@ -1729,12 +1730,250 @@
         min-width: 110px;
       }
     }
+
+    #mobileMenuBtn {
+      display: none;
+    }
+
+    #mobileVerticalResizer {
+      display: none;
+    }
+
+    .mobile-menu-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 3000;
+    }
+
+    .mobile-menu-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: min(86vw, 360px);
+      background: #ffffff;
+      color: #111827;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .mobile-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 2px 10px 2px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 10px;
+    }
+
+    .mobile-menu-title {
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .mobile-menu-section {
+      margin-top: 12px;
+    }
+
+    .mobile-menu-section-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin: 10px 2px 8px;
+    }
+
+    .mobile-menu-subtitle {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      margin: 10px 2px 6px;
+    }
+
+    .mobile-menu-item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px 12px;
+      font-size: 14px;
+      margin: 6px 0;
+    }
+
+    .mobile-menu-item:active {
+      transform: translateY(1px);
+    }
+
+    .mobile-menu-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .mobile-menu-chip {
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    html[data-theme='dark'] .mobile-menu-panel {
+      background: #0b1220;
+      color: #e5e7eb;
+    }
+
+    html[data-theme='dark'] .mobile-menu-header {
+      border-bottom-color: #1f2937;
+    }
+
+    html[data-theme='dark'] .mobile-menu-section-title {
+      color: #9ca3af;
+    }
+
+    html[data-theme='dark'] .mobile-menu-subtitle {
+      color: #cbd5e1;
+    }
+
+    html[data-theme='dark'] .mobile-menu-item {
+      background: #111827;
+      border-color: #1f2937;
+      color: #e5e7eb;
+    }
+
+    html[data-theme='dark'] .mobile-menu-chip {
+      background: #111827;
+      border-color: #1f2937;
+      color: #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+      body.mobile #mobileMenuBtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      body.mobile .icon-buttons,
+      body.mobile .auth-controls {
+        display: none !important;
+      }
+
+      body.mobile #pageContainer {
+        height: calc(100vh - 84px);
+        flex-direction: column;
+      }
+
+      body.mobile #blocklyDiv {
+        flex: 1 1 auto;
+        width: 100%;
+        height: auto;
+        min-height: 220px;
+        min-width: 0;
+        padding-left: 0 !important;
+      }
+
+      body.mobile #verticalResizer {
+        display: none !important;
+      }
+
+      body.mobile #mobileVerticalResizer {
+        display: block !important;
+        position: relative;
+        z-index: 10;
+        height: 10px;
+        width: 100%;
+        cursor: row-resize;
+        touch-action: none;
+        background: rgba(148, 163, 184, 0.35);
+      }
+
+      body.mobile #horizontalResizer {
+        display: block !important;
+        height: 10px;
+        width: 100%;
+        cursor: row-resize;
+        touch-action: none;
+      }
+
+      body.mobile .task-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: auto;
+        z-index: 2600;
+      }
+
+      body.mobile #outputPane {
+        position: relative;
+        flex: 0 0 auto;
+        height: var(--mobile-output-height, 45vh);
+        min-width: 0;
+        width: 100%;
+        border-left: 0;
+        border-top: 1px solid #ddd;
+        border-radius: 0;
+        overflow: hidden;
+      }
+
+      body.mobile .blocklyToolbox {
+        width: 48px !important;
+        z-index: 2000;
+      }
+
+      body.mobile.toolbox-open .blocklyToolbox {
+        width: min(60vw, 240px) !important;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+      }
+
+      body.mobile .blocklyToolboxCategory {
+        overflow: hidden;
+      }
+
+      body.mobile:not(.toolbox-open) .blocklyToolboxCategory {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+
+      body.mobile:not(.toolbox-open) .blocklyToolboxCategory .blocklyTreeRowContentContainer {
+        display: none;
+      }
+
+      body.mobile.toolbox-open .blocklyToolboxCategory .blocklyTreeRowContentContainer {
+        white-space: normal;
+      }
+
+      body.mobile .mobile-toolbox-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.25);
+        z-index: 1990;
+      }
+
+      body.mobile:not(.toolbox-open) .blocklyFlyout {
+        max-width: calc(100vw - 48px);
+      }
+
+      body.mobile.toolbox-open .blocklyFlyout {
+        z-index: 2010;
+      }
+    }
   </style>
 </head>
 
 <body>
   <div id="header">
     <div class="header-left">
+      <button id="mobileMenuBtn" class="icon-button" title="Меню" aria-label="Меню">☰</button>
       <div class="logo">B</div>
       <div>
         <h1 class="header-title">BlocklyCode</h1>
@@ -1815,9 +2054,51 @@
       </div>
     </div>
   </div>
+  <div id="mobileMenuBackdrop" class="mobile-menu-backdrop" style="display:none;" aria-hidden="true">
+    <div id="mobileMenuPanel" class="mobile-menu-panel" role="dialog" aria-label="Меню">
+      <div class="mobile-menu-header">
+        <div class="mobile-menu-title">Меню</div>
+        <button id="mobileMenuCloseBtn" class="icon-button" aria-label="Закрыть меню">✕</button>
+      </div>
+      <div class="mobile-menu-section">
+        <div class="mobile-menu-section-title">Файлы</div>
+        <button class="mobile-menu-item" data-action="saveXmlBtn">💾 Сохранить (XML)</button>
+        <button class="mobile-menu-item" data-action="loadXmlBtn">📂 Загрузить (XML)</button>
+      </div>
+      <div class="mobile-menu-section">
+        <div class="mobile-menu-section-title">Блоки</div>
+        <button class="mobile-menu-item" data-action="importBlockBtn">📦 Импорт блоков</button>
+        <button class="mobile-menu-item" data-action="blockHelpBtn">❓ Справка</button>
+      </div>
+      <div class="mobile-menu-section">
+        <div class="mobile-menu-section-title">Настройки</div>
+        <button class="mobile-menu-item" data-action="toggleLang">RU / EN</button>
+        <button class="mobile-menu-item" data-action="toggleTheme">Светлая / Тёмная</button>
+        <div class="mobile-menu-subtitle">Язык генерации</div>
+        <div class="mobile-menu-row">
+          <button class="mobile-menu-chip" data-genlang="javascript">JS</button>
+          <button class="mobile-menu-chip" data-genlang="python">Py</button>
+          <button class="mobile-menu-chip" data-genlang="lua">Lua</button>
+          <button class="mobile-menu-chip" data-genlang="php">PHP</button>
+        </div>
+        <button class="mobile-menu-item" data-action="annotateToggleBtn">✎ Аннотация</button>
+      </div>
+      <div class="mobile-menu-section">
+        <div class="mobile-menu-section-title">Проект</div>
+        <button class="mobile-menu-item" data-action="supportBtn">💙 Поддержка</button>
+      </div>
+      <div class="mobile-menu-section">
+        <div class="mobile-menu-section-title">Аккаунт</div>
+        <button class="mobile-menu-item" data-action="openAuthModalBtn">Войти</button>
+        <button class="mobile-menu-item" data-action="logoutBtn">Выйти</button>
+      </div>
+    </div>
+  </div>
   <div id="pageContainer">
     <div id="shortcuts"></div>
     <div id="blocklyDiv"></div>
+    <div id="mobileVerticalResizer" class="resizer horizontal" role="separator" aria-orientation="horizontal"
+      aria-label="Resize workspace and editor"></div>
     <div id="verticalResizer" class="resizer vertical" role="separator" aria-orientation="vertical"
       aria-label="Resize panels"></div>
     <div id="outputPane">
@@ -2666,6 +2947,7 @@ end</code></pre>
       </div>
     </aside>
   </div>
+  <div id="mobileToolboxBackdrop" class="mobile-toolbox-backdrop" style="display:none;" aria-hidden="true"></div>
 
 
   <!-- Import modal (restored) -->

@@ -1676,9 +1676,109 @@
     }
 
     /* Responsive header tweaks */
+    @media (max-width: 1618px) {
+      #header {
+        padding: 10px 16px;
+        min-height: 54px;
+      }
+
+      .header-left {
+        gap: 10px;
+      }
+
+      .logo {
+        width: 36px;
+        height: 36px;
+        font-size: 22px;
+      }
+
+      .header-title {
+        font-size: 22px;
+      }
+
+      .editor-controls-block {
+        padding: 0 8px;
+        flex-wrap: nowrap;
+        column-gap: 10px;
+        row-gap: 0;
+      }
+
+      .icon-buttons {
+        gap: 10px !important;
+      }
+
+      #header .icon-button {
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+        margin-left: 6px;
+      }
+
+      .import-button {
+        padding: 6px 12px;
+        font-size: 13px;
+        border-width: 1px;
+        gap: 6px;
+      }
+
+      .import-button svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .language-switch,
+      .theme-switch {
+        font-size: 13px;
+        gap: 2px;
+      }
+
+      .theme-switch {
+        margin-left: 6px;
+        margin-right: 6px;
+      }
+
+      .switch {
+        width: 52px;
+        height: 26px;
+      }
+
+      .slider:before {
+        height: 18px;
+        width: 18px;
+        left: 6px;
+        top: 50%;
+        margin-top: -9px;
+        transform: none;
+      }
+
+      input:checked+.slider:before {
+        transform: translateX(18px);
+      }
+
+      .gen-lang-dropdown {
+        margin-left: 6px;
+      }
+
+      .gen-lang-dropdown .selected-option {
+        padding: 6px 30px 6px 12px;
+        font-size: 13px;
+        min-width: 110px;
+        border-radius: 10px;
+      }
+
+      #header .auth-controls {
+        gap: 4px !important;
+      }
+    }
+
     @media (max-width: 1024px) {
       #header {
         padding: 10px 18px;
+      }
+
+      .editor-controls-block {
+        flex-wrap: wrap;
+        row-gap: 10px;
       }
 
       .import-button {

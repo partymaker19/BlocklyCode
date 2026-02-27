@@ -670,6 +670,12 @@ function initMobileToolboxUI(workspace: Blockly.WorkspaceSvg) {
           if (cat.querySelector("input[type='search']")) return;
           requestAnimationFrame(() => {
             setMobileToolboxOpen(false);
+            try {
+              const flyoutWs = (workspace as any)
+                .getFlyout?.()
+                ?.getWorkspace?.() as Blockly.WorkspaceSvg | undefined;
+              flyoutWs?.setScale?.(0.85);
+            } catch {}
           });
         });
       }
@@ -2732,6 +2738,7 @@ function closeImportModal() {
 
 function refreshWorkspaceWithCustomToolbox() {
   const lang = getAppLang();
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
   const currentState = ws
     ? Blockly.serialization.workspaces.save(ws as Blockly.Workspace)
     : null;
@@ -2750,7 +2757,7 @@ function refreshWorkspaceWithCustomToolbox() {
     zoom: {
       controls: true,
       wheel: true,
-      startScale: 1.0,
+      startScale: isMobile ? 0.9 : 1.0,
       maxScale: 3,
       minScale: 0.3,
       scaleSpeed: 1.2,
@@ -2811,6 +2818,14 @@ function refreshWorkspaceWithCustomToolbox() {
       undefined,
     );
   ws = newWs as Blockly.WorkspaceSvg;
+  if (isMobile) {
+    try {
+      const s = (ws as any).getScale?.();
+      if (typeof s === "number" && Math.abs(s - 1) < 0.001) {
+        (ws as any).setScale?.(0.9);
+      }
+    } catch {}
+  }
   initMobileToolboxUI(ws);
 
   try {

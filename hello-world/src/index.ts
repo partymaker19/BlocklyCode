@@ -818,8 +818,16 @@ function setActiveGenLangButton(lang: "javascript" | "python" | "lua" | "php") {
   }
   // Синхронизация подписи и выбранного пункта в dropdown в шапке
   if (genLangHeaderSelectedOption) {
-    const label =
-      lang === "javascript"
+    const compact = window.matchMedia("(max-width: 530px)").matches;
+    const label = compact
+      ? lang === "javascript"
+        ? "JS"
+        : lang === "python"
+          ? "Py"
+          : lang === "lua"
+            ? "Lua"
+            : "PHP"
+      : lang === "javascript"
         ? "JavaScript"
         : lang === "python"
           ? "Python"
@@ -1538,12 +1546,22 @@ validateGeneratorUI();
 }
 // Синхронизируем кастомный dropdown с выбранным языком при старте
 if (genLangHeaderSelectedOption && genLangHeaderDropdownOptions) {
-  const label =
-    selectedGeneratorLanguage === "javascript"
+  const compact = window.matchMedia("(max-width: 530px)").matches;
+  const label = compact
+    ? selectedGeneratorLanguage === "javascript"
+      ? "JS"
+      : selectedGeneratorLanguage === "python"
+        ? "Py"
+        : selectedGeneratorLanguage === "lua"
+          ? "Lua"
+          : "PHP"
+    : selectedGeneratorLanguage === "javascript"
       ? "JavaScript"
       : selectedGeneratorLanguage === "python"
         ? "Python"
-        : "Lua";
+        : selectedGeneratorLanguage === "lua"
+          ? "Lua"
+          : "PHP";
   genLangHeaderSelectedOption.textContent = label;
   Array.from(genLangHeaderDropdownOptions.querySelectorAll(".option")).forEach(
     (opt) => {
@@ -1554,6 +1572,64 @@ if (genLangHeaderSelectedOption && genLangHeaderDropdownOptions) {
     },
   );
 }
+
+function syncGenLangHeaderDropdownLabels() {
+  if (!genLangHeaderDropdownOptions) return;
+  const compact = window.matchMedia("(max-width: 530px)").matches;
+  Array.from(genLangHeaderDropdownOptions.querySelectorAll(".option")).forEach(
+    (opt) => {
+      const el = opt as HTMLElement;
+      const value = el.dataset.value || "";
+      const label = compact
+        ? value === "javascript"
+          ? "JS"
+          : value === "python"
+            ? "Py"
+            : value === "lua"
+              ? "Lua"
+              : value === "php"
+                ? "PHP"
+                : el.textContent || ""
+        : value === "javascript"
+          ? "JavaScript"
+          : value === "python"
+            ? "Python"
+            : value === "lua"
+              ? "Lua"
+              : value === "php"
+                ? "PHP"
+                : el.textContent || "";
+      if (el.textContent !== label) el.textContent = label;
+    },
+  );
+}
+
+if (genLangHeaderSelectedOption) {
+  window.addEventListener("resize", () => {
+    const compact = window.matchMedia("(max-width: 530px)").matches;
+    const lang = selectedGeneratorLanguage;
+    const label = compact
+      ? lang === "javascript"
+        ? "JS"
+        : lang === "python"
+          ? "Py"
+          : lang === "lua"
+            ? "Lua"
+            : "PHP"
+      : lang === "javascript"
+        ? "JavaScript"
+        : lang === "python"
+          ? "Python"
+          : lang === "lua"
+            ? "Lua"
+            : "PHP";
+    if (genLangHeaderSelectedOption.textContent !== label)
+      genLangHeaderSelectedOption.textContent = label;
+    syncGenLangHeaderDropdownLabels();
+  });
+}
+
+syncGenLangHeaderDropdownLabels();
 
 // Инициализация темы
 document.documentElement.setAttribute("data-theme", appTheme);

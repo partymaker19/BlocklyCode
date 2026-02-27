@@ -1771,6 +1771,22 @@
       }
     }
 
+    @media (max-width: 1383px) {
+      #mobileMenuBtn {
+        display: inline-flex;
+      }
+
+      .icon-buttons {
+        display: none;
+      }
+
+      #annotateToggleBtn,
+      #openAuthModalBtn,
+      #userInfo {
+        display: none !important;
+      }
+    }
+
     @media (max-width: 1024px) {
       #header {
         padding: 10px 18px;
@@ -1789,6 +1805,12 @@
       .gen-lang-dropdown .selected-option {
         padding: 7px 34px 7px 12px;
         min-width: 120px;
+      }
+    }
+
+    @media (max-width: 870px) {
+      .header-title {
+        display: none;
       }
     }
 
@@ -1811,12 +1833,172 @@
       .slider:before {
         height: 18px;
         width: 18px;
-        top: 3px;
         left: 6px;
+        top: 50%;
+        margin-top: -9px;
       }
 
       input:checked+.slider:before {
         transform: translateX(18px);
+      }
+    }
+
+    @media (max-width: 530px) {
+      .editor-controls-block {
+        padding: 0 6px;
+        column-gap: 8px;
+      }
+
+      #header .auth-controls {
+        gap: 3px !important;
+      }
+
+      .language-switch,
+      .theme-switch {
+        gap: 2px;
+        font-size: 12px;
+      }
+
+      .theme-switch {
+        margin-left: 4px;
+        margin-right: 4px;
+      }
+
+      .switch {
+        width: 44px;
+        height: 22px;
+      }
+
+      .slider:before {
+        height: 16px;
+        width: 16px;
+        left: 5px;
+        top: 50%;
+        margin-top: -8px;
+      }
+
+      input:checked+.slider:before {
+        transform: translateX(16px);
+      }
+
+      .gen-lang-dropdown {
+        margin-left: 4px;
+      }
+
+      .gen-lang-dropdown .custom-select {
+        width: 64px;
+      }
+
+      .gen-lang-dropdown .selected-option {
+        padding: 5px 18px 5px 8px;
+        font-size: 12px;
+        min-width: 0 !important;
+        width: 64px;
+        box-sizing: border-box;
+        border-radius: 9px;
+      }
+
+      .gen-lang-dropdown .dropdown-arrow {
+        right: 7px;
+      }
+
+      .gen-lang-dropdown .dropdown-options {
+        left: 0;
+        right: auto;
+        width: 64px;
+      }
+
+      .gen-lang-dropdown .option {
+        padding: 9px 8px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      #header {
+        padding: 8px 8px;
+        min-height: 52px;
+      }
+
+      .header-left {
+        gap: 6px;
+      }
+
+      #mobileMenuBtn {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+      }
+
+      .editor-controls-block {
+        padding: 0 4px;
+        column-gap: 6px;
+      }
+
+      #header .auth-controls {
+        gap: 2px !important;
+      }
+
+      .language-switch,
+      .theme-switch {
+        font-size: 11px;
+        gap: 2px;
+      }
+
+      .theme-switch {
+        margin-left: 2px;
+        margin-right: 2px;
+      }
+
+      .switch {
+        width: 40px;
+        height: 20px;
+      }
+
+      .slider:before {
+        height: 14px;
+        width: 14px;
+        left: 4px;
+        top: 50%;
+        margin-top: -7px;
+      }
+
+      input:checked+.slider:before {
+        transform: translateX(14px);
+      }
+
+      .gen-lang-dropdown {
+        margin-left: 2px;
+      }
+
+      .gen-lang-dropdown .custom-select {
+        width: 60px;
+      }
+
+      .gen-lang-dropdown .selected-option {
+        width: 60px;
+        padding: 5px 16px 5px 6px;
+        font-size: 11px;
+        border-radius: 9px;
+      }
+
+      .gen-lang-dropdown .dropdown-arrow {
+        right: 6px;
+      }
+
+      .gen-lang-dropdown .dropdown-options {
+        width: 60px;
+      }
+
+      .gen-lang-dropdown .option {
+        padding: 9px 6px;
+        font-size: 11px;
       }
     }
 
@@ -1831,8 +2013,10 @@
       }
     }
 
-    #mobileMenuBtn {
-      display: none;
+    @media (min-width: 1384px) {
+      #mobileMenuBtn {
+        display: none;
+      }
     }
 
     #mobileVerticalResizer {
@@ -1960,8 +2144,7 @@
         justify-content: center;
       }
 
-      body.mobile .icon-buttons,
-      body.mobile .auth-controls {
+      body.mobile .icon-buttons {
         display: none !important;
       }
 
@@ -2172,15 +2355,6 @@
       </div>
       <div class="mobile-menu-section">
         <div class="mobile-menu-section-title">Настройки</div>
-        <button class="mobile-menu-item" data-action="toggleLang">RU / EN</button>
-        <button class="mobile-menu-item" data-action="toggleTheme">Светлая / Тёмная</button>
-        <div class="mobile-menu-subtitle">Язык генерации</div>
-        <div class="mobile-menu-row">
-          <button class="mobile-menu-chip" data-genlang="javascript">JS</button>
-          <button class="mobile-menu-chip" data-genlang="python">Py</button>
-          <button class="mobile-menu-chip" data-genlang="lua">Lua</button>
-          <button class="mobile-menu-chip" data-genlang="php">PHP</button>
-        </div>
         <button class="mobile-menu-item" data-action="annotateToggleBtn">✎ Аннотация</button>
       </div>
       <div class="mobile-menu-section">

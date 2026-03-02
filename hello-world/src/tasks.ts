@@ -31,6 +31,8 @@ export type TaskId =
   | "list_filter_even"
   | "list_filter_even_min_max"
   | "list_filter_even_avg"
+  | "list_filter_even_median"
+  | "list_sum_even_positions"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -342,6 +344,40 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: before the loop set sum=0 and count=0. Inside if for evens: sum = sum + k and count = count + 1. After the loop: avg = sum / count. Even check: remainder of k ÷ 2 equals 0 or the “is even” block.",
     validate: validateListFilterEvenAvg,
   },
+  list_filter_even_median: {
+    id: "list_filter_even_median",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 19: Средний элемент чётных"
+        : "Task 19: Middle even element",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong>.<br><br>После цикла выведите 2 строки:<br><strong>count=5</strong> (сколько чётных чисел в evens)<br><strong>median=6</strong> (средний элемент списка evens — для 5 элементов это 3‑й)."
+        : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate with <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add evens into a new list <strong>evens</strong>.<br><br>After the loop print 2 lines:<br><strong>count=5</strong> (how many evens in evens)<br><strong>median=6</strong> (the middle element of evens — for 5 elements it's the 3rd).",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: создайте evens как пустой список. Внутри if добавляйте k в конец evens. Количество: Списки → «длина списка» (lists_length). Средний элемент: Списки → «взять элемент #» (lists_getIndex) с индексом 3."
+        : "Hint: create evens as an empty list. Inside if add k to the end of evens. Count: Lists → “length of list” (lists_length). Middle element: Lists → “get item #” (lists_getIndex) with index 3.",
+    validate: validateListFilterEvenMedian,
+  },
+  list_sum_even_positions: {
+    id: "list_sum_even_positions",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 20: Сумма на чётных позициях"
+        : "Task 20: Sum at even positions",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[10, 1, 8, 2, 7, 3, 6, 4, 5, 9]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Посчитайте сумму элементов на <strong>чётных позициях</strong> (позиции считаем как 1‑я, 2‑я, 3‑я…). То есть нужно сложить элементы на позициях <strong>2, 4, 6, 8, 10</strong>.<br><br>Выведите результат строкой: <strong>sum=19</strong>"
+        : "Create the list <code>[10, 1, 8, 2, 7, 3, 6, 4, 5, 9]</code> and store it in <strong>list</strong>.<br><br>Compute the sum of elements at <strong>even positions</strong> (positions are 1st, 2nd, 3rd…). That means add elements at positions <strong>2, 4, 6, 8, 10</strong>.<br><br>Print: <strong>sum=19</strong>",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: используйте блок из Циклы «цикл по i от … до … с шагом …». Внутри: блок Логика «если» + проверка «i чётное». Если условие истинно — используйте блок из Списки «в списке … взять № …» и добавьте его к sum."
+        : "Hint: use the Loops block “count with i from … to … by …”. Inside: if i is even, get item #i from the list (Lists → “get item #”) and add it to sum.",
+    validate: validateListSumEvenPositions,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -433,6 +469,8 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "list_filter_even",
     "list_filter_even_min_max",
     "list_filter_even_avg",
+    "list_filter_even_median",
+    "list_sum_even_positions",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -2231,6 +2269,168 @@ async function validateListFilterEvenAvg(
   return { ok, stars };
 }
 
+async function validateListFilterEvenMedian(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const hasCount = lines.some((l) => /(^|\b)count\s*[:=]?\s*5(\b|$)/i.test(l));
+  const hasMedian = lines.some((l) =>
+    /(^|\b)(median|медиана)\s*[:=]?\s*6(\b|$)/i.test(l),
+  );
+
+  let usedListCreate = false;
+  let usedForEach = false;
+  let usedIf = false;
+  let usedModulo = false;
+  let usedCompare = false;
+  let usedIsEven = false;
+  let usedLength = false;
+  let usedGetIndex = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "controls_forEach") usedForEach = true;
+    if (t === "controls_if") usedIf = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_number_property") {
+      const prop =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("PROPERTY") ||
+            (b as any).getFieldValue("PROP") ||
+            (b as any).getFieldValue("OP")
+          : undefined;
+      if (String(prop).toUpperCase().includes("EVEN")) usedIsEven = true;
+    }
+    if (t === "lists_length") usedLength = true;
+    if (t === "lists_getIndex") usedGetIndex = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
+
+  const ok =
+    hasCount &&
+    hasMedian &&
+    usedListCreate &&
+    usedForEach &&
+    usedIf &&
+    usedEvenCheck &&
+    usedLength &&
+    usedGetIndex &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      usedForEach && usedIf && usedEvenCheck && usedLength && usedGetIndex;
+    if (usedCore && count <= 32) stars = 3;
+    else if (count <= 44) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+async function validateListSumEvenPositions(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const hasSum = lines.some((l) => /(^|\b)sum\s*[:=]?\s*19(\b|$)/i.test(l));
+
+  let usedListCreate = false;
+  let usedFor = false;
+  let usedIf = false;
+  let usedModulo = false;
+  let usedCompare = false;
+  let usedIsEven = false;
+  let usedGetIndex = false;
+  let hasPrint = false;
+
+  let hasSetList = false;
+  let hasGetList = false;
+  let hasSetSum = false;
+  let hasGetSum = false;
+
+  let usedMathChange = false;
+  let usedArithmetic = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "controls_for") usedFor = true;
+    if (t === "controls_if") usedIf = true;
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_number_property") {
+      const prop =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("PROPERTY") ||
+            (b as any).getFieldValue("PROP") ||
+            (b as any).getFieldValue("OP")
+          : undefined;
+      if (String(prop).toUpperCase().includes("EVEN")) usedIsEven = true;
+    }
+    if (t === "lists_getIndex") usedGetIndex = true;
+
+    const v = getVarFieldText(b);
+    if (t === "variables_set" && (v === "list" || v === "numbers"))
+      hasSetList = true;
+    if (t === "variables_get" && (v === "list" || v === "numbers"))
+      hasGetList = true;
+    if (t === "variables_set" && (v === "sum" || v === "total"))
+      hasSetSum = true;
+    if (t === "variables_get" && (v === "sum" || v === "total"))
+      hasGetSum = true;
+
+    if (t === "math_change") usedMathChange = true;
+    if (t === "math_arithmetic") usedArithmetic = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
+
+  const ok =
+    hasSum &&
+    usedListCreate &&
+    usedFor &&
+    usedIf &&
+    usedEvenCheck &&
+    usedGetIndex &&
+    hasSetList &&
+    hasGetList &&
+    hasSetSum &&
+    hasGetSum &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      usedFor &&
+      usedIf &&
+      usedEvenCheck &&
+      usedGetIndex &&
+      (usedMathChange || usedArithmetic);
+    if (usedCore && count <= 26) stars = 3;
+    else if (count <= 38) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateSumArray(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -2459,7 +2659,9 @@ export function setActiveTask(taskId: TaskId) {
   const showListFilterInfo =
     activeTaskId === "list_filter_even" ||
     activeTaskId === "list_filter_even_min_max" ||
-    activeTaskId === "list_filter_even_avg";
+    activeTaskId === "list_filter_even_avg" ||
+    activeTaskId === "list_filter_even_median" ||
+    activeTaskId === "list_sum_even_positions";
   const showConditionInfo =
     activeTaskId === "even_or_odd" ||
     activeTaskId === "time_of_day" ||

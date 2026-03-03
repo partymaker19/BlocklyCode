@@ -209,6 +209,9 @@ const taskSolutionBtn = document.getElementById(
 const taskSidebar = document.getElementById(
   "taskSidebar",
 ) as HTMLDivElement | null;
+const taskSidebarCloseBtn = document.getElementById(
+  "taskSidebarCloseBtn",
+) as HTMLButtonElement | null;
 const mobileMenuBtn = document.getElementById(
   "mobileMenuBtn",
 ) as HTMLButtonElement | null;
@@ -224,6 +227,7 @@ const mobileMenuCloseBtn = document.getElementById(
 const mobileToolboxBackdrop = document.getElementById(
   "mobileToolboxBackdrop",
 ) as HTMLDivElement | null;
+const TASK_DIFFICULTY_PREF_KEY = "task_difficulty_v1";
 
 const presetLetBtn = document.getElementById(
   "presetLet",
@@ -572,12 +576,12 @@ function toggleTaskSidebar(force?: boolean) {
 
   const isOpen = taskSidebar.classList.contains("open");
   const next = force !== undefined ? force : !isOpen;
+  const isMobile = document.body.classList.contains("mobile");
 
   taskSidebar.classList.toggle("open", next);
-  if (next) {
+  if (next && !isMobile) {
     taskSidebar.classList.add("mode-select");
   }
-  const isMobile = document.body.classList.contains("mobile");
   const pc = document.getElementById("pageContainer") as HTMLDivElement | null;
   if (pc && !isMobile) pc.classList.toggle("sidebar-open", next);
   if (taskSolutionBtn) {
@@ -592,6 +596,12 @@ if (taskSolutionBtn) {
   taskSolutionBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleTaskSidebar();
+  });
+}
+if (taskSidebarCloseBtn) {
+  taskSidebarCloseBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleTaskSidebar(false);
   });
 }
 
@@ -778,6 +788,18 @@ function initMobileUI() {
             input.checked = !input.checked;
             input.dispatchEvent(new Event("change", { bubbles: true }));
           }
+          setMobileMenuOpen(false);
+          return;
+        }
+        if (action === "taskDifficultySelect") {
+          const isCompactMobile =
+            window.matchMedia("(max-width: 540px)").matches;
+          if (!isCompactMobile) {
+            setMobileMenuOpen(false);
+            return;
+          }
+          toggleTaskSidebar(true);
+          if (taskSidebar) taskSidebar.classList.add("mode-select");
           setMobileMenuOpen(false);
           return;
         }
@@ -3170,6 +3192,9 @@ function refreshWorkspaceWithCustomToolbox() {
     setActiveTask(getFirstUnsolvedTask(difficulty));
     setDifficultyUI();
     if (taskSidebar) taskSidebar.classList.remove("mode-select");
+    try {
+      localStorage.setItem(TASK_DIFFICULTY_PREF_KEY, difficulty);
+    } catch {}
   };
   if (taskDifficultyBasicBtn) {
     taskDifficultyBasicBtn.addEventListener("click", () => {
@@ -3181,6 +3206,14 @@ function refreshWorkspaceWithCustomToolbox() {
       activateDifficulty("advanced");
     });
   }
+  try {
+    const savedDifficulty = localStorage.getItem(TASK_DIFFICULTY_PREF_KEY);
+    if (savedDifficulty === "basic" || savedDifficulty === "advanced") {
+      setActiveDifficulty(savedDifficulty);
+      setActiveTask(getFirstUnsolvedTask(savedDifficulty));
+      if (taskSidebar) taskSidebar.classList.remove("mode-select");
+    }
+  } catch {}
   setDifficultyUI();
   // Первичная синхронизация после инициализации workspace (без авто-выполнения)
   scheduleAceSync();

@@ -37,6 +37,16 @@
       display: none !important;
     }
 
+    .mobile-menu-item[data-action="taskDifficultySelect"] {
+      display: none;
+    }
+
+    @media (max-width: 540px) {
+      .mobile-menu-item[data-action="taskDifficultySelect"] {
+        display: flex;
+      }
+    }
+
     .header-left {
       display: flex;
       align-items: center;
@@ -563,6 +573,37 @@
       box-shadow: 6px 0 16px rgba(0, 0, 0, 0.08);
     }
 
+    .task-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .task-title {
+      margin: 0;
+    }
+
+    .task-close-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #1f2937;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-close-btn:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
     html[data-theme='dark'] .task-sidebar {
       background: #0f172a;
       color: #e2e8f0;
@@ -572,6 +613,17 @@
     html[data-theme='dark'] .console-output-info {
       background: #1e293b;
       border-left-color: #3b82f6;
+    }
+
+    html[data-theme='dark'] .task-close-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-color: #475569;
+    }
+
+    html[data-theme='dark'] .task-close-btn:hover {
+      background: #334155;
+      border-color: #64748b;
     }
 
     html[data-theme='dark'] .console-output-info h4 {
@@ -2385,6 +2437,8 @@
       </div>
       <div class="mobile-menu-section">
         <div class="mobile-menu-section-title">Проект</div>
+        <button class="mobile-menu-item" data-action="taskSolutionBtn">ℹ️ Решение задач</button>
+        <button class="mobile-menu-item" data-action="taskDifficultySelect">🧭 Выбор уровня задач</button>
         <button class="mobile-menu-item" data-action="supportBtn">💙 Поддержка</button>
       </div>
       <div class="mobile-menu-section">
@@ -2506,6 +2560,8 @@
       <div class="task-content">
         <div class="task-header">
           <h2 class="task-title">Задача 1: Hello World</h2>
+          <button id="taskSidebarCloseBtn" type="button" class="task-close-btn"
+            aria-label="Закрыть условия задач">✕</button>
         </div>
         <div class="task-body">
           <p class="task-desc">Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong>
@@ -2531,7 +2587,8 @@
           <div id="taskStars" class="task-stars" aria-hidden="true"></div>
           <div id="consoleOutputInfoSection" class="console-output-info">
             <h4 id="consoleOutputHeader">Вывод в консоль:</h4>
-            <p id="consoleOutputDescription">Для вывода информации в консоль используйте следующие функции в зависимости
+            <p id="consoleOutputDescription">Для вывода информации в консоль используйте следующие функции в
+              зависимости
               от выбранного языка:</p>
             <ul>
               <li><strong>JavaScript:</strong>
@@ -2595,9 +2652,11 @@
             </p>
             <h4 id="forLoopPartsHeader" style="margin-top:12px;">Из чего состоит</h4>
             <ul>
-              <li><strong id="forLoopStartLabel">Старт</strong><span id="forLoopStartDesc">: с какого значения начинаем
+              <li><strong id="forLoopStartLabel">Старт</strong><span id="forLoopStartDesc">: с какого значения
+                  начинаем
                   (например, 0)</span></li>
-              <li><strong id="forLoopEndLabel">Финиш/условие</strong><span id="forLoopEndDesc">: до какого значения идём
+              <li><strong id="forLoopEndLabel">Финиш/условие</strong><span id="forLoopEndDesc">: до какого значения
+                  идём
                   (например, до 10 включительно)</span></li>
               <li><strong id="forLoopStepLabel">Шаг</strong><span id="forLoopStepDesc">: как меняем счётчик (обычно
                   +1)</span></li>
@@ -2636,7 +2695,8 @@ end</code></pre>
               <li><strong id="forLoopErr3Title">Печать не счётчика</strong><span id="forLoopErr3Text">: внутри цикла
                   нужно выводить именно переменную цикла</span></li>
             </ul>
-            <p id="forLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно блок “for” (Циклы) с
+            <p id="forLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly это обычно блок “for” (Циклы)
+              с
               полями FROM/TO/BY и переменной-счётчиком.</p>
           </div>
           <div id="whileLoopInfoSection" class="console-output-info" style="display:none;">
@@ -2701,10 +2761,12 @@ echo "Готово!" . PHP_EOL;</code></pre>
                   обновить переменную внутри цикла</span></li>
               <li><strong id="whileLoopErr2Title">Lua</strong><span id="whileLoopErr2TextBefore">: «не равно» пишется
                   как </span><code>~=</code></li>
-              <li><strong id="whileLoopErr3Title">Ввод</strong><span id="whileLoopErr3Text">: строку нужно превратить в
+              <li><strong id="whileLoopErr3Title">Ввод</strong><span id="whileLoopErr3Text">: строку нужно превратить
+                  в
                   число (Number/float/tonumber)</span></li>
             </ul>
-            <p id="whileLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly используйте блок while (Циклы)
+            <p id="whileLoopNote" style="font-size: 0.9em; font-style: italic;">В Blockly используйте блок while
+              (Циклы)
               и обновляйте переменную guess внутри цикла.</p>
           </div>
           <div id="listInfoSection" class="console-output-info" style="display:none;">
@@ -2722,9 +2784,11 @@ echo "Готово!" . PHP_EOL;</code></pre>
             </ul>
             <h4 id="listInfoForEachHeader" style="margin-top:12px;">Что такое forEach</h4>
             <p>
-              <span id="listInfoForEachBefore"><strong>forEach</strong> означает «для каждого элемента списка». В нашем
+              <span id="listInfoForEachBefore"><strong>forEach</strong> означает «для каждого элемента списка». В
+                нашем
                 интерфейсе этот блок называется </span><strong id="listInfoForEachBlockName">«для каждого элемента k в
-                списке»</strong><span id="listInfoForEachAfter"> — это одно и то же по смыслу. Он берёт элементы списка
+                списке»</strong><span id="listInfoForEachAfter"> — это одно и то же по смыслу. Он берёт элементы
+                списка
                 по очереди и внутри цикла даёт вам текущий элемент (например, </span><code>k</code><span
                 id="listInfoForEachMid"> или </span><code>item</code><span id="listInfoForEachEnd">).</span>
             </p>
@@ -2772,7 +2836,8 @@ echo $sum . PHP_EOL;</code></pre>
             </ul>
             <p id="listInfoNote" style="font-size: 0.9em; font-style: italic;">
               <span id="listInfoNoteBefore">В задаче 14: создайте </span><code>list</code><span id="listInfoNoteMid">
-                (или </span><code>numbers</code><span id="listInfoNoteAfter">), затем используйте «для каждого элемента
+                (или </span><code>numbers</code><span id="listInfoNoteAfter">), затем используйте «для каждого
+                элемента
                 … в списке» и переменную-накопитель </span><code>sum</code><span id="listInfoNoteEnd">.</span>
             </p>
           </div>
@@ -2786,7 +2851,8 @@ echo $sum . PHP_EOL;</code></pre>
             <h4 id="sublistInfoHowHeader" style="margin-top:12px;">Как сделать в Blockly</h4>
             <ul>
               <li id="sublistInfoStep1">Создайте список 1…10 и сохраните его в переменную list</li>
-              <li id="sublistInfoStep2">Возьмите подсписок блоком «взять подсписок» (Lists → get sub-list) и сохраните в
+              <li id="sublistInfoStep2">Возьмите подсписок блоком «взять подсписок» (Lists → get sub-list) и сохраните
+                в
                 sub</li>
               <li id="sublistInfoStep3">Сделайте «для каждого элемента k в списке» по sub и выводите k</li>
             </ul>
@@ -2795,7 +2861,8 @@ echo $sum . PHP_EOL;</code></pre>
             </p>
             <h4 id="sublistLangHeader" style="margin-top:12px;">Примеры в языках</h4>
             <p id="sublistIndexNote" style="font-size: 0.9em;">
-              В JavaScript индексация с 0, а второй параметр slice не включается. Например, чтобы взять элементы со 2-го
+              В JavaScript индексация с 0, а второй параметр slice не включается. Например, чтобы взять элементы со
+              2-го
               по 4-й, можно сделать slice(1, 4).
             </p>
             <ul class="code-examples">
@@ -2853,11 +2920,13 @@ foreach ($sub as $k) {
               <li id="listFilterStep3">Если условие истинно — выводите k и добавляйте его в sum</li>
             </ul>
             <p id="listFilterNote" style="font-size: 0.9em; font-style: italic;">
-              Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.
+              Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри
+              if.
             </p>
             <h4 id="listFilterLangHeader" style="margin-top:12px;">Примеры в языках</h4>
             <p id="listFilterJsNote" style="font-size: 0.9em; font-style: italic;">
-              В JavaScript можно писать по-разному: Blockly может сгенерировать цикл <code>for</code>, а в примерах ниже
+              В JavaScript можно писать по-разному: Blockly может сгенерировать цикл <code>for</code>, а в примерах
+              ниже
               показан вариант с <code>forEach</code>. Результат одинаковый.
             </p>
             <ul class="code-examples">
@@ -3069,7 +3138,8 @@ print("max=" + str(max(evens)))</code></pre>
   }
   console.log(b);
 }</code></pre>
-                <div id="jsScopeLetExplain">Переменная b видна только внутри блока if. Снаружи блока b “не существует”.
+                <div id="jsScopeLetExplain">Переменная b видна только внутри блока if. Снаружи блока b “не
+                  существует”.
                 </div>
               </li>
             </ul>
@@ -3119,7 +3189,8 @@ print("max=" + str(max(evens)))</code></pre>
                 </ul>
               </li>
             </ul>
-            <p id="concatInfoNote" style="font-size: 0.9em; font-style: italic;">Примечание: если “склеиваете” строку и
+            <p id="concatInfoNote" style="font-size: 0.9em; font-style: italic;">Примечание: если “склеиваете” строку
+              и
               число, иногда нужно сначала превратить число в строку.</p>
           </div>
           <div id="incDecInfoSection" class="console-output-info" style="display:none;">
@@ -3234,8 +3305,10 @@ end</code></pre>
               <li><code>!=</code> — <span id="condOpNeqDesc">сравнение: не равно</span></li>
               <li><code>~=</code> — <span id="condOpNeqLuaDesc">не равно (в Lua)</span></li>
             </ul>
-            <p id="condOpEqNote" style="font-size: 0.9em; font-style: italic;">Важно: <code>==</code> — это сравнение, а
-              <code>=</code> — присваивание (например, <code>x = 5</code>). А <code>!=</code> означает “не равно” (в Lua
+            <p id="condOpEqNote" style="font-size: 0.9em; font-style: italic;">Важно: <code>==</code> — это сравнение,
+              а
+              <code>=</code> — присваивание (например, <code>x = 5</code>). А <code>!=</code> означает “не равно” (в
+              Lua
               —
               <code>~=</code>).
             </p>

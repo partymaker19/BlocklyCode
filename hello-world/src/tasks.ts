@@ -60,12 +60,12 @@ const tasks: Record<TaskId, TaskDef> = {
       lang === "ru" ? "Задача 1: Hello World" : "Task 1: Hello World",
     description: (lang) =>
       lang === "ru"
-        ? "Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong>"
-        : "Assemble blocks so that the output shows: <strong>Hello World!</strong>",
+        ? "Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong><br><br><strong>Как проверить решение:</strong> добавьте нужные блоки на рабочее поле, затем справа в редакторе нажмите кнопку «▶» («Запустить код»), а после этого нажмите «Проверить решение»."
+        : "Assemble blocks so that the output shows: <strong>Hello World!</strong><br><br><strong>How to check:</strong> add the needed blocks to the workspace, then press “▶” (“Run code”) in the editor, and finally press “Check solution”.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок вывода текста и текстовый литерал."
-        : "Hint: use a print/output block with a text literal.",
+        ? "Подсказка: используйте блок из Текст «Добавить текст … цвет …» и текстовый литерал (например, «создать текст из»)."
+        : "Hint: use the Text block “Add text … color …” and a text literal (e.g. “create text with”).",
     validate: validateHelloWorld,
   },
   add_2_7: {
@@ -78,8 +78,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Add <strong>2</strong> and <strong>7</strong> and print the result to the output: it should be <strong>9</strong>. Bonus: after you get <strong>9</strong>, try changing the operation to <strong>−</strong>, <strong>×</strong>, or <strong>÷</strong> and see how the result changes (but validation checks only <strong>2 + 7</strong>).",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок арифметики из категории Математика и блок печати/вывода."
-        : "Hint: use the arithmetic block from Math and a print/output block.",
+        ? "Подсказка: используйте блок арифметики из категории Математика и блок из Текст «Добавить текст … цвет …»."
+        : "Hint: use the arithmetic block from Math and the Text block “Add text … color …”.",
     validate: validateAdd2Plus7,
   },
   var_my_age: {
@@ -95,8 +95,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a variable named <strong>myAge</strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong>birthYear</strong>) and printing it.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте «создать переменную…» в категории Переменные, затем блок присваивания значения (например, число из Математики) и блок вывода."
-        : 'Hint: use "create variable..." in Variables, then a set-value block (e.g. a number from Math) and a print/output block.',
+        ? "Подсказка: используйте «создать переменную…» в категории Переменные, затем блок присваивания значения (например, число из Математики) и блок из Текст «Добавить текст … цвет …»."
+        : 'Hint: use "create variable..." in Variables, then a set-value block (e.g. a number from Math) and the Text block “Add text … color …”.',
     validate: validateVarMyAge,
   },
   calc_sum: {
@@ -129,8 +129,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a text variable <strong>name</strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.<br><br><strong>For PHP:</strong> <strong>"Hello, " . $name . "!"</strong> (PHP uses <code>.</code> to concatenate strings).',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блоки Переменные («присвоить» и «получить»), блок Текст → «создать текст из» и блок вывода «Добавить текст»."
-        : "Hint: use variables (set/get), the text_join block from Text, and a print/output block.",
+        ? 'Подсказка: используйте блоки Переменные («присвоить» и «получить»), блок Текст «создать текст из» и блок Текст «Добавить текст … цвет …». Важно: после запятой в "Hello," добавьте пробел — должно получиться "Hello, ".'
+        : "Hint: use variables (set/get), the Text block “create text with”, and the Text block “Add text … color …”.",
     validate: validateGreetConcat,
   },
   inc_counter: {
@@ -178,7 +178,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>temperature</strong> and store any number in it. Task: check that the temperature is above zero. If yes, print <strong>"The weather is warm"</strong>. If not, print nothing.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте if/else (Логика) и сравнение (Логика), например temperature > 0."
+        ? "Подсказка: используйте если/иначе (Логика) и сравнение (Логика), например temperature > 0."
         : "Hint: use if/else (Logic) and a comparison (Logic), e.g. temperature > 0.",
     validate: validateFirstCondition,
   },
@@ -193,7 +193,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>number</strong> and store any integer in it. Determine whether the number is <strong>even</strong> or <strong>odd</strong>, and print a message:<br><br>If even, print <strong>"The number is even"</strong>.<br>If odd, print <strong>"The number is odd"</strong>.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте if/else (Логика), остаток от деления (%) и сравнение number % 2 == 0."
+        ? "Подсказка: используйте если/иначе (Логика), остаток от деления (%) и сравнение number % 2 == 0."
         : "Hint: use if/else (Logic), modulo (%) and the check number % 2 == 0.",
     validate: validateEvenOrOdd,
   },
@@ -208,7 +208,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>hour</strong> and store the current hour (0 to 23). Determine the time of day and print:<br><br>If <strong>hour</strong> is 6..11 → <strong>"Good morning!"</strong><br>If 12..17 → <strong>"Good afternoon!"</strong><br>If 18..22 → <strong>"Good evening!"</strong><br>Else → <strong>"Good night!"</strong>',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цепочку if/else if/else, сравнения (>=, <=) и вывод текста."
+        ? "Подсказка: используйте цепочку если/иначе если/иначе, сравнения (>=, <=) и вывод текста."
         : "Hint: use an if/else if/else chain, comparisons (>=, <=) and print blocks.",
     validate: validateTimeOfDay,
   },
@@ -255,7 +255,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a program where the computer chooses a number from <strong>1</strong> to <strong>10</strong> (store it in <strong>secret</strong>), and the user tries to guess it.<br><br>Use <strong>guess</strong> for the user\'s guess. In a loop, ask for a number and print:<br>— if guess is lower: <strong>"The secret number is higher!"</strong><br>— if guess is higher: <strong>"The secret number is lower!"</strong><br>— if equal: <strong>"Congratulations! You guessed the number!"</strong><br><br>Use the <strong>py_input_number</strong> block (Custom) for input.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте while (Циклы) «пока guess ≠ secret». Внутри — if/else if/else для трёх случаев: меньше, больше, равно."
+        ? "Подсказка: используйте while (Циклы) «пока guess ≠ secret». Внутри — если/иначе если/иначе для трёх случаев: меньше, больше, равно."
         : 'Hint: use a while loop (Loops) "while guess != secret" and an if/else if/else chain for lower/higher/equal.',
     validate: validateGuessGame,
   },
@@ -302,11 +302,11 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 16: List filtering",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента k в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента k в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then use the Loops block <strong>“for each item k in list”</strong> to iterate. Inside the loop, use an <strong>if</strong> to keep only <strong>even</strong> numbers and:<br>1) print each even number (one per line)<br>2) compute the sum of even numbers in <strong>sum</strong><br><br>After the loop, print the sum. You should get: <strong>2 4 6 8 10</strong> and the sum <strong>30</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: проверка чётности: «остаток от деления» (k на 2) равен 0 (Математика → остаток от деления, Логика → сравнение) или блок «k чётное». Внутри if: вывести k и сделать sum = sum + k. После цикла вывести sum."
+        ? "Подсказка: проверка чётности: «остаток от деления» (k на 2) равен 0 (Математика → остаток от деления, Логика → сравнение) или блок «k чётное». Внутри если/иначе: вывести k и сделать sum = sum + k. После цикла вывести sum."
         : "Hint: even check: remainder of k ÷ 2 equals 0 (Math → remainder of, Logic → compare) or the “is even” block. Inside if: print k and do sum = sum + k. After the loop print sum.",
     validate: validateListFilterEven,
   },
@@ -319,11 +319,11 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 17: Min/Max among evens",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: используйте блок <strong>Математика → «сумма списка»</strong> и в выпадающем списке выберите MIN/MAX для списка evens."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: используйте блок <strong>Математика → «сумма списка»</strong> и в выпадающем списке выберите MIN/MAX для списка evens."
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add even numbers to a new list <strong>evens</strong> and print each even number (one per line).<br><br>After the loop, find and print:<br>— <strong>min=2</strong> (minimum among evens)<br>— <strong>max=10</strong> (maximum among evens)<br><br>Hint: use <strong>Math → “math on list”</strong> with MIN/MAX on the evens list.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте evens (пустой список). Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное». Внутри if: добавьте k в evens (Списки → вставить/добавить в конец) и выведите k. После цикла: Математика → «сумма списка» и в выпадающем списке выберите MIN/MAX по evens, затем выведите min=… и max=…"
+        ? "Подсказка: создайте evens (пустой список). Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное». Внутри если/иначе: добавьте k в evens (Списки → вставить/добавить в конец) и выведите k. После цикла: Математика → «сумма списка» и в выпадающем списке выберите MIN/MAX по evens, затем выведите min=… и max=…"
         : "Hint: create evens (empty list). Even check: remainder of k ÷ 2 equals 0 or the “is even” block. Inside if: add k to evens (Lists → set/insert at end) and print k. After the loop: Math → “math on list” MIN/MAX on evens and print min=… and max=…",
     validate: validateListFilterEvenMinMax,
   },
@@ -336,11 +336,11 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 18: Count and average",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Для чётных чисел нужно посчитать:<br>— <strong>sum</strong> (сумма чётных)<br>— <strong>count</strong> (сколько чётных чисел)<br>— <strong>avg</strong> (среднее): <code>avg = sum / count</code><br><br>Выведите результат тремя строками:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>"
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Для чётных чисел нужно посчитать:<br>— <strong>sum</strong> (сумма чётных)<br>— <strong>count</strong> (сколько чётных чисел)<br>— <strong>avg</strong> (среднее): <code>avg = sum / count</code><br><br>Выведите результат тремя строками:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>"
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. For even numbers compute:<br>— <strong>sum</strong> (sum of evens)<br>— <strong>count</strong> (how many evens)<br>— <strong>avg</strong> (average): <code>avg = sum / count</code><br><br>Print three lines:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: перед циклом sum=0 и count=0. Внутри if для чётных: sum = sum + k и count = count + 1. После цикла: avg = sum / count. Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное»."
+        ? "Подсказка: перед циклом sum=0 и count=0. Внутри если/иначе для чётных: sum = sum + k и count = count + 1. После цикла: avg = sum / count. Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное»."
         : "Hint: before the loop set sum=0 and count=0. Inside if for evens: sum = sum + k and count = count + 1. After the loop: avg = sum / count. Even check: remainder of k ÷ 2 equals 0 or the “is even” block.",
     validate: validateListFilterEvenAvg,
   },
@@ -353,11 +353,11 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Task 19: Middle even element",
     description: (lang) =>
       lang === "ru"
-        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>if</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong>.<br><br>После цикла выведите 2 строки:<br><strong>count=5</strong> (сколько чётных чисел в evens)<br><strong>median=6</strong> (средний элемент списка evens — для 5 элементов это 3‑й)."
+        ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента k в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong>.<br><br>После цикла выведите 2 строки:<br><strong>count=5</strong> (сколько чётных чисел в evens)<br><strong>median=6</strong> (средний элемент списка evens — для 5 элементов это 3‑й)."
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate with <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add evens into a new list <strong>evens</strong>.<br><br>After the loop print 2 lines:<br><strong>count=5</strong> (how many evens in evens)<br><strong>median=6</strong> (the middle element of evens — for 5 elements it's the 3rd).",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте evens как пустой список. Внутри if добавляйте k в конец evens. Количество: Списки → «длина списка» (lists_length). Средний элемент: Списки → «взять элемент #» (lists_getIndex) с индексом 3."
+        ? "Подсказка: создайте evens как пустой список. Внутри если/иначе добавляйте k в конец evens. Количество: Списки → «длина списка» (lists_length). Средний элемент: Списки → «взять элемент #» (lists_getIndex) с индексом 3."
         : "Hint: create evens as an empty list. Inside if add k to the end of evens. Count: Lists → “length of list” (lists_length). Middle element: Lists → “get item #” (lists_getIndex) with index 3.",
     validate: validateListFilterEvenMedian,
   },
@@ -389,7 +389,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>number</strong> and store any integer in it. Print two facts (each on a new line):<br>1) even or odd (e.g. <strong>"The number is even"</strong>)<br>2) positive, negative, or zero (e.g. <strong>"The number is positive"</strong>).',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте if/else, сравнения (>, <, ==) и остаток от деления (%)."
+        ? "Подсказка: используйте если/иначе, сравнения (>, <, ==) и остаток от деления (%)."
         : "Hint: use if/else, comparisons (>, <, ==) and modulo (%).",
     validate: validateNumberAnalyzer,
   },

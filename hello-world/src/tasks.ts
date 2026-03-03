@@ -238,7 +238,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Write a program that computes the sum of all integers from <strong>1</strong> to <strong>N</strong>, where <strong>N</strong> is stored in the variable <strong>n</strong>.<br><br>Example: for <strong>n = 5</strong> print <strong>15</strong>, for <strong>n = 10</strong> print <strong>55</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цикл for (Циклы) со счётчиком от 1 до n и переменную-аккумулятор sum (sum = sum + i). Затем выведите sum."
+        ? "Подсказка: используйте цикл «цикл i от ... до ... с шагом ...» (Циклы) со счётчиком от 1 до n и переменную-аккумулятор sum (sum = sum + i). Затем выведите sum."
         : "Hint: use a for loop (Loops) from 1 to n and an accumulator variable sum (sum = sum + i). Then print sum.",
     validate: validateSum1ToN,
   },

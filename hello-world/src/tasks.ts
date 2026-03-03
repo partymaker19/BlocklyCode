@@ -193,7 +193,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>number</strong> and store any integer in it. Determine whether the number is <strong>even</strong> or <strong>odd</strong>, and print a message:<br><br>If even, print <strong>"The number is even"</strong>.<br>If odd, print <strong>"The number is odd"</strong>.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте если/иначе (Логика), остаток от деления (%) и сравнение number % 2 == 0."
+        ? "Подсказка: используйте если/иначе (Логика), остаток от деления (%) и сравнение number % 2 == 0. Чтобы добавить «иначе если» или «иначе», откройте шестерёнку в блоке «если» и добавьте нужные секции."
         : "Hint: use if/else (Logic), modulo (%) and the check number % 2 == 0.",
     validate: validateEvenOrOdd,
   },
@@ -208,7 +208,7 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>hour</strong> and store the current hour (0 to 23). Determine the time of day and print:<br><br>If <strong>hour</strong> is 6..11 → <strong>"Good morning!"</strong><br>If 12..17 → <strong>"Good afternoon!"</strong><br>If 18..22 → <strong>"Good evening!"</strong><br>Else → <strong>"Good night!"</strong>',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цепочку если/иначе если/иначе, сравнения (>=, <=) и вывод текста."
+        ? "Подсказка: используйте цепочку если/иначе если/иначе, сравнения (>=, <=) и вывод текста. Чтобы добавить «иначе если» или «иначе», откройте шестерёнку в блоке «если» и добавьте нужные секции."
         : "Hint: use an if/else if/else chain, comparisons (>=, <=) and print blocks.",
     validate: validateTimeOfDay,
   },
@@ -2746,6 +2746,7 @@ export function initTaskValidation(
     nextButton.addEventListener("click", () => {
       const next = getNextTaskId(activeTaskId);
       if (!next) return;
+      ws.clear();
       setActiveTask(next);
       // после перехода — блокируем кнопку снова, пока новая задача не решена
       nextButton.disabled =

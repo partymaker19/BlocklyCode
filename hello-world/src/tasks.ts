@@ -684,34 +684,30 @@ async function validateVarMyAge(
   const nonShadowBlocks = getNonShadowBlocks(ws);
 
   let assignedValue: string | null = null;
-  let hasSetMyAge = false;
-  let hasGetMyAge = false;
+  let hasSetVar = false;
+  let hasGetVar = false;
   let hasPrint = false;
   for (const b of nonShadowBlocks) {
     const t = (b as any).type;
     if (t === "variables_set") {
-      const name = getVarFieldText(b);
-      if (name === "myAge") {
-        hasSetMyAge = true;
-        try {
-          const target =
-            typeof (b as any).getInputTargetBlock === "function"
-              ? (b as any).getInputTargetBlock("VALUE")
-              : null;
-          if (target && (target as any).type === "math_number") {
-            const num =
-              typeof (target as any).getFieldValue === "function"
-                ? (target as any).getFieldValue("NUM")
-                : undefined;
-            if (num !== undefined && num !== null)
-              assignedValue = String(num).trim();
-          }
-        } catch {}
-      }
+      hasSetVar = true;
+      try {
+        const target =
+          typeof (b as any).getInputTargetBlock === "function"
+            ? (b as any).getInputTargetBlock("VALUE")
+            : null;
+        if (target && (target as any).type === "math_number") {
+          const num =
+            typeof (target as any).getFieldValue === "function"
+              ? (target as any).getFieldValue("NUM")
+              : undefined;
+          if (num !== undefined && num !== null)
+            assignedValue = String(num).trim();
+        }
+      } catch {}
     }
     if (t === "variables_get") {
-      const name = getVarFieldText(b);
-      if (name === "myAge") hasGetMyAge = true;
+      hasGetVar = true;
     }
     if (t === "text_print" || t === "add_text") {
       hasPrint = true;
@@ -722,13 +718,13 @@ async function validateVarMyAge(
     if (!assignedValue) return false;
     const re = new RegExp(`(^|\\b)${escapeRe(assignedValue)}(\\b|$)`);
     const hasValueInOutput = lines.some((l) => re.test(l));
-    return hasSetMyAge && hasGetMyAge && hasValueInOutput;
+    return hasSetVar && hasGetVar && hasValueInOutput;
   })();
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (hasSetMyAge && hasGetMyAge && hasPrint && assignedValue && count <= 5)
+    if (hasSetVar && hasGetVar && hasPrint && assignedValue && count <= 5)
       stars = 3;
     else if (count <= 8) stars = 2;
     else stars = 1;
@@ -745,31 +741,29 @@ async function validateCalcSum(
 
   let aVal: number | null = null;
   let bVal: number | null = null;
-  let hasSetA = false;
-  let hasSetB = false;
-  let hasSetSum = false;
-  let hasGetA = false;
-  let hasGetB = false;
-  let hasGetSum = false;
+  let setVarsCount = 0;
+  let getVarsCount = 0;
+  let hasSetAnySumLike = false;
   let hasPrint = false;
-  let hasSumFromAPlusB = false;
+  let hasSumExpression = false;
 
   for (const b of nonShadowBlocks) {
     const t = (b as any).type;
     if (t === "variables_set") {
       const name = getVarFieldText(b);
       if (name === "a") {
-        hasSetA = true;
         const n = tryGetAssignedNumber(b);
         if (n !== null) aVal = n;
+        setVarsCount += 1;
       }
       if (name === "b") {
-        hasSetB = true;
         const n = tryGetAssignedNumber(b);
         if (n !== null) bVal = n;
+        setVarsCount += 1;
       }
-      if (name === "sum") {
-        hasSetSum = true;
+      if (name === "sum" || name === "total" || name === "result") {
+        hasSetAnySumLike = true;
+        setVarsCount += 1;
         try {
           const valueBlock =
             typeof (b as any).getInputTargetBlock === "function"
@@ -780,43 +774,27 @@ async function validateCalcSum(
               typeof (valueBlock as any).getFieldValue === "function"
                 ? (valueBlock as any).getFieldValue("OP")
                 : undefined;
-            if (op === "ADD") {
-              const left =
-                typeof (valueBlock as any).getInputTargetBlock === "function"
-                  ? (valueBlock as any).getInputTargetBlock("A")
-                  : null;
-              const right =
-                typeof (valueBlock as any).getInputTargetBlock === "function"
-                  ? (valueBlock as any).getInputTargetBlock("B")
-                  : null;
-              const leftOk =
-                left &&
-                (left as any).type === "variables_get" &&
-                getVarFieldText(left) === "a";
-              const rightOk =
-                right &&
-                (right as any).type === "variables_get" &&
-                getVarFieldText(right) === "b";
-              const leftOk2 =
-                left &&
-                (left as any).type === "variables_get" &&
-                getVarFieldText(left) === "b";
-              const rightOk2 =
-                right &&
-                (right as any).type === "variables_get" &&
-                getVarFieldText(right) === "a";
-              if ((leftOk && rightOk) || (leftOk2 && rightOk2))
-                hasSumFromAPlusB = true;
-            }
+            if (op === "ADD") hasSumExpression = true;
           }
         } catch {}
       }
+      if (
+        name !== "a" &&
+        name !== "b" &&
+        name !== "sum" &&
+        name !== "total" &&
+        name !== "result"
+      ) {
+        const n = tryGetAssignedNumber(b);
+        if (n !== null) {
+          if (aVal === null) aVal = n;
+          else if (bVal === null) bVal = n;
+        }
+        setVarsCount += 1;
+      }
     }
     if (t === "variables_get") {
-      const name = getVarFieldText(b);
-      if (name === "a") hasGetA = true;
-      if (name === "b") hasGetB = true;
-      if (name === "sum") hasGetSum = true;
+      getVarsCount += 1;
     }
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
@@ -827,13 +805,9 @@ async function validateCalcSum(
     const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
     const hasValueInOutput = lines.some((l) => re.test(l));
     return (
-      hasSetA &&
-      hasSetB &&
-      hasSetSum &&
-      hasGetSum &&
-      hasGetA &&
-      hasGetB &&
-      hasSumFromAPlusB &&
+      setVarsCount >= 2 &&
+      getVarsCount >= 1 &&
+      (hasSetAnySumLike || hasSumExpression) &&
       hasValueInOutput
     );
   })();
@@ -863,10 +837,8 @@ async function validateGreetConcat(
 
   for (const b of nonShadowBlocks) {
     const t = (b as any).type;
-    if (t === "variables_set" && getVarFieldText(b) === "name")
-      hasSetName = true;
-    if (t === "variables_get" && getVarFieldText(b) === "name")
-      hasGetName = true;
+    if (t === "variables_set") hasSetName = true;
+    if (t === "variables_get") hasGetName = true;
     if (t === "text_join") usedTextJoin = true;
     if (t === "text_append") usedTextAppend = true;
     if (t === "text_print" || t === "add_text") hasPrint = true;
@@ -875,7 +847,7 @@ async function validateGreetConcat(
   const ok =
     hasSetName &&
     hasGetName &&
-    (usedTextJoin || usedTextAppend) &&
+    (usedTextJoin || usedTextAppend || hasPrint) &&
     lines.some((l) => /^Hello,\s*.+!$/.test(l.trim()));
 
   const count = countNonShadowBlocks(ws);
@@ -904,7 +876,7 @@ async function validateIncCounter(
   for (const b of nonShadowBlocks) {
     const t = (b as any).type;
 
-    if (t === "variables_set" && getVarFieldText(b) === "counter") {
+    if (t === "variables_set") {
       const valueBlock =
         typeof (b as any).getInputTargetBlock === "function"
           ? (b as any).getInputTargetBlock("VALUE")
@@ -933,9 +905,7 @@ async function validateIncCounter(
               : null;
 
           const isGetCounter = (x: any) =>
-            x &&
-            (x as any).type === "variables_get" &&
-            getVarFieldText(x) === "counter";
+            x && (x as any).type === "variables_get";
           const isOne = (x: any) => {
             if (!x || (x as any).type !== "math_number") return false;
             const raw =
@@ -954,7 +924,7 @@ async function validateIncCounter(
       }
     }
 
-    if (t === "math_change" && getVarFieldText(b) === "counter") {
+    if (t === "math_change") {
       usesMathChange = true;
       try {
         const delta =
@@ -971,12 +941,12 @@ async function validateIncCounter(
       } catch {}
     }
 
-    if (t === "variables_get" && getVarFieldText(b) === "counter")
-      hasGetCounter = true;
+    if (t === "variables_get") hasGetCounter = true;
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = initOk && incOk && hasGetCounter && lines.includes("1");
+  const ok =
+    initOk && incOk && hasGetCounter && hasPrint && lines.includes("1");
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1025,12 +995,23 @@ async function validateDiscountCalc(
         const n = tryGetAssignedNumber(b);
         if (n !== null) discountVal = n;
       }
+      if (name !== "price" && name !== "discount") {
+        const n = tryGetAssignedNumber(b);
+        if (n !== null) {
+          if (priceVal === null) priceVal = n;
+          else if (discountVal === null) discountVal = n;
+        }
+      }
     }
 
     if (t === "variables_get") {
       const name = getVarFieldText(b);
       if (name === "price") hasGetPrice = true;
       if (name === "discount") hasGetDiscount = true;
+      if (name !== "price" && name !== "discount") {
+        hasGetPrice = true;
+        hasGetDiscount = true;
+      }
     }
 
     if (t === "math_arithmetic") {
@@ -1071,10 +1052,9 @@ async function validateDiscountCalc(
   })();
 
   const ok =
-    hasSetPrice &&
-    hasSetDiscount &&
-    hasGetPrice &&
-    hasGetDiscount &&
+    (hasSetPrice || priceVal !== null) &&
+    (hasSetDiscount || discountVal !== null) &&
+    (hasGetPrice || hasGetDiscount) &&
     hasPrint &&
     expected !== null &&
     hasExpectedInOutput;
@@ -1109,14 +1089,13 @@ async function validateFirstCondition(
   for (const b of nonShadowBlocks) {
     const t = (b as any).type;
 
-    if (t === "variables_set" && getVarFieldText(b) === "temperature") {
+    if (t === "variables_set") {
       hasSetTemperature = true;
       const n = tryGetAssignedNumber(b);
       if (n !== null) tempValue = n;
     }
 
-    if (t === "variables_get" && getVarFieldText(b) === "temperature")
-      hasGetTemperature = true;
+    if (t === "variables_get") hasGetTemperature = true;
 
     if (t === "controls_if") hasIf = true;
     if (t === "logic_compare") {
@@ -1170,9 +1149,7 @@ async function validateFirstCondition(
     hasIf &&
     hasCompare &&
     hasPrint &&
-    hasWarmOutput &&
-    tempValue !== null &&
-    tempValue > 0;
+    hasWarmOutput;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1341,13 +1318,12 @@ async function validateEvenOrOdd(
   const blocks = getNonShadowBlocks(ws);
   for (const b of blocks) {
     const t = (b as any).type;
-    if (t === "variables_set" && getVarFieldText(b) === "number") {
+    if (t === "variables_set") {
       hasSetNumber = true;
       const assigned = tryGetAssignedInt(b);
       if (assigned !== null) n = assigned;
     }
-    if (t === "variables_get" && getVarFieldText(b) === "number")
-      hasGetNumber = true;
+    if (t === "variables_get") hasGetNumber = true;
     if (t === "text_print" || t === "add_text") hasPrint = true;
 
     if (t === "controls_if") {
@@ -1436,13 +1412,12 @@ async function validateTimeOfDay(
   const blocks = getNonShadowBlocks(ws);
   for (const b of blocks) {
     const t = (b as any).type;
-    if (t === "variables_set" && getVarFieldText(b) === "hour") {
+    if (t === "variables_set") {
       hasSetHour = true;
       const assigned = tryGetAssignedInt(b);
       if (assigned !== null) hour = assigned;
     }
-    if (t === "variables_get" && getVarFieldText(b) === "hour")
-      hasGetHour = true;
+    if (t === "variables_get") hasGetHour = true;
     if (t === "text_print" || t === "add_text") hasPrint = true;
 
     if (t === "controls_if") {
@@ -1625,12 +1600,12 @@ async function validateSum1ToN(
   const blocks = getNonShadowBlocks(ws);
   for (const b of blocks) {
     const t = (b as any).type;
-    if (t === "variables_set" && getVarFieldText(b) === "n") {
+    if (t === "variables_set") {
       hasSetN = true;
       const assigned = tryGetAssignedInt(b);
       if (assigned !== null) n = assigned;
     }
-    if (t === "variables_get" && getVarFieldText(b) === "n") hasGetN = true;
+    if (t === "variables_get") hasGetN = true;
     if (t === "text_print" || t === "add_text") hasPrint = true;
 
     if (t === "controls_for") usedFor = true;
@@ -1699,14 +1674,14 @@ async function validateGuessGame(
 
   for (const b of blocks) {
     const t = (b as any).type;
-    if (t === "variables_set" && getVarFieldText(b) === "secret")
+    if (t === "variables_set") {
       hasSetSecret = true;
-    if (t === "variables_get" && getVarFieldText(b) === "secret")
-      hasGetSecret = true;
-    if (t === "variables_set" && getVarFieldText(b) === "guess")
       hasSetGuess = true;
-    if (t === "variables_get" && getVarFieldText(b) === "guess")
+    }
+    if (t === "variables_get") {
+      hasGetSecret = true;
       hasGetGuess = true;
+    }
 
     if (t === "py_input_number") usedInputNumber = true;
     if (t === "controls_whileUntil") usedWhile = true;
@@ -1757,10 +1732,7 @@ async function validateGuessGame(
   })();
 
   const ok =
-    hasSetSecret &&
-    hasSetGuess &&
-    usedInputNumber &&
-    usedWhile &&
+    hasPrint &&
     usedIf &&
     usedCompare &&
     hasPrint &&
@@ -1853,16 +1825,7 @@ async function validateListForEach(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok =
-    hasSequence &&
-    hasSum &&
-    usedForEach &&
-    usedListCreate &&
-    hasSetList &&
-    hasGetList &&
-    hasSetSum &&
-    hasGetSum &&
-    hasPrint;
+  const ok = hasSequence && hasSum && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1924,8 +1887,7 @@ async function validateSublistForEach(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok =
-    hasSequence && usedListCreate && usedGetSublist && usedForEach && hasPrint;
+  const ok = hasSequence && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -2025,18 +1987,7 @@ async function validateListFilterEven(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok =
-    hasSequence &&
-    hasSum &&
-    usedListCreate &&
-    usedForEach &&
-    usedIf &&
-    usedEvenCheck &&
-    hasSetList &&
-    hasGetList &&
-    hasSetSum &&
-    hasGetSum &&
-    hasPrint;
+  const ok = hasSequence && hasSum && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -2137,18 +2088,7 @@ async function validateListFilterEvenMinMax(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok =
-    hasSequence &&
-    hasMin &&
-    hasMax &&
-    usedListCreate &&
-    usedForEach &&
-    usedIf &&
-    usedEvenCheck &&
-    usedMathOnList &&
-    usedMin &&
-    usedMax &&
-    hasPrint;
+  const ok = hasSequence && hasMin && hasMax && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -2250,24 +2190,7 @@ async function validateListFilterEvenAvg(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok =
-    hasCount &&
-    hasSum &&
-    hasAvg &&
-    usedListCreate &&
-    usedForEach &&
-    usedIf &&
-    usedEvenCheck &&
-    usedDivide &&
-    hasSetList &&
-    hasGetList &&
-    hasSetSum &&
-    hasGetSum &&
-    hasSetCount &&
-    hasGetCount &&
-    hasSetAvg &&
-    hasGetAvg &&
-    hasPrint;
+  const ok = hasCount && hasSum && hasAvg && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -2332,16 +2255,7 @@ async function validateListFilterEvenMedian(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok =
-    hasCount &&
-    hasMedian &&
-    usedListCreate &&
-    usedForEach &&
-    usedIf &&
-    usedEvenCheck &&
-    usedLength &&
-    usedGetIndex &&
-    hasPrint;
+  const ok = hasCount && hasMedian && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -2418,18 +2332,7 @@ async function validateListSumEvenPositions(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok =
-    hasSum &&
-    usedListCreate &&
-    usedFor &&
-    usedIf &&
-    usedEvenCheck &&
-    usedGetIndex &&
-    hasSetList &&
-    hasGetList &&
-    hasSetSum &&
-    hasGetSum &&
-    hasPrint;
+  const ok = hasSum && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -2480,15 +2383,7 @@ async function validateListSortMinMax(
       hasGetList = true;
   }
 
-  const ok =
-    hasMin &&
-    hasMax &&
-    usedListCreate &&
-    usedSort &&
-    usedGetIndex &&
-    hasSetList &&
-    hasGetList &&
-    hasPrint;
+  const ok = hasMin && hasMax && hasPrint;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

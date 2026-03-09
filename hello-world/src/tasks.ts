@@ -33,6 +33,7 @@ export type TaskId =
   | "list_filter_even_avg"
   | "list_filter_even_median"
   | "list_sum_even_positions"
+  | "list_sort_min_max"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -378,6 +379,21 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Hint: use the Loops block “count with i from … to … by …”. Inside: if i is even, get item #i from the list (Lists → “get item #”) and add it to sum.",
     validate: validateListSumEvenPositions,
   },
+  list_sort_min_max: {
+    id: "list_sort_min_max",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 21: Сортировка списка" : "Task 21: List sorting",
+    description: (lang) =>
+      lang === "ru"
+        ? "Создайте список чисел <code>[9, 3, 7, 1, 5]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Отсортируйте список блоком <strong>«сортировать числовая по возрастанию»</strong>. После сортировки выведите две строки:<br><strong>min=1</strong><br><strong>max=9</strong>.<br><br><strong>Что значит слово sort:</strong> <code>sort</code> переводится как «сортировать». В программировании это значит «упорядочить элементы по правилу». Для сортировки по возрастанию список <code>[9, 3, 7, 1, 5]</code> превращается в <code>[1, 3, 5, 7, 9]</code>."
+        : "Create the list <code>[9, 3, 7, 1, 5]</code> and store it in <strong>list</strong>.<br><br>Sort it using the block <strong>“sort numeric ascending”</strong>. After sorting, print two lines:<br><strong>min=1</strong><br><strong>max=9</strong>.<br><br><strong>What sort means:</strong> <code>sort</code> means “to order items by a rule”. With ascending order, <code>[9, 3, 7, 1, 5]</code> becomes <code>[1, 3, 5, 7, 9]</code>.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Подсказка: создайте переменную sorted, сохраните в неё результат блока из Списки «сортировать числовая по возрастанию», затем используйте блок «в списке … взять № …» для первого и последнего элементов и выведите min/max."
+        : "Hint: use the Lists block “sort numeric ascending”, then “get item #” for the first and last elements and print min/max.",
+    validate: validateListSortMinMax,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -471,6 +487,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "list_filter_even_avg",
     "list_filter_even_median",
     "list_sum_even_positions",
+    "list_sort_min_max",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -2425,6 +2442,60 @@ async function validateListSumEvenPositions(
       (usedMathChange || usedArithmetic);
     if (usedCore && count <= 26) stars = 3;
     else if (count <= 38) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+async function validateListSortMinMax(
+  ws: Blockly.WorkspaceSvg,
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const hasMin = lines.some((l) => /(^|\b)min\s*[:=]?\s*1(\b|$)/i.test(l));
+  const hasMax = lines.some((l) => /(^|\b)max\s*[:=]?\s*9(\b|$)/i.test(l));
+
+  let usedListCreate = false;
+  let usedSort = false;
+  let usedGetIndex = false;
+  let hasPrint = false;
+  let hasSetList = false;
+  let hasGetList = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "lists_create_with") usedListCreate = true;
+    if (t === "lists_sort") usedSort = true;
+    if (t === "lists_getIndex") usedGetIndex = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+
+    const v = getVarFieldText(b);
+    if (t === "variables_set" && (v === "list" || v === "numbers"))
+      hasSetList = true;
+    if (t === "variables_get" && (v === "list" || v === "numbers"))
+      hasGetList = true;
+  }
+
+  const ok =
+    hasMin &&
+    hasMax &&
+    usedListCreate &&
+    usedSort &&
+    usedGetIndex &&
+    hasSetList &&
+    hasGetList &&
+    hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore = usedSort && usedGetIndex;
+    if (usedCore && count <= 13) stars = 3;
+    else if (count <= 20) stars = 2;
     else stars = 1;
   }
 

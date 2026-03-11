@@ -38,6 +38,7 @@ import {
   importBlockFromJson,
   removeCustomBlock,
   getCustomBlocks,
+  addCustomBlock,
 } from "./customBlocks";
 import {
   setAppLang,
@@ -174,6 +175,15 @@ Object.assign(pythonGenerator.forBlock, forBlockPython);
 Object.assign(luaGenerator.forBlock, forBlockLua);
 Object.assign(phpGenerator.forBlock, forBlockPhp);
 // Регистрием пользовательские блоки и контекстное меню удаления
+for (const custom of getCustomBlocks()) {
+  const type = String(custom?.definition?.type || "");
+  const lang = (custom?.generatorLanguage || "javascript") as
+    | "javascript"
+    | "python"
+    | "lua"
+    | "php";
+  ensureLetCompanionGetter(type, lang);
+}
 registerCustomBlocks();
 setupCustomBlockContextMenu();
 
@@ -1078,6 +1088,12 @@ if (confirmImportBtn) {
       selectedGeneratorLanguage as any,
     );
     if (success) {
+      if (blockType) {
+        ensureLetCompanionGetter(
+          blockType,
+          selectedGeneratorLanguage as "javascript" | "python" | "lua" | "php",
+        );
+      }
       registerCustomBlocks();
       refreshWorkspaceWithCustomToolbox();
       closeImportModal();
@@ -1545,6 +1561,79 @@ function applyPreset(kind: "let" | "const" | "print" | "return") {
 
   updatePresetsByGenLang();
   validateGeneratorUI();
+}
+
+function buildLetGetterPreset(
+  lang: "javascript" | "python" | "lua" | "php",
+  sourceType: string,
+): {
+  definition: { type: string } & Record<string, unknown>;
+  generator: string;
+} | null {
+  const getterType = `${sourceType}_get`;
+  const definition = {
+    type: getterType,
+    message0: "%1",
+    args0: [{ type: "field_input", name: "NAME", text: "x" }],
+    output: ["String", "Number"],
+    colour: 180,
+    tooltip: "variable getter",
+    helpUrl: "",
+  } as { type: string } & Record<string, unknown>;
+
+  if (lang === "javascript") {
+    return {
+      definition,
+      generator: [
+        "const name = block.getFieldValue('NAME') || 'x';",
+        "return [name, Order.ATOMIC];",
+      ].join("\n"),
+    };
+  }
+  if (lang === "python") {
+    return {
+      definition,
+      generator: [
+        "const name = block.getFieldValue('NAME') || 'x';",
+        "return [name, Order.ATOMIC];",
+      ].join("\n"),
+    };
+  }
+  if (lang === "lua") {
+    return {
+      definition,
+      generator: [
+        "const name = block.getFieldValue('NAME') || 'x';",
+        "return [name, Order.ATOMIC];",
+      ].join("\n"),
+    };
+  }
+  if (lang === "php") {
+    return {
+      definition,
+      generator: [
+        "const name = block.getFieldValue('NAME') || 'x';",
+        "return ['$' + name, Order.ATOMIC];",
+      ].join("\n"),
+    };
+  }
+  return null;
+}
+
+function ensureLetCompanionGetter(
+  blockType: string,
+  lang: "javascript" | "python" | "lua" | "php",
+) {
+  if (
+    blockType !== "let_variable" &&
+    blockType !== "py_variable" &&
+    blockType !== "lua_local_variable"
+  ) {
+    return;
+  }
+  const preset = buildLetGetterPreset(lang, blockType);
+  if (!preset) return;
+  addCustomBlock(preset.definition, preset.generator, lang);
 }
 if (presetLetBtn)
   presetLetBtn.addEventListener("click", () => applyPreset("let"));

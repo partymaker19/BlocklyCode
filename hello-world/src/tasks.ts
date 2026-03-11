@@ -689,7 +689,12 @@ async function validateVarMyAge(
   let hasPrint = false;
   for (const b of nonShadowBlocks) {
     const t = (b as any).type;
-    if (t === "variables_set") {
+    if (
+      t === "variables_set" ||
+      t === "let_variable" ||
+      t === "py_variable" ||
+      t === "lua_local_variable"
+    ) {
       hasSetVar = true;
       try {
         const target =
@@ -706,7 +711,12 @@ async function validateVarMyAge(
         }
       } catch {}
     }
-    if (t === "variables_get") {
+    if (
+      t === "variables_get" ||
+      t === "let_variable_get" ||
+      t === "py_variable_get" ||
+      t === "lua_local_variable_get"
+    ) {
       hasGetVar = true;
     }
     if (t === "text_print" || t === "add_text") {
@@ -718,7 +728,7 @@ async function validateVarMyAge(
     if (!assignedValue) return false;
     const re = new RegExp(`(^|\\b)${escapeRe(assignedValue)}(\\b|$)`);
     const hasValueInOutput = lines.some((l) => re.test(l));
-    return hasSetVar && hasGetVar && hasValueInOutput;
+    return hasSetVar && hasValueInOutput;
   })();
 
   const count = countNonShadowBlocks(ws);
@@ -726,7 +736,7 @@ async function validateVarMyAge(
   if (ok) {
     if (hasSetVar && hasGetVar && hasPrint && assignedValue && count <= 5)
       stars = 3;
-    else if (count <= 8) stars = 2;
+    else if ((hasPrint || hasGetVar) && count <= 8) stars = 2;
     else stars = 1;
   }
   return { ok, stars };

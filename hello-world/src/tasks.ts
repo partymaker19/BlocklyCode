@@ -209,8 +209,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>hour</strong> and store the current hour (0 to 23). Determine the time of day and print:<br><br>If <strong>hour</strong> is 6..11 → <strong>"Good morning!"</strong><br>If 12..17 → <strong>"Good afternoon!"</strong><br>If 18..22 → <strong>"Good evening!"</strong><br>Else → <strong>"Good night!"</strong>',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цепочку если/иначе если/иначе, сравнения (>=, <=) и вывод текста. Чтобы добавить «иначе если» или «иначе», откройте шестерёнку в блоке «если» и добавьте нужные секции."
-        : "Hint: use an if/else if/else chain, comparisons (>=, <=) and print blocks.",
+        ? "Подсказка: используйте цепочку если/иначе если/иначе, сравнения (>=, <=) и вывод текста. Чтобы добавить «иначе если» или «иначе», откройте шестерёнку в блоке «если» и добавьте нужные секции. Для проверки диапазона (например, от 6 до 11) используйте блок «и» из раздела Логика, чтобы объединить два сравнения: hour >= 6 и hour <= 11."
+        : "Hint: use an if/else if/else chain, comparisons (>=, <=) and print blocks. To add 'else if' or 'else', click the gear icon on the 'if' block and add the sections you need. To check a range (e.g., from 6 to 11), use the 'and' block from the Logic category to combine two comparisons: hour >= 6 and hour <= 11.",
     validate: validateTimeOfDay,
   },
   first_loop: {
@@ -2622,6 +2622,9 @@ export function setActiveTask(taskId: TaskId) {
   const conditionInfo = document.getElementById(
     "conditionInfoSection",
   ) as HTMLDivElement | null;
+  const logicalOpsInfo = document.getElementById(
+    "logicalOpsInfoSection",
+  ) as HTMLDivElement | null;
   const showDataTypes = activeTaskId === "add_2_7";
   const showVariableInfo =
     activeTaskId === "var_my_age" || activeTaskId === "calc_sum";
@@ -2639,9 +2642,8 @@ export function setActiveTask(taskId: TaskId) {
     activeTaskId === "list_filter_even_median" ||
     activeTaskId === "list_sum_even_positions";
   const showConditionInfo =
-    activeTaskId === "even_or_odd" ||
-    activeTaskId === "time_of_day" ||
-    activeTaskId === "first_condition";
+    activeTaskId === "even_or_odd" || activeTaskId === "first_condition";
+  const showLogicalOpsInfo = activeTaskId === "time_of_day";
   const showConsole =
     !showDataTypes &&
     !showVariableInfo &&
@@ -2652,7 +2654,8 @@ export function setActiveTask(taskId: TaskId) {
     !showListInfo &&
     !showSublistInfo &&
     !showListFilterInfo &&
-    !showConditionInfo;
+    !showConditionInfo &&
+    !showLogicalOpsInfo;
   if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
   if (forLoopInfo) forLoopInfo.style.display = showForLoopInfo ? "" : "none";
   if (whileLoopInfo)
@@ -2667,6 +2670,8 @@ export function setActiveTask(taskId: TaskId) {
   if (incDecInfo) incDecInfo.style.display = showIncDecInfo ? "" : "none";
   if (conditionInfo)
     conditionInfo.style.display = showConditionInfo ? "" : "none";
+  if (logicalOpsInfo)
+    logicalOpsInfo.style.display = showLogicalOpsInfo ? "" : "none";
 }
 
 export function initTaskValidation(

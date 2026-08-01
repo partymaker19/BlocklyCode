@@ -52,3 +52,9 @@ coverage/
 tmp/
 temp/
 .vercel
+
+# OpenCode local agent config (contains API keys)
+opencode.json
+.qwen/
+testsprite_tests/
+hello-world/testsprite_tests/

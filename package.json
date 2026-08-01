@@ -11,6 +11,7 @@
     "pdf": "node scripts/create-pdf.js"
   },
   "dependencies": {
+    "@openrouter/sdk": "^0.12.79",
     "blockly": "12.2.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",

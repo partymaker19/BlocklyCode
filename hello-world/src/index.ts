@@ -467,74 +467,179 @@ function ensureToolboxBlockCounter(): HTMLDivElement | null {
     toolboxDiv.querySelector(".blocklyTreeRoot") ||
     toolboxDiv) as HTMLElement;
 
-  // Создаём/находим элемент бейджа
-  let el = document.getElementById(
+  // Создаём/находим контейнер-обёртку для двух строк
+  let wrapperEl = document.getElementById(
     "toolbox-block-counter",
   ) as HTMLDivElement | null;
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "toolbox-block-counter";
+  if (!wrapperEl) {
+    wrapperEl = document.createElement("div");
+    wrapperEl.id = "toolbox-block-counter";
+
+    // Первая строка: счётчик блоков (вверху серой области)
+    const counterEl = document.createElement("div");
+    counterEl.id = "toolbox-counter-text";
+    counterEl.classList.add("toolbox-counter");
+    counterEl.style.position = "absolute";
+    counterEl.style.fontSize = "13px";
+    counterEl.style.fontWeight = "700";
+    counterEl.style.padding = "6px 8px";
+    counterEl.style.borderRadius = "8px";
+    counterEl.style.zIndex = "2";
+    counterEl.style.display = "block";
+    counterEl.style.userSelect = "none";
+    counterEl.style.pointerEvents = "none";
+    counterEl.style.boxSizing = "border-box";
+    counterEl.style.lineHeight = "1.25";
+
+    // Вторая строка: подпись внизу серой области (в пределах тулбокса)
+    const creditEl = document.createElement("div");
+    creditEl.id = "toolbox-credit-text";
+    creditEl.classList.add("toolbox-counter");
+    creditEl.style.position = "fixed";
+    creditEl.style.fontSize = "13px";
+    creditEl.style.fontWeight = "700";
+    creditEl.style.padding = "6px 8px";
+    creditEl.style.borderRadius = "8px";
+    creditEl.style.zIndex = "9999";
+    creditEl.style.display = "none";
+    creditEl.style.userSelect = "none";
+    creditEl.style.pointerEvents = "none";
+    creditEl.style.boxSizing = "border-box";
+    creditEl.style.lineHeight = "1.25";
+
+    wrapperEl.appendChild(counterEl);
+    wrapperEl.appendChild(creditEl);
   }
 
-  // Стили бейджа
-  el.style.position = "absolute";
-  el.style.pointerEvents = "none";
-  el.style.userSelect = "none";
-  el.style.fontSize = "13px";
-  el.style.fontWeight = "700";
-  el.style.padding = "6px 8px";
-  el.style.borderRadius = "8px";
-  // вместо инлайн-цветов используем CSS-класс для темизации
-  el.classList.add("toolbox-counter");
-  // зачистим возможные старые инлайн-стили
-  el.style.background = "" as any;
-  el.style.color = "" as any;
-  el.style.boxShadow = "" as any;
-  el.style.zIndex = "1";
-  el.style.display = "block";
-  el.style.margin = "12px 8px 8px 8px";
+  // Стили обёртки (позиционируем её в верхней части тулбокса)
+  wrapperEl.style.position = "absolute";
+  wrapperEl.style.pointerEvents = "none";
+  wrapperEl.style.userSelect = "none";
+  wrapperEl.style.fontSize = "13px";
+  wrapperEl.style.fontWeight = "700";
+  wrapperEl.style.zIndex = "1";
+  wrapperEl.style.display = "block";
+  wrapperEl.style.margin = "8px 8px 8px 8px";
+  wrapperEl.style.boxSizing = "border-box";
   // очистим возможные значения от прежней абсолютной раскладки
-  el.style.left = "" as any;
-  el.style.top = "" as any;
-  el.style.bottom = "" as any;
+  wrapperEl.style.left = "" as any;
+  wrapperEl.style.top = "" as any;
+  wrapperEl.style.bottom = "" as any;
+  wrapperEl.style.width = `${Math.max(toolboxDiv.clientWidth - 16, 0)}px`;
 
   // Переместим элемент в контейнер категорий, если он был в другом месте
-  if (el.parentElement !== categoriesContainer) {
-    categoriesContainer.appendChild(el);
+  if (wrapperEl.parentElement !== categoriesContainer) {
+    categoriesContainer.appendChild(wrapperEl);
   }
 
-  return el;
+  return wrapperEl;
 }
 
 function updateToolboxBlockCounterLabel(): void {
-  const el = ensureToolboxBlockCounter();
-  if (!el) return;
+  const wrapper = ensureToolboxBlockCounter();
+  if (!wrapper) return;
+
+  const counterText = document.getElementById("toolbox-counter-text");
+  const creditText = document.getElementById("toolbox-credit-text");
+
+  if (!counterText || !creditText) return;
+
   const lang = getAppLang();
   const count = countNonShadowBlocks(ws);
   const isMobile = document.body.classList.contains("mobile");
   const isToolboxOpen = document.body.classList.contains("toolbox-open");
+  const toolboxDiv = document.querySelector(
+    ".blocklyToolboxDiv, .blocklyToolbox",
+  ) as HTMLDivElement | null;
+  const toolboxRect = toolboxDiv?.getBoundingClientRect();
+  const availableWidth = Math.max(
+    Math.floor((toolboxRect?.width ?? toolboxDiv?.clientWidth ?? 0) - 24),
+    0,
+  );
+
+  if (toolboxDiv) {
+    wrapper.style.width = `${Math.max(toolboxDiv.clientWidth - 16, 0)}px`;
+  }
+
+  // Первая строка: счётчик блоков (или только число на мобильном) — как было раньше
   if (isMobile && !isToolboxOpen) {
-    el.textContent = String(count);
-    el.setAttribute(
+    counterText.textContent = String(count);
+    counterText.setAttribute(
       "aria-label",
       lang === "ru"
         ? `Блоков на рабочем поле: ${count}`
         : `Blocks in workspace: ${count}`,
     );
-    el.style.width = "34px";
-    el.style.textAlign = "center";
-    el.style.padding = "6px 0";
-    el.style.whiteSpace = "nowrap";
+    counterText.style.width = "34px";
+    counterText.style.maxWidth = "34px";
+    counterText.style.textAlign = "center";
+    counterText.style.padding = "6px 0";
+    counterText.style.whiteSpace = "nowrap";
+    counterText.style.overflowWrap = "normal";
+    counterText.style.transform = "none";
+    counterText.style.left = "50%";
+    counterText.style.top = "8px";
+    counterText.style.transform = "translateX(-50%)";
+    creditText.style.display = "none";
   } else {
-    el.textContent =
+    counterText.textContent =
       lang === "ru"
         ? `Блоков на рабочем поле: ${count}`
         : `Blocks in workspace: ${count}`;
-    el.style.width = "" as any;
-    el.style.textAlign = "" as any;
-    el.style.padding = "6px 8px";
-    el.style.whiteSpace = "" as any;
+
+    // Вторая строка: подпись внизу серой области тулбокса (в пределах)
+    const creditLabel = lang === "ru"
+      ? "Создано с помощью Blockly"
+      : "Created with Blockly";
+    creditText.textContent = creditLabel;
+    creditText.style.display = "block";
+    creditText.style.width = "fit-content";
+    creditText.style.maxWidth = `${availableWidth}px`;
+    creditText.style.textAlign = "center";
+    creditText.style.whiteSpace = "normal";
+    creditText.style.overflowWrap = "break-word";
+    creditText.style.transform = "translateX(-50%)";
+
+    const alignedBadgeWidth = Math.min(
+      availableWidth,
+      Math.max(creditText.offsetWidth, 120),
+    );
+
+    counterText.style.width = `${alignedBadgeWidth}px`;
+    counterText.style.maxWidth = `${availableWidth}px`;
+    counterText.style.textAlign = "center";
+    counterText.style.padding = "6px 8px";
+    counterText.style.whiteSpace = "normal";
+    counterText.style.overflowWrap = "break-word";
+    // Центрируем по середине серой области
+    counterText.style.left = "50%";
+    counterText.style.top = "8px";
+    counterText.style.transform = "translateX(-50%)";
+
+    // Позиционируем в самом низу серой области тулбокса и привязываем к её границам
+    if (toolboxRect) {
+      try {
+        creditText.style.left = `${Math.round(
+          toolboxRect.left + toolboxRect.width / 2,
+        )}px`;
+        creditText.style.bottom = `${Math.max(
+          Math.round(window.innerHeight - toolboxRect.bottom + 8),
+          8,
+        )}px`;
+        creditText.style.top = "auto";
+      } catch {
+        // Fallback: просто внизу экрана
+        creditText.style.left = "50%";
+        creditText.style.bottom = "50px";
+        creditText.style.top = "auto";
+      }
+    } else {
+      creditText.style.left = "50%";
+      creditText.style.bottom = "50px";
+      creditText.style.top = "auto";
+    }
   }
+
   console.debug("[block-counter] updated", { count, lang });
 }
 // ===== конец блока счётчика блоков =====
@@ -600,6 +705,7 @@ function toggleTaskSidebar(force?: boolean) {
 
   // После изменения layout нужно пересчитать размеры Blockly и Ace
   scheduleUIResize();
+  requestAnimationFrame(() => updateToolboxBlockCounterLabel());
 }
 
 if (taskSolutionBtn) {

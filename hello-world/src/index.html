@@ -1535,6 +1535,14 @@
       background: #374151;
     }
 
+    html[data-theme='dark'] body.mobile #mobileVerticalResizer {
+      background: #1f2937;
+    }
+
+    html[data-theme='dark'] body.mobile #mobileVerticalResizer:hover {
+      background: #374151;
+    }
+
     .editor-toolbar {
       padding: 6px 8px;
       border-bottom: 1px solid #ddd;
@@ -2227,12 +2235,16 @@
       }
 
       body.mobile #pageContainer {
-        height: calc(100vh - 84px);
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        min-height: 0;
         flex-direction: column;
+        overflow: hidden;
       }
 
       body.mobile #blocklyDiv {
-        flex: 1 1 auto;
+        flex: 0 0 auto;
         width: 100%;
         height: auto;
         min-height: 220px;
@@ -2250,15 +2262,19 @@
         z-index: 10;
         height: 10px;
         width: 100%;
+        min-width: 0;
+        align-self: stretch;
         cursor: row-resize;
         touch-action: none;
-        background: rgba(148, 163, 184, 0.35);
+        background: #374151;
       }
 
       body.mobile #horizontalResizer {
         display: block !important;
         height: 10px;
         width: 100%;
+        min-width: 0;
+        align-self: stretch;
         cursor: row-resize;
         touch-action: none;
       }
@@ -2276,14 +2292,24 @@
 
       body.mobile #outputPane {
         position: relative;
-        flex: 0 0 auto;
-        height: var(--mobile-output-height, 45vh);
+        flex: 1;
+        min-height: 120px;
         min-width: 0;
         width: 100%;
+        max-width: 100%;
         border-left: 0;
         border-top: 1px solid #ddd;
         border-radius: 0;
         overflow: hidden;
+      }
+
+      body.mobile #codePane,
+      body.mobile #editorToolbar,
+      body.mobile #output {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       body.mobile .blocklyToolbox {
@@ -3322,7 +3348,8 @@ end</code></pre>
             <h4 id="logicalOpsHeader">Логические операторы: «и» (AND), «или» (OR), «не» (NOT)</h4>
             <p id="logicalOpsIntro">Логические операторы позволяют объединять несколько условий в одно выражение.
               В Blockly блок <strong>«и»</strong> находится в категории <strong>Логика</strong> и возвращает
-              <code>true</code> только когда <strong>оба</strong> условия истинны.</p>
+              <code>true</code> только когда <strong>оба</strong> условия истинны.
+            </p>
 
             <h4 style="margin-top:12px;">Как работает «и» (AND):</h4>
             <ul>

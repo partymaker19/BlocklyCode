@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_secret">secret</variable>
+    <variable id="var_guess">guess</variable>
+  </variables>
+
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_secret">secret</field>
+    <value name="VALUE">
+      <shadow type="math_number">
+        <field name="NUM">5</field>
+      </shadow>
+    </value>
+  </block>
+
+  <block type="variables_set" x="40" y="200">
+    <field name="VAR" id="var_guess">guess</field>
+    <value name="VALUE">
+      <shadow type="math_number">
+        <field name="NUM">0</field>
+      </shadow>
+    </value>
+  </block>
+
+  <block type="controls_whileUntil" x="40" y="360">
+    <mutation value="1"></mutation>
+    <field name="MODE">WHILE</field>
+    <value name="BOOL">
+      <block type="logic_compare">
+        <field name="OP">NEQ</field>
+        <value name="A">
+          <block type="variables_get">
+            <field name="VAR" id="var_guess">guess</field>
+          </block>
+        </value>
+        <value name="B">
+          <block type="variables_get">
+            <field name="VAR" id="var_secret">secret</field>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+
+  <block type="controls_if" x="40" y="520">
+    <mutation else="1"></mutation>
+    <value name="IF0">
+      <block type="logic_compare">
+        <field name="OP">LT</field>
+        <value name="A">
+          <block type="variables_get">
+            <field name="VAR" id="var_guess">guess</field>
+          </block>
+        </value>
+        <value name="B">
+          <block type="variables_get">
+            <field name="VAR" id="var_secret">secret</field>
+          </block>
+        </value>
+      </block>
+    </value>
+    <statement name="DO0">
+      <block type="add_text">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">Загаданное число больше!</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+    <mutation elseif="1"></mutation>
+    <value name="IF1">
+      <block type="logic_compare">
+        <field name="OP">GT</field>
+        <value name="A">
+          <block type="variables_get">
+            <field name="VAR" id="var_guess">guess</field>
+          </block>
+        </value>
+        <value name="B">
+          <block type="variables_get">
+            <field name="VAR" id="var_secret">secret</field>
+          </block>
+        </value>
+      </block>
+    </value>
+    <statement name="DO1">
+      <block type="add_text">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">Загаданное число меньше!</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+    <statement name="ELSE">
+      <block type="add_text">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">Поздравляем! Вы угадали число!</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+  </block>
+</xml>

@@ -89,6 +89,8 @@ const config = {
           to: "libs/php-wasm/[name][ext]",
         },
         { from: "node_modules/php-wasm/*.so", to: "libs/php-wasm/[name][ext]" },
+        // COOP/COEP заголовки для SharedArrayBuffer (input() в песочнице)
+        { from: ".htaccess", to: ".htaccess" },
       ],
     }),
   ],

@@ -57,13 +57,42 @@ import {
 } from "./aceEditor";
 import { clearOutput } from "./codeExecution";
 import Konva from "konva";
-// Тёмная тема Blockly
-import DarkTheme from "@blockly/theme-dark";
 // Поиск по тулбоксу (локализованный плагин)
 import "./toolbox_search_localized";
 import * as BlockDynamicConnection from "@blockly/block-dynamic-connection";
 import { KeyboardNavigation } from "@blockly/keyboard-navigation";
 import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
+
+import {
+  initThemeUI,
+  setAppTheme,
+  getCurrentTheme,
+  getBlocklyTheme,
+  getGridColor,
+  onThemeChange,
+  type AppTheme,
+} from "./ui/theme";
+import {
+  makeModalDraggable,
+  openModal,
+  closeModal,
+  initImportModal,
+  initHelpModal as initHelpModalUI,
+  initSupportModal as initSupportModalUI,
+} from "./ui/modals";
+import {
+  registerCustomBlockContextMenu,
+  registerStandardBlockContextMenus,
+} from "./ui/contextMenu";
+import {
+  initMobileUI as initMobileUIModule,
+  initMobileToolboxUI,
+  toggleTaskSidebar as toggleTaskSidebarModule,
+  setMobileMenuOpen,
+  setMobileToolboxOpen,
+  closeAllMobilePanels,
+} from "./ui/mobile";
+import { updateToolboxBlockCounterLabel } from "./ui/toolboxCounter";
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
@@ -86,86 +115,10 @@ setAppLang(defaultLang);
 // Локализуем статические подписи окна настроек Ace при старте
 localizeAceSettingsPanel(defaultLang);
 
-// Объявляем флаг регистрации контекстного меню до первого вызова
-let customBlockContextRegistered = false;
+// Функции модалок вынесены в ui/modals.ts
+// Контекстные меню вынесены в ui/contextMenu.ts
+
 const ENABLE_KBD_NAV = true;
-
-// Общее ограниченное перетаскивание модальных окон за заголовок (используется несколькими модалками)
-const modalDragHandles = new WeakSet<HTMLElement>();
-
-function makeModalDraggable(
-  content: HTMLElement,
-  header: HTMLElement,
-  ignoreCloseSelector: string,
-  minTop = 10,
-) {
-  if (modalDragHandles.has(header)) return;
-  modalDragHandles.add(header);
-
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-  let cachedWidth = 0;
-  let cachedHeight = 0;
-  let dragScheduled = false;
-  let pendingLeft = 0;
-  let pendingTop = 0;
-
-  function onMouseDown(ev: MouseEvent) {
-    if (ev.button !== 0) return;
-    const target = ev.target as HTMLElement | null;
-    if (target && ignoreCloseSelector && target.closest(ignoreCloseSelector))
-      return;
-    ev.preventDefault();
-    isDragging = true;
-
-    const rect = content.getBoundingClientRect();
-    content.style.left = rect.left + "px";
-    content.style.top = rect.top + "px";
-    content.style.transform = "none";
-    content.style.animation = "none";
-
-    cachedWidth = rect.width;
-    cachedHeight = rect.height;
-
-    offsetX = ev.clientX - rect.left;
-    offsetY = ev.clientY - rect.top;
-
-    document.body.style.userSelect = "none";
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  }
-
-  function onMouseMove(ev: MouseEvent) {
-    if (!isDragging) return;
-    pendingLeft = ev.clientX - offsetX;
-    pendingTop = ev.clientY - offsetY;
-    if (dragScheduled) return;
-    dragScheduled = true;
-    requestAnimationFrame(() => {
-      dragScheduled = false;
-      let nextLeft = pendingLeft;
-      let nextTop = pendingTop;
-      const maxLeft = window.innerWidth - cachedWidth;
-      const maxTop = window.innerHeight - cachedHeight;
-      if (nextLeft < 0) nextLeft = 0;
-      else if (nextLeft > maxLeft) nextLeft = maxLeft;
-      if (nextTop < minTop) nextTop = minTop;
-      else if (nextTop > maxTop) nextTop = maxTop;
-      content.style.left = `${nextLeft}px`;
-      content.style.top = `${nextTop}px`;
-    });
-  }
-
-  function onMouseUp() {
-    isDragging = false;
-    document.body.style.userSelect = "";
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  }
-
-  header.addEventListener("mousedown", onMouseDown);
-}
 
 // Теперь, когда локаль установлена, регистрируем блоки и генераторы
 Blockly.common.defineBlocks(blocks);
@@ -185,7 +138,9 @@ for (const custom of getCustomBlocks()) {
   ensureLetCompanionGetter(type, lang);
 }
 registerCustomBlocks();
-setupCustomBlockContextMenu();
+registerCustomBlockContextMenu({
+  onRefresh: () => refreshWorkspaceWithCustomToolbox(),
+});
 
 // Инициализация UI и внедрение Blockly
 const outputDiv = document.getElementById("output");
@@ -314,29 +269,30 @@ const taskDifficultyAdvancedBtn = document.getElementById(
   "taskDifficultyAdvanced",
 ) as HTMLButtonElement | null;
 
-// Элементы переключения темы
-const themeSwitchInput = document.getElementById(
-  "themeSwitchInput",
-) as HTMLInputElement | null;
-const themeLabelLight = document.getElementById(
-  "theme-light",
-) as HTMLSpanElement | null;
-const themeLabelDark = document.getElementById(
-  "theme-dark",
-) as HTMLSpanElement | null;
+// Обработчики кнопок панели задач
+if (taskSolutionBtn) {
+  taskSolutionBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleTaskSidebarModule();
+  });
+}
+if (taskSidebarCloseBtn) {
+  taskSidebarCloseBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleTaskSidebarModule(false);
+  });
+}
+
+// Элементы переключения темы теперь в ui/theme.ts
 
 let selectedGeneratorLanguage: "javascript" | "python" | "lua" | "php" =
   "javascript";
 
-// Состояние темы
-type AppTheme = "light" | "dark";
-const APP_THEME_KEY = "app_theme";
-let appTheme: AppTheme = "light";
+// Состояние темы вынесено в ui/theme.ts
 
 // Объявление рабочей области Blockly
 let ws!: Blockly.WorkspaceSvg;
 let __langSwitchTimer: number | null = null;
-let __themeSwitchTimer: number | null = null;
 
 // Дебаунсим синхронизацию ACE редактора с workspace в rAF (объявление выше всех вызовов)
 let __aceSyncScheduled = false;
@@ -451,492 +407,9 @@ const copyCardStatusEl = document.getElementById(
   "copyCardStatus",
 ) as HTMLDivElement | null;
 
-function ensureToolboxBlockCounter(): HTMLDivElement | null {
-  const toolboxDiv = document.querySelector(
-    ".blocklyToolboxDiv, .blocklyToolbox",
-  ) as HTMLDivElement | null;
-  if (!toolboxDiv) {
-    console.debug("[block-counter] toolbox not found");
-    return null;
-  }
-
-  // Контейнер со списком категорий (разные версии Blockly)
-  const categoriesContainer = (toolboxDiv.querySelector(
-    ".blocklyToolboxContents",
-  ) ||
-    toolboxDiv.querySelector(".blocklyTreeRoot") ||
-    toolboxDiv) as HTMLElement;
-
-  // Создаём/находим контейнер-обёртку для двух строк
-  let wrapperEl = document.getElementById(
-    "toolbox-block-counter",
-  ) as HTMLDivElement | null;
-  if (!wrapperEl) {
-    wrapperEl = document.createElement("div");
-    wrapperEl.id = "toolbox-block-counter";
-
-    // Первая строка: счётчик блоков (вверху серой области)
-    const counterEl = document.createElement("div");
-    counterEl.id = "toolbox-counter-text";
-    counterEl.classList.add("toolbox-counter");
-    counterEl.style.position = "absolute";
-    counterEl.style.fontSize = "13px";
-    counterEl.style.fontWeight = "700";
-    counterEl.style.padding = "6px 8px";
-    counterEl.style.borderRadius = "8px";
-    counterEl.style.zIndex = "2";
-    counterEl.style.display = "block";
-    counterEl.style.userSelect = "none";
-    counterEl.style.pointerEvents = "none";
-    counterEl.style.boxSizing = "border-box";
-    counterEl.style.lineHeight = "1.25";
-
-    // Вторая строка: подпись внизу серой области (в пределах тулбокса)
-    const creditEl = document.createElement("div");
-    creditEl.id = "toolbox-credit-text";
-    creditEl.classList.add("toolbox-counter");
-    creditEl.style.position = "fixed";
-    creditEl.style.fontSize = "13px";
-    creditEl.style.fontWeight = "700";
-    creditEl.style.padding = "6px 8px";
-    creditEl.style.borderRadius = "8px";
-    creditEl.style.zIndex = "9999";
-    creditEl.style.display = "none";
-    creditEl.style.userSelect = "none";
-    creditEl.style.pointerEvents = "none";
-    creditEl.style.boxSizing = "border-box";
-    creditEl.style.lineHeight = "1.25";
-
-    wrapperEl.appendChild(counterEl);
-    wrapperEl.appendChild(creditEl);
-  }
-
-  // Стили обёртки (позиционируем её в верхней части тулбокса)
-  wrapperEl.style.position = "absolute";
-  wrapperEl.style.pointerEvents = "none";
-  wrapperEl.style.userSelect = "none";
-  wrapperEl.style.fontSize = "13px";
-  wrapperEl.style.fontWeight = "700";
-  wrapperEl.style.zIndex = "1";
-  wrapperEl.style.display = "block";
-  wrapperEl.style.margin = "8px 8px 8px 8px";
-  wrapperEl.style.boxSizing = "border-box";
-  // очистим возможные значения от прежней абсолютной раскладки
-  wrapperEl.style.left = "" as any;
-  wrapperEl.style.top = "" as any;
-  wrapperEl.style.bottom = "" as any;
-  wrapperEl.style.width = `${Math.max(toolboxDiv.clientWidth - 16, 0)}px`;
-
-  // Переместим элемент в контейнер категорий, если он был в другом месте
-  if (wrapperEl.parentElement !== categoriesContainer) {
-    categoriesContainer.appendChild(wrapperEl);
-  }
-
-  return wrapperEl;
-}
-
-function updateToolboxBlockCounterLabel(): void {
-  const wrapper = ensureToolboxBlockCounter();
-  if (!wrapper) return;
-
-  const counterText = document.getElementById("toolbox-counter-text");
-  const creditText = document.getElementById("toolbox-credit-text");
-
-  if (!counterText || !creditText) return;
-
-  const lang = getAppLang();
-  const count = countNonShadowBlocks(ws);
-  const isMobile = document.body.classList.contains("mobile");
-  const isToolboxOpen = document.body.classList.contains("toolbox-open");
-  const toolboxDiv = document.querySelector(
-    ".blocklyToolboxDiv, .blocklyToolbox",
-  ) as HTMLDivElement | null;
-  const toolboxRect = toolboxDiv?.getBoundingClientRect();
-  const availableWidth = Math.max(
-    Math.floor((toolboxRect?.width ?? toolboxDiv?.clientWidth ?? 0) - 24),
-    0,
-  );
-
-  if (toolboxDiv) {
-    wrapper.style.width = `${Math.max(toolboxDiv.clientWidth - 16, 0)}px`;
-  }
-
-  // Первая строка: счётчик блоков (или только число на мобильном) — как было раньше
-  if (isMobile && !isToolboxOpen) {
-    counterText.textContent = String(count);
-    counterText.setAttribute(
-      "aria-label",
-      lang === "ru"
-        ? `Блоков на рабочем поле: ${count}`
-        : `Blocks in workspace: ${count}`,
-    );
-    counterText.style.width = "34px";
-    counterText.style.maxWidth = "34px";
-    counterText.style.textAlign = "center";
-    counterText.style.padding = "6px 0";
-    counterText.style.whiteSpace = "nowrap";
-    counterText.style.overflowWrap = "normal";
-    counterText.style.transform = "none";
-    counterText.style.left = "50%";
-    counterText.style.top = "8px";
-    counterText.style.transform = "translateX(-50%)";
-    creditText.style.display = "none";
-  } else {
-    counterText.textContent =
-      lang === "ru"
-        ? `Блоков на рабочем поле: ${count}`
-        : `Blocks in workspace: ${count}`;
-
-    // Вторая строка: подпись внизу серой области тулбокса (в пределах)
-    const creditLabel = lang === "ru"
-      ? "Создано с помощью Blockly"
-      : "Created with Blockly";
-    creditText.textContent = creditLabel;
-    creditText.style.display = "block";
-    creditText.style.width = "fit-content";
-    creditText.style.maxWidth = `${availableWidth}px`;
-    creditText.style.textAlign = "center";
-    creditText.style.whiteSpace = "normal";
-    creditText.style.overflowWrap = "break-word";
-    creditText.style.transform = "translateX(-50%)";
-
-    const alignedBadgeWidth = Math.min(
-      availableWidth,
-      Math.max(creditText.offsetWidth, 120),
-    );
-
-    counterText.style.width = `${alignedBadgeWidth}px`;
-    counterText.style.maxWidth = `${availableWidth}px`;
-    counterText.style.textAlign = "center";
-    counterText.style.padding = "6px 8px";
-    counterText.style.whiteSpace = "normal";
-    counterText.style.overflowWrap = "break-word";
-    // Центрируем по середине серой области
-    counterText.style.left = "50%";
-    counterText.style.top = "8px";
-    counterText.style.transform = "translateX(-50%)";
-
-    // Позиционируем в самом низу серой области тулбокса и привязываем к её границам
-    if (toolboxRect) {
-      try {
-        creditText.style.left = `${Math.round(
-          toolboxRect.left + toolboxRect.width / 2,
-        )}px`;
-        creditText.style.bottom = `${Math.max(
-          Math.round(window.innerHeight - toolboxRect.bottom + 8),
-          8,
-        )}px`;
-        creditText.style.top = "auto";
-      } catch {
-        // Fallback: просто внизу экрана
-        creditText.style.left = "50%";
-        creditText.style.bottom = "50px";
-        creditText.style.top = "auto";
-      }
-    } else {
-      creditText.style.left = "50%";
-      creditText.style.bottom = "50px";
-      creditText.style.top = "auto";
-    }
-  }
-
-  console.debug("[block-counter] updated", { count, lang });
-}
 // ===== конец блока счётчика блоков =====
 
-// Вспомогательное: получить текущую тему Blockly
-function getBlocklyTheme() {
-  return appTheme === "dark"
-    ? (DarkTheme as unknown as Blockly.Theme)
-    : Blockly.Themes.Classic;
-}
-
-function setAppTheme(next: AppTheme) {
-  appTheme = next;
-  if (themeLabelLight && themeLabelDark) {
-    themeLabelLight.classList.toggle("active", appTheme === "light");
-    themeLabelDark.classList.toggle("active", appTheme === "dark");
-  }
-  document.documentElement.setAttribute("data-theme", appTheme);
-  try {
-    const canSetTheme = ws && typeof (ws as any).setTheme === "function";
-    if (canSetTheme) {
-      (ws as any).setTheme(getBlocklyTheme());
-    } else {
-      refreshWorkspaceWithCustomToolbox();
-    }
-  } catch {}
-  scheduleAceSync();
-}
-
-function initThemeSwitchUI() {
-  if (!themeSwitchInput) return;
-  themeSwitchInput.checked = appTheme === "dark";
-  if (themeLabelLight && themeLabelDark) {
-    themeLabelLight.classList.toggle("active", appTheme === "light");
-    themeLabelDark.classList.toggle("active", appTheme === "dark");
-  }
-  themeSwitchInput.addEventListener("change", (e: Event) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    if (__themeSwitchTimer) clearTimeout(__themeSwitchTimer);
-    __themeSwitchTimer = window.setTimeout(() => {
-      setAppTheme(checked ? "dark" : "light");
-    }, 120);
-  });
-}
-
-// Открытие/закрытие панели задач слева
-function toggleTaskSidebar(force?: boolean) {
-  if (!taskSidebar || !blocklyDiv) return;
-
-  const isOpen = taskSidebar.classList.contains("open");
-  const next = force !== undefined ? force : !isOpen;
-  const isMobile = document.body.classList.contains("mobile");
-
-  taskSidebar.classList.toggle("open", next);
-  if (next && !isMobile) {
-    taskSidebar.classList.add("mode-select");
-  }
-  const pc = document.getElementById("pageContainer") as HTMLDivElement | null;
-  if (pc && !isMobile) pc.classList.toggle("sidebar-open", next);
-  if (taskSolutionBtn) {
-    taskSolutionBtn.setAttribute("aria-pressed", next ? "true" : "false");
-  }
-
-  // После изменения layout нужно пересчитать размеры Blockly и Ace
-  scheduleUIResize();
-  requestAnimationFrame(() => updateToolboxBlockCounterLabel());
-}
-
-if (taskSolutionBtn) {
-  taskSolutionBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleTaskSidebar();
-  });
-}
-if (taskSidebarCloseBtn) {
-  taskSidebarCloseBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleTaskSidebar(false);
-  });
-}
-
-function setMobileMenuOpen(open: boolean) {
-  if (!mobileMenuBackdrop) return;
-  mobileMenuBackdrop.style.display = open ? "" : "none";
-  mobileMenuBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
-  document.body.style.overflow = open ? "hidden" : "";
-}
-
-function setMobileToolboxOpen(open: boolean) {
-  const isMobile = document.body.classList.contains("mobile");
-  if (!isMobile) open = false;
-  document.body.classList.toggle("toolbox-open", open);
-  if (mobileToolboxBackdrop) {
-    mobileToolboxBackdrop.style.display = open ? "" : "none";
-    mobileToolboxBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
-  }
-  try {
-    const searchInput = document.querySelector(
-      ".blocklyToolboxCategory input[type='search']",
-    ) as HTMLInputElement | null;
-    const searchCategory = searchInput?.closest?.(
-      ".blocklyToolboxCategory",
-    ) as HTMLElement | null;
-    if (searchCategory) {
-      searchCategory.style.display = open ? "" : "none";
-    }
-  } catch {}
-  try {
-    updateToolboxBlockCounterLabel();
-  } catch {}
-  scheduleUIResize();
-}
-
-function initMobileToolboxUI(workspace: Blockly.WorkspaceSvg) {
-  try {
-    if (mobileToolboxBackdrop) {
-      const anyEl = mobileToolboxBackdrop as any;
-      if (!anyEl.__mobileToolboxInit) {
-        anyEl.__mobileToolboxInit = true;
-        mobileToolboxBackdrop.addEventListener("click", () => {
-          setMobileToolboxOpen(false);
-        });
-      }
-    }
-
-    const toolbox = (workspace as any).getToolbox?.();
-    const toolboxDiv =
-      toolbox && typeof toolbox.getHtmlDiv === "function"
-        ? (toolbox.getHtmlDiv() as HTMLDivElement)
-        : (document.querySelector(
-            ".blocklyToolboxDiv, .blocklyToolbox",
-          ) as HTMLDivElement | null);
-    if (toolboxDiv) {
-      const anyDiv = toolboxDiv as any;
-      if (!anyDiv.__mobileToolboxInit) {
-        anyDiv.__mobileToolboxInit = true;
-        toolboxDiv.addEventListener("pointerdown", (e: PointerEvent) => {
-          if (!document.body.classList.contains("mobile")) return;
-          if (!document.body.classList.contains("toolbox-open")) {
-            e.preventDefault();
-            e.stopPropagation();
-            setMobileToolboxOpen(true);
-          }
-        });
-        toolboxDiv.addEventListener("click", (e) => {
-          if (!document.body.classList.contains("mobile")) return;
-          if (!document.body.classList.contains("toolbox-open")) return;
-          const target = e.target as HTMLElement | null;
-          if (!target) return;
-          const cat = target.closest(
-            ".blocklyToolboxCategory",
-          ) as HTMLElement | null;
-          if (!cat) return;
-          if (cat.querySelector("input[type='search']")) return;
-          requestAnimationFrame(() => {
-            setMobileToolboxOpen(false);
-            try {
-              const flyoutWs = (workspace as any)
-                .getFlyout?.()
-                ?.getWorkspace?.() as Blockly.WorkspaceSvg | undefined;
-              flyoutWs?.setScale?.(0.85);
-            } catch {}
-          });
-        });
-      }
-    }
-
-    const anyWs = workspace as any;
-    if (!anyWs.__mobileToolboxCloseInit) {
-      anyWs.__mobileToolboxCloseInit = true;
-      workspace.addChangeListener((e: any) => {
-        if (!document.body.classList.contains("mobile")) return;
-        if (!document.body.classList.contains("toolbox-open")) return;
-        if (!e || e.type !== (Blockly as any).Events?.BLOCK_CREATE) return;
-        if (e.recordUndo === false) return;
-        setMobileToolboxOpen(false);
-        try {
-          (workspace as any).getFlyout?.()?.hide?.();
-        } catch {}
-        try {
-          (workspace as any).getToolbox?.()?.clearSelection?.();
-        } catch {}
-      });
-    }
-  } catch {}
-}
-
-function initMobileUI() {
-  const mq = window.matchMedia("(max-width: 768px)");
-  const MOBILE_H_KEY = "layout.mobile.outputHeightPx";
-  const apply = () => {
-    const isMobile = mq.matches;
-    document.body.classList.toggle("mobile", isMobile);
-    if (!isMobile) {
-      setMobileMenuOpen(false);
-      setMobileToolboxOpen(false);
-      document.body.style.removeProperty("--mobile-output-height");
-    } else {
-      const op = document.getElementById("outputPane") as HTMLDivElement | null;
-      const bd = document.getElementById("blocklyDiv") as HTMLDivElement | null;
-      if (op) op.style.flex = "";
-      if (bd) bd.style.flex = "";
-      setMobileToolboxOpen(false);
-      const saved = parseFloat(localStorage.getItem(MOBILE_H_KEY) || "0");
-      if (saved > 0) {
-        document.body.style.setProperty("--mobile-output-height", `${saved}px`);
-      }
-    }
-    scheduleUIResize();
-  };
-  apply();
-  try {
-    mq.addEventListener("change", apply);
-  } catch {
-    try {
-      (mq as any).addListener(apply);
-    } catch {}
-  }
-
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      setMobileMenuOpen(true);
-    });
-  }
-  if (mobileMenuCloseBtn) {
-    mobileMenuCloseBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      setMobileMenuOpen(false);
-    });
-  }
-  if (mobileMenuBackdrop) {
-    mobileMenuBackdrop.addEventListener("click", (e) => {
-      if (e.target === mobileMenuBackdrop) setMobileMenuOpen(false);
-    });
-  }
-  if (mobileMenuPanel) {
-    mobileMenuPanel.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement | null;
-      const actionEl = target?.closest?.("[data-action]") as HTMLElement | null;
-      const genLangEl = target?.closest?.(
-        "[data-genlang]",
-      ) as HTMLElement | null;
-      if (actionEl) {
-        const action = actionEl.getAttribute("data-action") || "";
-        if (action === "toggleLang") {
-          const input = document.getElementById(
-            "langSwitchInput",
-          ) as HTMLInputElement | null;
-          if (input) {
-            input.checked = !input.checked;
-            input.dispatchEvent(new Event("change", { bubbles: true }));
-          }
-          setMobileMenuOpen(false);
-          return;
-        }
-        if (action === "toggleTheme") {
-          const input = document.getElementById(
-            "themeSwitchInput",
-          ) as HTMLInputElement | null;
-          if (input) {
-            input.checked = !input.checked;
-            input.dispatchEvent(new Event("change", { bubbles: true }));
-          }
-          setMobileMenuOpen(false);
-          return;
-        }
-        if (action === "taskDifficultySelect") {
-          const isCompactMobile =
-            window.matchMedia("(max-width: 540px)").matches;
-          if (!isCompactMobile) {
-            setMobileMenuOpen(false);
-            return;
-          }
-          toggleTaskSidebar(true);
-          if (taskSidebar) taskSidebar.classList.add("mode-select");
-          setMobileMenuOpen(false);
-          return;
-        }
-        const btn = document.getElementById(action) as HTMLElement | null;
-        if (btn) {
-          btn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-        }
-        setMobileMenuOpen(false);
-        return;
-      }
-      if (genLangEl) {
-        const value = genLangEl.getAttribute("data-genlang") || "";
-        const option = document.querySelector(
-          `#dropdownOptions .option[data-value="${value}"]`,
-        ) as HTMLElement | null;
-        option?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-        setMobileMenuOpen(false);
-      }
-    });
-  }
-}
+// Мобильная логика вынесена в ui/mobile.ts
 
 function setActiveGenLangButton(lang: "javascript" | "python" | "lua" | "php") {
   [genLangJsBtn, genLangPyBtn, genLangLuaBtn, genLangPhpBtn].forEach(
@@ -1165,305 +638,9 @@ if (
 if (importBtn) {
   importBtn.addEventListener("click", () => openImportModal());
 }
-if (closeModalBtn) {
-  closeModalBtn.addEventListener("click", () => closeImportModal());
-}
-if (cancelImportBtn) {
-  cancelImportBtn.addEventListener("click", () => closeImportModal());
-}
-if (confirmImportBtn) {
-  confirmImportBtn.addEventListener("click", () => {
-    if (!blockJsonTextarea) return;
-    const json = blockJsonTextarea.value;
-    const gen = blockGeneratorTextarea?.value?.trim() || undefined;
-    const t = (window as any)._currentLocalizedStrings;
-    if (
-      selectedGeneratorLanguage === "javascript" &&
-      generatorErrorEl &&
-      generatorErrorEl.style.display !== "none"
-    ) {
-      alert(
-        t?.FixJsGenerator ||
-          "Исправьте ошибки в генераторе JavaScript перед импортом",
-      );
-      return;
-    }
-    const { success, error, blockType } = importBlockFromJson(
-      json,
-      gen,
-      selectedGeneratorLanguage as any,
-    );
-    if (success) {
-      if (blockType) {
-        ensureLetCompanionGetter(
-          blockType,
-          selectedGeneratorLanguage as "javascript" | "python" | "lua" | "php",
-        );
-      }
-      registerCustomBlocks();
-      refreshWorkspaceWithCustomToolbox();
-      closeImportModal();
-      if (outputDiv) {
-        const p = document.createElement("p");
-        p.textContent = `${
-          t?.ImportedBlock || "Импортирован блок:"
-        } ${blockType}`;
-        outputDiv.appendChild(p);
-      }
-    } else {
-      alert(`${t?.ImportErrorPrefix || "Ошибка импорта:"} ` + error);
-    }
-  });
-}
+// closeModalBtn, cancelImportBtn, confirmImportBtn — обработка внутри initImportModal (ui/modals.ts)
 
-// Функция регистрации пункта контекстного меню для удаления пользовательского блока
-// удалено дублирующееся объявление customBlockContextRegistered
-function setupCustomBlockContextMenu() {
-  if (customBlockContextRegistered) return;
-  const registry = (Blockly as any).ContextMenuRegistry?.registry as any;
-  if (!registry) return;
-
-  const ITEM_ID = "delete_custom_block_from_my_blocks";
-  // Если уже есть такой пункт — выходим
-  if (registry.getItem && registry.getItem(ITEM_ID)) {
-    customBlockContextRegistered = true;
-    return;
-  }
-
-  const displayText = () => {
-    const lang = getAppLang();
-    return lang === "ru" ? "Удалить из «Моих блоков»" : "Remove from My Blocks";
-  };
-
-  const item = {
-    id: ITEM_ID,
-    displayText,
-    preconditionFn: (scope: { block?: Blockly.Block } | undefined) => {
-      const block = scope?.block;
-      if (!block) return "hidden";
-      try {
-        const custom = getCustomBlocks();
-        return custom.some((b) => b.definition?.type === block.type)
-          ? "enabled"
-          : "hidden";
-      } catch {
-        return "hidden";
-      }
-    },
-    callback: (scope: { block?: Blockly.Block } | undefined) => {
-      const block = scope?.block;
-      if (!block) return;
-      const type = block.type;
-      const lang = getAppLang();
-      const name = type;
-      const question =
-        lang === "ru"
-          ? `Удалить пользовательский блок «${name}» из раздела «Моих блоки»?\nЭкземпляры на рабочем поле не будут удалены.`
-          : `Remove custom block "${name}" from "My Blocks"?\nInstances already on the workspace will not be removed.`;
-      if (!confirm(question)) return;
-
-      if (removeCustomBlock(type)) {
-        // Перерегистрируем и обновим тулбокс/рабочее поле
-        registerCustomBlocks();
-        refreshWorkspaceWithCustomToolbox();
-        const out = document.getElementById("output");
-        if (out) {
-          const p = document.createElement("p");
-          p.textContent =
-            lang === "ru" ? `Удалён блок: ${type}` : `Removed block: ${type}`;
-          (out as HTMLElement).appendChild(p);
-        }
-      } else {
-        alert(
-          lang === "ru"
-            ? "Не удалось удалить блок."
-            : "Failed to remove block.",
-        );
-      }
-    },
-    scopeType: (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK,
-    weight: 200,
-  } as any;
-
-  try {
-    registry.register(item);
-    customBlockContextRegistered = true;
-  } catch (e) {
-    customBlockContextRegistered = true;
-  }
-
-  try {
-    const registry = (Blockly as any).ContextMenuRegistry?.registry as any;
-    if (!registry) return;
-    const scopeType = (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK;
-
-    const makeItem = (
-      id: string,
-      displayText: () => string,
-      preconditionFn: (scope: {
-        block?: Blockly.Block;
-      }) => "enabled" | "disabled" | "hidden",
-      callback: (scope: { block?: Blockly.Block }) => void,
-      weight = 195,
-    ) => ({ id, displayText, preconditionFn, callback, scopeType, weight });
-
-    const t = () => getAppLang() === "ru";
-    const text = {
-      paste: () => (t() ? "Вставить" : "Paste"),
-      expand: () => (t() ? "Развернуть блок" : "Expand block"),
-      enable: () => (t() ? "Включить блок" : "Enable block"),
-      removeComment: () => (t() ? "Удалить комментарий" : "Remove comment"),
-      inline: () => (t() ? "Встроить входы" : "Inline inputs"),
-      external: () => (t() ? "Внешние входы" : "External inputs"),
-    };
-
-    const hasItem = (id: string) => registry.getItem && registry.getItem(id);
-
-    if (!hasItem("custom_paste_near_block"))
-      registry.register(
-        makeItem(
-          "custom_paste_near_block",
-          text.paste,
-          (scope) => {
-            const data = (Blockly as any).clipboard?.getLastCopiedData?.();
-            return data ? "enabled" : "disabled";
-          },
-          (scope) => {
-            const block: any = scope.block;
-            if (!block) return;
-            try {
-              const data = (Blockly as any).clipboard.getLastCopiedData();
-              const ws =
-                (Blockly as any).clipboard.getLastCopiedWorkspace?.() ||
-                block.workspace;
-              let p = block.getRelativeToSurfaceXY?.();
-              p =
-                p && typeof p.clone === "function"
-                  ? p.clone()
-                  : new (Blockly as any).utils.Coordinate(0, 0);
-              p.translate?.(24, 24);
-              (Blockly as any).clipboard.paste(data, ws, p);
-            } catch {
-              try {
-                (Blockly as any).clipboard.paste();
-              } catch {}
-            }
-          },
-        ),
-      );
-
-    if (!hasItem("custom_expand_block"))
-      registry.register(
-        makeItem(
-          "custom_expand_block",
-          text.expand,
-          (scope) => {
-            const b: any = scope.block;
-            if (!b) return "hidden";
-            return !!b.workspace?.options?.collapse &&
-              !!b.isMovable?.() &&
-              !!b.isCollapsed?.()
-              ? "enabled"
-              : "hidden";
-          },
-          (scope) => {
-            const b: any = scope.block;
-            b?.setCollapsed?.(false);
-          },
-        ),
-      );
-
-    if (!hasItem("custom_enable_block"))
-      registry.register(
-        makeItem(
-          "custom_enable_block",
-          text.enable,
-          (scope) => {
-            const b: any = scope.block;
-            if (!b) return "hidden";
-            const isEnabled =
-              typeof b.isEnabled === "function" ? b.isEnabled() : true;
-            return !isEnabled && !!b.isEditable?.() ? "enabled" : "hidden";
-          },
-          (scope) => {
-            const b: any = scope.block;
-            try {
-              const reason =
-                (Blockly as any).constants?.MANUALLY_DISABLED ||
-                "MANUALLY_DISABLED";
-              b?.setDisabledReason?.(false, reason);
-            } catch {
-              b?.setDisabled?.(false);
-            }
-          },
-        ),
-      );
-
-    if (!hasItem("custom_remove_comment"))
-      registry.register(
-        makeItem(
-          "custom_remove_comment",
-          text.removeComment,
-          (scope) => {
-            const b: any = scope.block;
-            if (!b) return "hidden";
-            const hasText = !!(
-              typeof b.getCommentText === "function" && b.getCommentText()
-            );
-            return hasText ? "enabled" : "hidden";
-          },
-          (scope) => {
-            const b: any = scope.block;
-            b?.setCommentText?.(null);
-          },
-        ),
-      );
-
-    if (!hasItem("custom_inline_inputs"))
-      registry.register(
-        makeItem(
-          "custom_inline_inputs",
-          text.inline,
-          (scope) => {
-            const b: any = scope.block;
-            if (!b) return "hidden";
-            const multiple = !!(
-              b.inputList &&
-              b.inputList.length > 1 &&
-              !b.isCollapsed?.()
-            );
-            return multiple && !b.getInputsInline?.() ? "enabled" : "hidden";
-          },
-          (scope) => {
-            const b: any = scope.block;
-            b?.setInputsInline?.(true);
-          },
-        ),
-      );
-
-    if (!hasItem("custom_external_inputs"))
-      registry.register(
-        makeItem(
-          "custom_external_inputs",
-          text.external,
-          (scope) => {
-            const b: any = scope.block;
-            if (!b) return "hidden";
-            const multiple = !!(
-              b.inputList &&
-              b.inputList.length > 1 &&
-              !b.isCollapsed?.()
-            );
-            return multiple && !!b.getInputsInline?.() ? "enabled" : "hidden";
-          },
-          (scope) => {
-            const b: any = scope.block;
-            b?.setInputsInline?.(false);
-          },
-        ),
-      );
-  } catch {}
-}
+// Контекстные меню вынесены в ui/contextMenu.ts
 
 function applyPreset(kind: "let" | "const" | "print" | "return") {
   if (!blockJsonTextarea) return;
@@ -1848,9 +1025,21 @@ if (genLangHeaderSelectedOption) {
 
 syncGenLangHeaderDropdownLabels();
 
-// Инициализация темы
-document.documentElement.setAttribute("data-theme", appTheme);
-initThemeSwitchUI();
+// Инициализация темы (вынесено в ui/theme.ts)
+initThemeUI();
+
+// Подписываемся на смену темы: обновляем Blockly workspace (или пересоздаём)
+onThemeChange((theme) => {
+  try {
+    const canSetTheme = ws && typeof (ws as any).setTheme === "function";
+    if (canSetTheme) {
+      (ws as any).setTheme(getBlocklyTheme());
+    } else {
+      refreshWorkspaceWithCustomToolbox();
+    }
+  } catch {}
+  scheduleAceSync();
+});
 
 // Инициализация UI локализации
 localizeImportUI(defaultLang);
@@ -2394,7 +1583,9 @@ if (__isInitialReload) {
 
 // Инициализация рабочей области при загрузке страницы
 refreshWorkspaceWithCustomToolbox();
-initMobileUI();
+initMobileUIModule({
+  onToolboxResize: () => scheduleUIResize(),
+});
 
 // Обработчик переключения языка
 const langSwitchInput = document.getElementById(
@@ -2434,7 +1625,7 @@ if (langSwitchInput) {
         setActiveTask(getActiveTask());
       } catch {}
       scheduleAceSync();
-      requestAnimationFrame(() => updateToolboxBlockCounterLabel());
+      requestAnimationFrame(() => updateToolboxBlockCounterLabel(ws));
     }, 120);
   });
 }
@@ -3002,31 +2193,67 @@ if (blockGeneratorTextarea) {
   blockGeneratorTextarea.addEventListener("input", () => validateGeneratorUI());
 }
 
-// Функция для открытия модалки — сбрасываем язык генератора на JS по умолчанию
+// Инициализация модалки импорта (открытие/закрытие + drag) — в ui/modals.ts
+const importModalApi = initImportModal({
+  importModal: importModal as HTMLElement,
+  modalContent,
+  modalHeader,
+  blockJsonTextarea,
+  blockGeneratorTextarea,
+  confirmImportBtn,
+  cancelImportBtn,
+  closeModalBtn,
+  onConfirm: () => {
+    if (!blockJsonTextarea) return;
+    const json = blockJsonTextarea.value;
+    const gen = blockGeneratorTextarea?.value?.trim() || undefined;
+    const t = (window as any)._currentLocalizedStrings;
+    if (
+      selectedGeneratorLanguage === "javascript" &&
+      generatorErrorEl &&
+      generatorErrorEl.style.display !== "none"
+    ) {
+      alert(
+        t?.FixJsGenerator ||
+          "Исправьте ошибки в генераторе JavaScript перед импортом",
+      );
+      return;
+    }
+    const { success, error, blockType } = importBlockFromJson(
+      json,
+      gen,
+      selectedGeneratorLanguage as any,
+    );
+    if (success) {
+      if (blockType) {
+        ensureLetCompanionGetter(
+          blockType,
+          selectedGeneratorLanguage as "javascript" | "python" | "lua" | "php",
+        );
+      }
+      registerCustomBlocks();
+      refreshWorkspaceWithCustomToolbox();
+      importModalApi.close();
+      if (outputDiv) {
+        const p = document.createElement("p");
+        p.textContent = `${
+          t?.ImportedBlock || "Импортирован блок:"
+        } ${blockType}`;
+        outputDiv.appendChild(p);
+      }
+    } else {
+      alert(`${t?.ImportErrorPrefix || "Ошибка импорта:"} ` + error);
+    }
+  },
+});
+
 function openImportModal() {
-  if (!importModal) return;
-  importModal.style.display = "block";
-  // Центрируем окно по умолчанию каждый раз при открытии
-  if (modalContent) {
-    // Используем transform для центрирования, как в CSS
-    modalContent.style.left = "50%";
-    modalContent.style.top = "50%";
-    modalContent.style.transform = "translate(-50%, -50%)";
-    // Важно: включаем анимацию только при открытии, чтобы она не мешала drag
-    modalContent.style.animation = "";
-  }
-  if (modalContent && modalHeader) {
-    makeModalDraggable(modalContent, modalHeader, "#closeModal");
-  }
-  // В модалке по умолчанию активируем выбранный ранее язык
+  importModalApi.open();
   setActiveGenLangButton(selectedGeneratorLanguage);
 }
 
 function closeImportModal() {
-  if (!importModal) return;
-  importModal.style.display = "none";
-  if (blockJsonTextarea) blockJsonTextarea.value = "";
-  if (blockGeneratorTextarea) blockGeneratorTextarea.value = "";
+  importModalApi.close();
 }
 
 function refreshWorkspaceWithCustomToolbox() {
@@ -3044,7 +2271,7 @@ function refreshWorkspaceWithCustomToolbox() {
     grid: {
       spacing: 20,
       length: 3,
-      colour: appTheme === "dark" ? "#374151" : "#ccc",
+      colour: getGridColor(),
       snap: true,
     },
     zoom: {
@@ -3354,7 +2581,7 @@ function refreshWorkspaceWithCustomToolbox() {
       }
 
       // Обновляем счётчик блоков
-      updateToolboxBlockCounterLabel();
+      updateToolboxBlockCounterLabel(ws);
     });
   }
   // Инициализируем проверку задач во внешнем модуле
@@ -3414,7 +2641,7 @@ function refreshWorkspaceWithCustomToolbox() {
   scheduleAceSync();
   // Начальная отрисовка счётчика
   // На всякий случай немного отложим, чтобы DOM тулбокса гарантированно создался
-  requestAnimationFrame(() => updateToolboxBlockCounterLabel());
+  requestAnimationFrame(() => updateToolboxBlockCounterLabel(ws));
 }
 const saveXmlBtn = document.getElementById(
   "saveXmlBtn",
@@ -3471,7 +2698,7 @@ if (loadXmlInput) {
       // Синхронизируем Ace после загрузки
       scheduleAceSync();
       // Обновить счётчик блоков
-      updateToolboxBlockCounterLabel();
+      updateToolboxBlockCounterLabel(ws);
       // Сохраняем через выбранный провайдер (bootstrap)
       persistWorkspaceDebounced(ws);
     } catch (e) {
@@ -3530,7 +2757,7 @@ window.addEventListener("beforeunload", handleBeforeUnload);
  * Вставляет содержимое руководства напрямую вместо загрузки MD файла
  * Добавляет возможность перетаскивания модального окна
  */
-function initHelpModal() {
+function initHelpModalLocal() {
   if (blockHelpBtn && helpModal && closeHelpModal && markdownContent) {
     // Открытие модального окна при клике на кнопку справки
     blockHelpBtn.addEventListener("click", () => {
@@ -3864,7 +3091,7 @@ function initHelpModal() {
   }
 }
 
-function initSupportModal() {
+function initSupportModalLocal() {
   if (!supportModal || !supportBtn) return;
   supportBtn.addEventListener("click", () => {
     supportModal.style.display = "block";
@@ -3898,5 +3125,5 @@ function initSupportModal() {
 }
 
 // Вызываем инициализацию модального окна справки
-initHelpModal();
-initSupportModal();
+initHelpModalLocal();
+initSupportModalLocal();

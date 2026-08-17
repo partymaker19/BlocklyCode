@@ -13,6 +13,8 @@ export type InitTaskValidationOptions = {
 };
 
 // ---------- Прогресс и порядок задач ----------
+export type ValidationResult = { ok: boolean; stars: number };
+
 export type TaskId =
   | "hello_world"
   | "add_2_7"
@@ -50,10 +52,12 @@ type TaskDef = {
   hint: (lang: "ru" | "en") => string;
   validate: (
     ws: Blockly.WorkspaceSvg,
-  ) => Promise<{ ok: boolean; stars: number }>;
+    outputLines: string[],
+    lang?: "ru" | "en",
+  ) => Promise<ValidationResult>;
 };
 
-const tasks: Record<TaskId, TaskDef> = {
+export const tasks: Record<TaskId, TaskDef> = {
   hello_world: {
     id: "hello_world",
     difficulty: "basic",
@@ -65,8 +69,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Assemble blocks so that the output shows: <strong>Hello World!</strong><br><br><strong>How to check:</strong> add the needed blocks to the workspace, then press “▶” (“Run code”) in the editor, and finally press “Check solution”.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок из Текст «Добавить текст … цвет …» и текстовый литерал (например, «создать текст из»)."
-        : "Hint: use the Text block “Add text … color …” and a text literal (e.g. “create text with”).",
+        ? "Пошаговое решение:\n1. В категории «Текст» возьмите блок «Добавить текст … цвет …» и перетащите его на рабочее поле.\n2. Впишите в поле блока фразу Hello World! (цвет можно оставить пустым).\n3. Нажмите кнопку «▶» («Запустить код») в редакторе — в окне вывода появится Hello World!.\n4. Нажмите «Проверить решение» — задача будет засчитана."
+        : "Step by step:\n1. In the Text category, take the “Add text … color …” block and drag it onto the workspace.\n2. Type the phrase Hello World! directly into the block's text field (you can leave the color empty).\n3. Press the “▶” (“Run code”) button in the editor — the output will show Hello World!.\n4. Press “Check solution” — the task will be accepted.",
     validate: validateHelloWorld,
   },
   add_2_7: {
@@ -79,8 +83,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Add <strong>2</strong> and <strong>7</strong> and print the result to the output: it should be <strong>9</strong>. Bonus: after you get <strong>9</strong>, try changing the operation to <strong>−</strong>, <strong>×</strong>, or <strong>÷</strong> and see how the result changes (but validation checks only <strong>2 + 7</strong>).",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок арифметики из категории Математика и блок из Текст «Добавить текст … цвет …»."
-        : "Hint: use the arithmetic block from Math and the Text block “Add text … color …”.",
+        ? "Пошаговое решение:\n1. В категории «Математика» возьмите блок «+ − × ÷» и впишите числа 2 и 7.\n2. В категории «Текст» возьмите «Добавить текст … цвет …» и вложите в него результат сложения.\n3. Нажмите «▶» («Запустить код») — в окне вывода появится 9.\n4. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Take the “+ − × ÷” block from Math and enter 2 and 7.\n2. Take “Add text … color …” from Text and put the sum inside it.\n3. Press “▶” (“Run code”) — the output shows 9.\n4. Press “Check solution”.",
     validate: validateAdd2Plus7,
   },
   var_my_age: {
@@ -96,8 +100,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a variable named <strong>myAge</strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong>birthYear</strong>) and printing it.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте «создать переменную…» в категории Переменные, затем блок присваивания значения (например, число из Математики) и блок из Текст «Добавить текст … цвет …»."
-        : 'Hint: use "create variable..." in Variables, then a set-value block (e.g. a number from Math) and the Text block “Add text … color …”.',
+        ? "Пошаговое решение:\n1. В категории «Переменные» нажмите «Создать переменную…» и введите имя myAge.\n2. Перетащите блок «присвоить myAge = …» и вставьте в него число (например, 10).\n3. Перетащите блок «Добавить текст … цвет …» (Текст) и вложите в него переменную myAge.\n4. Нажмите «▶», затем «Проверить решение»."
+        : "Step by step:\n1. In the Variables category press “Create variable…” and type myAge.\n2. Drag the “set myAge = …” block and put a number inside (e.g. 10).\n3. Drag “Add text … color …” (Text) and put the variable myAge inside.\n4. Press “▶”, then “Check solution”.",
     validate: validateVarMyAge,
   },
   calc_sum: {
@@ -113,8 +117,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create two variables: <strong>a</strong> and <strong>b</strong>. Assign numbers to them. Create a third variable <strong>sum</strong> and store <strong>a + b</strong> in it. Print <strong>sum</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: задайте a и b через блоки переменных, затем соберите a+b в блоке арифметики и присвойте в sum. Потом выведите sum."
-        : "Hint: set a and b using variable blocks, build a+b with an arithmetic block and assign to sum, then print sum.",
+        ? "Пошаговое решение:\n1. Создайте переменные a, b, sum.\n2. Присвойте a и b числа: «присвоить a = …», «присвоить b = …».\n3. Присвойте sum: вложите в него сумму a + b (блок «+ − × ÷» с переменными a и b внутри).\n4. Выведите sum: вложите переменную sum в «Добавить текст … цвет …»."
+        : "Step by step:\n1. Create variables a, b, sum.\n2. Set a and b to numbers.\n3. Set sum to a + b (use the “+ − × ÷” block with a and b inside).\n4. Print sum: put variable sum inside “Add text … color …”.",
     validate: validateCalcSum,
   },
   greet_concat: {
@@ -130,8 +134,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a text variable <strong>name</strong> and store your name in it (for example, <strong>"Anna"</strong>). Use string concatenation to build and print <strong>"Hello, " + name + "!"</strong>.<br><br><strong>For PHP:</strong> <strong>"Hello, " . $name . "!"</strong> (PHP uses <code>.</code> to concatenate strings).',
     hint: (lang) =>
       lang === "ru"
-        ? 'Подсказка: используйте блоки Переменные («присвоить» и «получить»), блок Текст «создать текст из» и блок Текст «Добавить текст … цвет …». Важно: после запятой в "Hello," добавьте пробел — должно получиться "Hello, ".'
-        : "Hint: use variables (set/get), the Text block “create text with”, and the Text block “Add text … color …”.",
+        ? "Пошаговое решение:\n1. Создайте переменную name и присвойте ей ваше имя (например, Anna).\n2. В категории «Текст» возьмите блок «создать текст из» и добавьте три поля: «Hello, » (важен пробел после запятой), переменную name и «!».\n3. Вложите «создать текст из» в блок «Добавить текст … цвет …» и запустите код.\n4. В выводе должно получиться «Hello, Anna!» — нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable name and set it to your name (e.g. Anna).\n2. In the Text category take “create text with” and add three items: “Hello, ” (mind the space after the comma), the variable name, and “!”.\n3. Put “create text with” inside the “Add text … color …” block and run the code.\n4. The output should be “Hello, Anna!” — press “Check solution”.",
     validate: validateGreetConcat,
   },
   inc_counter: {
@@ -147,8 +151,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a variable <strong><code>counter</code></strong> with the value <strong>0</strong>. Then increase it by <strong>1</strong> (use <strong>counter = counter + 1</strong>). Print the new value.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: сначала counter=0, потом сделайте counter=counter+1 и выведите counter."
-        : "Hint: first set counter=0, then do counter=counter+1 and print counter.",
+        ? "Пошаговое решение:\n1. Создайте переменную counter и присвойте ей 0: «присвоить counter = 0».\n2. В категории «Математика» возьмите блок «увеличить counter на 1».\n3. Вложите переменную counter в «Добавить текст … цвет …» и нажмите «▶» — в выводе появится 1.\n4. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable counter and set it to 0: “set counter = 0”.\n2. In the Math category take the “change counter by 1” block.\n3. Put the variable counter inside “Add text … color …” and press “▶” — the output shows 1.\n4. Press “Check solution”.",
     validate: validateIncCounter,
   },
   discount_calc: {
@@ -164,8 +168,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a variable <strong><code>price</code></strong> and store the item price in it (e.g. <strong>1000</strong>). Create a second variable <strong><code>discount</code></strong> and store the discount percent in it (e.g. <strong>15</strong>). Compute and print the <strong>final price</strong> using: <strong>price - (price * discount / 100)</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: понадобятся блоки Переменные («присвоить» и «получить») и блоки арифметики из Математики. Соберите выражение по шагам и выведите результат."
-        : "Hint: use variables (set/get) and arithmetic blocks. Build the expression step by step and print the result.",
+        ? "Пошаговое решение:\n1. Создайте переменные price и discount, присвойте им числа (например, 1000 и 15).\n2. Соберите формулу блоками из «Математика»: сначала «price × discount», затем результат «÷ 100».\n3. Итог: блок «−»: влево — price, вправо — результат деления. Присвойте его переменной или сразу вложите в «Добавить текст … цвет …».\n4. Запустите «▶» и проверьте, что вывод — 850 (для 1000 и 15). Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create variables price and discount and set them to numbers (e.g. 1000 and 15).\n2. Build the formula with Math blocks: first “price × discount”, then divide the result “÷ 100”.\n3. Final step: a “−” block — price on the left, the division result on the right. Print it with “Add text … color …”.\n4. Press “▶” and check that the output is 850 (for 1000 and 15). Press “Check solution”.",
     validate: validateDiscountCalc,
   },
   first_condition: {
@@ -179,8 +183,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>temperature</strong> and store any number in it. Task: check that the temperature is above zero. If yes, print <strong>"The weather is warm"</strong>. If not, print nothing.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте если/иначе (Логика) и сравнение (Логика), например temperature > 0."
-        : "Hint: use if/else (Logic) and a comparison (Logic), e.g. temperature > 0.",
+        ? "Пошаговое решение:\n1. Создайте переменную temperature и присвойте ей число больше нуля (например, 25).\n2. В категории «Логика» возьмите блок «если».\n3. В условие блока вложите сравнение: блок «>» из «Логика» — влево переменную temperature, вправо число 0.\n4. Внутрь блока «если» вложите «Добавить текст … цвет …» с фразой The weather is warm и нажмите «▶», затем «Проверить решение»."
+        : "Step by step:\n1. Create a variable temperature and set it to a number greater than zero (e.g. 25).\n2. In the Logic category take the “if” block.\n3. Put a comparison in the condition: a “>” block from Logic — temperature on the left, 0 on the right.\n4. Put “Add text … color …” with the phrase The weather is warm inside the “if” block, press “▶”, then “Check solution”.",
     validate: validateFirstCondition,
   },
   even_or_odd: {
@@ -194,8 +198,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>number</strong> and store any integer in it. Determine whether the number is <strong>even</strong> or <strong>odd</strong>, and print a message:<br><br>If even, print <strong>"The number is even"</strong>.<br>If odd, print <strong>"The number is odd"</strong>.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте если/иначе (Логика), остаток от деления (%) и сравнение number % 2 == 0. Чтобы добавить «иначе если» или «иначе», откройте шестерёнку в блоке «если» и добавьте нужные секции."
-        : "Hint: use if/else (Logic), modulo (%) and the check number % 2 == 0.",
+        ? "Пошаговое решение:\n1. Создайте переменную number и присвойте ей целое число.\n2. Возьмите блок «если … иначе» из «Логика» (нажмите шестерёнку и добавьте «иначе»).\n3. Условие чётности: из «Математики» блок «остаток от … ÷ …» (number ÷ 2) и сравнение равно 0 из «Логика». Или блок «нечётное?/чётное?» из «Математики».\n4. В ветку «если» вложите «Добавить текст … цвет …» с «The number is even», в «иначе» — с «The number is odd»."
+        : "Step by step:\n1. Create a variable number and set it to any integer.\n2. Take the “if … else” block from Logic (click the gear and add “else”).\n3. Even check: “remainder of … ÷ …” (number ÷ 2) from Math compared to 0 with “=” from Logic, or the “is even” block from Math.\n4. Put “Add text … color …” with “The number is even” in the if branch and “The number is odd” in the else branch.",
     validate: validateEvenOrOdd,
   },
   time_of_day: {
@@ -209,8 +213,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>hour</strong> and store the current hour (0 to 23). Determine the time of day and print:<br><br>If <strong>hour</strong> is 6..11 → <strong>"Good morning!"</strong><br>If 12..17 → <strong>"Good afternoon!"</strong><br>If 18..22 → <strong>"Good evening!"</strong><br>Else → <strong>"Good night!"</strong>',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цепочку если/иначе если/иначе, сравнения (>=, <=) и вывод текста. Чтобы добавить «иначе если» или «иначе», откройте шестерёнку в блоке «если» и добавьте нужные секции. Для проверки диапазона (например, от 6 до 11) используйте блок «и» из раздела Логика, чтобы объединить два сравнения: hour >= 6 и hour <= 11."
-        : "Hint: use an if/else if/else chain, comparisons (>=, <=) and print blocks. To add 'else if' or 'else', click the gear icon on the 'if' block and add the sections you need. To check a range (e.g., from 6 to 11), use the 'and' block from the Logic category to combine two comparisons: hour >= 6 and hour <= 11.",
+        ? "Пошаговое решение:\n1. Создайте переменную hour и присвойте ей число от 0 до 23 (например, 9).\n2. Возьмите блок «если» из «Логика», нажмите шестерёнку и добавьте два «иначе если» и один «иначе».\n3. Проверка диапазона: блок «и» из «Логика» объединяет два сравнения — «hour ≥ 6» и «hour ≤ 11». Аналогично для 12..17 и 18..22.\n4. В каждую ветку вставьте «Добавить текст … цвет …»: «Good morning!», «Good afternoon!», «Good evening!», в «иначе» — «Good night!».\n5. Запустите код и проверьте вывод."
+        : "Step by step:\n1. Create a variable hour and set it to a number from 0 to 23 (e.g. 9).\n2. Take the “if” block from Logic, click the gear and add two “else if” and one “else”.\n3. Range check: the “and” block from Logic combines two comparisons — “hour ≥ 6” and “hour ≤ 11”. The same for 12..17 and 18..22.\n4. Put “Add text … color …” in each branch: “Good morning!”, “Good afternoon!”, “Good evening!”, and “Good night!” in else.\n5. Run the code and check the output.",
     validate: validateTimeOfDay,
   },
   first_loop: {
@@ -224,8 +228,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Write a program that prints all numbers from <strong>0</strong> to <strong>10</strong> (inclusive), one per line.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цикл for (Циклы) со счётчиком i: от 0 до 10, шаг 1. Внутри цикла выведите текущее значение i."
-        : "Hint: use a for loop (Loops) with a counter i: from 0 to 10, step 1. Print i inside the loop.",
+        ? "Пошаговое решение:\n1. В категории «Циклы» возьмите блок «цикл по i от … до … с шагом …».\n2. Впишите границы: от 0 до 10, шаг 1.\n3. Внутрь цикла вложите «Добавить текст … цвет …» и перетащите в него переменную i из «Переменные».\n4. Запустите код — в выводе появятся числа от 0 до 10 (каждое с новой строки). Нажмите «Проверить решение»."
+        : "Step by step:\n1. In the Loops category take the “count with i from … to … by …” block.\n2. Set the bounds: from 0 to 10, step 1.\n3. Put “Add text … color …” inside the loop and drag the variable i from Variables into it.\n4. Run the code — the numbers 0 through 10 appear in the output. Press “Check solution”.",
     validate: validateFirstLoop,
   },
   sum_1_to_n: {
@@ -239,8 +243,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Write a program that computes the sum of all integers from <strong>1</strong> to <strong>N</strong>, where <strong>N</strong> is stored in the variable <strong>n</strong>.<br><br>Example: for <strong>n = 5</strong> print <strong>15</strong>, for <strong>n = 10</strong> print <strong>55</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте цикл «цикл i от ... до ... с шагом ...» (Циклы) со счётчиком от 1 до n и переменную-аккумулятор sum (sum = sum + i). Затем выведите sum."
-        : "Hint: use a for loop (Loops) from 1 to n and an accumulator variable sum (sum = sum + i). Then print sum.",
+        ? "Пошаговое решение:\n1. Создайте переменную n и присвойте ей число (например, 5 или 10).\n2. Создайте переменную-аккумулятор sum и присвойте ей 0.\n3. Возьмите блок «цикл по i от … до … с шагом …», впишите от 1 до n, шаг 1.\n4. Внутри цикла вложите «увеличить sum на i» (блок «увеличить … на …» из «Математика» с переменной i в качестве приращения).\n5. После цикла вложите sum в «Добавить текст … цвет …»: при n=5 получится 15, при n=10 — 55."
+        : "Step by step:\n1. Create a variable n and set it to a number (e.g. 5 or 10).\n2. Create an accumulator variable sum and set it to 0.\n3. Take the “count with i from … to … by …” loop, from 1 to n, step 1.\n4. Inside the loop put “change sum by i” (the “change … by …” block from Math with variable i as the delta).\n5. After the loop put sum into “Add text … color …”: n=5 gives 15, n=10 gives 55.",
     validate: validateSum1ToN,
   },
   guess_game: {
@@ -256,8 +260,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a program where the computer chooses a number from <strong>1</strong> to <strong>10</strong> (store it in <strong>secret</strong>), and the user tries to guess it.<br><br>Use <strong>guess</strong> for the user\'s guess. In a loop, ask for a number and print:<br>— if guess is lower: <strong>"The secret number is higher!"</strong><br>— if guess is higher: <strong>"The secret number is lower!"</strong><br>— if equal: <strong>"Congratulations! You guessed the number!"</strong><br><br>Use the <strong>py_input_number</strong> block (Custom) for input.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте while (Циклы) «пока guess ≠ secret». Для ввода используйте блок «Ввод числа» (py_input_number, Custom). Внутри — если/иначе если/иначе для трёх случаев: меньше, больше, равно."
-        : 'Hint: use a while loop (Loops) "while guess != secret" and an if/else if/else chain for lower/higher/equal.',
+        ? "Пошаговое решение:\n1. Создайте переменную secret и присвойте ей число от 1 до 10.\n2. Создайте переменную guess. Используйте блок «Ввод числа» из «Текст», чтобы спросить число у пользователя, и присвойте результат guess.\n3. Возьмите блок «повторять, пока …» из «Циклы» с условием «guess ≠ secret».\n4. Внутри цикла: блок «если / иначе если / иначе» (шестерёнка → добавить секции) — если guess < secret вывести «Загаданное число больше!», если guess > secret — «Загаданное число меньше!», иначе — «Поздравляем! Вы угадали число!».\n5. В ветках «меньше/больше» запрашивайте новую догадку через «Ввод числа»."
+        : "Step by step:\n1. Create variable secret and set it to a number from 1 to 10.\n2. Create variable guess. Use the “numeric input” block from Text to ask the user for a number and assign it to guess.\n3. Take the “repeat while …” block from Loops with condition “guess ≠ secret”.\n4. Inside the loop: an “if / else if / else” block (gear → add sections) — if guess < secret print “The secret number is higher!”, if guess > secret print “The secret number is lower!”, else print “Congratulations! You guessed the number!”.\n5. In the lower/higher branches ask for a new guess via “numeric input”.",
     validate: validateGuessGame,
   },
   list_foreach: {
@@ -273,8 +277,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and store it in <strong>list</strong> (or <strong>numbers</strong>).<br><br>Then use the Loops block <strong>“for each item k in list”</strong> — this is the <strong>forEach</strong> idea. Inside the loop:<br>1) print the current item (one per line)<br>2) compute the sum in <strong>sum</strong> and print the final sum after the loop (it should be <strong>15</strong>).<br><br><strong>Note:</strong> a list can store not only numbers but also text (strings), and sometimes even mixed values. The <strong>forEach</strong> loop is great specifically for <strong>iterating over list elements</strong>: it walks through the list and gives you the current item, unlike a counter-based <strong>for</strong> (where you manage indexes/bounds) or <strong>while</strong> (repeat while a condition is true).",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: list=[1,2,3,4,5], sum=0. Внутри «для каждого элемента…»: вывести k и сделать sum = sum + k. После цикла вывести sum."
-        : "Hint: list=[1,2,3,4,5], sum=0. Inside “for each item …”: print k and do sum = sum + k. After the loop print sum.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5» (блок из «Списки»).\n2. Создайте переменную sum = 0.\n3. В «Циклы» возьмите «для каждого элемента k в списке …».\n4. В поле списка вложите переменную list.\n5. Внутри цикла: «Добавить текст … цвет …» с k и «увеличить sum на k».\n6. После цикла выведите sum — должно получиться 15."
+        : "Step by step:\n1. Create a variable list and assign “create list with 1 2 3 4 5” (a Lists block) to it.\n2. Create variable sum = 0.\n3. Take “for each item k in list …” from Loops.\n4. Put variable list into the list slot.\n5. Inside the loop: “Add text … color …” with k, and “change sum by k”.\n6. After the loop print sum — it should be 15.",
     validate: validateListForEach,
   },
   sublist_foreach: {
@@ -290,8 +294,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then take a <strong>sublist</strong> containing <strong>3, 4, 5, 6, 7</strong> (a part of the list) and store it in <strong>sub</strong>.<br><br>Use the <strong>“for each item k in list”</strong> block (Loops) to print items of <strong>sub</strong> one per line.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок из категории Списки «взять подсписок» (lists_getSublist). Потом forEach по sub и вывод k."
-        : "Hint: use the Lists block “get sub-list” (lists_getSublist). Then forEach over sub and print k.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5 6 7 8 9 10» (блок из «Списки»).\n2. Возьмите блок «взять подсписок с № … по № …» из «Списки» — укажите с 3 по 7, а в поле списка вложите переменную list.\n3. Присвойте результат переменной sub.\n4. Возьмите «для каждого элемента k в списке …» из «Циклы», в поле списка вложите переменную sub.\n5. Внутри цикла выводите k через «Добавить текст … цвет …» — появятся 3 4 5 6 7."
+        : "Step by step:\n1. Create a variable list and assign “create list with 1 2 3 4 5 6 7 8 9 10” (a Lists block) to it.\n2. Take the “get sub-list from # … to # …” block from Lists — set 3 to 7, and put list into the list slot.\n3. Assign the result to variable sub.\n4. Take “for each item k in list …” from Loops, put variable sub into the list slot.\n5. Inside the loop print k with “Add text … color …” — you get 3 4 5 6 7.",
     validate: validateSublistForEach,
   },
   list_filter_even: {
@@ -307,8 +311,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Then use the Loops block <strong>“for each item k in list”</strong> to iterate. Inside the loop, use an <strong>if</strong> to keep only <strong>even</strong> numbers and:<br>1) print each even number (one per line)<br>2) compute the sum of even numbers in <strong>sum</strong><br><br>After the loop, print the sum. You should get: <strong>2 4 6 8 10</strong> and the sum <strong>30</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: проверка чётности: «остаток от деления» (k на 2) равен 0 (Математика → остаток от деления, Логика → сравнение) или блок «k чётное». Внутри если/иначе: вывести k и сделать sum = sum + k. После цикла вывести sum."
-        : "Hint: even check: remainder of k ÷ 2 equals 0 (Math → remainder of, Logic → compare) or the “is even” block. Inside if: print k and do sum = sum + k. After the loop print sum.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5 6 7 8 9 10», создайте sum = 0.\n2. Возьмите «для каждого элемента k в списке …» из «Циклы», в список вложите переменную list.\n3. Внутри цикла: блок «если» из «Логика».\n4. Условие чётности: «остаток от k ÷ 2» (Математика) равен 0 (Логика) — или блок «чётное?» из Математики.\n5. В ветку «если»: «Добавить текст … цвет …» с k и «увеличить sum на k».\n6. После цикла выведите sum — получится 30."
+        : "Step by step:\n1. Create a variable list with “create list with 1 2 3 4 5 6 7 8 9 10”, and sum = 0.\n2. Take “for each item k in list …” from Loops, put variable list into it.\n3. Inside the loop: an “if” block from Logic.\n4. Even check: “remainder of k ÷ 2” (Math) equals 0 (Logic) — or the “is even” block from Math.\n5. In the if branch: “Add text … color …” with k, and “change sum by k”.\n6. After the loop print sum — it becomes 30.",
     validate: validateListFilterEven,
   },
   list_filter_even_min_max: {
@@ -324,8 +328,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add even numbers to a new list <strong>evens</strong> and print each even number (one per line).<br><br>After the loop, find and print:<br>— <strong>min=2</strong> (minimum among evens)<br>— <strong>max=10</strong> (maximum among evens)<br><br>Hint: use <strong>Math → “math on list”</strong> with MIN/MAX on the evens list.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте evens (пустой список). Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное». Внутри если/иначе: добавьте k в evens (Списки → вставить/добавить в конец) и выведите k. После цикла: Математика → «сумма списка» и в выпадающем списке выберите MIN/MAX по evens, затем выведите min=… и max=…"
-        : "Hint: create evens (empty list). Even check: remainder of k ÷ 2 equals 0 or the “is even” block. Inside if: add k to evens (Lists → set/insert at end) and print k. After the loop: Math → “math on list” MIN/MAX on evens and print min=… and max=…",
+        ? "Пошаговое решение:\n1. Создайте переменную list со списком 1..10 и пустой список evens: «создать список из» (Списки) без элементов.\n2. «для каждого элемента k в списке …» по переменной list.\n3. Внутри: «если» с проверкой чётности k (остаток от k ÷ 2 равен 0 или «чётное?»).\n4. В ветку «если»: выведите k и блок «вставить в конец»: возьмите его из «Списки» (блок «вставить в …»), в поле списка — evens, а значением — k.\n5. После цикла: из «Математика» возьмите «сумма списка», в выпадающем списке выберите «наименьшее в списке», вложите evens и выведите как min=2.\n6. Вторым блоком выберите «наибольшее в списке» и выведите как max=10."
+        : "Step by step:\n1. Create a variable list with 1..10 and an empty list evens: use “create list with” (Lists) with no items.\n2. “for each item k in list …” over the list variable.\n3. Inside: an “if” with the even check for k (remainder of k ÷ 2 equals 0 or “is even”).\n4. In the if branch: print k and add k to the end of evens (Lists → insert block, list slot = evens, value = k).\n5. After the loop: take “math on list” from Math, pick “minimum of list” in the dropdown, put evens in, and print it as min=2.\n6. Second block: pick “maximum of list” and print it as max=10.",
     validate: validateListFilterEvenMinMax,
   },
   list_filter_even_avg: {
@@ -341,8 +345,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate using <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. For even numbers compute:<br>— <strong>sum</strong> (sum of evens)<br>— <strong>count</strong> (how many evens)<br>— <strong>avg</strong> (average): <code>avg = sum / count</code><br><br>Print three lines:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: перед циклом sum=0 и count=0. Внутри если/иначе для чётных: sum = sum + k и count = count + 1. После цикла: avg = sum / count. Проверка чётности: «остаток от деления» (k на 2) равен 0 или блок «k чётное»."
-        : "Hint: before the loop set sum=0 and count=0. Inside if for evens: sum = sum + k and count = count + 1. After the loop: avg = sum / count. Even check: remainder of k ÷ 2 equals 0 or the “is even” block.",
+        ? "Пошаговое решение:\n1. Создайте переменную list со списком 1..10, переменные sum = 0 и count = 0.\n2. «для каждого элемента k в списке …» по переменной list.\n3. Внутри: «если» с проверкой чётности k (остаток от k ÷ 2 равен 0).\n4. В ветку «если»: «увеличить sum на k» и «увеличить count на 1».\n5. После цикла: переменная avg = sum ÷ count (блок «+ − × ÷» из «Математика», операция ÷).\n6. Выведите три строки: «Добавить текст … цвет …» с результатами count=5, sum=30, avg=6."
+        : "Step by step:\n1. Create a variable list with 1..10, and variables sum = 0, count = 0.\n2. “for each item k in list …” over the list variable.\n3. Inside: an “if” with the even check for k (remainder of k ÷ 2 equals 0).\n4. In the if branch: “change sum by k” and “change count by 1”.\n5. After the loop: variable avg = sum ÷ count (a “+ − × ÷” block from Math with ÷).\n6. Print three lines with “Add text … color …”: count=5, sum=30, avg=6.",
     validate: validateListFilterEvenAvg,
   },
   list_filter_even_median: {
@@ -358,8 +362,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create the list <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> and store it in <strong>list</strong>.<br><br>Iterate with <strong>“for each item k in list”</strong> and use an <strong>if</strong> to keep only <strong>even</strong> numbers. Add evens into a new list <strong>evens</strong>.<br><br>After the loop print 2 lines:<br><strong>count=5</strong> (how many evens in evens)<br><strong>median=6</strong> (the middle element of evens — for 5 elements it's the 3rd).",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте evens как пустой список. Внутри если/иначе добавляйте k в конец evens. Количество: Списки → «длина списка» (lists_length). Средний элемент: Списки → «взять элемент #» (lists_getIndex) с индексом 3."
-        : "Hint: create evens as an empty list. Inside if add k to the end of evens. Count: Lists → “length of list” (lists_length). Middle element: Lists → “get item #” (lists_getIndex) with index 3.",
+        ? "Пошаговое решение:\n1. Создайте переменную list со списком 1..10 и пустой список evens («создать список из» без элементов).\n2. «для каждого элемента k в списке …» по переменной list.\n3. Внутри: «если» с проверкой чётности k.\n4. В ветку «если»: вставьте k в конец evens (Списки → «вставить в» с полем evens и значением k).\n5. После цикла: count — блок «длина evens» (Списки). Выведите count=5.\n6. Средний элемент: блок «взять № …» (Списки) с индексом 3 в evens — это 6. Выведите median=6."
+        : "Step by step:\n1. Create a variable list with 1..10 and an empty list evens (“create list with” with no items).\n2. “for each item k in list …” over the list variable.\n3. Inside: an “if” with the even check for k.\n4. In the if branch: insert k at the end of evens (Lists → “insert into” with evens and value k).\n5. After the loop: count — the “length of evens” block (Lists). Print count=5.\n6. Middle element: “get item # …” (Lists) with index 3 in evens — that is 6. Print median=6.",
     validate: validateListFilterEvenMedian,
   },
   list_sum_even_positions: {
@@ -375,8 +379,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create the list <code>[10, 1, 8, 2, 7, 3, 6, 4, 5, 9]</code> and store it in <strong>list</strong>.<br><br>Compute the sum of elements at <strong>even positions</strong> (positions are 1st, 2nd, 3rd…). That means add elements at positions <strong>2, 4, 6, 8, 10</strong>.<br><br>Print: <strong>sum=19</strong>",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок из Циклы «цикл по i от … до … с шагом …». Внутри: блок Логика «если» + проверка «i чётное». Если условие истинно — используйте блок из Списки «в списке … взять № …» и добавьте его к sum."
-        : "Hint: use the Loops block “count with i from … to … by …”. Inside: if i is even, get item #i from the list (Lists → “get item #”) and add it to sum.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 10 1 8 2 7 3 6 4 5 9», создайте sum = 0.\n2. Возьмите «цикл по i от … до … с шагом …» из «Циклы» (от 1 до 10, шаг 1).\n3. Внутри: «если» с проверкой «i чётное» (блок «остаток от i ÷ 2» из «Математика» равен 0 из «Логика» или блок «чётное?»).\n4. В ветку «если»: возьмите элемент — «№ …» (Списки) с номером i в списке list, и прибавьте к sum («увеличить sum на …»).\n5. После цикла выведите «Добавить текст … цвет …» результат — получится sum=19."
+        : "Step by step:\n1. Create a variable list with “create list with 10 1 8 2 7 3 6 4 5 9”, and sum = 0.\n2. Take “count with i from … to … by …” from Loops (1 to 10, step 1).\n3. Inside: an “if” checking “i is even” (remainder of i ÷ 2 from Math equals 0 from Logic, or the “is even” block).\n4. In the if branch: get the element — “item # …” (Lists) with number i in list, and add it to sum (“change sum by …”).\n5. After the loop print the result with “Add text … color …” — it becomes sum=19.",
     validate: validateListSumEvenPositions,
   },
   list_sort_min_max: {
@@ -390,8 +394,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create the list <code>[9, 3, 7, 1, 5]</code> and store it in <strong>list</strong>.<br><br>Sort it using the block <strong>“sort numeric ascending”</strong>. After sorting, print two lines:<br><strong>min=1</strong><br><strong>max=9</strong>.<br><br><strong>What sort means:</strong> <code>sort</code> means “to order items by a rule”. With ascending order, <code>[9, 3, 7, 1, 5]</code> becomes <code>[1, 3, 5, 7, 9]</code>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте переменную sorted, сохраните в неё результат блока из Списки «сортировать числовая по возрастанию», затем используйте блок «в списке … взять № …» для первого и последнего элементов и выведите min/max."
-        : "Hint: use the Lists block “sort numeric ascending”, then “get item #” for the first and last elements and print min/max.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 9 3 7 1 5» (блок из «Списки»).\n2. В «Списки» возьмите блок «сортировать числовая по возрастанию», в его поле вложите переменную list, результат присвойте переменной sorted.\n3. В «Списки» возьмите блок «№ …» (взять элемент), в поле списка — sorted, номер 1. Это min.\n4. Для max в том же блоке выберите «№ с конца» и укажите 1 — это 9.\n5. Выведите две строки через «Добавить текст … цвет …»: min=1 и max=9."
+        : "Step by step:\n1. Create a variable list with “create list with 9 3 7 1 5” (a Lists block).\n2. In Lists take “sort numeric ascending”, put variable list inside, and assign the result to variable sorted.\n3. Take “get item # 1” (Lists) with sorted as the list — that's min.\n4. For max use “get item # 1 from end” on sorted.\n5. Print two lines with “Add text … color …”: min=1 and max=9.",
     validate: validateListSortMinMax,
   },
   a1_number_analyzer: {
@@ -405,8 +409,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Create a variable <strong>number</strong> and store any integer in it. Print two facts (each on a new line):<br>1) even or odd (e.g. <strong>"The number is even"</strong>)<br>2) positive, negative, or zero (e.g. <strong>"The number is positive"</strong>).',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте если/иначе, сравнения (>, <, ==) и остаток от деления (%)."
-        : "Hint: use if/else, comparisons (>, <, ==) and modulo (%).",
+        ? "Пошаговое решение:\n1. Создайте переменную number и присвойте ей любое целое число (например, 7 или -4).\n2. Чётность: блок «если/иначе» из «Логика» с условием «остаток от number ÷ 2 = 0» → в ветках «The number is even» / «The number is odd».\n3. Знак: второй блок «если/иначе если/иначе» — сравнение number > 0 → «The number is positive», number < 0 → «The number is negative», иначе → «The number is zero».\n4. Каждая строка выводится через «Добавить текст … цвет …»."
+        : "Step by step:\n1. Create a variable number and set it to any integer (e.g. 7 or -4).\n2. Parity: an “if/else” block from Logic with condition “remainder of number ÷ 2 = 0” → branches print “The number is even” / “The number is odd”.\n3. Sign: a second “if/else if/else” — compare number > 0 → “The number is positive”, number < 0 → “The number is negative”, else → “The number is zero”.\n4. Each line is printed with “Add text … color …”.",
     validate: validateNumberAnalyzer,
   },
   sum_array: {
@@ -420,8 +424,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and print their sum: <strong>15</strong>. You may use list/math blocks or a loop.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: попробуйте блок «Математика → сумма списка» (в выпадающем выбрать SUM) или цикл forEach."
-        : "Hint: try ‘math on list’ (SUM) or a forEach loop.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка», в его поле вложите переменную list — он сразу посчитает сумму всех элементов.\n3. Присвойте результат переменной sum.\n4. Выведите sum через «Добавить текст … цвет …» — получится 15."
+        : "Step by step:\n1. Create a variable list with “create list with 1 2 3 4 5” (a Lists block).\n2. In Math take the “sum of list” block and put variable list inside — it computes the sum of all items right away.\n3. Assign the result to variable sum.\n4. Print sum with “Add text … color …” — it becomes 15.",
     validate: validateSumArray,
   },
   min_max: {
@@ -435,8 +439,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : "Create a list <code>[5, 1, 9, 3, 7]</code> and print min and max: <strong>min=1</strong> and <strong>max=9</strong>. One or two lines are fine.",
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: используйте блок «Математика → сумма списка» (в выпадающем выбрать MIN/MAX) или напишите цикл."
-        : "Hint: use ‘math on list’ MIN/MAX or write a loop.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 5 1 9 3 7» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка» и в выпадающем списке дважды создайте копии: выберите «наименьшее в списке» и «наибольшее в списке», вложив в обе переменную list.\n3. Присвойте результаты переменным min и max.\n4. Выведите через «Добавить текст … цвет …»: min=1 и max=9 (в одну строку или в две)."
+        : "Step by step:\n1. Create a variable list with “create list with 5 1 9 3 7” (a Lists block).\n2. In Math take the “math on list” block and make two copies via the dropdown: choose “minimum of list” and “maximum of list”, putting variable list into both.\n3. Assign the results to variables min and max.\n4. Print with “Add text … color …”: min=1 and max=9 (one or two lines).",
     validate: validateMinMax,
   },
   char_freq: {
@@ -452,8 +456,8 @@ const tasks: Record<TaskId, TaskDef> = {
         : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). Using the dictionary blocks from Custom is recommended.',
     hint: (lang) =>
       lang === "ru"
-        ? "Подсказка: создайте словарь, проверяйте наличие ключа и увеличивайте счётчик."
-        : "Hint: create a dictionary, check key existence, and increment counters.",
+        ? "Пошаговое решение:\n1. Создайте переменную text и присвойте ей строку abcaabbb (блок «создать текст из» из «Текст» или просто значение).\n2. Для каждого символа (a, b, c) возьмите блок «подсчитать количество … в …» из «Текст»: в первое поле — букву, во второе — переменную text.\n3. Соберите строку вывода: «создать текст из» — например, «a:», результат подсчёта — и вложите в «Добавить текст … цвет …».\n4. Вывод может быть в свободном формате, например: a:3 b:4 c:1."
+        : "Step by step:\n1. Create a variable text and assign the string abcaabbb to it (use the “create text with” block from Text or a plain value).\n2. For each letter (a, b, c) take the “count the number of … in …” block from Text: the letter in the first field, variable text in the second.\n3. Build the output line: “create text with” — e.g. “a:”, the count result — and put it into “Add text … color …”.\n4. Any output format is fine, e.g.: a:3 b:4 c:1.",
     validate: validateCharFreq,
   },
 };
@@ -609,10 +613,11 @@ function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-async function validateHelloWorld(
+export async function validateHelloWorld(
   ws: Blockly.WorkspaceSvg,
-): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines;
   const expected = "Hello World!";
   const ok = lines.includes(expected);
 
@@ -629,10 +634,11 @@ async function validateHelloWorld(
   return { ok, stars };
 }
 
-async function validateAdd2Plus7(
+export async function validateAdd2Plus7(
   ws: Blockly.WorkspaceSvg,
-): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines;
   const expected = "9"; // должно вывести 9
   const ok = lines.includes(expected);
 
@@ -678,8 +684,9 @@ async function validateAdd2Plus7(
 
 async function validateVarMyAge(
   ws: Blockly.WorkspaceSvg,
-): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines;
 
   const nonShadowBlocks = getNonShadowBlocks(ws);
 
@@ -742,10 +749,11 @@ async function validateVarMyAge(
   return { ok, stars };
 }
 
-async function validateCalcSum(
+export async function validateCalcSum(
   ws: Blockly.WorkspaceSvg,
-): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines;
 
   const nonShadowBlocks = getNonShadowBlocks(ws);
 
@@ -834,8 +842,9 @@ async function validateCalcSum(
 
 async function validateGreetConcat(
   ws: Blockly.WorkspaceSvg,
-): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines;
 
   const nonShadowBlocks = getNonShadowBlocks(ws);
 
@@ -2698,12 +2707,12 @@ export function initTaskValidation(
           (getAppLang() === "ru"
             ? "Сначала запустите код"
             : "Run the code first");
-        renderResult(feedbackEl, starsEl, false, 0, msg);
+        renderResult(feedbackEl, starsEl, false, 0, msg || "");
         return;
       }
 
       const tdef = tasks[activeTaskId];
-      const { ok, stars } = await tdef.validate(ws);
+      const { ok, stars } = await tdef.validate(ws, currentLines, getAppLang());
       const hint = tdef.hint(getAppLang());
       renderResult(feedbackEl, starsEl, ok, stars, hint);
 

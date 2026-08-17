@@ -22,6 +22,7 @@ build/
 *.swo
 *~
 .trae/
+.zcode/
 
 # OS generated files
 .DS_Store
@@ -31,9 +32,6 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Vercel
-.vercel
 
 # Logs
 logs
@@ -51,7 +49,6 @@ coverage/
 # Temporary folders
 tmp/
 temp/
-.vercel
 
 # OpenCode local agent config (contains API keys)
 opencode.json

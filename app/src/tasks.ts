@@ -36,6 +36,7 @@ export type TaskId =
   | "list_filter_even_median"
   | "list_sum_even_positions"
   | "list_sort_min_max"
+  | "mult_table"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -257,7 +258,7 @@ export const tasks: Record<TaskId, TaskDef> = {
     description: (lang) =>
       lang === "ru"
         ? 'Создайте программу, в которой компьютер <strong>загадывает</strong> число от <strong>1</strong> до <strong>10</strong> (сохраните его в переменной <strong>secret</strong>), а пользователь пытается его угадать.<br><br>Используйте переменную <strong>guess</strong> для догадки. В цикле спрашивайте число у пользователя и сообщайте:<br>— если догадка меньше секрета: <strong>"Загаданное число больше!"</strong><br>— если догадка больше секрета: <strong>"Загаданное число меньше!"</strong><br>— если равно: <strong>"Поздравляем! Вы угадали число!"</strong>.'
-        : 'Create a program where the computer chooses a number from <strong>1</strong> to <strong>10</strong> (store it in <strong>secret</strong>), and the user tries to guess it.<br><br>Use <strong>guess</strong> for the user\'s guess. In a loop, ask for a number and print:<br>— if guess is lower: <strong>"The secret number is higher!"</strong><br>— if guess is higher: <strong>"The secret number is lower!"</strong><br>— if equal: <strong>"Congratulations! You guessed the number!"</strong><br><br>Use the <strong>py_input_number</strong> block (Custom) for input.',
+        : 'Create a program where the computer chooses a number from <strong>1</strong> to <strong>10</strong> (store it in <strong>secret</strong>), and the user tries to guess it.<br><br>Use <strong>guess</strong> for the user\'s guess. In a loop, ask for a number and print:<br>— if guess is lower: <strong>"The secret number is higher!"</strong><br>— if guess is higher: <strong>"The secret number is lower!"</strong><br>— if equal: <strong>"Congratulations! You guessed the number!"</strong><br><br>Use the <strong>py_input_number</strong> block (Text) for input.',
     hint: (lang) =>
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную secret и присвойте ей число от 1 до 10.\n2. Создайте переменную guess. Используйте блок «Ввод числа» из «Текст», чтобы спросить число у пользователя, и присвойте результат guess.\n3. Возьмите блок «повторять, пока …» из «Циклы» с условием «guess ≠ secret».\n4. Внутри цикла: блок «если / иначе если / иначе» (шестерёнка → добавить секции) — если guess < secret вывести «Загаданное число больше!», если guess > secret — «Загаданное число меньше!», иначе — «Поздравляем! Вы угадали число!».\n5. В ветках «меньше/больше» запрашивайте новую догадку через «Ввод числа»."
@@ -398,6 +399,23 @@ export const tasks: Record<TaskId, TaskDef> = {
         : "Step by step:\n1. Create a variable list with “create list with 9 3 7 1 5” (a Lists block).\n2. In Lists take “sort numeric ascending”, put variable list inside, and assign the result to variable sorted.\n3. Take “get item # 1” (Lists) with sorted as the list — that's min.\n4. For max use “get item # 1 from end” on sorted.\n5. Print two lines with “Add text … color …”: min=1 and max=9.",
     validate: validateListSortMinMax,
   },
+  mult_table: {
+    id: "mult_table",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 22: Таблица умножения"
+        : "Task 22: Multiplication table",
+    description: (lang) =>
+      lang === "ru"
+        ? "Выведите таблицу умножения для чисел от <strong>1</strong> до <strong>5</strong>: каждая строка — один пример, например:<br><strong>2 × 3 = 6</strong><br><strong>5 × 5 = 25</strong><br><br>Для этого используйте <strong>вложенные циклы</strong>: внешний цикл перебирает первый множитель (от 1 до 5), внутренний — второй (от 1 до 5). Для каждой пары (i, j) выведите строку вида <strong>i × j = результат</strong>.<br><br><strong>Подсказка:</strong> соберите строку примера блоком <strong>«создать текст из»</strong> (Текст): переменная i, символ ×, переменная j, знак = и результат умножения (блок «+ − × ÷» из «Математика» с операцией ×)."
+        : "Print the multiplication table for numbers from <strong>1</strong> to <strong>5</strong>: each line is one equation, for example:<br><strong>2 × 3 = 6</strong><br><strong>5 × 5 = 25</strong><br><br>Use <strong>nested loops</strong>: the outer loop goes over the first factor (1 to 5), the inner loop over the second (1 to 5). For each pair (i, j) print a line like <strong>i × j = result</strong>.<br><br><strong>Tip:</strong> build the line with the <strong>“create text with”</strong> block (Text): variable i, symbol ×, variable j, the = sign and the product (the “+ − × ÷” block from Math with the × operation).",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Пошаговое решение:\n1. В «Циклы» возьмите блок «цикл по i от … до … с шагом …» (от 1 до 5, шаг 1) — внешний цикл, первый множитель.\n2. Внутрь внешнего цикла положите второй блок «цикл по j от … до … с шагом …» (от 1 до 5, шаг 1) — внутренний цикл, второй множитель.\n3. Внутри внутреннего цикла соберите строку примера блоком «создать текст из» (Текст): переменная i, символ ×, переменная j, знак = и результат i × j (блок «+ − × ÷» с операцией ×).\n4. Вложите эту строку в «Добавить текст … цвет …» — каждая пара (i, j) печатается с новой строки.\n5. Запустите код: в окне вывода будет 25 строк — от «1 × 1 = 1» до «5 × 5 = 25». Нажмите «Проверить решение»."
+        : "Step by step:\n1. In Loops take the “count with i from … to … by …” block (1 to 5, step 1) — the outer loop, the first factor.\n2. Put a second “count with j from … to … by …” block (1 to 5, step 1) inside the outer loop — the inner loop, the second factor.\n3. Inside the inner loop build the line with the “create text with” block (Text): variable i, symbol ×, variable j, the = sign and the product i × j (the “+ − × ÷” block with the × operation).\n4. Put this line into the “Add text … color …” block — each pair (i, j) is printed on a new line.\n5. Run the code: the output shows 25 lines — from “1 × 1 = 1” to “5 × 5 = 25”. Press “Check solution”.",
+    validate: validateMultTable,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -452,8 +470,8 @@ export const tasks: Record<TaskId, TaskDef> = {
         : "Task A4: Character frequencies",
     description: (lang) =>
       lang === "ru"
-        ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Рекомендуется использовать блоки словаря из категории Custom.'
-        : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). Using the dictionary blocks from Custom is recommended.',
+        ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Удобно использовать блок <strong>«подсчитать количество … в …»</strong> из категории «Текст».'
+        : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). The <strong>“count the number of … in …”</strong> block from Text is handy here.',
     hint: (lang) =>
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную text и присвойте ей строку abcaabbb (блок «создать текст из» из «Текст» или просто значение).\n2. Для каждого символа (a, b, c) возьмите блок «подсчитать количество … в …» из «Текст»: в первое поле — букву, во второе — переменную text.\n3. Соберите строку вывода: «создать текст из» — например, «a:», результат подсчёта — и вложите в «Добавить текст … цвет …».\n4. Вывод может быть в свободном формате, например: a:3 b:4 c:1."
@@ -492,6 +510,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "list_filter_even_median",
     "list_sum_even_positions",
     "list_sort_min_max",
+    "mult_table",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -2416,6 +2435,121 @@ async function validateListSortMinMax(
   return { ok, stars };
 }
 
+async function validateMultTable(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+
+  const rowRe = /^(\d+)\s*[×*xх]\s*(\d+)\s*=\s*(\d+)$/;
+
+  let validRows = 0;
+  for (const l of lines) {
+    const m = l.match(rowRe);
+    if (m) {
+      const x = Number(m[1]);
+      const y = Number(m[2]);
+      const z = Number(m[3]);
+      if (x * y === z) validRows++;
+    }
+  }
+
+  const hasRow = (a: number, b: number) =>
+    lines.some((l) => {
+      const m = l.match(rowRe);
+      if (!m) return false;
+      return (
+        Number(m[1]) === a &&
+        Number(m[2]) === b &&
+        Number(m[3]) === a * b
+      );
+    });
+
+  // Полная таблица 1..5 — это 25 строк; требуем почти все и ключевые примеры
+  const ok = validRows >= 20 && hasRow(2, 3) && hasRow(4, 5) && hasRow(5, 5);
+
+  const tryGetInputNumber = (block: any, inputName: string): number | null => {
+    try {
+      const target =
+        typeof block?.getInputTargetBlock === "function"
+          ? block.getInputTargetBlock(inputName)
+          : null;
+      if (!target) return null;
+      if ((target as any).type !== "math_number") return null;
+      const raw =
+        typeof (target as any).getFieldValue === "function"
+          ? (target as any).getFieldValue("NUM")
+          : undefined;
+      if (raw === undefined || raw === null) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
+
+  let usedFor = 0;
+  let nestedFor = false;
+  let forFromOk = false;
+  let forToOk = false;
+  let forByOk = false;
+  let usedMultiply = false;
+  let usedJoin = false;
+  let usedPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "controls_for") {
+      usedFor++;
+      let p = typeof b.getParent === "function" ? b.getParent() : null;
+      while (p) {
+        if ((p as any).type === "controls_for") {
+          nestedFor = true;
+          break;
+        }
+        p = typeof p.getParent === "function" ? p.getParent() : null;
+      }
+      try {
+        const from = tryGetInputNumber(b, "FROM");
+        const to = tryGetInputNumber(b, "TO");
+        const by = tryGetInputNumber(b, "BY");
+        if (from === 1) forFromOk = true;
+        if (to === 5) forToOk = true;
+        if (by === 1) forByOk = true;
+      } catch {}
+    }
+    if (t === "math_arithmetic") {
+      const op =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("OP")
+          : undefined;
+      if (op === "MULTIPLY") usedMultiply = true;
+    }
+    if (t === "text_join") usedJoin = true;
+    if (t === "text_print" || t === "add_text") usedPrint = true;
+  }
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    const usedCore =
+      nestedFor &&
+      usedMultiply &&
+      usedJoin &&
+      usedPrint &&
+      forFromOk &&
+      forToOk &&
+      forByOk;
+    if (usedCore && count <= 20) stars = 3;
+    else if (nestedFor && usedMultiply && usedJoin && usedPrint && count <= 28)
+      stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 async function validateSumArray(
   ws: Blockly.WorkspaceSvg,
 ): Promise<{ ok: boolean; stars: number }> {
@@ -2487,16 +2621,18 @@ async function validateMinMax(
 
 async function validateCharFreq(
   ws: Blockly.WorkspaceSvg,
+  outputLines: string[],
 ): Promise<{ ok: boolean; stars: number }> {
-  const lines = getVisibleOutputLines();
+  const lines = outputLines;
   const need = { a: 3, b: 4, c: 1 } as Record<string, number>;
   const checks = Object.entries(need).map(([ch, n]) =>
-    lines.some((l) => new RegExp(`${ch}\s*[:=]\s*${n}`, "i").test(l)),
+    lines.some((l) => new RegExp(`${ch}\\s*[:=]\\s*${n}`, "i").test(l)),
   );
   const ok = checks.every(Boolean);
 
-  // Эвристика: желательно использовать блоки словаря
+  // Эвристика: желательно использовать блоки словаря или «подсчитать количество»
   let usedDict = false;
+  let usedTextCount = false;
   const dictBlocks = getNonShadowBlocks(ws);
   for (const b of dictBlocks) {
     const t = (b as any).type;
@@ -2507,14 +2643,14 @@ async function validateCharFreq(
       t === "dict_has_key"
     ) {
       usedDict = true;
-      break;
     }
+    if (t === "text_count") usedTextCount = true;
   }
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (usedDict && count <= 14) stars = 3;
+    if ((usedDict || usedTextCount) && count <= 14) stars = 3;
     else if (count <= 18) stars = 2;
     else stars = 1;
   }

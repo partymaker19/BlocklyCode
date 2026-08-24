@@ -168,9 +168,11 @@ export class LocalizedToolboxSearchCategory extends Blockly.ToolboxCategory {
     // Используем локализованный placeholder вместо жёстко заданного 'Search'
     this.searchField.placeholder =
       (Blockly as any).Msg.SEARCH_PLACEHOLDER || "Search";
-    this.workspace_.RTL
-      ? (this.searchField.style.marginRight = "8px")
-      : (this.searchField.style.marginLeft = "8px");
+    if (this.workspace_.RTL) {
+      this.searchField.style.marginRight = "8px";
+    } else {
+      this.searchField.style.marginLeft = "8px";
+    }
     this.searchField.addEventListener("keyup", (event) => {
       if (event.key === "Escape") {
         this.parentToolbox_.clearSelection();

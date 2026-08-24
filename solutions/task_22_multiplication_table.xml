@@ -1,0 +1,95 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 22: Таблица умножения (mult_table)
+    Решение: вложенные циклы i (1..5) и j (1..5).
+    Внутри внутреннего цикла строка примера собирается через
+    «создать текст из» и выводится блоком «Добавить текст … цвет …».
+    Итог: 25 строк — от «1 × 1 = 1» до «5 × 5 = 25».
+  -->
+  <variables>
+    <variable id=":;i">i</variable>
+    <variable id=":;j">j</variable>
+  </variables>
+  <block type="controls_for" id="outer-loop" x="30" y="40">
+    <field name="VAR" id=":;i">i</field>
+    <value name="FROM">
+      <shadow type="math_number" id="outer-from">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="TO">
+      <shadow type="math_number" id="outer-to">
+        <field name="NUM">5</field>
+      </shadow>
+    </value>
+    <value name="BY">
+      <shadow type="math_number" id="outer-by">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <statement name="DO">
+      <block type="controls_for" id="inner-loop">
+        <field name="VAR" id=":;j">j</field>
+        <value name="FROM">
+          <shadow type="math_number" id="inner-from">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number" id="inner-to">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number" id="inner-by">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <statement name="DO">
+          <block type="add_text" id="print-line">
+            <value name="TEXT">
+              <block type="text_join" id="build-line">
+                <mutation items="5"></mutation>
+                <value name="ADD0">
+                  <block type="variables_get" id="get-i-1">
+                    <field name="VAR" id=":;i">i</field>
+                  </block>
+                </value>
+                <value name="ADD1">
+                  <shadow type="text" id="mul-sign">
+                    <field name="TEXT">×</field>
+                  </shadow>
+                </value>
+                <value name="ADD2">
+                  <block type="variables_get" id="get-j-1">
+                    <field name="VAR" id=":;j">j</field>
+                  </block>
+                </value>
+                <value name="ADD3">
+                  <shadow type="text" id="eq-sign">
+                    <field name="TEXT">=</field>
+                  </shadow>
+                </value>
+                <value name="ADD4">
+                  <block type="math_arithmetic" id="mul-i-j">
+                    <field name="OP">MULTIPLY</field>
+                    <value name="A">
+                      <block type="variables_get" id="get-i-2">
+                        <field name="VAR" id=":;i">i</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="variables_get" id="get-j-2">
+                        <field name="VAR" id=":;j">j</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </statement>
+  </block>
+</xml>

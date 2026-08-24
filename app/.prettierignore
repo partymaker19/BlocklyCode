@@ -1,0 +1,7 @@
+dist/
+node_modules/
+coverage/
+build/
+package-lock.json
+testsprite_tests/
+devserver*.log

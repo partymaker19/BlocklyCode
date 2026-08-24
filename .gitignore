@@ -54,4 +54,4 @@ temp/
 opencode.json
 .qwen/
 testsprite_tests/
-hello-world/testsprite_tests/
+app/testsprite_tests/

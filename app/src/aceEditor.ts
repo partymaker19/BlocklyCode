@@ -6,6 +6,7 @@ import { phpGenerator } from "blockly/php";
 import type { SupportedLanguage } from "./types/messages";
 import { getAppLang, getAceUIStrings } from "./localization";
 import { saveTextFile } from "./fileSave";
+import { lintPythonCode } from "./pythonLinter";
 
 // Импорты Ace и базовая настройка путей/расширений
 import ace from "ace-builds/src-noconflict/ace";
@@ -19,6 +20,16 @@ import "ace-builds/src-noconflict/snippets/javascript";
 import "ace-builds/src-noconflict/snippets/python";
 import "ace-builds/src-noconflict/snippets/lua";
 import "ace-builds/src-noconflict/snippets/php";
+// Режимы и темы импортируются статически: они регистрируются в том же
+// экземпляре Ace через бандлер. Динамическая загрузка script-инжектом
+// ненадёжна (404/COEP) — из-за неё сессия оставалась в mode-javascript
+// и валидатор JS-синтаксиса помечал корректный Python/Lua/PHP-код ошибками.
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-lua";
+import "ace-builds/src-noconflict/mode-php";
+import "ace-builds/src-noconflict/theme-chrome";
+import "ace-builds/src-noconflict/theme-monokai";
 
 (ace as any).config.set("basePath", "ace");
 (ace as any).config.set("modePath", "ace");
@@ -40,6 +51,14 @@ interface AceSession {
   getDocument(): AceDocument;
   addMarker(range: any, clazz: string, type: string, inFront?: boolean): number;
   removeMarker(id: number): void;
+  setAnnotations(
+    annotations: {
+      row: number;
+      column: number;
+      text: string;
+      type: "error" | "warning" | "info";
+    }[],
+  ): void;
 }
 interface AceSelection {
   on(event: string, handler: (...args: any[]) => void): void;
@@ -294,7 +313,53 @@ export function updateAceEditorFromWorkspace(
       // -1 чтобы не прыгал курсор к концу
       aceEditor.setValue(code, -1);
     }
+    // Python: аннотации pyflakes (опечатки, undefined-имена, синтаксис)
+    if (lang === "python") {
+      schedulePythonLint(code);
+    } else {
+      cancelPythonLint();
+      // Для языков без штатного воркера-линтера очищаем устаревшие аннотации.
+      // Для JS/TS аннотациями управляет воркер Ace — не трогаем.
+      if (lang !== "javascript" && lang !== "typescript") {
+        session?.setAnnotations([]);
+      }
+    }
   } catch {}
+}
+
+// ---------- pyflakes-аннотации для Python ----------
+let pythonLintTimer: ReturnType<typeof setTimeout> | null = null;
+let pythonLintSeq = 0;
+
+function schedulePythonLint(code: string) {
+  if (!aceEditor) return;
+  if (pythonLintTimer) clearTimeout(pythonLintTimer);
+  const mySeq = ++pythonLintSeq;
+  pythonLintTimer = setTimeout(() => {
+    pythonLintTimer = null;
+    void lintPythonCode(code).then((diags) => {
+      if (mySeq !== pythonLintSeq) return; // код уже обновился — результат устарел
+      if (!aceEditor) return;
+      try {
+        aceEditor.session.setAnnotations(
+          diags.map((d) => ({
+            row: Math.max(0, d.line - 1),
+            column: Math.max(0, d.column),
+            text: d.message,
+            type: "error" as const,
+          })),
+        );
+      } catch {}
+    });
+  }, 900);
+}
+
+function cancelPythonLint() {
+  pythonLintSeq++;
+  if (pythonLintTimer) {
+    clearTimeout(pythonLintTimer);
+    pythonLintTimer = null;
+  }
 }
 
 export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
@@ -469,7 +534,7 @@ export function setupAceEditor(getSelectedLanguage: () => SupportedLanguage) {
           session: any,
           pos: any,
           prefix: string,
-          cb: Function,
+          cb: (err: unknown, results: unknown[]) => void,
         ) {
           const id = session.getMode()?.$id || "";
           if (!/javascript$/.test(id)) return cb(null, []);

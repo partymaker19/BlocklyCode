@@ -495,8 +495,77 @@ async function runPhp(code: string, timeoutMs?: number) {
   }
 }
 
+// ---------- Python-линтер (pyflakes внутри отдельного экземпляра pyodide) ----------
+// Экземпляр кэшируется: первый линт скачивает pyodide (~10 МБ, общий HTTP-кэш
+// с рантаймом запуска), последующие — мгновенны.
+let _lintPyodide: any = null;
+let _lintLoading: Promise<any> | null = null;
+
+async function getLintPyodide(): Promise<any> {
+  if (_lintPyodide) return _lintPyodide;
+  if (!_lintLoading) {
+    _lintLoading = (async () => {
+      (self as any).importScripts(
+        "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js",
+      );
+      const py = await (self as any).loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/",
+      });
+      // pyflakes не входит в дистрибутив pyodide — ставим из PyPI через micropip
+      await py.loadPackage("micropip");
+      const micropip = py.pyimport("micropip");
+      await micropip.install("pyflakes");
+      _lintPyodide = py;
+      return py;
+    })();
+  }
+  return _lintLoading;
+}
+
+async function lintPython(code: string, id: number) {
+  try {
+    const py = await getLintPyodide();
+    py.globals.set("_lint_code", String(code ?? ""));
+    const out = await py.runPythonAsync(`
+import io
+from pyflakes.api import check
+from pyflakes.reporter import Reporter
+_buf = io.StringIO()
+check(_lint_code, "code.py", Reporter(_buf, _buf))
+_buf.getvalue()
+`);
+    const text = String(out ?? "");
+    const diagnostics = text
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((l) => {
+        // формат pyflakes: code.py:СТРОКА:КОЛОНКА: сообщение
+        const m = l.match(/^code\.py:(\d+):(\d+):\s*(.+)$/);
+        if (!m) return null;
+        return {
+          line: Number(m[1]),
+          column: Number(m[2]),
+          message: m[3],
+          severity: "error" as const,
+        };
+      })
+      .filter(Boolean);
+    (self as any).postMessage({ type: "lint_result", id, diagnostics });
+  } catch {
+    // Линтер недоступен (нет сети и т.п.) — молча возвращаем пустую диагностику
+    (self as any).postMessage({ type: "lint_result", id, diagnostics: [] });
+  }
+}
+
 self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
   const msg = ev.data as WorkerInMsg;
+  // Запрос линтинга Python
+  if ((msg as any).type === "lint_python") {
+    const { code, id } = msg as any;
+    void lintPython(String(code ?? ""), Number(id));
+    return;
+  }
   // Обрабатываем объединённый тип: запуск кода или ответ ввода
   if ("language" in msg) {
     const { language, code, timeoutMs } = msg;

@@ -22,9 +22,9 @@ import { blocks as algorithmBlocks } from "../src/blocks/algorithms";
 
 // 2. Локаль и кастомные сообщения для блока add_text и др.
 Blockly.setLocale(RuLocale as unknown as Record<string, unknown>);
-(Blockly as any).Msg = (Blockly as any).Msg || {};
-(Blockly as any).Msg.ADD_TEXT_COLOR = "Добавить текст %1 цвет %2";
-(Blockly as any).Msg.ADD_TEXT = "Добавить текст %1";
+const msg = (Blockly as any).Msg || {};
+msg.ADD_TEXT_COLOR = "Добавить текст %1 цвет %2";
+msg.ADD_TEXT = "Добавить текст %1";
 
 // 3. Регистрация блоков проекта
 Blockly.common.defineBlocks(textBlocks);

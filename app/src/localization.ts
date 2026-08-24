@@ -6,6 +6,8 @@ import * as EnLocale from "blockly/msg/en";
 import * as RuLocale from "blockly/msg/ru";
 import { toolbox as originalToolbox } from "./toolbox";
 import { getCustomBlocksToolboxCategory } from "./customBlocks";
+import * as stringsEn from "./strings/en";
+import * as stringsRu from "./strings/ru";
 
 export type AppLang = "ru" | "en";
 export const APP_LANG_KEY = "app_language";
@@ -82,46 +84,7 @@ export function setAppLang(lang: AppLang): void {
 export function localizedToolbox(
   lang: AppLang,
 ): BlocklyCore.utils.toolbox.ToolboxInfo {
-  const t = {
-    en: {
-      Logic: "Logic",
-      Loops: "Loops",
-      Math: "Math",
-      Text: "Text",
-      Lists: "Lists",
-      Variables: "Variables",
-      Functions: "Functions",
-      Custom: "Custom blocks",
-      MyBlocks: "My Blocks",
-      ImportBlocks: "Import blocks",
-      ImportModalTitle: "Import custom blocks",
-      JsonLabel: "Block definition (JSON):",
-      ImportInfo:
-        'Paste the block JSON definition below. The block will be added to "My Blocks" category.',
-      Cancel: "Cancel",
-      Import: "Import",
-      Search: "Search",
-    },
-    ru: {
-      Logic: "Логика",
-      Loops: "Циклы",
-      Math: "Математика",
-      Text: "Текст",
-      Lists: "Списки",
-      Variables: "Переменные",
-      Functions: "Функции",
-      Custom: "Кастомные блоки",
-      MyBlocks: "Мои блоки",
-      ImportBlocks: "Импорт блоков",
-      ImportModalTitle: "Импорт пользовательских блоков",
-      JsonLabel: "JSON определение блока:",
-      ImportInfo:
-        'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки".',
-      Cancel: "Отмена",
-      Import: "Импортировать",
-      Search: "Поиск",
-    },
-  }[lang as AppLang];
+  const t = lang === "ru" ? stringsRu.toolbox : stringsEn.toolbox;
   const tb = JSON.parse(
     JSON.stringify(originalToolbox),
   ) as BlocklyCore.utils.toolbox.ToolboxInfo;
@@ -147,82 +110,7 @@ export function localizedToolbox(
 }
 
 export function localizeImportUI(lang: AppLang): void {
-  const t = {
-    en: {
-      ImportBlocks: "Create block",
-      ImportModalTitle: "Create custom block",
-      JsonLabel: "Block definition (JSON):",
-      GeneratorLabel: "Code generator (optional):",
-      ImportInfo:
-        'Paste the block JSON definition below. The block will be added to "My Blocks" category. You may also provide a custom code generator below.',
-      Cancel: "Cancel",
-      Import: "Create",
-      PresetsLabel: "Quick block presets:",
-      PresetLet: "let variable",
-      PresetConst: "constant",
-      PresetReturn: "return value",
-      PresetNotice: "Choose a preset to start faster",
-      JsonPlaceholder: `Example:
-{
-  "type": "my_custom_block",
-  "message0": "My block %1",
-  "args0": [
-    {
-      "type": "input_value",
-      "name": "INPUT"
-    }
-  ],
-  "previousStatement": null,
-  "nextStatement": null,
-  "colour": 230,
-  "tooltip": "My custom block",
-  "helpUrl": ""
-}`,
-      GeneratorValid: "✓ Generator is valid",
-      GeneratorErrorPrefix: "Error:",
-      FixJsGenerator:
-        "Please fix errors in the JavaScript generator before creating",
-      ImportedBlock: "Imported block:",
-      ImportErrorPrefix: "Import error:",
-    },
-    ru: {
-      ImportBlocks: "Создать блок",
-      ImportModalTitle: "Создание пользовательского блока",
-      JsonLabel: "JSON определение блока:",
-      GeneratorLabel: "Генератор кода (опционально):",
-      ImportInfo:
-        'Вставьте JSON-определение блока в поле ниже. Блок будет добавлен в категорию "Мои блоки". Дополнительно можно указать генератор кода ниже.',
-      Cancel: "Отмена",
-      Import: "Создать",
-      PresetsLabel: "Быстрые пресеты блоков:",
-      PresetLet: "let переменная",
-      PresetConst: "константа",
-      PresetReturn: "return значение",
-      PresetNotice: "Выберите пресет, чтобы начать быстрее",
-      JsonPlaceholder: `Пример:
-{
-  "type": "my_custom_block",
-  "message0": "Мой блок %1",
-  "args0": [
-    {
-      "type": "input_value",
-      "name": "INPUT"
-    }
-  ],
-  "previousStatement": null,
-  "nextStatement": null,
-  "colour": 230,
-  "tooltip": "Мой кастомный блок",
-  "helpUrl": ""
-}`,
-      GeneratorValid: "✓ Генератор корректен",
-      GeneratorErrorPrefix: "Ошибка:",
-      FixJsGenerator:
-        "Исправьте ошибки в генераторе JavaScript перед созданием",
-      ImportedBlock: "Импортирован блок:",
-      ImportErrorPrefix: "Ошибка импорта:",
-    },
-  }[lang as AppLang];
+  const t = lang === "ru" ? stringsRu.importUi : stringsEn.importUi;
 
   const importBtnText = document.getElementById("importBtnText");
   const modalTitle = document.getElementById("modalTitle");
@@ -938,70 +826,7 @@ export function localizeTooltips(lang: AppLang): void {
     });
   };
 
-  const t = {
-    en: {
-      appLang: "Application language",
-      appTheme: "Application theme",
-      genLang: "Code generation language",
-      annotate: "Annotation",
-      search: "Search (Ctrl+F)",
-      replace: "Replace (Ctrl+H)",
-      goto: "Go to line (Ctrl+L)",
-      format: "Format code",
-      copy: "Copy code",
-      download: "Download file",
-      shortcuts: "Keyboard shortcuts",
-      settings: "Settings",
-      settingsPanel: "Editor settings",
-      keybinding: "Keybinding mode",
-      aceTheme: "Ace Theme",
-      editorRegion: "Generated code",
-      close: "Close",
-      annotTools: "Annotation tools",
-      brush: "Brush",
-      line: "Line",
-      arrow: "Arrow",
-      rect: "Rectangle",
-      color: "Color",
-      size: "Thickness",
-      undo: "Undo",
-      redo: "Redo",
-      clear: "Clear",
-      run: "Run code",
-      braces: "Highlight curly braces",
-    },
-    ru: {
-      appLang: "Язык приложения",
-      appTheme: "Тема приложения",
-      genLang: "Язык генерации кода",
-      annotate: "Аннотация",
-      search: "Поиск (Ctrl+F)",
-      replace: "Замена (Ctrl+H)",
-      goto: "Перейти к строке (Ctrl+L)",
-      format: "Форматировать код",
-      copy: "Копировать код",
-      download: "Скачать файл",
-      shortcuts: "Сочетания клавиш",
-      settings: "Настройки",
-      settingsPanel: "Настройки редактора",
-      keybinding: "Режим клавиш",
-      aceTheme: "Ace Theme",
-      editorRegion: "Сгенерированный код",
-      close: "Закрыть",
-      annotTools: "Инструменты аннотаций",
-      brush: "Кисть",
-      line: "Линия",
-      arrow: "Стрелка",
-      rect: "Прямоугольник",
-      color: "Цвет",
-      size: "Толщина",
-      undo: "Отменить",
-      redo: "Повторить",
-      clear: "Очистить",
-      run: "Запустить код",
-      braces: "Подсветка фигурных скобок",
-    },
-  }[lang];
+  const t = lang === "ru" ? stringsRu.tooltips : stringsEn.tooltips;
 
   // Подсказки в шапке
   setAttrs(document.querySelector(".language-switch"), { title: t.appLang });
@@ -1051,40 +876,7 @@ export function localizeTooltips(lang: AppLang): void {
 
 // Локализация подписей и опций внутри панели настроек Ace
 export function localizeAceSettingsPanel(lang: AppLang): void {
-  const t = {
-    en: {
-      theme: "Theme",
-      themeLight: "Light",
-      themeMonokai: "Monokai",
-      fontSize: "Font size",
-      tabSize: "Tab size",
-      wrap: "Word wrap",
-      invisibles: "Invisible characters",
-      activeLine: "Highlight active line",
-      printMargin: "Print margin",
-      gutter: "Line numbers",
-      softTabs: "Soft tabs",
-      foldWidgets: "Code folding",
-      keybinding: "Keybinding",
-      keybindingDefault: "Default",
-    },
-    ru: {
-      theme: "Тема",
-      themeLight: "Светлая",
-      themeMonokai: "Монокаи",
-      fontSize: "Шрифт",
-      tabSize: "Табуляция",
-      wrap: "Перенос строк",
-      invisibles: "Непечатаемые",
-      activeLine: "Подсветка строки",
-      printMargin: "Поле печати",
-      gutter: "Нумерация строк",
-      softTabs: "Пробелы вместо табов",
-      foldWidgets: "Сворачивание кода",
-      keybinding: "Клавиши",
-      keybindingDefault: "По умолчанию",
-    },
-  }[lang];
+  const t = lang === "ru" ? stringsRu.aceSettings : stringsEn.aceSettings;
 
   const setText = (id: string, text: string) => {
     const el = document.getElementById(id);
@@ -1157,22 +949,7 @@ export function getAceUIStrings(lang: AppLang): AceUIStrings {
 
 // Локализация окна справки: кнопки/подписи и заголовок модалки
 export function localizeHelpUI(lang: AppLang): void {
-  const t = {
-    en: {
-      modalTitle: "Guide to Creating Custom Blocks",
-      buttonText: "Help",
-      buttonLabel: "Help",
-      title: "Guide to Creating Custom Blocks",
-      closeLabel: "Close",
-    },
-    ru: {
-      modalTitle: "Руководство по созданию блоков",
-      buttonText: "Справка",
-      buttonLabel: "Справка",
-      title: "Руководство по созданию блоков",
-      closeLabel: "Закрыть",
-    },
-  }[lang];
+  const t = lang === "ru" ? stringsRu.helpUi : stringsEn.helpUi;
 
   const helpBtn = document.getElementById("blockHelpBtn");
   const helpBtnText = document.getElementById("blockHelpBtnText");
@@ -1195,33 +972,7 @@ export function localizeHelpUI(lang: AppLang): void {
 }
 
 export function localizeSupportUI(lang: AppLang): void {
-  const t = {
-    en: {
-      buttonText: "Support",
-      buttonLabel: "Support the project",
-      modalTitle: "Support the project",
-      intro1:
-        "If you enjoy the app, you can support ongoing development and hosting costs.",
-      intro2: "Any amount helps improve features and cover costs.",
-      cardLabel: "Card number",
-      copy: "Copy",
-      copied: "Copied",
-      close: "Close",
-    },
-    ru: {
-      buttonText: "Поддержка",
-      buttonLabel: "Поддержка проекта",
-      modalTitle: "Поддержка проекта",
-      intro1:
-        "Если вам понравилось приложение, вы можете поддержать дальнейшую разработку и оплату хостинга.",
-      intro2:
-        "Спасибо за любую сумму — это помогает развивать функциональность и покрывать расходы.",
-      cardLabel: "Номер карты",
-      copy: "Копировать",
-      copied: "Скопировано",
-      close: "Закрыть",
-    },
-  }[lang];
+  const t = lang === "ru" ? stringsRu.supportUi : stringsEn.supportUi;
 
   const btn = document.getElementById("supportBtn");
   const btnText = document.getElementById("supportBtnText");

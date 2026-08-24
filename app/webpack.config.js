@@ -19,16 +19,17 @@ const config = {
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Origin-Agent-Cluster": "?1",
     },
-    proxy: {
-      "/api": {
+    proxy: [
+      {
         // Use IPv4 explicitly to avoid IPv6 localhost (::1) mismatch
         // with API server bound to 127.0.0.1
+        context: ["/api"],
         target: "http://127.0.0.1:4000",
         changeOrigin: true,
         secure: false,
         ws: false,
       },
-    },
+    ],
   },
   module: {
     rules: [

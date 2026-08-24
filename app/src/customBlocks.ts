@@ -152,7 +152,7 @@ export function registerCustomBlocks() {
         );
 
         // Очищаем код генератора от TypeScript конструкций и экранируем шаблоны
-        let cleanGenerator = stripTypeScriptFromJs(block.generator || "");
+        const cleanGenerator = stripTypeScriptFromJs(block.generator || "");
 
         // Определяем целевой генератор и Order в зависимости от языка
         let targetGenerator:
@@ -412,8 +412,8 @@ export function importBlockFromJson(
 // Удаляем TypeScript-конструкции из JS-генератора, который вводит пользователь
 function stripTypeScriptFromJs(code: string): string {
   let out = code ?? "";
-  out = out.replace(/\s+as\s+[\w\.\[\]<>\|]+/g, "");
-  out = out.replace(/:\s*[\w\.\[\]<>\|\s,?]+/g, "");
+  out = out.replace(/\s+as\s+[\w.[\]<>|]+/g, "");
+  out = out.replace(/:\s*[\w.[\]<>|\s,?]+/g, "");
   out = out.replace(/<[^>]+>/g, "");
   return out;
 }

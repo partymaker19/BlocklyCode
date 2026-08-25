@@ -37,6 +37,7 @@ export type TaskId =
   | "list_sum_even_positions"
   | "list_sort_min_max"
   | "mult_table"
+  | "first_even_break"
   | "first_condition"
   | "a1_number_analyzer"
   | "sum_array"
@@ -416,6 +417,23 @@ export const tasks: Record<TaskId, TaskDef> = {
         : "Step by step:\n1. In Loops take the “count with i from … to … by …” block (1 to 5, step 1) — the outer loop, the first factor.\n2. Put a second “count with j from … to … by …” block (1 to 5, step 1) inside the outer loop — the inner loop, the second factor.\n3. Inside the inner loop build the line with the “create text with” block (Text): variable i, symbol ×, variable j, the = sign and the product i × j (the “+ − × ÷” block with the × operation).\n4. Put this line into the “Add text … color …” block — each pair (i, j) is printed on a new line.\n5. Run the code: the output shows 25 lines — from “1 × 1 = 1” to “5 × 5 = 25”. Press “Check solution”.",
     validate: validateMultTable,
   },
+  first_even_break: {
+    id: "first_even_break",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 23: Найди первое чётное"
+        : "Task 23: Find the first even",
+    description: (lang) =>
+      lang === "ru"
+        ? 'Создайте список чисел <code>[7, 3, 8, 5, 2, 9]</code> и сохраните его в переменную <strong>list</strong>. Переберите элементы циклом и, как только встретится <strong>чётное</strong> число, выведите его и <strong>прервите цикл</strong>: в окне вывода должно появиться только <strong>8</strong>.<br><br><strong>Что такое «прервать цикл»:</strong> блок <strong>«прервать цикл»</strong> (категория «Циклы») немедленно останавливает цикл — программа продолжается с первого блока после цикла. Это классический паттерн «поиск с ранним выходом».<br><br>Проверить чётность можно блоком <strong>«чётное»</strong> из «Математика» (выберите «чётное» в выпадающем списке) или сравнением «остаток от n ÷ 2 = 0».'
+        : 'Create the list <code>[7, 3, 8, 5, 2, 9]</code> and store it in <strong>list</strong>. Loop over the items and as soon as you meet an <strong>even</strong> number, print it and <strong>break out of the loop</strong>: the output must show only <strong>8</strong>.<br><br><strong>What “break” means:</strong> the <strong>“break out of loop”</strong> block (Loops category) stops the loop immediately — the program continues right after the loop. This is the classic “search with early exit” pattern.<br><br>To check parity use the <strong>“is even”</strong> block from Math (choose “even” in the dropdown) or the comparison “remainder of n ÷ 2 = 0”.',
+    hint: (lang) =>
+      lang === "ru"
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 7 3 8 5 2 9» (блок из «Списки»).\n2. В «Циклы» возьмите блок «для каждого элемента n в списке …» и вложите в его поле переменную list.\n3. Внутрь цикла положите «если» из «Логика» с условием «чётное»: блок из «Математика» (в выпадающем списке выберите «чётное»), в его поле — переменная n. Альтернатива: «остаток от n ÷ 2 = 0».\n4. В ветку «если» добавьте «Добавить текст … цвет …» с переменной n.\n5. Сразу после печати в той же ветке «если» поставьте блок «прервать цикл» из «Циклы» — после первого чётного цикл остановится, и 2 не будет выведено.\n6. Запустите код: в окне вывода только 8. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable list and set it to “create list with 7 3 8 5 2 9” (a Lists block).\n2. In Loops take the “for each item n in list …” block and put variable list into its field.\n3. Inside the loop place an “if” from Logic with the condition “is even”: the Math block (choose “even” in the dropdown) with variable n in its field. Alternative: “remainder of n ÷ 2 = 0”.\n4. In the if branch add “Add text … color …” with variable n.\n5. Right after the print, in the same if branch, put the “break out of loop” block from Loops — after the first even number the loop stops, so 2 is never printed.\n6. Run the code: the output shows only 8. Press “Check solution”.",
+    validate: validateFirstEvenBreak,
+  },
   a1_number_analyzer: {
     id: "a1_number_analyzer",
     difficulty: "advanced",
@@ -511,6 +529,7 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "list_sum_even_positions",
     "list_sort_min_max",
     "mult_table",
+    "first_even_break",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
@@ -2544,6 +2563,73 @@ async function validateMultTable(
     if (usedCore && count <= 20) stars = 3;
     else if (nestedFor && usedMultiply && usedJoin && usedPrint && count <= 28)
       stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+async function validateFirstEvenBreak(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+
+  // Задача требует вывести ровно одно число — первое чётное (8).
+  // Если цикл не прерван, в вывод попадут и последующие чётные (2) — это не ок.
+  const numericLines = lines
+    .map((l) => Number(l))
+    .filter((n) => Number.isFinite(n));
+  const ok = numericLines.length === 1 && numericLines[0] === 8;
+
+  let usedLoop = false;
+  let usedIf = false;
+  let usedBreak = false;
+  let usedEvenCheck = false;
+  let usedModulo = false;
+  let usedCompare = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (
+      t === "controls_forEach" ||
+      t === "controls_for" ||
+      t === "controls_repeat" ||
+      t === "controls_whileUntil"
+    ) {
+      usedLoop = true;
+    }
+    if (t === "controls_if") usedIf = true;
+    if (t === "controls_flow_statements") {
+      const op =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("FLOW")
+          : undefined;
+      if (String(op).toUpperCase() === "BREAK") usedBreak = true;
+    }
+    if (t === "math_number_property") {
+      const prop =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("PROPERTY")
+          : undefined;
+      if (String(prop).toUpperCase().includes("EVEN")) usedEvenCheck = true;
+    }
+    if (t === "math_modulo") usedModulo = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const evenCheck = usedEvenCheck || (usedModulo && usedCompare);
+  const usedCore = usedLoop && usedIf && evenCheck && hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    // Минимальное решение ~16 блоков (6 чисел списка тоже считаются)
+    if (usedCore && usedBreak && count <= 17) stars = 3;
+    else if (usedCore && count <= 24) stars = 2;
     else stars = 1;
   }
 

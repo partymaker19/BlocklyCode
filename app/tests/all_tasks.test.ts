@@ -193,6 +193,38 @@ const rows: Row[] = [
     blocks: [printB()],
   },
   {
+    id: "first_even_break",
+    output: ["8"],
+    blocks: [
+      {
+        type: "controls_forEach",
+        fields: { VAR: { name: "n" } },
+        inputs: {
+          LIST: {
+            block: {
+              type: "lists_create_with",
+              extraState: { itemCount: 2 },
+              inputs: {
+                ADD0: { block: { type: "math_number", fields: { NUM: 7 } } },
+                ADD1: { block: { type: "math_number", fields: { NUM: 8 } } },
+              },
+            },
+          },
+        },
+      },
+      { type: "controls_if" },
+      {
+        type: "math_number_property",
+        fields: { PROPERTY: "EVEN" },
+        inputs: {
+          NUMBER_TO_CHECK: { block: { type: "variables_get", fields: { VAR: { name: "n" } } } },
+        },
+      },
+      printB(),
+      { type: "controls_flow_statements", fields: { FLOW: "BREAK" } },
+    ],
+  },
+  {
     id: "a1_number_analyzer",
     output: ["The number is odd", "The number is positive"],
     blocks: [setNum("number", 7), getTop("number"), printB()],
@@ -246,8 +278,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 26 задач", () => {
-    expect(Object.keys(tasks).length).toBe(26);
+  it("в реестре 27 задач", () => {
+    expect(Object.keys(tasks).length).toBe(27);
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {

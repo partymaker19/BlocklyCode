@@ -1,0 +1,76 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 23: Найди первое чётное (first_even_break)
+    Решение: список [7,3,8,5,2,9], цикл «для каждого элемента n»,
+    «если чётное» → печать n + «прервать цикл».
+    Итог: в выводе только 8.
+  -->
+  <variables>
+    <variable id=":;list">list</variable>
+    <variable id=":;n">n</variable>
+  </variables>
+  <block type="variables_set" id="set-list" x="30" y="40">
+    <field name="VAR" id=":;list">list</field>
+    <value name="VALUE">
+      <block type="lists_create_with" id="make-list">
+        <mutation items="6"></mutation>
+        <value name="ADD0">
+          <block type="math_number" id="num-7"><field name="NUM">7</field></block>
+        </value>
+        <value name="ADD1">
+          <block type="math_number" id="num-3"><field name="NUM">3</field></block>
+        </value>
+        <value name="ADD2">
+          <block type="math_number" id="num-8"><field name="NUM">8</field></block>
+        </value>
+        <value name="ADD3">
+          <block type="math_number" id="num-5"><field name="NUM">5</field></block>
+        </value>
+        <value name="ADD4">
+          <block type="math_number" id="num-2"><field name="NUM">2</field></block>
+        </value>
+        <value name="ADD5">
+          <block type="math_number" id="num-9"><field name="NUM">9</field></block>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="controls_forEach" id="foreach-loop">
+        <field name="VAR" id=":;n">n</field>
+        <value name="LIST">
+          <block type="variables_get" id="get-list">
+            <field name="VAR" id=":;list">list</field>
+          </block>
+        </value>
+        <statement name="DO">
+          <block type="controls_if" id="if-even">
+            <value name="IF0">
+              <block type="math_number_property" id="is-even">
+                <field name="PROPERTY">EVEN</field>
+                <value name="NUMBER_TO_CHECK">
+                  <block type="variables_get" id="get-n-1">
+                    <field name="VAR" id=":;n">n</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="add_text" id="print-n">
+                <value name="TEXT">
+                  <block type="variables_get" id="get-n-2">
+                    <field name="VAR" id=":;n">n</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="controls_flow_statements" id="break-loop">
+                    <field name="FLOW">BREAK</field>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>

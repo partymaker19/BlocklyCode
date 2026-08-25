@@ -2256,10 +2256,10 @@
       }
 
       body.mobile #blocklyDiv {
-        flex: 0 0 auto;
+        flex: 1 1 auto;
         width: 100%;
         height: auto;
-        min-height: 220px;
+        min-height: 160px;
         min-width: 0;
         padding-left: 0 !important;
       }
@@ -2304,7 +2304,9 @@
 
       body.mobile #outputPane {
         position: relative;
-        flex: 1;
+        /* Высота панели (редактор+вывод) управляется перетаскиванием
+           #mobileVerticalResizer через --mobile-output-height */
+        flex: 0 0 var(--mobile-output-height, 45%);
         min-height: 120px;
         min-width: 0;
         width: 100%;

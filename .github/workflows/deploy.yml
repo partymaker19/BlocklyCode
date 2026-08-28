@@ -20,23 +20,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "npm"
-          cache-dependency-path: "hello-world/package-lock.json"
+          cache-dependency-path: "app/package-lock.json"
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
         run: |
-          cd hello-world
+          cd app
           npm install --no-audit --no-fund --legacy-peer-deps
       - name: Build
         run: |
-          cd hello-world
+          cd app
           npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: hello-world/dist
+          path: app/dist
 
   deploy:
     environment:

@@ -1543,6 +1543,24 @@
       background: #2d3748;
     }
 
+    /* Разделитель между обычным запуском и кнопками отладки */
+    .debug-divider {
+      width: 1px;
+      height: 18px;
+      background: #4b5563;
+      margin: 0 2px;
+      display: inline-block;
+    }
+
+    .icon-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    html[data-theme='dark'] .icon-btn.active {
+      background: #3b82f6;
+    }
+
     html[data-theme='dark'] .resizer:hover {
       background: #374151;
     }
@@ -1565,15 +1583,29 @@
 
     .editor-controls {
       display: flex;
-      gap: 8px;
+      gap: 4px 8px;
       align-items: center;
+      /* Кнопки, не поместившиеся по ширине, переходят во второй ряд */
       flex-wrap: wrap;
+      min-width: 0;
     }
 
     /* New: compact toolbar styles */
     .editor-controls.compact {
       width: 100%;
       justify-content: space-between;
+      flex-wrap: wrap;
+      min-width: 0;
+      row-gap: 4px;
+    }
+
+    /* Группа кнопок внутри тулбара: тоже переносится при сужении */
+    .toolbar-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      min-width: 0;
     }
 
     .editor-controls .separator {
@@ -2499,7 +2531,7 @@
       <div id="codePane">
         <div id="editorToolbar" class="editor-toolbar">
           <div class="editor-controls compact">
-            <div style="display:flex; gap:6px; align-items:center;">
+            <div class="toolbar-group">
               <button id="aceSearchBtn" class="icon-btn" title="Поиск (Ctrl+F)" aria-label="Поиск">🔎</button>
               <button id="aceReplaceBtn" class="icon-btn" title="Замена (Ctrl+H)" aria-label="Замена">⇄</button>
               <button id="aceGotoBtn" class="icon-btn" title="Перейти к строке (Ctrl+L)"
@@ -2508,8 +2540,16 @@
               <button id="aceBracesBtn" class="icon-btn" title="Подсветка фигурных скобок"
                 aria-label="Подсветка фигурных скобок">{}</button>
               <button id="aceRunBtn" class="icon-btn" title="Запустить код" aria-label="Запустить">▶</button>
+              <span class="debug-divider" aria-hidden="true"></span>
+              <button id="debugStepBtn" class="icon-btn" title="Шаг отладки (по одному блоку)"
+                aria-label="Шаг отладки">⏭</button>
+              <button id="debugSlowBtn" class="icon-btn" title="Замедленный запуск с подсветкой блоков"
+                aria-label="Замедленный запуск">🐢</button>
+              <button id="debugRunBtn" class="icon-btn" title="Продолжить без остановок"
+                aria-label="Продолжить">⏩</button>
+              <button id="debugStopBtn" class="icon-btn" title="Остановить отладку" aria-label="Стоп" disabled>⏹</button>
             </div>
-            <div style="display:flex; gap:6px; align-items:center;">
+            <div class="toolbar-group">
               <button id="copyCodeBtn" class="icon-btn" title="Копировать код" aria-label="Копировать">⧉</button>
               <button id="downloadCodeBtn" class="icon-btn" title="Скачать файл" aria-label="Скачать">⬇</button>
               <button id="aceShortcutsBtn" class="icon-btn" title="Сочетания клавиш"

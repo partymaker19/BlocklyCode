@@ -27,27 +27,59 @@ function getErrorMessage(err: unknown): string {
 }
 
 /**
- * Генерирует код из Blockly workspace для выбранного языка
+ * Генерирует код из Blockly workspace для выбранного языка.
+ * При debug=true перед кодом каждого блока вставляется вызов
+ * highlightBlock/highlight_block с ID блока (для пошагового отладчика).
+ * Для PHP инъекции нет: в используемом php-wasm нет моста «PHP-функция → JS».
+ * Экспортируется также для тестов инъекции (tests/debugger.test.ts).
  */
-function generateCode(
+export function generateCode(
   workspace: Blockly.WorkspaceSvg,
   language: SupportedLanguage,
+  debug = false,
 ): string {
   try {
     switch (language) {
       case "php":
         return phpGenerator.workspaceToCode(workspace);
-      case "python":
-        return pythonGenerator.workspaceToCode(workspace);
-      case "lua":
-        return luaGenerator.workspaceToCode(workspace);
+      case "python": {
+        if (debug) {
+          pythonGenerator.STATEMENT_PREFIX = "highlight_block(%1)\n";
+          pythonGenerator.addReservedWords("highlight_block");
+        }
+        try {
+          return pythonGenerator.workspaceToCode(workspace);
+        } finally {
+          if (debug) pythonGenerator.STATEMENT_PREFIX = null;
+        }
+      }
+      case "lua": {
+        if (debug) {
+          luaGenerator.STATEMENT_PREFIX = "highlight_block(%1)\n";
+          luaGenerator.addReservedWords("highlight_block");
+        }
+        try {
+          return luaGenerator.workspaceToCode(workspace);
+        } finally {
+          if (debug) luaGenerator.STATEMENT_PREFIX = null;
+        }
+      }
       case "typescript":
-        // TypeScript использует тот же генератор, что и JavaScript
-        // (потенциально можно добавить аннотации типов позже)
-        return javascriptGenerator.workspaceToCode(workspace);
+      // TypeScript использует тот же генератор, что и JavaScript
+      // (потенциально можно добавить аннотации типов позже)
+      // falls through
       case "javascript":
-      default:
-        return javascriptGenerator.workspaceToCode(workspace);
+      default: {
+        if (debug) {
+          javascriptGenerator.STATEMENT_PREFIX = "highlightBlock(%1);\n";
+          javascriptGenerator.addReservedWords("highlightBlock");
+        }
+        try {
+          return javascriptGenerator.workspaceToCode(workspace);
+        } finally {
+          if (debug) javascriptGenerator.STATEMENT_PREFIX = null;
+        }
+      }
     }
   } catch (error) {
     console.error("Code generation error:", error);
@@ -156,12 +188,25 @@ function executeJavaScriptCode(
 /**
  * Выполнение кода в изолированном Web Worker с таймаутом.
  * Не изменяет исходный сгенерированный код циклов.
+ *
+ * opts.debugCtrl — канал управления отладчиком (см. types/messages.ts);
+ * opts.onHighlight — вызывается на каждый исполняемый блок;
+ * opts.noMainTimer — отключает kill-таймер главного потока (нужно для пауз);
+ * opts.onWorkerReady — отдаёт функцию принудительной остановки воркера;
+ * opts.onDone — воркер завершился (успех или ошибка).
  */
 async function executeInSandbox(
   language: SupportedLanguage,
   code: string,
   outputElement: HTMLElement | null,
   timeoutMs = 1000,
+  opts?: {
+    debugCtrl?: SharedArrayBuffer;
+    onHighlight?: (id: string) => void;
+    noMainTimer?: boolean;
+    onWorkerReady?: (stop: () => void) => void;
+    onDone?: () => void;
+  },
 ): Promise<void> {
   if (!code.trim() || !outputElement) return;
 
@@ -322,7 +367,8 @@ async function executeInSandbox(
   ) {
     effectiveTimeout = Math.max(effectiveTimeout, 30000);
   }
-  const enableMainTimer = language !== "python" && language !== "php";
+  const enableMainTimer =
+    !opts?.noMainTimer && language !== "python" && language !== "php";
   const timer = enableMainTimer
     ? setTimeout(
         () => {
@@ -345,6 +391,18 @@ async function executeInSandbox(
       )
     : null;
 
+  // Отдаём UI функцию принудительной остановки (кнопка ⏹ отладчика)
+  if (opts?.onWorkerReady) {
+    opts.onWorkerReady(() => {
+      try {
+        if (closePendingInput) closePendingInput();
+        if (timer) clearTimeout(timer as any);
+        worker?.removeEventListener("message", onMessage);
+        worker?.terminate();
+      } catch {}
+    });
+  }
+
   const onMessage = (ev: MessageEvent<WorkerOutMsg>) => {
     const msg = ev.data as WorkerOutMsg;
     if (msg?.type === "stdout") {
@@ -355,6 +413,8 @@ async function executeInSandbox(
       appendLine(String(msg.text ?? ""), "#b58900");
     } else if (msg?.type === "status") {
       if (msg.text) appendLine(String(msg.text), "#666");
+    } else if (msg?.type === "highlight") {
+      opts?.onHighlight?.(String((msg as any).id ?? ""));
     } else if (msg?.type === "input_request") {
       void (async () => {
         try {
@@ -378,17 +438,25 @@ async function executeInSandbox(
     } else if (msg?.type === "error") {
       if (closePendingInput) closePendingInput();
       appendLine(`Ошибка выполнения: ${String(msg.message ?? msg)}`, "red");
+      // Все рантаймы шлют "error" как терминальное — оповещаем UI отладчика
+      opts?.onDone?.();
     } else if (msg?.type === "done") {
       if (closePendingInput) closePendingInput();
       if (timer) clearTimeout(timer as any);
       worker?.removeEventListener("message", onMessage);
       worker?.terminate();
+      opts?.onDone?.();
     }
   };
 
   worker.addEventListener("message", onMessage);
   // Прокидываем таймаут внутрь воркера, чтобы рантаймы могли прерывать циклы сами
-  const inMsg: WorkerInMsg = { language, code, timeoutMs: effectiveTimeout };
+  const inMsg: WorkerInMsg = {
+    language,
+    code,
+    timeoutMs: effectiveTimeout,
+    debugCtrl: opts?.debugCtrl,
+  };
   worker.postMessage(inMsg);
 }
 
@@ -449,6 +517,54 @@ export async function runCodeString(
       errorEl.textContent = `Ошибка выполнения: ${getErrorMessage(error)}`;
       outputElement.appendChild(errorEl);
     }
+  }
+}
+
+export type DebugRunHandlers = {
+  /** Вызывается для каждого исполняемого блока (ID блока Blockly) */
+  onHighlight: (id: string) => void;
+  /** Выполнение завершено (успех, ошибка или остановка) */
+  onDone: () => void;
+  /** Отдаёт функцию принудительной остановки (кнопка «Стоп») */
+  onWorkerReady: (stop: () => void) => void;
+};
+
+/**
+ * Пошаговый запуск программы из блоков: код генерируется с вызовами
+ * highlightBlock(ID), темпом управляет UI через debugCtrl (см. types/messages.ts).
+ */
+export async function runDebugCode(
+  workspace: Blockly.WorkspaceSvg | null,
+  language: SupportedLanguage,
+  outputElement: HTMLElement | null,
+  debugCtrl: SharedArrayBuffer,
+  handlers: DebugRunHandlers,
+): Promise<void> {
+  if (!workspace) return;
+  try {
+    const code = generateCode(workspace, language, true);
+    if (!code.trim()) {
+      handlers.onDone();
+      return;
+    }
+    if (outputElement) outputElement.innerHTML = "";
+    // Отладка: длинный таймаут (паузы на шагах), главный kill-таймер отключён
+    await executeInSandbox(language, code, outputElement, 30 * 60 * 1000, {
+      debugCtrl,
+      onHighlight: handlers.onHighlight,
+      noMainTimer: true,
+      onWorkerReady: handlers.onWorkerReady,
+      onDone: handlers.onDone,
+    });
+  } catch (error) {
+    console.error("Debug execution error:", error);
+    if (outputElement) {
+      const errorEl = document.createElement("p");
+      errorEl.style.color = "red";
+      errorEl.textContent = `Ошибка генерации/выполнения: ${getErrorMessage(error)}`;
+      outputElement.appendChild(errorEl);
+    }
+    handlers.onDone();
   }
 }
 

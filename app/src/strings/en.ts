@@ -91,6 +91,10 @@ export const tooltips = {
   clear: "Clear",
   run: "Run code",
   braces: "Highlight curly braces",
+  debugStep: "Debug step (one block at a time)",
+  debugSlow: "Slow run with block highlighting",
+  debugContinue: "Continue without stops",
+  debugStop: "Stop debugging",
 };
 
 export const aceSettings = {

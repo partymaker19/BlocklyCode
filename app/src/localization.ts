@@ -850,6 +850,10 @@ export function localizeTooltips(lang: AppLang): void {
   setBtn("aceShortcutsBtn", t.shortcuts);
   setBtn("aceSettingsToggle", t.settings);
   setBtn("aceRunBtn", t.run);
+  setBtn("debugStepBtn", t.debugStep);
+  setBtn("debugSlowBtn", t.debugSlow);
+  setBtn("debugRunBtn", t.debugContinue);
+  setBtn("debugStopBtn", t.debugStop);
   // Кнопки сохранения/загрузки XML в шапке
   setBtn("saveXmlBtn", lang === "ru" ? "Сохранить (XML)" : "Save (XML)");
   setBtn("loadXmlBtn", lang === "ru" ? "Загрузить (XML)" : "Load (XML)");

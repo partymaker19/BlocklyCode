@@ -29,6 +29,40 @@ function post(msg: WorkerOutMsg) {
 // Глобальный дедлайн для ожиданий ввода/выполнения
 let _deadlineEpochMs: number = 0;
 
+// ---------- Отладчик: канал управления и подсветка блоков ----------
+// debugCtrl — Int32Array над SharedArrayBuffer из UI:
+// [0] режим (0=свободно, 1=шаг/пауза, 2=замедленно),
+// [1] сигнал шага, [2] задержка замедленного режима (мс).
+let debugCtrl: Int32Array | null = null;
+
+function debugWaitAfterHighlight() {
+  const ctrl = debugCtrl;
+  if (!ctrl) return;
+  for (;;) {
+    const mode = Atomics.load(ctrl, 0);
+    if (mode === 0) return;
+    if (mode === 2) {
+      // Замедленный режим: просто спим после каждого блока
+      const delay = Math.max(30, Atomics.load(ctrl, 2) || 400);
+      Atomics.wait(ctrl, 1, 0, delay);
+      return;
+    }
+    // Шаг/пауза: ждём сигнал от UI (кнопка ⏭ или ▶)
+    while (Atomics.load(ctrl, 1) === 0) {
+      // Просыпаемся каждые 100 мс, чтобы видеть смену режима
+      Atomics.wait(ctrl, 1, 0, 100);
+    }
+    Atomics.store(ctrl, 1, 0); // потребляем сигнал
+    if (Atomics.load(ctrl, 0) === 1) return; // остаёмся в шаге: следующий блок снова остановит
+    // Режим сменился (run/slow) — пересматриваем
+  }
+}
+
+function highlightBlock(id: unknown) {
+  post({ type: "highlight", id: String(id ?? "") });
+  debugWaitAfterHighlight();
+}
+
 // Синхронный ввод с использованием SharedArrayBuffer и Atomics.wait в воркере
 function syncInput(prompt: string): string {
   try {
@@ -118,6 +152,7 @@ function runJS(code: string, timeoutMs?: number) {
     const prelude = [
       "try{var window=windowRef;var self=selfRef;var globalThis=globalRef;}catch(e){}",
       "var input = function(prompt){ try { return syncInputRef(String(prompt ?? '')); } catch (e) { throw e; } };",
+      "var highlightBlock = function(id){ try { highlightRef(String(id)); } catch (e) {} };",
     ].join("\n");
     const fn = new Function(
       "print",
@@ -127,6 +162,7 @@ function runJS(code: string, timeoutMs?: number) {
       "windowRef",
       "globalRef",
       "syncInputRef",
+      "highlightRef",
       prelude + "\n" + String(code),
     ) as (
       print: (s: unknown) => void,
@@ -136,6 +172,7 @@ function runJS(code: string, timeoutMs?: number) {
       windowRef: unknown,
       globalRef: unknown,
       syncInputRef: (p: string) => string,
+      highlightRef: (id: string) => void,
     ) => void;
     fn(
       print,
@@ -145,6 +182,7 @@ function runJS(code: string, timeoutMs?: number) {
       self as unknown,
       self as unknown,
       syncInput,
+      highlightBlock,
     );
     post({ type: "done" });
   } catch (e: unknown) {
@@ -188,6 +226,14 @@ async function runPython(code: string, timeoutMs?: number) {
         post({ type: "stdout", text: String(s ?? "") });
       }
     });
+
+    // Мост подсветки блоков для отладчика (highlight_block('ID'))
+    pyodide.globals.set("highlight_to_js", (id: any) => {
+      highlightBlock(String(id ?? ""));
+    });
+    await pyodide.runPythonAsync(
+      "def highlight_block(_bid):\n    highlight_to_js(str(_bid))",
+    );
 
     _deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
     await pyodide.runPythonAsync(`
@@ -311,6 +357,19 @@ async function runLua(code: string, timeoutMs?: number) {
       return 0;
     });
     lua.lua_setglobal(L, to_luastring("print_colored"));
+
+    // Мост подсветки блоков для отладчика (highlight_block('ID'))
+    lua.lua_pushcfunction(L, (L2: any) => {
+      let bid = "";
+      try {
+        const s = to_jsstring(lauxlib.luaL_tolstring(L2, 1));
+        lua.lua_pop(L2, 1);
+        bid = s ?? "";
+      } catch {}
+      highlightBlock(bid);
+      return 0;
+    });
+    lua.lua_setglobal(L, to_luastring("highlight_block"));
 
     // Определяем глобальную функцию input(prompt) -> string, использующую syncInput
     lua.lua_pushcfunction(L, (L2: any) => {
@@ -569,6 +628,8 @@ self.onmessage = (ev: MessageEvent<WorkerInMsg>) => {
   // Обрабатываем объединённый тип: запуск кода или ответ ввода
   if ("language" in msg) {
     const { language, code, timeoutMs } = msg;
+    // Канал отладчика (если передан — функции подсветки активны)
+    debugCtrl = msg.debugCtrl ? new Int32Array(msg.debugCtrl) : null;
     _postedLines = 0; // сбрасываем лимит на каждую новую задачу
     if (!code || !code.trim()) {
       post({ type: "done" });

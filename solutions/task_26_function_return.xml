@@ -1,0 +1,54 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 26: Функция с возвратом (function_return)
+    Решение: функция add с параметрами a и b возвращает a + b;
+    вызов add(3, 4) выводится через «Добавить текст … цвет …».
+    Итог: в выводе 7.
+  -->
+  <variables>
+    <variable id="fr-a">a</variable>
+    <variable id="fr-b">b</variable>
+  </variables>
+  <block type="procedures_defreturn" id="def-add" x="30" y="40">
+    <mutation>
+      <arg name="a" varid="fr-a"></arg>
+      <arg name="b" varid="fr-b"></arg>
+    </mutation>
+    <field name="NAME">add</field>
+    <value name="RETURN">
+      <block type="math_arithmetic" id="add-a-b">
+        <field name="OP">ADD</field>
+        <value name="A">
+          <block type="variables_get" id="get-a">
+            <field name="VAR" id="fr-a">a</field>
+          </block>
+        </value>
+        <value name="B">
+          <block type="variables_get" id="get-b">
+            <field name="VAR" id="fr-b">b</field>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="add_text" id="print-result" x="30" y="220">
+    <value name="TEXT">
+      <block type="procedures_callreturn" id="call-add">
+        <mutation name="add">
+          <arg name="a"></arg>
+          <arg name="b"></arg>
+        </mutation>
+        <value name="ARG0">
+          <shadow type="math_number" id="num-3">
+            <field name="NUM">3</field>
+          </shadow>
+        </value>
+        <value name="ARG1">
+          <shadow type="math_number" id="num-4">
+            <field name="NUM">4</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+  </block>
+</xml>

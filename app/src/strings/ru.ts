@@ -98,6 +98,10 @@ export const tooltips: typeof TooltipsEn = {
   clear: "Очистить",
   run: "Запустить код",
   braces: "Подсветка фигурных скобок",
+  debugStep: "Шаг отладки (по одному блоку)",
+  debugSlow: "Замедленный запуск с подсветкой блоков",
+  debugContinue: "Продолжить без остановок",
+  debugStop: "Остановить отладку",
 };
 
 export const aceSettings: typeof AceSettingsEn = {

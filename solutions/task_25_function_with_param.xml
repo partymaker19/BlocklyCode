@@ -1,0 +1,61 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 25: Функция с параметром (function_with_param)
+    Решение: функция greet с параметром name печатает «Привет, <имя>!»
+    через «создать текст из»; два вызова с именами Аня и Боря.
+    Итог: Привет, Аня! / Привет, Боря!
+  -->
+  <variables>
+    <variable id="gwp-name">name</variable>
+  </variables>
+  <block type="procedures_defnoreturn" id="def-greet" x="30" y="40">
+    <mutation>
+      <arg name="name" varid="gwp-name"></arg>
+    </mutation>
+    <field name="NAME">greet</field>
+    <statement name="STACK">
+      <block type="add_text" id="print-greeting">
+        <value name="TEXT">
+          <block type="text_join" id="join-greeting">
+            <mutation items="3"></mutation>
+            <value name="ADD0">
+              <shadow type="text" id="txt-hello">
+                <field name="TEXT">Привет, </field>
+              </shadow>
+            </value>
+            <value name="ADD1">
+              <block type="variables_get" id="get-name">
+                <field name="VAR" id="gwp-name">name</field>
+              </block>
+            </value>
+            <value name="ADD2">
+              <shadow type="text" id="txt-excl">
+                <field name="TEXT">!</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_callnoreturn" id="call-greet-anya" x="30" y="220">
+    <mutation name="greet">
+      <arg name="name"></arg>
+    </mutation>
+    <value name="ARG0">
+      <shadow type="text" id="txt-anya">
+        <field name="TEXT">Аня</field>
+      </shadow>
+    </value>
+  </block>
+  <block type="procedures_callnoreturn" id="call-greet-borya" x="30" y="270">
+    <mutation name="greet">
+      <arg name="name"></arg>
+    </mutation>
+    <value name="ARG0">
+      <shadow type="text" id="txt-borya">
+        <field name="TEXT">Боря</field>
+      </shadow>
+    </value>
+  </block>
+</xml>

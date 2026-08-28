@@ -13,6 +13,12 @@ export type WorkerInMsg =
       language: SupportedLanguage;
       code: string;
       timeoutMs?: number;
+      // Канал управления отладчиком (SharedArrayBuffer, 3 ячейки Int32):
+      // [0] режим (0=свободно, 1=шаг/пауза, 2=замедленно),
+      // [1] сигнал шага (UI ставит 1, воркер потребляет),
+      // [2] задержка замедленного режима, мс.
+      // Если задан — воркер подставляет функции подсветки блоков.
+      debugCtrl?: SharedArrayBuffer;
     }
   | { type: "input_response"; value: string }
   // Запрос статического анализа Python-кода (pyflakes внутри pyodide)
@@ -35,4 +41,6 @@ export type WorkerOutMsg =
   | { type: "input_request"; prompt?: string; buffer: SharedArrayBuffer }
   | { type: "done" }
   | { type: "error"; message: string }
-  | { type: "lint_result"; id: number; diagnostics: LintDiagnostic[] };
+  | { type: "lint_result"; id: number; diagnostics: LintDiagnostic[] }
+  // Отладчик: воркер сообщает ID блока, который сейчас исполняется
+  | { type: "highlight"; id: string };

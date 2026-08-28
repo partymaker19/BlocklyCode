@@ -1,0 +1,29 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 24: Моя первая функция (first_function)
+    Решение: функция greet печатает Hello, world!, три блока вызова greet.
+    Итог: в выводе три строки Hello, world!.
+  -->
+  <block type="procedures_defnoreturn" id="def-greet" x="30" y="40">
+    <mutation></mutation>
+    <field name="NAME">greet</field>
+    <statement name="STACK">
+      <block type="add_text" id="print-hello">
+        <value name="TEXT">
+          <shadow type="text" id="txt-hello">
+            <field name="TEXT">Hello, world!</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_callnoreturn" id="call-greet-1" x="30" y="190">
+    <mutation name="greet"></mutation>
+  </block>
+  <block type="procedures_callnoreturn" id="call-greet-2" x="30" y="240">
+    <mutation name="greet"></mutation>
+  </block>
+  <block type="procedures_callnoreturn" id="call-greet-3" x="30" y="290">
+    <mutation name="greet"></mutation>
+  </block>
+</xml>

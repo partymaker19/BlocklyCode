@@ -225,6 +225,118 @@ const rows: Row[] = [
     ],
   },
   {
+    id: "first_function",
+    output: ["Hello, world!", "Hello, world!", "Hello, world!"],
+    blocks: [
+      {
+        type: "procedures_defnoreturn",
+        fields: { NAME: "greet" },
+        inputs: {
+          STACK: {
+            block: {
+              type: "add_text",
+              inputs: {
+                TEXT: { shadow: { type: "text", fields: { TEXT: "Hello, world!" } } },
+              },
+            },
+          },
+        },
+      },
+      { type: "procedures_callnoreturn", extraState: { name: "greet" } },
+      { type: "procedures_callnoreturn", extraState: { name: "greet" } },
+      { type: "procedures_callnoreturn", extraState: { name: "greet" } },
+    ],
+  },
+  {
+    id: "function_with_param",
+    output: ["Привет, Аня!", "Привет, Боря!"],
+    blocks: [
+      {
+        type: "procedures_defnoreturn",
+        fields: { NAME: "greet" },
+        extraState: { params: [{ name: "name", id: "gwp-name" }] },
+        inputs: {
+          STACK: {
+            block: {
+              type: "add_text",
+              inputs: {
+                TEXT: {
+                  block: {
+                    type: "text_join",
+                    extraState: { itemCount: 3 },
+                    inputs: {
+                      ADD0: { shadow: { type: "text", fields: { TEXT: "Привет, " } } },
+                      ADD1: {
+                        block: {
+                          type: "variables_get",
+                          fields: { VAR: { name: "name" } },
+                        },
+                      },
+                      ADD2: { shadow: { type: "text", fields: { TEXT: "!" } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        type: "procedures_callnoreturn",
+        extraState: { name: "greet", params: ["name"] },
+        inputs: { ARG0: { shadow: { type: "text", fields: { TEXT: "Аня" } } } },
+      },
+      {
+        type: "procedures_callnoreturn",
+        extraState: { name: "greet", params: ["name"] },
+        inputs: { ARG0: { shadow: { type: "text", fields: { TEXT: "Боря" } } } },
+      },
+    ],
+  },
+  {
+    id: "function_return",
+    output: ["7"],
+    blocks: [
+      {
+        type: "procedures_defreturn",
+        fields: { NAME: "add" },
+        extraState: {
+          params: [
+            { name: "a", id: "fr-a" },
+            { name: "b", id: "fr-b" },
+          ],
+        },
+        inputs: {
+          RETURN: {
+            block: {
+              type: "math_arithmetic",
+              fields: { OP: "ADD" },
+              inputs: {
+                A: { block: { type: "variables_get", fields: { VAR: { name: "a" } } } },
+                B: { block: { type: "variables_get", fields: { VAR: { name: "b" } } } },
+              },
+            },
+          },
+        },
+      },
+      {
+        type: "add_text",
+        inputs: {
+          TEXT: {
+            block: {
+              type: "procedures_callreturn",
+              extraState: { name: "add", params: ["a", "b"] },
+              inputs: {
+                ARG0: { shadow: { type: "math_number", fields: { NUM: 3 } } },
+                ARG1: { shadow: { type: "math_number", fields: { NUM: 4 } } },
+              },
+            },
+          },
+        },
+      },
+    ],
+  },
+  {
     id: "a1_number_analyzer",
     output: ["The number is odd", "The number is positive"],
     blocks: [setNum("number", 7), getTop("number"), printB()],
@@ -278,8 +390,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 27 задач", () => {
-    expect(Object.keys(tasks).length).toBe(27);
+  it("в реестре 30 задач", () => {
+    expect(Object.keys(tasks).length).toBe(30);
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {

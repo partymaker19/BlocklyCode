@@ -93,6 +93,7 @@ import {
   closeAllMobilePanels,
 } from "./ui/mobile";
 import { updateToolboxBlockCounterLabel } from "./ui/toolboxCounter";
+import { initDebugger } from "./ui/debugger";
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
@@ -1038,6 +1039,11 @@ if (__isInitialReload) {
 refreshWorkspaceWithCustomToolbox();
 initMobileUIModule({
   onToolboxResize: () => scheduleUIResize(),
+});
+// Пошаговый отладчик (подсветка блоков при выполнении кода)
+initDebugger({
+  getWorkspace: () => ws,
+  getLanguage: () => selectedGeneratorLanguage,
 });
 
 // Обработчик переключения языка

@@ -527,6 +527,208 @@ html[data-theme='dark'] .assign-dialog-select {
   gap: 6px;
 }
 
+/* ===== Пошаговые подсказки (ui/hintSteps.ts) ===== */
+.hint-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hint-steps-intro {
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.hint-steps-list {
+  margin: 0;
+  padding-left: 22px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hint-steps-list li {
+  animation: hintStepIn 0.25s ease-out;
+}
+
+@keyframes hintStepIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hint-steps-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+}
+
+.hint-steps-controls .hint-next-btn {
+  padding: 5px 12px;
+  font-size: 13px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+html[data-theme='dark'] .hint-steps-controls .hint-next-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.hint-steps-done {
+  font-size: 12.5px;
+  opacity: 0.7;
+}
+
+/* ===== Статистика и достижения (ui/stats.ts) ===== */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stats-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+html[data-theme='dark'] .stats-card {
+  border-color: #2d3748;
+  background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+}
+
+.stats-card-value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.stats-card-label {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.stats-card-sub {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.stats-bar {
+  position: relative;
+  height: 18px;
+  border-radius: 9px;
+  background: rgba(102, 126, 234, 0.12);
+  overflow: hidden;
+}
+
+.stats-bar-fill {
+  height: 100%;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.4s ease-out;
+}
+
+.stats-bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+html[data-theme='dark'] .stats-bar {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+html[data-theme='dark'] .stats-bar-label {
+  color: #e5e7eb;
+}
+
+.stats-section {
+  margin: 14px 0;
+}
+
+.stats-section h4 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.stats-level {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.stats-level > span {
+  width: 110px;
+  flex: 0 0 auto;
+  font-size: 13.5px;
+}
+
+.stats-level .stats-bar {
+  flex: 1 1 auto;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.badge {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0.45;
+  filter: grayscale(0.8);
+  transition: opacity 0.2s, filter 0.2s, transform 0.2s;
+}
+
+html[data-theme='dark'] .badge {
+  border-color: #2d3748;
+}
+
+.badge.earned {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.02);
+  border-color: rgba(245, 158, 11, 0.5);
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.12));
+}
+
+.badge-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.badge-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-state {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
 .feedback-label {
   font-size: 13px;
   opacity: 0.85;

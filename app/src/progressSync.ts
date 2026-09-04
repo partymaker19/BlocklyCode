@@ -10,6 +10,7 @@
 
 import { isAuthenticated } from "./authClient";
 import type { TaskId } from "./tasks";
+import { markActivityToday } from "./ui/badges";
 
 export interface TaskProgressEntry {
   solved: boolean;
@@ -111,6 +112,8 @@ export function reportSolved(taskId: TaskId, stars: number): void {
     stars: Math.max(prev?.stars ?? 0, stars),
   };
   saveLocal(local);
+  // День активности для серии (streak) — идемпотентно в течение дня
+  markActivityToday();
   if (isAuthenticated()) {
     void pushServerProgress(taskId, local[taskId]);
   }

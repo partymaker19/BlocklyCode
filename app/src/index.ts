@@ -54,6 +54,7 @@ import {
   localizeSupportUI,
   localizeClassesUI,
   localizeFeedbackUI,
+  localizeStatsUI,
 } from "./localization";
 import {
   setupAceEditor,
@@ -92,6 +93,7 @@ import {
 import { initClassesUI } from "./ui/classes";
 import { initStudentTasksUI } from "./ui/studentTasks";
 import { initFeedbackUI } from "./ui/feedback";
+import { initStatsUI } from "./ui/stats";
 import {
   initMobileUI as initMobileUIModule,
   initMobileToolboxUI,
@@ -1027,6 +1029,8 @@ localizeSupportUI(defaultLang);
 localizeClassesUI(defaultLang);
 // Локализуем кнопку и модалку обратной связи
 localizeFeedbackUI(defaultLang);
+// Локализуем кнопку и модалку статистики
+localizeStatsUI(defaultLang);
 
 // Дашборд учителя «Мои классы» (кнопка видна только авторизованным)
 initClassesUI();
@@ -1034,6 +1038,8 @@ initClassesUI();
 initStudentTasksUI();
 // Обратная связь (доступна всем)
 initFeedbackUI();
+// Экран статистики: задачи, звёзды, серия дней, достижения
+initStatsUI();
 // Экспортируем список задач для диалога назначения задания в классах
 try {
   (window as any).__BC_TASKS__ = tasks;
@@ -1103,6 +1109,8 @@ if (langSwitchInput) {
       localizeClassesUI(newLang);
       // Локализуем кнопку и модалку обратной связи
       localizeFeedbackUI(newLang);
+      // Локализуем кнопку и модалку статистики
+      localizeStatsUI(newLang);
       // ACE строки (кнопка Save, статус-бар)
       refreshAceUILanguage();
       localizeTaskSidebarStaticUI(newLang);

@@ -2444,6 +2444,11 @@
           style="margin-right: 12px;">
           <span id="feedbackBtnText">✉️ Обратная связь</span>
         </button>
+        <!-- Stats button (progress, stars, streak, badges) -->
+        <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика"
+          style="margin-right: 12px;">
+          <span id="statsBtnText">📊 Статистика</span>
+        </button>
         <!-- Classes dashboard (teacher mode) -->
         <button id="classesBtn" class="import-button" title="Мои классы" aria-label="Мои классы"
           style="display:none; margin-right: 12px;">
@@ -2526,6 +2531,7 @@
         <div class="mobile-menu-section-title">Проект</div>
         <button class="mobile-menu-item" data-action="taskSolutionBtn">ℹ️ Решение задач</button>
         <button class="mobile-menu-item" data-action="taskDifficultySelect">🧭 Выбор уровня задач</button>
+        <button class="mobile-menu-item" data-action="statsBtn">📊 Статистика</button>
         <button class="mobile-menu-item" data-action="supportBtn">💙 Поддержка</button>
         <button class="mobile-menu-item" data-action="feedbackBtn">✉️ Обратная связь</button>
       </div>
@@ -2669,7 +2675,7 @@
           </p>
           <details id="taskHintDetails" class="task-hint-details">
             <summary id="taskHintSummary">Подсказка</summary>
-            <div class="task-hint">Подсказка: используйте блок вывода текста и текстовый литерал.</div>
+            <!-- Пошаговая подсказка рендерится в ui/hintSteps.ts (mount .hint-steps-mount) -->
           </details>
           <div class="task-criteria">
             <span id="taskStarsCriteriaLabel">Критерии звёзд:</span>
@@ -3708,6 +3714,20 @@ end</code></pre>
       </div>
       <div class="modal-body" id="feedbackBody">
         <!-- Содержимое рендерится в ui/feedback.ts -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно статистики (прогресс, звёзды, серия, достижения) -->
+  <div id="statsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="statsModalTitle"
+    style="display:none">
+    <div class="modal-content classes-modal-content">
+      <div class="modal-header modal-reg">
+        <h2 id="statsModalTitle">Моя статистика</h2>
+        <span id="closeStatsModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="statsBody">
+        <!-- Содержимое рендерится в ui/stats.ts -->
       </div>
     </div>
   </div>

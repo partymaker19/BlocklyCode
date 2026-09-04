@@ -2,6 +2,7 @@ import * as Blockly from "blockly";
 import { getAppLang } from "./localization";
 import { countNonShadowBlocks, getNonShadowBlocks } from "./workspaceUtils";
 import { reportSolved, syncProgress } from "./progressSync";
+import { mountHintSteps } from "./ui/hintSteps";
 
 export type InitTaskValidationOptions = {
   checkButton: HTMLButtonElement | null;
@@ -2997,9 +2998,6 @@ export function setActiveTask(taskId: TaskId) {
   const descEl = document.querySelector(
     "#taskSidebar .task-desc",
   ) as HTMLElement | null;
-  const hintEl = document.querySelector(
-    "#taskSidebar .task-hint",
-  ) as HTMLElement | null;
   const hintDetails = document.getElementById(
     "taskHintDetails",
   ) as HTMLDetailsElement | null;
@@ -3017,8 +3015,11 @@ export function setActiveTask(taskId: TaskId) {
   const tdef = tasks[activeTaskId];
   if (titleEl) titleEl.textContent = tdef.title(lang);
   if (descEl) descEl.innerHTML = tdef.description(lang);
-  if (hintEl) hintEl.textContent = tdef.hint(lang);
-  if (hintDetails) hintDetails.open = false;
+  // Пошаговая подсказка: шаги открываются по одному (ui/hintSteps.ts)
+  if (hintDetails) {
+    hintDetails.open = false;
+    mountHintSteps(hintDetails, tdef.hint(lang));
+  }
   if (feedbackEl) feedbackEl.textContent = "";
   if (starsEl) starsEl.innerHTML = "";
   const nextId = getNextTaskId(activeTaskId);

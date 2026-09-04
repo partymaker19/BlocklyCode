@@ -7,6 +7,7 @@ import type {
   feedbackUi as FeedbackUiEn,
   helpUi as HelpUiEn,
   importUi as ImportUiEn,
+  statsUi as StatsUiEn,
   supportUi as SupportUiEn,
   toolbox as ToolboxEn,
   tooltips as TooltipsEn,
@@ -156,5 +157,12 @@ export const feedbackUi: typeof FeedbackUiEn = {
   buttonText: "Обратная связь",
   buttonLabel: "Обратная связь — сообщить о баге или поделиться идеей",
   modalTitle: "Обратная связь",
+  closeLabel: "Закрыть",
+};
+
+export const statsUi: typeof StatsUiEn = {
+  buttonText: "Статистика",
+  buttonLabel: "Моя статистика — задачи, звёзды, серия дней, достижения",
+  modalTitle: "Моя статистика",
   closeLabel: "Закрыть",
 };

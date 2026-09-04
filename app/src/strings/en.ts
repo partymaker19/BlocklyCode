@@ -148,3 +148,10 @@ export const feedbackUi = {
   modalTitle: "Feedback",
   closeLabel: "Close",
 };
+
+export const statsUi = {
+  buttonText: "Stats",
+  buttonLabel: "My statistics — tasks, stars, streak, achievements",
+  modalTitle: "My statistics",
+  closeLabel: "Close",
+};

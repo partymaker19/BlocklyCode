@@ -1037,3 +1037,20 @@ export function localizeFeedbackUI(lang: AppLang): void {
   if (titleEl) (titleEl as HTMLElement).textContent = t.modalTitle;
   if (closeIcon) closeIcon.setAttribute("aria-label", t.closeLabel);
 }
+
+export function localizeStatsUI(lang: AppLang): void {
+  const t = lang === "ru" ? stringsRu.statsUi : stringsEn.statsUi;
+
+  const btn = document.getElementById("statsBtn");
+  const btnText = document.getElementById("statsBtnText");
+  const titleEl = document.getElementById("statsModalTitle");
+  const closeIcon = document.getElementById("closeStatsModal");
+
+  if (btn) {
+    btn.setAttribute("title", t.buttonLabel);
+    btn.setAttribute("aria-label", t.buttonLabel);
+  }
+  if (btnText) (btnText as HTMLElement).textContent = `📊 ${t.buttonText}`;
+  if (titleEl) (titleEl as HTMLElement).textContent = t.modalTitle;
+  if (closeIcon) closeIcon.setAttribute("aria-label", t.closeLabel);
+}

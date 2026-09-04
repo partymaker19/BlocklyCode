@@ -228,6 +228,20 @@ app.post("/api/progress/:taskId", requireAuth, (req, res) => {
   if (!taskId) return res.status(400).json({ error: "Missing taskId" });
   const { solved, stars } = req.body || {};
   store.setTaskProgress(req.user.id, taskId, !!solved, Number(stars) || 0);
+
+  // Автозавершение: если задача решена и она была назначена ученику —
+  // помечаем все активные назначения этой задачи как completed
+  if (solved) {
+    try {
+      for (const t of store.getStudentTasks(req.user.id)) {
+        if (t.task_id === taskId && t.status !== "completed") {
+          store.updateTaskStatus(t.id, "completed", null);
+        }
+      }
+    } catch (e) {
+      console.error("auto-complete assigned tasks error", e);
+    }
+  }
   res.json({ ok: true });
 });
 

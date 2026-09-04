@@ -1,6 +1,7 @@
 import * as Blockly from "blockly";
 import { getAppLang } from "./localization";
 import { countNonShadowBlocks, getNonShadowBlocks } from "./workspaceUtils";
+import { reportSolved, syncProgress } from "./progressSync";
 
 export type InitTaskValidationOptions = {
   checkButton: HTMLButtonElement | null;
@@ -604,18 +605,9 @@ function loadProgress(): Progress {
   }
 }
 
-function saveProgress(p: Progress) {
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(p));
-  } catch {
-    /* ничего */
-  }
-}
-
 function markSolved(taskId: TaskId, stars: number) {
-  const p = loadProgress();
-  p[taskId] = { solved: true, stars };
-  saveProgress(p);
+  // localStorage пишет progressSync (вместе с отправкой на сервер)
+  reportSolved(taskId, stars);
 }
 
 export function isSolved(taskId: TaskId): boolean {
@@ -3118,6 +3110,22 @@ export function setActiveTask(taskId: TaskId) {
     conditionInfo.style.display = showConditionInfo ? "" : "none";
   if (logicalOpsInfo)
     logicalOpsInfo.style.display = showLogicalOpsInfo ? "" : "none";
+}
+
+/**
+ * Синхронизирует прогресс с сервером (для авторизованных) и обновляет
+ * UI текущей задачи. Вызывается при старте приложения и после логина.
+ */
+export async function syncTaskProgress(): Promise<void> {
+  const before = isSolved(activeTaskId);
+  await syncProgress();
+  const after = isSolved(activeTaskId);
+  // Если синхронизация изменила статус текущей задачи — перерисуем UI
+  if (before !== after) {
+    try {
+      setActiveTask(activeTaskId);
+    } catch {}
+  }
 }
 
 export function initTaskValidation(

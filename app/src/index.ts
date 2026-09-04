@@ -22,6 +22,7 @@ import {
 } from "./appBootstrap";
 import { setupAuthBootstrap } from "./authBootstrap";
 import { initAuthUI } from "./authUI";
+import { addAuthChangeListener } from "./authClient";
 import "./index.css";
 import {
   initTaskValidation,
@@ -31,6 +32,7 @@ import {
   setActiveDifficulty,
   getActiveDifficulty,
   tasks,
+  syncTaskProgress,
 } from "./tasks";
 import { countNonShadowBlocks } from "./workspaceUtils";
 import { saveTextFile } from "./fileSave";
@@ -1046,13 +1048,13 @@ const __isInitialReload =
   __navEntries[0]?.type === "reload" ||
   (performance as any)?.navigation?.type === 1;
 
-// При перезагрузке очищаем сохранённые данные прогресса
+// При перезагрузке очищаем локальный слепок рабочей области:
+// для авторизованных актуальные данные подтянет сервер, для гостей
+// свежая сессия начинается с чистого поля. Прогресс задач
+// (task_progress_v1) НЕ трогаем — он должен переживать F5.
 if (__isInitialReload) {
   try {
     window.localStorage?.removeItem("mainWorkspace");
-  } catch {}
-  try {
-    window.localStorage?.removeItem("task_progress_v1");
   } catch {}
 }
 
@@ -1575,6 +1577,14 @@ function refreshWorkspaceWithCustomToolbox() {
   initAuthUI();
   // Инициализация загрузки/сохранения через bootstrap-модуль (не блокирует UI)
   setupAppBootstrap(ws, { shouldLoad: !__isInitialReload });
+
+  // Синхронизация прогресса задач с сервером (после определения авторизации):
+  // подтягивает серверные решения, льёт локальные наверх, обновляет UI задач
+  void syncTaskProgress();
+  // Повторная синхронизация после логина (прогресс гостя уезжает на сервер)
+  addAuthChangeListener((user) => {
+    if (user) void syncTaskProgress();
+  });
 
   // Подключаем обновление индикатора активного хранилища и времени последнего сохранения
   const storageIndicatorEl = document.getElementById("storageIndicator");

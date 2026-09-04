@@ -10,6 +10,7 @@
     "lint": "cd app && npm run lint",
     "typecheck": "cd app && npm run typecheck",
     "server": "node server/index.js",
+    "promo": "node scripts/promo.js",
     "dev": "powershell -Command \"Start-Process -NoNewWindow npm -ArgumentList 'run server'; Start-Process -NoNewWindow npm -ArgumentList 'start'\"",
     "pdf": "node scripts/create-pdf.js"
   },

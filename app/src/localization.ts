@@ -1003,3 +1003,37 @@ export function localizeSupportUI(lang: AppLang): void {
   if (closeBtn) (closeBtn as HTMLElement).textContent = t.close;
   if (closeIcon) closeIcon.setAttribute("aria-label", t.close);
 }
+
+export function localizeClassesUI(lang: AppLang): void {
+  const t = lang === "ru" ? stringsRu.classesUi : stringsEn.classesUi;
+
+  const btn = document.getElementById("classesBtn");
+  const btnText = document.getElementById("classesBtnText");
+  const titleEl = document.getElementById("classesModalTitle");
+  const closeIcon = document.getElementById("closeClassesModal");
+
+  if (btn) {
+    btn.setAttribute("title", t.buttonLabel);
+    btn.setAttribute("aria-label", t.buttonLabel);
+  }
+  if (btnText) (btnText as HTMLElement).textContent = `🎓 ${t.buttonText}`;
+  if (titleEl) (titleEl as HTMLElement).textContent = t.modalTitle;
+  if (closeIcon) closeIcon.setAttribute("aria-label", t.closeLabel);
+}
+
+export function localizeFeedbackUI(lang: AppLang): void {
+  const t = lang === "ru" ? stringsRu.feedbackUi : stringsEn.feedbackUi;
+
+  const btn = document.getElementById("feedbackBtn");
+  const btnText = document.getElementById("feedbackBtnText");
+  const titleEl = document.getElementById("feedbackModalTitle");
+  const closeIcon = document.getElementById("closeFeedbackModal");
+
+  if (btn) {
+    btn.setAttribute("title", t.buttonLabel);
+    btn.setAttribute("aria-label", t.buttonLabel);
+  }
+  if (btnText) (btnText as HTMLElement).textContent = `✉️ ${t.buttonText}`;
+  if (titleEl) (titleEl as HTMLElement).textContent = t.modalTitle;
+  if (closeIcon) closeIcon.setAttribute("aria-label", t.closeLabel);
+}

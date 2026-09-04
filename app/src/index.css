@@ -45,3 +45,537 @@ html[data-theme='dark'] .toolbox-counter { background: rgba(26, 32, 44, 0.85); c
 body.dark #storageIndicator.import-button {
   opacity: 0.9;
 }
+
+/* ===== Teacher classes dashboard (ui/classes.ts) ===== */
+.classes-modal-content {
+  max-width: 860px;
+  width: 92%;
+  min-width: 320px;
+}
+
+#classesModalBody {
+  min-height: 200px;
+}
+
+.classes-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.class-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html[data-theme='dark'] .class-card {
+  border-color: #2d3748;
+  background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.class-card-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a202c;
+}
+
+html[data-theme='dark'] .class-card-title {
+  color: #e5e7eb;
+}
+
+.class-card-desc {
+  font-size: 13px;
+  opacity: 0.75;
+  min-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.class-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.classes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.classes-table th,
+.classes-table td {
+  border: 1px solid #e2e8f0;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+html[data-theme='dark'] .classes-table th,
+html[data-theme='dark'] .classes-table td {
+  border-color: #2d3748;
+}
+
+.classes-table th {
+  background: rgba(102, 126, 234, 0.08);
+  font-weight: 600;
+}
+
+html[data-theme='dark'] .classes-table th {
+  background: rgba(102, 126, 234, 0.18);
+}
+
+.classes-empty,
+.classes-error {
+  padding: 18px 6px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.classes-error {
+  color: #dc2626;
+  opacity: 1;
+}
+
+.class-detail-title {
+  margin: 10px 0 4px;
+  font-size: 18px;
+}
+
+.class-tasks-title {
+  margin: 16px 0 6px;
+  font-size: 15px;
+}
+
+.class-tasks-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+}
+
+.add-student-row {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 6px;
+}
+
+.add-student-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: #1a202c;
+}
+
+html[data-theme='dark'] .add-student-row input {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #374151;
+}
+
+/* Кнопки внутри дашборда */
+#classesModalBody .btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+#classesModalBody .btn.small {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  background: rgba(102, 126, 234, 0.12);
+  color: #4c51bf;
+  border: 1px solid rgba(102, 126, 234, 0.35);
+  cursor: pointer;
+}
+
+html[data-theme='dark'] #classesModalBody .btn.small {
+  background: rgba(102, 126, 234, 0.25);
+  color: #c3d0ff;
+}
+
+#classesModalBody .btn.small.danger {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+html[data-theme='dark'] #classesModalBody .btn.small.danger {
+  background: rgba(220, 38, 38, 0.22);
+  color: #fca5a5;
+}
+
+/* ===== Billing / paywall ===== */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.plan-badge.free {
+  background: rgba(100, 116, 139, 0.12);
+  color: #64748b;
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+.plan-badge.pro {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.2));
+  color: #b45309;
+  border-color: rgba(217, 119, 6, 0.45);
+}
+
+html[data-theme='dark'] .plan-badge.free {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+html[data-theme='dark'] .plan-badge.pro {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+  color: #fbbf24;
+}
+
+.plan-badge-name {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.plan-badge-limits {
+  opacity: 0.85;
+}
+
+.classes-paywall {
+  position: absolute;
+  inset: auto 16px 16px 16px;
+  z-index: 5;
+}
+
+.paywall-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme='dark'] .paywall-banner {
+  background: linear-gradient(135deg, #431407 0%, #7c2d12 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.paywall-icon {
+  font-size: 20px;
+}
+
+.paywall-text {
+  flex: 1 1 auto;
+  font-size: 14px;
+  color: #7c2d12;
+}
+
+html[data-theme='dark'] .paywall-text {
+  color: #fed7aa;
+}
+
+.paywall-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+  opacity: 0.7;
+}
+
+.billing-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 14px;
+}
+
+.billing-expires {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 8px 0 16px;
+}
+
+.plan-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html[data-theme='dark'] .plan-card {
+  border-color: #2d3748;
+  background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+}
+
+.plan-card.pro {
+  border-color: rgba(217, 119, 6, 0.45);
+}
+
+html[data-theme='dark'] .plan-card.pro {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.plan-card.current {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5);
+}
+
+.plan-card-name {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.plan-card.pro .plan-card-name {
+  color: #b45309;
+}
+
+html[data-theme='dark'] .plan-card.pro .plan-card-name {
+  color: #fbbf24;
+}
+
+.plan-card-price {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.plan-period {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.plan-features {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plan-current-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4c51bf;
+  margin-top: 4px;
+}
+
+html[data-theme='dark'] .plan-current-label {
+  color: #c3d0ff;
+}
+
+.billing-upgrade {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.billing-upgrade-label {
+  font-size: 14px;
+}
+
+.billing-note {
+  font-size: 12px;
+  opacity: 0.65;
+  line-height: 1.4;
+}
+
+.billing-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* ===== Прогресс ученика и диалог назначения ===== */
+.student-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 10px 0 6px;
+}
+
+.student-stat {
+  flex: 1 1 120px;
+  min-width: 120px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: center;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+
+html[data-theme='dark'] .student-stat {
+  border-color: #2d3748;
+  background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+}
+
+.student-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.student-stat-label {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.assign-dialog {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: inherit;
+}
+
+.assign-dialog-inner {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  width: min(360px, 90%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme='dark'] .assign-dialog-inner {
+  background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+  border-color: #2d3748;
+}
+
+.assign-dialog-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.assign-dialog-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: #1a202c;
+}
+
+html[data-theme='dark'] .assign-dialog-select {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #374151;
+}
+
+.assign-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ===== Обратная связь ===== */
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feedback-label {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: 6px;
+}
+
+.feedback-select,
+.feedback-input,
+.feedback-textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #1a202c;
+  box-sizing: border-box;
+}
+
+.feedback-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+html[data-theme='dark'] .feedback-select,
+html[data-theme='dark'] .feedback-input,
+html[data-theme='dark'] .feedback-textarea {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #374151;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.feedback-status {
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.feedback-status.error {
+  color: #dc2626;
+}
+
+html[data-theme='dark'] .feedback-status.error {
+  color: #fca5a5;
+}

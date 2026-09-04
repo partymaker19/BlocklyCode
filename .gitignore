@@ -55,3 +55,9 @@ opencode.json
 .qwen/
 testsprite_tests/
 app/testsprite_tests/
+
+# Local runtime data (SQLite DB, feedback journal)
+server/data/
+
+# OpenCode local agent workspace (skills, node_modules, plugin data)
+.opencode/

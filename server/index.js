@@ -10,6 +10,7 @@ const fs = require("fs");
 
 const store = require("./store");
 const { hashPassword, verifyPassword } = require("./passwords");
+const { submitFeedback, TYPES } = require("./feedback");
 
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = parseInt(process.env.PORT || "4000", 10);
@@ -230,12 +231,68 @@ app.post("/api/progress/:taskId", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Feedback: сообщение владельцу (доступно без авторизации) ----------
+const feedbackRate = new Map(); // ip -> [timestamps]
+const FEEDBACK_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 час
+const FEEDBACK_RATE_MAX = 5; // 5 сообщений в час с одного IP
+
+function feedbackRateLimitOk(ip) {
+  const nowTs = Date.now();
+  const arr = (feedbackRate.get(ip) || []).filter((ts) => nowTs - ts < FEEDBACK_RATE_WINDOW_MS);
+  if (arr.length >= FEEDBACK_RATE_MAX) {
+    feedbackRate.set(ip, arr);
+    return false;
+  }
+  arr.push(nowTs);
+  feedbackRate.set(ip, arr);
+  return true;
+}
+
+app.get("/api/feedback/types", (req, res) => {
+  res.json({ types: TYPES });
+});
+
+app.post("/api/feedback", async (req, res) => {
+  try {
+    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").toString();
+    if (!feedbackRateLimitOk(ip)) {
+      return res
+        .status(429)
+        .json({ error: "Слишком много сообщений. Попробуйте позже." });
+    }
+    const { type, message, email, page } = req.body || {};
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ error: "Сообщение не может быть пустым" });
+    }
+    if (email && !/^\S+@\S+\.\S+$/.test(String(email))) {
+      return res.status(400).json({ error: "Некорректный email для ответа" });
+    }
+    const result = await submitFeedback({ type, message, email, page });
+    res.status(201).json(result);
+  } catch (e) {
+    console.error("feedback error", e);
+    res.status(500).json({ error: "Не удалось отправить сообщение. Попробуйте позже." });
+  }
+});
+
 // ---------- Classes endpoints ----------
 app.post("/api/classes", requireAuth, (req, res) => {
   try {
     const { name, description } = req.body || {};
     if (!name || typeof name !== "string" || !name.trim()) {
       return res.status(400).json({ error: "Class name is required" });
+    }
+    // Лимит тарифа: количество классов
+    const plan = store.getPlan(req.user.id);
+    const usage = store.getUsage(req.user.id);
+    if (usage.classes >= plan.maxClasses) {
+      return res.status(402).json({
+        error: `Достигнут лимит тарифа ${plan.name}: ${plan.maxClasses} класс(ов). Обновите подписку до Pro.`,
+        code: "PLAN_LIMIT_CLASSES",
+        plan: plan.id,
+        limit: plan.maxClasses,
+        usage: usage.classes,
+      });
     }
     const classId = generateId();
     const classItem = store.createClass({
@@ -339,36 +396,82 @@ app.post("/api/classes/:classId/students", requireAuth, (req, res) => {
   try {
     const classId = String(req.params.classId || "").trim();
     if (!classId) return res.status(400).json({ error: "Missing classId" });
-    
+
     const classItem = store.getClass(classId);
     if (!classItem) return res.status(404).json({ error: "Class not found" });
-    
+
     if (classItem.teacher_id !== req.user.id) {
       return res.status(403).json({ error: "Access denied" });
     }
-    
-    const { studentId } = req.body || {};
-    if (!studentId) return res.status(400).json({ error: "Missing studentId" });
-    
-    const student = store.getUserById(studentId);
-    if (!student) return res.status(404).json({ error: "Student not found" });
-    
-    const existing = store.getClassMembers(classId).find(m => m.user_id === studentId);
-    if (existing) {
-      return res.status(409).json({ error: "Student already in class" });
+
+    const { studentId, email } = req.body || {};
+    let student = null;
+    if (studentId) student = store.getUserById(studentId);
+    if (!student && email) student = store.getUserByEmail(email);
+    if (!student) {
+      return res
+        .status(404)
+        .json({ error: "Пользователь не найден. Ученик должен зарегистрироваться по email." });
     }
-    
+
+    const existing = store
+      .getClassMembers(classId)
+      .find((m) => m.user_id === student.id);
+    if (existing) {
+      return res.status(409).json({ error: "Ученик уже в классе" });
+    }
+
+    // Лимит тарифа: количество учеников (уникальных по всем классам)
+    const plan = store.getPlan(req.user.id);
+    const usage = store.getUsage(req.user.id);
+    // Ученик уже может быть в другом классе — тогда лимит не расходуется
+    const alreadyStudentElsewhere = store
+      .getUserClass(student.id)
+      .some((m) => m.role === "student");
+    if (!alreadyStudentElsewhere && usage.students >= plan.maxStudents) {
+      return res.status(402).json({
+        error: `Достигнут лимит тарифа ${plan.name}: ${plan.maxStudents} учеников. Обновите подписку до Pro.`,
+        code: "PLAN_LIMIT_STUDENTS",
+        plan: plan.id,
+        limit: plan.maxStudents,
+        usage: usage.students,
+      });
+    }
+
     const memberId = generateId();
     const member = store.addStudentToClass({
       id: memberId,
       classId,
-      userId: studentId,
+      userId: student.id,
       role: "student",
     });
-    
-    res.status(201).json({ member });
+
+    res.status(201).json({ member: { ...member, user: student } });
   } catch (e) {
     console.error("add student to class error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
+app.delete("/api/classes/:classId/students/:userId", requireAuth, (req, res) => {
+  try {
+    const classId = String(req.params.classId || "").trim();
+    const userId = String(req.params.userId || "").trim();
+    if (!classId || !userId) {
+      return res.status(400).json({ error: "Missing classId or userId" });
+    }
+
+    const classItem = store.getClass(classId);
+    if (!classItem) return res.status(404).json({ error: "Class not found" });
+
+    if (classItem.teacher_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    store.removeStudentFromClass(classId, userId);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("remove student from class error", e);
     res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 });
@@ -405,6 +508,59 @@ app.get("/api/classes/:classId/students", requireAuth, (req, res) => {
   }
 });
 
+// Прогресс конкретного ученика класса (только владелец-учитель)
+app.get("/api/classes/:classId/students/:userId/progress", requireAuth, (req, res) => {
+  try {
+    const classId = String(req.params.classId || "").trim();
+    const userId = String(req.params.userId || "").trim();
+    if (!classId || !userId) {
+      return res.status(400).json({ error: "Missing classId or userId" });
+    }
+
+    const classItem = store.getClass(classId);
+    if (!classItem) return res.status(404).json({ error: "Class not found" });
+
+    if (classItem.teacher_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    // Ученик должен состоять в классе
+    const member = store
+      .getClassMembers(classId)
+      .find((m) => m.user_id === userId);
+    if (!member) {
+      return res.status(404).json({ error: "Student not in class" });
+    }
+
+    const student = store.getUserById(userId);
+    const progress = store.getTaskProgress(userId);
+    const stats = store.getStats(userId);
+    const assigned = store.getClassTasks(classId).filter((t) => t.assigned_to === userId);
+
+    const assignments = assigned.map((t) => ({
+      id: t.id,
+      taskId: t.task_id,
+      status: t.status,
+      assignedAt: t.assigned_at,
+      dueDate: t.due_date,
+      completedAt: t.completed_at,
+      taskProgress: progress[t.task_id] || null,
+    }));
+
+    res.json({
+      student: student
+        ? { id: student.id, name: student.name, email: student.email }
+        : { id: userId },
+      stats,
+      progress,
+      assignments,
+    });
+  } catch (e) {
+    console.error("get student progress error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
 app.post("/api/classes/:classId/tasks", requireAuth, (req, res) => {
   try {
     const classId = String(req.params.classId || "").trim();
@@ -420,18 +576,35 @@ app.post("/api/classes/:classId/tasks", requireAuth, (req, res) => {
     const { taskId, studentId, dueDate } = req.body || {};
     if (!taskId) return res.status(400).json({ error: "Missing taskId" });
     if (!studentId) return res.status(400).json({ error: "Missing studentId" });
-    
+
     const student = store.getUserById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
-    
-    const existingTask = store.getClassTasks(classId).find(t => t.assigned_to === studentId && t.task_id === taskId);
+
+    const existingTask = store
+      .getClassTasks(classId)
+      .find((t) => t.assigned_to === studentId && t.task_id === taskId);
     if (existingTask && existingTask.status !== "completed") {
       return res.status(409).json({ error: "Task already assigned to student" });
     }
-    
-    const taskId = generateId();
+
+    // Лимит тарифа: назначение заданий в текущем месяце
+    const plan = store.getPlan(req.user.id);
+    if (Number.isFinite(plan.monthlyAssignments)) {
+      const usage = store.getUsage(req.user.id);
+      if (usage.monthlyAssignments >= plan.monthlyAssignments) {
+        return res.status(402).json({
+          error: `Достигнут лимит тарифа ${plan.name}: ${plan.monthlyAssignments} назначений заданий в месяц. Обновите подписку до Pro.`,
+          code: "PLAN_LIMIT_ASSIGNMENTS",
+          plan: plan.id,
+          limit: plan.monthlyAssignments,
+          usage: usage.monthlyAssignments,
+        });
+      }
+    }
+
+    const assignmentId = generateId();
     const assignedTask = store.assignTask({
-      id: taskId,
+      id: assignmentId,
       classId,
       taskId,
       assignedBy: req.user.id,
@@ -482,19 +655,19 @@ app.get("/api/classes/:classId/tasks", requireAuth, (req, res) => {
 app.get("/api/student/tasks", requireAuth, (req, res) => {
   try {
     const tasks = store.getStudentTasks(req.user.id);
-    
+    const progress = store.getTaskProgress(req.user.id);
+
     const tasksWithDetails = [];
     for (const task of tasks) {
       const classItem = store.getClass(task.class_id);
-      const studentProgress = store.getTaskProgress(req.user.id, task.task_id);
-      
+
       tasksWithDetails.push({
         ...task,
         class: classItem,
-        progress: studentProgress,
+        progress: progress[task.task_id] || null,
       });
     }
-    
+
     res.json({ tasks: tasksWithDetails });
   } catch (e) {
     console.error("get student tasks error", e);
@@ -508,27 +681,94 @@ app.put("/api/student/tasks/:taskId", requireAuth, (req, res) => {
     if (!taskId) return res.status(400).json({ error: "Missing taskId" });
     
     const { status, completionNotes, solved, stars } = req.body || {};
-    
-    const task = store.getStudentTasks(req.user.id).find(t => t.id === taskId);
+
+    const task = store.getStudentTasks(req.user.id).find((t) => t.id === taskId);
     if (!task) return res.status(404).json({ error: "Task not found" });
-    
-    const updates = {};
-    if (status !== undefined) updates.status = status;
-    if (completionNotes !== undefined) updates.completion_notes = completionNotes;
+
     if (solved !== undefined || stars !== undefined) {
-      const studentProgress = store.getTaskProgress(req.user.id, task.task_id) || {};
+      const allProgress = store.getTaskProgress(req.user.id);
+      const current = allProgress[task.task_id] || {};
       store.setTaskProgress(
         req.user.id,
         task.task_id,
-        solved !== undefined ? !!solved : !!studentProgress.solved,
-        stars !== undefined ? Number(stars) : Number(studentProgress.stars) || 0,
+        solved !== undefined ? !!solved : !!current.solved,
+        stars !== undefined ? Number(stars) : Number(current.stars) || 0,
       );
     }
-    
+
     store.updateTaskStatus(taskId, status, completionNotes);
     res.json({ ok: true });
   } catch (e) {
     console.error("update task status error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
+// ---------- Billing: подписка и тарифы ----------
+app.get("/api/billing/plan", requireAuth, (req, res) => {
+  const plan = store.getPlan(req.user.id);
+  const usage = store.getUsage(req.user.id);
+  const sub = store.getSubscription(req.user.id);
+  res.json({
+    plan: {
+      id: plan.id,
+      name: plan.name,
+      maxClasses: Number.isFinite(plan.maxClasses) ? plan.maxClasses : null,
+      maxStudents: Number.isFinite(plan.maxStudents) ? plan.maxStudents : null,
+      monthlyAssignments: Number.isFinite(plan.monthlyAssignments) ? plan.monthlyAssignments : null,
+    },
+    usage,
+    subscription: sub
+      ? {
+          plan: sub.plan,
+          status: sub.status,
+          promoCode: sub.promo_code,
+          startedAt: sub.started_at,
+          expiresAt: sub.expires_at,
+        }
+      : null,
+  });
+});
+
+app.post("/api/billing/upgrade", requireAuth, (req, res) => {
+  try {
+    const { promoCode } = req.body || {};
+    if (!promoCode || typeof promoCode !== "string" || !promoCode.trim()) {
+      return res.status(400).json({ error: "Укажите промокод" });
+    }
+    const result = store.usePromoCode(promoCode, req.user.id);
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error });
+    }
+    const plan = store.getPlan(req.user.id);
+    const usage = store.getUsage(req.user.id);
+    res.json({
+      ok: true,
+      plan: { id: plan.id, name: plan.name },
+      expiresAt: result.expiresAt,
+      usage,
+    });
+  } catch (e) {
+    console.error("billing upgrade error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
+// Отмена подписки (возврат на Free) — пока единственный способ «не продлевать»
+app.post("/api/billing/cancel", requireAuth, (req, res) => {
+  try {
+    const sub = store.getSubscription(req.user.id);
+    if (!sub) return res.json({ ok: true, plan: "free" });
+    store.setSubscription({
+      userId: req.user.id,
+      plan: sub.plan,
+      status: "cancelled",
+      promoCode: sub.promo_code,
+      expiresAt: sub.expires_at,
+    });
+    res.json({ ok: true, plan: "free" });
+  } catch (e) {
+    console.error("billing cancel error", e);
     res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 });
@@ -580,6 +820,18 @@ const server = app.listen(PORT, HOST, () => {
   console.log(
     `API server running at http://${HOST}:${PORT} (driver: ${store.driver}, data: ${store.DATA_DIR})`,
   );
+  // Сид тестового промокода PRO-TEST (активирует Pro на 30 дней)
+  try {
+    const seedCodes = ["PRO-TEST"];
+    for (const code of seedCodes) {
+      if (!store.getPromoCode(code)) {
+        store.createPromoCode({ code, plan: "pro", expiresInDays: 365 });
+        console.log(`[billing] сид промокода создан: ${code}`);
+      }
+    }
+  } catch (e) {
+    console.warn("[billing] не удалось создать сид промокодов:", e && e.message);
+  }
 });
 server.on("error", (err) => {
   console.error(

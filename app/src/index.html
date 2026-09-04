@@ -2439,6 +2439,21 @@
         <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
           <span id="supportBtnText">💙 Поддержка</span>
         </button>
+        <!-- Feedback button -->
+        <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь"
+          style="margin-right: 12px;">
+          <span id="feedbackBtnText">✉️ Обратная связь</span>
+        </button>
+        <!-- Classes dashboard (teacher mode) -->
+        <button id="classesBtn" class="import-button" title="Мои классы" aria-label="Мои классы"
+          style="display:none; margin-right: 12px;">
+          <span id="classesBtnText">🎓 Классы</span>
+        </button>
+        <!-- Student tasks (assigned by teacher) -->
+        <button id="studentTasksBtn" class="import-button" title="Мои задания" aria-label="Мои задания"
+          style="display:none; margin-right: 12px;">
+          <span id="studentTasksBtnText">📋 Задания</span>
+        </button>
       </div>
       <div class="header-right">
         <input id="loadXmlInput" type="file" accept=".xml" style="display:none" />
@@ -2512,11 +2527,17 @@
         <button class="mobile-menu-item" data-action="taskSolutionBtn">ℹ️ Решение задач</button>
         <button class="mobile-menu-item" data-action="taskDifficultySelect">🧭 Выбор уровня задач</button>
         <button class="mobile-menu-item" data-action="supportBtn">💙 Поддержка</button>
+        <button class="mobile-menu-item" data-action="feedbackBtn">✉️ Обратная связь</button>
       </div>
       <div class="mobile-menu-section">
         <div class="mobile-menu-section-title">Аккаунт</div>
         <button class="mobile-menu-item" data-action="openAuthModalBtn">Войти</button>
         <button class="mobile-menu-item" data-action="logoutBtn">Выйти</button>
+      </div>
+      <div class="mobile-menu-section">
+        <div class="mobile-menu-section-title">Обучение</div>
+        <button class="mobile-menu-item" data-action="classesBtn" id="mobileClassesBtn" style="display:none;">🎓 Мои классы</button>
+        <button class="mobile-menu-item" data-action="studentTasksBtn" id="mobileStudentTasksBtn" style="display:none;">📋 Мои задания</button>
       </div>
     </div>
   </div>
@@ -3644,6 +3665,49 @@ end</code></pre>
       <div class="modal-body" id="helpModalBody">
         <!-- Содержимое будет загружено из markdown-файла -->
         <div id="markdownContent" class="markdown-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно управления классами (дашборд учителя) -->
+  <div id="classesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="classesModalTitle"
+    style="display:none">
+    <div class="modal-content classes-modal-content">
+      <div class="modal-header modal-reg">
+        <h2 id="classesModalTitle">Мои классы</h2>
+        <span id="closeClassesModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="classesModalBody">
+        <!-- Содержимое рендерится в ui/classes.ts -->
+      </div>
+      <div id="classesPaywall" class="classes-paywall" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно «Мои задания» (ученик) -->
+  <div id="studentTasksModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="studentTasksModalTitle"
+    style="display:none">
+    <div class="modal-content classes-modal-content">
+      <div class="modal-header modal-reg">
+        <h2 id="studentTasksModalTitle">Мои задания</h2>
+        <span id="closeStudentTasksModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="studentTasksBody">
+        <!-- Содержимое рендерится в ui/studentTasks.ts -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно обратной связи -->
+  <div id="feedbackModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="feedbackModalTitle"
+    style="display:none">
+    <div class="modal-content" style="max-width:520px;width:92%;min-width:320px;">
+      <div class="modal-header modal-reg">
+        <h2 id="feedbackModalTitle">Обратная связь</h2>
+        <span id="closeFeedbackModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="feedbackBody">
+        <!-- Содержимое рендерится в ui/feedback.ts -->
       </div>
     </div>
   </div>

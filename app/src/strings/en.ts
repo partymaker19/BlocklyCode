@@ -134,3 +134,17 @@ export const supportUi = {
   copied: "Copied",
   close: "Close",
 };
+
+export const classesUi = {
+  buttonText: "Classes",
+  buttonLabel: "My classes",
+  modalTitle: "My classes",
+  closeLabel: "Close",
+};
+
+export const feedbackUi = {
+  buttonText: "Feedback",
+  buttonLabel: "Feedback — report a bug or share an idea",
+  modalTitle: "Feedback",
+  closeLabel: "Close",
+};

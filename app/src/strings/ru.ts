@@ -3,6 +3,8 @@
 // при несовпадении ключей сборка упадёт с ошибкой типов.
 import type {
   aceSettings as AceSettingsEn,
+  classesUi as ClassesUiEn,
+  feedbackUi as FeedbackUiEn,
   helpUi as HelpUiEn,
   importUi as ImportUiEn,
   supportUi as SupportUiEn,
@@ -141,4 +143,18 @@ export const supportUi: typeof SupportUiEn = {
   copy: "Копировать",
   copied: "Скопировано",
   close: "Закрыть",
+};
+
+export const classesUi: typeof ClassesUiEn = {
+  buttonText: "Классы",
+  buttonLabel: "Мои классы",
+  modalTitle: "Мои классы",
+  closeLabel: "Закрыть",
+};
+
+export const feedbackUi: typeof FeedbackUiEn = {
+  buttonText: "Обратная связь",
+  buttonLabel: "Обратная связь — сообщить о баге или поделиться идеей",
+  modalTitle: "Обратная связь",
+  closeLabel: "Закрыть",
 };

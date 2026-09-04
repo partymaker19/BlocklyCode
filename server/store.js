@@ -102,6 +102,23 @@ CREATE TABLE IF NOT EXISTS class_tasks (
   completed_at TEXT,
   completion_notes TEXT
 );
+CREATE TABLE IF NOT EXISTS subscriptions (
+  user_id TEXT PRIMARY KEY,
+  plan TEXT NOT NULL DEFAULT 'free',
+  status TEXT NOT NULL DEFAULT 'active',
+  promo_code TEXT,
+  started_at TEXT,
+  expires_at TEXT,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS promo_codes (
+  code TEXT PRIMARY KEY,
+  plan TEXT NOT NULL DEFAULT 'pro',
+  expires_at TEXT,
+  used_by TEXT,
+  used_at TEXT,
+  created_at TEXT NOT NULL
+);
 `;
 
 // ---------- Загрузка JSON-драйвера ----------
@@ -132,16 +149,30 @@ const json = loadJsonDb();
 const CLASSES_JSON_FILE = path.join(DATA_DIR, "classes.json");
 const CLASS_MEMBERS_JSON_FILE = path.join(DATA_DIR, "class_members.json");
 const CLASS_TASKS_JSON_FILE = path.join(DATA_DIR, "class_tasks.json");
+const SUBSCRIPTIONS_JSON_FILE = path.join(DATA_DIR, "subscriptions.json");
+const PROMO_CODES_JSON_FILE = path.join(DATA_DIR, "promo_codes.json");
 
 let classesJson = loadJsonFile(CLASSES_JSON_FILE);
 let classMembersJson = loadJsonFile(CLASS_MEMBERS_JSON_FILE);
 let classTasksJson = loadJsonFile(CLASS_TASKS_JSON_FILE);
+let subscriptionsJson = loadJsonFile(SUBSCRIPTIONS_JSON_FILE);
+let promoCodesJson = loadJsonFile(PROMO_CODES_JSON_FILE);
 
-let saveTimer = null;
+// Приводим подписки из JSON-файла к Map (если сохранились как массивы)
+if (!Array.isArray(subscriptionsJson)) subscriptionsJson = [];
+if (!Array.isArray(promoCodesJson)) promoCodesJson = [];
+
+let jsonSaveTimer = null;
+let classesSaveTimer = null;
+let classMembersSaveTimer = null;
+let classTasksSaveTimer = null;
+let subscriptionsSaveTimer = null;
+let promoCodesSaveTimer = null;
+
 function persistJson() {
-  if (saveTimer) return;
-  saveTimer = setTimeout(() => {
-    saveTimer = null;
+  if (jsonSaveTimer) return;
+  jsonSaveTimer = setTimeout(() => {
+    jsonSaveTimer = null;
     const payload = {
       users: [...json.users.entries()],
       sessions: [...json.sessions.entries()],
@@ -477,6 +508,165 @@ const store = {
     };
   },
 
+  // --- billing: тарифы и лимиты ---
+  PLANS: {
+    free: {
+      id: "free",
+      name: "Free",
+      maxClasses: 1,
+      maxStudents: 5,
+      monthlyAssignments: 3,
+    },
+    pro: {
+      id: "pro",
+      name: "Pro",
+      maxClasses: 10,
+      maxStudents: 200,
+      monthlyAssignments: Infinity,
+    },
+  },
+
+  getSubscription(userId) {
+    if (driver === "sqlite") {
+      return db.prepare("SELECT * FROM subscriptions WHERE user_id = ?").get(userId) || null;
+    }
+    return subscriptionsJson.find((s) => s.user_id === userId) || null;
+  },
+
+  getPlan(userId) {
+    const sub = this.getSubscription(userId);
+    if (!sub) return this.PLANS.free;
+    // Проверка срока действия
+    if (sub.expires_at && sub.expires_at < now()) {
+      return this.PLANS.free;
+    }
+    if (sub.status !== "active") return this.PLANS.free;
+    return this.PLANS[sub.plan] || this.PLANS.free;
+  },
+
+  getUsage(userId) {
+    const classes = this.getClasses(userId);
+    // Учеников считаем суммарно по всем классам (уникальные пользователи)
+    const studentIds = new Set();
+    for (const c of classes) {
+      for (const m of this.getClassMembers(c.id)) {
+        if (m.role === "student") studentIds.add(m.user_id);
+      }
+    }
+    // Назначения за текущий календарный месяц
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const monthStartIso = monthStart.toISOString();
+    let monthlyAssignments = 0;
+    for (const c of classes) {
+      for (const t of this.getClassTasks(c.id)) {
+        if (t.assigned_at >= monthStartIso) monthlyAssignments++;
+      }
+    }
+    return {
+      classes: classes.length,
+      students: studentIds.size,
+      monthlyAssignments,
+    };
+  },
+
+  setSubscription({ userId, plan, status, promoCode, expiresAt }) {
+    const t = now();
+    const existing = this.getSubscription(userId);
+    const sub = {
+      user_id: userId,
+      plan,
+      status: status || "active",
+      promo_code: promoCode || (existing ? existing.promo_code : null),
+      started_at: existing ? existing.started_at : t,
+      expires_at: expiresAt || null,
+      updated_at: t,
+    };
+    if (driver === "sqlite") {
+      db.prepare(
+        "INSERT OR REPLACE INTO subscriptions (user_id, plan, status, promo_code, started_at, expires_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      ).run(sub.user_id, sub.plan, sub.status, sub.promo_code, sub.started_at, sub.expires_at, sub.updated_at);
+    } else {
+      const idx = subscriptionsJson.findIndex((s) => s.user_id === userId);
+      if (idx >= 0) subscriptionsJson[idx] = sub;
+      else subscriptionsJson.push(sub);
+      this.persistSubscriptions();
+    }
+    return sub;
+  },
+
+  // --- billing: промокоды ---
+  getPromoCode(code) {
+    const c = String(code || "").trim().toUpperCase();
+    if (!c) return null;
+    if (driver === "sqlite") {
+      return db.prepare("SELECT * FROM promo_codes WHERE code = ?").get(c) || null;
+    }
+    return promoCodesJson.find((p) => p.code === c) || null;
+  },
+
+  usePromoCode(code, userId) {
+    const promo = this.getPromoCode(code);
+    if (!promo) return { ok: false, error: "Промокод не найден" };
+    if (promo.used_by && promo.used_by !== userId) {
+      return { ok: false, error: "Промокод уже использован" };
+    }
+    if (promo.expires_at && promo.expires_at < now()) {
+      return { ok: false, error: "Срок действия промокода истёк" };
+    }
+    const t = now();
+    if (driver === "sqlite") {
+      db.prepare(
+        "UPDATE promo_codes SET used_by = ?, used_at = ? WHERE code = ?",
+      ).run(userId, t, promo.code);
+    } else {
+      const p = promoCodesJson.find((x) => x.code === promo.code);
+      if (p) {
+        p.used_by = userId;
+        p.used_at = t;
+      }
+      this.persistPromoCodes();
+    }
+    // Промокод активирует PRO на 30 дней
+    const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString();
+    const sub = this.setSubscription({
+      userId,
+      plan: promo.plan || "pro",
+      status: "active",
+      promoCode: promo.code,
+      expiresAt: expires,
+    });
+    return { ok: true, subscription: sub, expiresAt: expires };
+  },
+
+  createPromoCode({ code, plan, expiresInDays }) {
+    const t = now();
+    const expires = expiresInDays
+      ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
+    const promo = {
+      code: String(code || "").trim().toUpperCase(),
+      plan: plan || "pro",
+      expires_at: expires,
+      used_by: null,
+      used_at: null,
+      created_at: t,
+    };
+    if (!promo.code) throw new Error("Промокод не может быть пустым");
+    if (driver === "sqlite") {
+      db.prepare(
+        "INSERT OR REPLACE INTO promo_codes (code, plan, expires_at, used_by, used_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+      ).run(promo.code, promo.plan, promo.expires_at, promo.used_by, promo.used_at, promo.created_at);
+    } else {
+      const idx = promoCodesJson.findIndex((p) => p.code === promo.code);
+      if (idx >= 0) promoCodesJson[idx] = promo;
+      else promoCodesJson.push(promo);
+      this.persistPromoCodes();
+    }
+    return promo;
+  },
+
   // --- classes ---
   createClass({ id, teacherId, name, description }) {
     const t = now();
@@ -546,12 +736,18 @@ const store = {
   deleteClass(classId) {
     if (driver === "sqlite") {
       db.prepare("DELETE FROM classes WHERE id = ?").run(classId);
+      db.prepare("DELETE FROM class_members WHERE class_id = ?").run(classId);
+      db.prepare("DELETE FROM class_tasks WHERE class_id = ?").run(classId);
     } else {
-      const idx = classesJson.findIndex(c => c.id === classId);
+      const idx = classesJson.findIndex((c) => c.id === classId);
       if (idx >= 0) {
         classesJson.splice(idx, 1);
         this.persistClasses();
       }
+      classMembersJson = classMembersJson.filter((m) => m.class_id !== classId);
+      this.persistClassMembers();
+      classTasksJson = classTasksJson.filter((t) => t.class_id !== classId);
+      this.persistClassTasks();
     }
   },
 
@@ -591,6 +787,26 @@ const store = {
     return classMembersJson.filter(m => m.user_id === userId);
   },
 
+  removeStudentFromClass(classId, userId) {
+    if (driver === "sqlite") {
+      db.prepare(
+        "DELETE FROM class_members WHERE class_id = ? AND user_id = ?",
+      ).run(classId, userId);
+      db.prepare(
+        "DELETE FROM class_tasks WHERE class_id = ? AND assigned_to = ?",
+      ).run(classId, userId);
+    } else {
+      classMembersJson = classMembersJson.filter(
+        (m) => !(m.class_id === classId && m.user_id === userId),
+      );
+      this.persistClassMembers();
+      classTasksJson = classTasksJson.filter(
+        (t) => !(t.class_id === classId && t.assigned_to === userId),
+      );
+      this.persistClassTasks();
+    }
+  },
+
   // --- class tasks ---
   assignTask({ id, classId, taskId, assignedBy, assignedTo, dueDate }) {
     const t = now();
@@ -602,7 +818,7 @@ const store = {
       assigned_to: assignedTo,
       assigned_at: t,
       status: "assigned",
-      due_date: dueDate,
+      due_date: dueDate || null,
       completed_at: null,
       completion_notes: null,
     };
@@ -636,7 +852,7 @@ const store = {
     const updateFields = {
       status,
       completed_at: status === "completed" ? t : null,
-      completion_notes: completionNotes,
+      completion_notes: completionNotes || null,
     };
     if (driver === "sqlite") {
       const sets = [];
@@ -647,11 +863,11 @@ const store = {
           vals.push(updateFields[key]);
         }
       }
-      sets.push("updated_at = ?");
-      vals.push(t, taskId);
+      if (!sets.length) return;
+      vals.push(taskId);
       db.prepare(`UPDATE class_tasks SET ${sets.join(", ")} WHERE id = ?`).run(...vals);
     } else {
-      const idx = classTasksJson.findIndex(t => t.id === taskId);
+      const idx = classTasksJson.findIndex((t) => t.id === taskId);
       if (idx >= 0) {
         classTasksJson[idx] = { ...classTasksJson[idx], ...updateFields };
         this.persistClassTasks();
@@ -661,9 +877,9 @@ const store = {
 
   // --- persistence helpers ---
   persistClasses() {
-    if (saveTimer) return;
-    saveTimer = setTimeout(() => {
-      saveTimer = null;
+    if (classesSaveTimer) return;
+    classesSaveTimer = setTimeout(() => {
+      classesSaveTimer = null;
       try {
         const tmp = CLASSES_JSON_FILE + ".tmp";
         fs.writeFileSync(tmp, JSON.stringify(classesJson), "utf8");
@@ -675,9 +891,9 @@ const store = {
   },
 
   persistClassMembers() {
-    if (saveTimer) return;
-    saveTimer = setTimeout(() => {
-      saveTimer = null;
+    if (classMembersSaveTimer) return;
+    classMembersSaveTimer = setTimeout(() => {
+      classMembersSaveTimer = null;
       try {
         const tmp = CLASS_MEMBERS_JSON_FILE + ".tmp";
         fs.writeFileSync(tmp, JSON.stringify(classMembersJson), "utf8");
@@ -689,15 +905,43 @@ const store = {
   },
 
   persistClassTasks() {
-    if (saveTimer) return;
-    saveTimer = setTimeout(() => {
-      saveTimer = null;
+    if (classTasksSaveTimer) return;
+    classTasksSaveTimer = setTimeout(() => {
+      classTasksSaveTimer = null;
       try {
         const tmp = CLASS_TASKS_JSON_FILE + ".tmp";
         fs.writeFileSync(tmp, JSON.stringify(classTasksJson), "utf8");
         fs.renameSync(tmp, CLASS_TASKS_JSON_FILE);
       } catch (e) {
         console.error("[store] class_tasks persist failed:", e && e.message);
+      }
+    }, 250);
+  },
+
+  persistSubscriptions() {
+    if (subscriptionsSaveTimer) return;
+    subscriptionsSaveTimer = setTimeout(() => {
+      subscriptionsSaveTimer = null;
+      try {
+        const tmp = SUBSCRIPTIONS_JSON_FILE + ".tmp";
+        fs.writeFileSync(tmp, JSON.stringify(subscriptionsJson), "utf8");
+        fs.renameSync(tmp, SUBSCRIPTIONS_JSON_FILE);
+      } catch (e) {
+        console.error("[store] subscriptions persist failed:", e && e.message);
+      }
+    }, 250);
+  },
+
+  persistPromoCodes() {
+    if (promoCodesSaveTimer) return;
+    promoCodesSaveTimer = setTimeout(() => {
+      promoCodesSaveTimer = null;
+      try {
+        const tmp = PROMO_CODES_JSON_FILE + ".tmp";
+        fs.writeFileSync(tmp, JSON.stringify(promoCodesJson), "utf8");
+        fs.renameSync(tmp, PROMO_CODES_JSON_FILE);
+      } catch (e) {
+        console.error("[store] promo_codes persist failed:", e && e.message);
       }
     }, 250);
   },

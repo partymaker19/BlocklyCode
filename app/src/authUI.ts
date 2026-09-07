@@ -23,11 +23,45 @@ function updateAuthUI() {
     userEmail.textContent = user?.email || user?.name || user?.id || "";
 }
 
+/**
+ * Спрашивает у сервера, какие OAuth-провайдеры реально настроены,
+ * и скрывает кнопки недоступных (чтобы не уводить на 501).
+ * До ответа сервера кнопки скрыты все.
+ */
+async function syncOAuthProviders(): Promise<void> {
+  const container = document.querySelector<HTMLElement>(".provider-list");
+  if (!container) return;
+  let providers: Record<string, boolean> = {};
+  try {
+    const res = await fetch("/api/auth/providers", { credentials: "include" });
+    const data = (await res.json().catch(() => ({}))) as {
+      providers?: Record<string, boolean>;
+    };
+    providers = data.providers || {};
+  } catch {
+    // API недоступен (оффлайн) — прячем все соц-кнопки, email работает
+  }
+  const btns = container.querySelectorAll<HTMLAnchorElement>(
+    ".auth-provider-btn",
+  );
+  for (const btn of btns) {
+    const p = btn.dataset.provider || "";
+    btn.style.display = providers[p] ? "" : "none";
+  }
+  // Если ни один провайдер не настроен — прячем весь блок с соц-кнопками
+  const anyEnabled = Object.values(providers).some(Boolean);
+  container.style.display = anyEnabled ? "" : "none";
+  // И разделитель «или по email»
+  const sep = document.querySelector<HTMLElement>(".email-separator");
+  if (sep) sep.style.display = anyEnabled ? "" : "none";
+}
+
 function openAuthModal() {
   const modal = byId<HTMLDivElement>("authModal");
   const content = modal?.querySelector<HTMLElement>(".modal-content");
   if (!modal) return;
   modal.style.display = "block";
+  void syncOAuthProviders();
   if (content) {
     content.style.left = "50%";
     content.style.top = "50%";

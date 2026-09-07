@@ -794,6 +794,11 @@ const OAUTH_CONFIGURED = {
   github: !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
 };
 
+// Какие провайдеры реально работают — фронт показывает только их
+app.get("/api/auth/providers", (req, res) => {
+  res.json({ providers: OAUTH_CONFIGURED });
+});
+
 app.get("/api/auth/:provider", (req, res) => {
   const { provider } = req.params;
   if (!(provider in OAUTH_CONFIGURED) || !OAUTH_CONFIGURED[provider]) {
@@ -829,30 +834,36 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Внутренняя ошибка сервера" });
 });
 
-console.log("BOOTSTRAP_SERVER");
-const server = app.listen(PORT, HOST, () => {
-  console.log(
-    `API server running at http://${HOST}:${PORT} (driver: ${store.driver}, data: ${store.DATA_DIR})`,
-  );
-  // Сид тестового промокода PRO-TEST (активирует Pro на 30 дней)
-  try {
-    const seedCodes = ["PRO-TEST"];
-    for (const code of seedCodes) {
-      if (!store.getPromoCode(code)) {
-        store.createPromoCode({ code, plan: "pro", expiresInDays: 365 });
-        console.log(`[billing] сид промокода создан: ${code}`);
+// В тестовом режиме (BC_TEST=1) приложение экспортируется без listen:
+// supertest поднимает его на эфемерном порту с временной DATA_DIR.
+if (process.env.BC_TEST === "1") {
+  console.log("BOOTSTRAP_SERVER (test mode, no listen)");
+  module.exports = app;
+} else {
+  console.log("BOOTSTRAP_SERVER");
+  const server = app.listen(PORT, HOST, () => {
+    console.log(
+      `API server running at http://${HOST}:${PORT} (driver: ${store.driver}, data: ${store.DATA_DIR})`,
+    );
+    // Сид тестового промокода PRO-TEST (активирует Pro на 30 дней)
+    try {
+      const seedCodes = ["PRO-TEST"];
+      for (const code of seedCodes) {
+        if (!store.getPromoCode(code)) {
+          store.createPromoCode({ code, plan: "pro", expiresInDays: 365 });
+          console.log(`[billing] сид промокода создан: ${code}`);
+        }
       }
+    } catch (e) {
+      console.warn("[billing] не удалось создать сид промокодов:", e && e.message);
     }
-  } catch (e) {
-    console.warn("[billing] не удалось создать сид промокодов:", e && e.message);
-  }
-});
-server.on("error", (err) => {
-  console.error(
-    "SERVER_ERROR",
-    err && (err.code || err.message),
-    err && err.stack ? err.stack : "",
-  );
-});
-
-module.exports = app;
+  });
+  server.on("error", (err) => {
+    console.error(
+      "SERVER_ERROR",
+      err && (err.code || err.message),
+      err && err.stack ? err.stack : "",
+    );
+  });
+  module.exports = app;
+}

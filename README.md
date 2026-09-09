@@ -62,6 +62,26 @@ npm run build    # собирает app/dist/
 - Почта для обратной связи: `FEEDBACK_TO` (по умолчанию задана в `server/feedback.js`), SMTP — `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
 - Данные сервера (SQLite, JSON-фолбэки, журнал фидбэка) — в `server/data/` (в git не попадает).
 
+## Деплой на Render (бесплатный URL без домена)
+
+Проект готов к деплою одним сервисом: `npm run build` собирает фронтенд в `app/dist`, `npm run start` поднимает Express, который раздаёт статику, SPA-fallback и API (`render.yaml` уже в репозитории).
+
+1. Залей репозиторий на GitHub (Render деплоит из Git).
+2. [render.com](https://render.com) → **New → Web Service** → подключи репозиторий.
+3. Render подхватит `render.yaml` (region: frankfurt, plan: free). Если выбираешь вручную:
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm run start`
+   - Node 22 (в `engines`).
+4. Environment-переменные (Dashboard → Environment):
+   - `FEEDBACK_TO` — куда приходит обратная связь (по умолчанию уже задана).
+   - `SMTP_HOST/PORT/USER/PASS/FROM` — реальная отправка писем; без них фидбэк пишется в файл.
+5. Через пару минут получишь `https://<имя-сервиса>.onrender.com`.
+
+**Ограничения бесплатного тарифа:**
+- **Файловая система ephemeral**: при каждом деплое/перезапуске SQLite в `server/data/` обнуляется (аккаунты и классы пропадают). Для постоянных данных подключи **Persistent Disk** (Render → Disks, точка монтирования например `/data`) и задай `DATA_DIR=/data` — на диске данные выживают.
+- Сервис засыпает через 15 минут без трафика, первый запрос после сна медленный (~30 сек).
+- 750 часов/месяц бесплатно — для одного сервиса хватает с запасом.
+
 ## Структура проекта
 
 ```

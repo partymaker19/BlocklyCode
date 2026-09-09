@@ -3,17 +3,20 @@
   "version": "1.0.0",
   "description": "BlocklyCode — browser-based visual programming learning app (Google Blockly)",
   "scripts": {
-    "build": "cd app && npm run build",
-    "start": "cd app && npm start",
-    "install": "cd app && npm install",
+    "build": "npm install --prefix app && cd app && npm run build",
+    "start": "node server/index.js",
     "test": "cd app && npm test",
     "lint": "cd app && npm run lint",
     "typecheck": "cd app && npm run typecheck",
     "server": "node server/index.js",
     "promo": "node scripts/promo.js",
     "test:server": "cd server && npx vitest run",
-    "dev": "powershell -Command \"Start-Process -NoNewWindow npm -ArgumentList 'run server'; Start-Process -NoNewWindow npm -ArgumentList 'start'\"",
+    "dev": "powershell -Command \"Start-Process -NoNewWindow npm -ArgumentList 'run server'; Start-Process -NoNewWindow npm -ArgumentList 'start:app'",
+    "start:app": "cd app && npm start",
     "pdf": "node scripts/create-pdf.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "blockly": "12.2.0",

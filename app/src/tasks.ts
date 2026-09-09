@@ -3,6 +3,7 @@ import { getAppLang } from "./localization";
 import { countNonShadowBlocks, getNonShadowBlocks } from "./workspaceUtils";
 import { reportSolved, syncProgress } from "./progressSync";
 import { mountHintSteps } from "./ui/hintSteps";
+import { mountSolutionOffer } from "./ui/solutions";
 
 export type InitTaskValidationOptions = {
   checkButton: HTMLButtonElement | null;
@@ -3169,6 +3170,13 @@ export function initTaskValidation(
             getNextTaskId(activeTaskId) === null
               ? true
               : !FREE_TASK_NAV && !isSolved(activeTaskId);
+        // Предложение сравнить с эталонным решением — только после
+        // верного решения (ui/solutions.ts)
+        const offerEl = document.getElementById("taskSolutionOffer");
+        if (offerEl) mountSolutionOffer(offerEl, activeTaskId);
+      } else {
+        const offerEl = document.getElementById("taskSolutionOffer");
+        if (offerEl) offerEl.innerHTML = "";
       }
     })();
   });

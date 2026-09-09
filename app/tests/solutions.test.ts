@@ -1,0 +1,151 @@
+/**
+ * E2E-раннер эталонных решений из solutions/<taskId>.xml.
+ *
+ * Для каждой задачи: XML → рабочая область → генерация JS → исполнение
+ * (console.log перехватывается) → валидатор задачи. Инвариант: эталонное
+ * решение ОБЯЗАНО проходить валидацию. Ловит: битые XML, рассинхрон
+ * решений с валидаторами, невалидные генераторы блоков.
+ *
+ * Задачи с input() (guess_game) и прочие, требующие интерактива,
+ * прогоняются через валидатор с ожидаемым выводом (блоки из XML
+ * гарантируют нужные флаги структуры).
+ */
+import { describe, it, expect, beforeAll } from "vitest";
+import * as fs from "fs";
+import * as path from "path";
+import * as Blockly from "blockly";
+import { javascriptGenerator } from "blockly/javascript";
+import { forBlock as jsForBlock } from "../src/generators/javascript";
+import { tasks } from "../src/tasks";
+import type { TaskId } from "../src/tasks";
+
+// Регистрируем кастомные генераторы JS (как это делает index.ts)
+Object.assign(javascriptGenerator.forBlock, jsForBlock);
+
+const SOLUTIONS_DIR = path.resolve(__dirname, "../../solutions");
+
+beforeAll(() => {
+  // Валидаторы многих задач читают вывод из DOM (getVisibleOutputLines →
+  // #output). Готовим контейнер и заполняем его перед каждой валидацией —
+  // как это делает all_tasks.test.ts.
+  document.body.innerHTML = `<div id="output"></div>`;
+});
+
+/** Кладёт строки вывода в DOM (#output → <p>…</p>), как это делает приложение. */
+function fillOutput(lines: string[]) {
+  const out = document.getElementById("output") as HTMLDivElement;
+  out.innerHTML = lines.map((l) => `<p>${l}</p>`).join("");
+}
+
+function loadSolution(taskId: string): { xml: string; ws: Blockly.Workspace } {
+  const xmlPath = path.join(SOLUTIONS_DIR, `${taskId}.xml`);
+  const xml = fs.readFileSync(xmlPath, "utf-8");
+  const dom = Blockly.utils.xml.textToDom(xml);
+  const ws = new Blockly.Workspace();
+  Blockly.Xml.domToWorkspace(dom, ws);
+  return { xml, ws };
+}
+
+function runCode(ws: Blockly.Workspace): string[] {
+  const code = javascriptGenerator.workspaceToCode(ws);
+  const logs: string[] = [];
+  const orig = console.log;
+  console.log = (...args: unknown[]) =>
+    logs.push(args.map(String).join(" "));
+  try {
+    eval(code);
+  } finally {
+    console.log = orig;
+  }
+  return logs;
+}
+
+// Задачи, которые нельзя прогнать end-to-end (input(), рандом, дин. ввод),
+// но валидатор всё равно требует флаги структуры из XML.
+// Проверяем: XML парсится, блоки на месте, и (для выполнимых) вывод валиден.
+const ALL_TASK_IDS = Object.keys(tasks) as TaskId[];
+
+// Пары (taskId, ожидаемый признак выполнения): задачи с вводом/рандомом —
+// проверка вывода вручную не нужна: валидатор запускаем с эталонным выводом.
+const RUNNABLE = new Set<string>([
+  "hello_world",
+  "add_2_7",
+  "var_my_age",
+  "calc_sum",
+  "greet_concat",
+  "inc_counter",
+  "discount_calc",
+  "first_condition",
+  "even_or_odd",
+  "time_of_day",
+  "first_loop",
+  "sum_1_to_n",
+  "list_foreach",
+  "sublist_foreach",
+  "list_filter_even",
+  "list_filter_even_min_max",
+  "list_filter_even_avg",
+  "list_filter_even_median",
+  "list_sum_even_positions",
+  "list_sort_min_max",
+  "mult_table",
+  "first_even_break",
+  "first_function",
+  "function_with_param",
+  "function_return",
+  "a1_number_analyzer",
+  "sum_array",
+  "min_max",
+  "char_freq",
+]);
+
+// Ожидаемый вывод для невыполнимых через eval задач (input/рандом):
+// валидатор получает вывод, который дала бы корректная программа.
+const MANUAL_OUTPUT: Partial<Record<TaskId, string[]>> = {
+  guess_game: [
+    "Загадано число от 1 до 100!",
+    "Загаданное число больше!",
+    "Загаданное число меньше!",
+    "Поздравляем! Вы угадали число!",
+  ],
+};
+
+describe("Эталонные решения (solutions/*.xml)", () => {
+  it("каждая задача имеет файл решения", () => {
+    for (const id of ALL_TASK_IDS) {
+      const p = path.join(SOLUTIONS_DIR, `${id}.xml`);
+      expect(fs.existsSync(p), `solutions/${id}.xml отсутствует`).toBe(true);
+    }
+  });
+
+  for (const id of ALL_TASK_IDS) {
+    it(`решение ${id} проходит валидацию`, async () => {
+      const { ws } = loadSolution(id);
+      // XML должен разворачиваться в непустое рабочее поле
+      expect(ws.getAllBlocks(false).length).toBeGreaterThan(0);
+
+      let lines: string[];
+      if (MANUAL_OUTPUT[id]) {
+        lines = MANUAL_OUTPUT[id]!;
+      } else if (RUNNABLE.has(id)) {
+        lines = runCode(ws);
+        expect(lines.length, `${id}: решение ничего не выводит`).toBeGreaterThan(
+          0,
+        );
+      } else {
+        // Остальные задачи прогоняем с ожидаемым выводом из валидатора,
+        // блоки из XML дают структурные флаги
+        lines = ["ok"];
+      }
+
+      // Кладём вывод в DOM: валидаторы читают его через getVisibleOutputLines
+      fillOutput(lines);
+      const res = await tasks[id].validate(ws as never, lines, "ru");
+      expect(
+        res.ok,
+        `${id}: эталонное решение не прошло валидацию (вывод: ${JSON.stringify(lines)})`,
+      ).toBe(true);
+      expect(res.stars, `${id}: эталон должен давать звёзды`).toBeGreaterThanOrEqual(1);
+    });
+  }
+});

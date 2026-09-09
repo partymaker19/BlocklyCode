@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_s">s</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_s">s</field>
+    <value name="VALUE">
+      <shadow type="text">
+        <field name="TEXT">abcaabbb</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_join">
+            <mutation items="2"></mutation>
+            <value name="ADD0"><shadow type="text"><field name="TEXT">a: </field></shadow></value>
+            <value name="ADD1">
+              <block type="text_count">
+                <value name="SUB">
+                  <shadow type="text"><field name="TEXT">a</field></shadow>
+                </value>
+                <value name="TEXT">
+                  <block type="variables_get"><field name="VAR" id="var_s">s</field></block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_join">
+                <mutation items="2"></mutation>
+                <value name="ADD0"><shadow type="text"><field name="TEXT">b: </field></shadow></value>
+                <value name="ADD1">
+                  <block type="text_count">
+                    <value name="SUB">
+                      <shadow type="text"><field name="TEXT">b</field></shadow>
+                    </value>
+                    <value name="TEXT">
+                      <block type="variables_get"><field name="VAR" id="var_s">s</field></block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="add_text">
+                <value name="TEXT">
+                  <block type="text_join">
+                    <mutation items="2"></mutation>
+                    <value name="ADD0"><shadow type="text"><field name="TEXT">c: </field></shadow></value>
+                    <value name="ADD1">
+                      <block type="text_count">
+                        <value name="SUB">
+                          <shadow type="text"><field name="TEXT">c</field></shadow>
+                        </value>
+                        <value name="TEXT">
+                          <block type="variables_get"><field name="VAR" id="var_s">s</field></block>
+                        </value>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

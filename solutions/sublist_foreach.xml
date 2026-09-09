@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_numbers">numbers</variable>
+    <variable id="var_sub">sub</variable>
+    <variable id="var_item">item</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_numbers">numbers</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="7"></mutation>
+        <value name="ADD0">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="ADD1">
+          <shadow type="math_number">
+            <field name="NUM">2</field>
+          </shadow>
+        </value>
+        <value name="ADD2">
+          <shadow type="math_number">
+            <field name="NUM">3</field>
+          </shadow>
+        </value>
+        <value name="ADD3">
+          <shadow type="math_number">
+            <field name="NUM">4</field>
+          </shadow>
+        </value>
+        <value name="ADD4">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+        <value name="ADD5">
+          <shadow type="math_number">
+            <field name="NUM">6</field>
+          </shadow>
+        </value>
+        <value name="ADD6">
+          <shadow type="math_number">
+            <field name="NUM">7</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="var_sub">sub</field>
+        <value name="VALUE">
+          <block type="lists_getSublist">
+            <mutation at1="true" at2="false"></mutation>
+            <field name="WHERE1">FROM_START</field>
+            <field name="WHERE2">LAST</field>
+            <value name="LIST">
+              <block type="variables_get">
+                <field name="VAR" id="var_numbers">numbers</field>
+              </block>
+            </value>
+            <value name="AT1">
+              <block type="math_number">
+                <field name="NUM">3</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="controls_forEach">
+            <field name="VAR" id="var_item">item</field>
+            <value name="LIST">
+              <block type="variables_get">
+                <field name="VAR" id="var_sub">sub</field>
+              </block>
+            </value>
+            <statement name="DO">
+              <block type="add_text">
+                <value name="TEXT">
+                  <block type="variables_get">
+                    <field name="VAR" id="var_item">item</field>
+                  </block>
+                </value>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

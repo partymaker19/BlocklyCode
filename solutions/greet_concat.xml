@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_name">name</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_name">name</field>
+    <value name="VALUE">
+      <shadow type="text">
+        <field name="TEXT">Мир</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_join">
+            <mutation items="3"></mutation>
+            <value name="ADD0">
+              <shadow type="text">
+                <field name="TEXT">Hello, </field>
+              </shadow>
+            </value>
+            <value name="ADD1">
+              <block type="variables_get">
+                <field name="VAR" id="var_name">name</field>
+              </block>
+            </value>
+            <value name="ADD2">
+              <shadow type="text">
+                <field name="TEXT">!</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+      </block>
+    </next>
+  </block>
+</xml>

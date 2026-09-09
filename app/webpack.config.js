@@ -73,6 +73,8 @@ const config = {
     new CopyWebpackPlugin({
       patterns: [
         { from: "node_modules/blockly/media", to: "media" },
+        // Эталонные решения задач (показ ученику ПОСЛЕ верного решения)
+        { from: "../solutions", to: "solutions" },
         // Copy Ace Editor "src-noconflict" distribution for dynamic loading of modes, themes, and workers
         { from: "node_modules/ace-builds/src-noconflict", to: "ace" },
         // Copy Fengari Web build to serve Lua runtime locally (avoid CDN in worker)

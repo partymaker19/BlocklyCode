@@ -101,7 +101,7 @@ describe("task function_with_param (Функция с параметром)", ()
   it("XML-решение из solutions/ проходит валидацию (3 звезды)", async () => {
     const xmlPath = path.resolve(
       __dirname,
-      "../../solutions/task_25_function_with_param.xml",
+      "../../solutions/function_with_param.xml",
     );
     const xml = fs.readFileSync(xmlPath, "utf-8");
     const dom = Blockly.utils.xml.textToDom(xml);

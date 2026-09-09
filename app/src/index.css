@@ -729,6 +729,32 @@ html[data-theme='dark'] .badge {
   opacity: 0.6;
 }
 
+/* ===== Эталонные решения (ui/solutions.ts) ===== */
+.task-solution-offer {
+  margin-top: 6px;
+  min-height: 4px;
+}
+
+.task-solution-offer .solution-compare-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 13px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.task-solution-offer .solution-compare-btn:disabled {
+  cursor: default;
+  opacity: 0.85;
+  filter: saturate(0.6);
+}
+
+html[data-theme='dark'] .task-solution-offer .solution-compare-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
 .feedback-label {
   font-size: 13px;
   opacity: 0.85;

@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_numbers">numbers</variable>
+    <variable id="var_item">item</variable>
+    <variable id="var_count">count</variable>
+    <variable id="var_evens">evens</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_numbers">numbers</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="10"></mutation>
+        <value name="ADD0"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+        <value name="ADD1"><shadow type="math_number"><field name="NUM">2</field></shadow></value>
+        <value name="ADD2"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+        <value name="ADD3"><shadow type="math_number"><field name="NUM">4</field></shadow></value>
+        <value name="ADD4"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
+        <value name="ADD5"><shadow type="math_number"><field name="NUM">6</field></shadow></value>
+        <value name="ADD6"><shadow type="math_number"><field name="NUM">7</field></shadow></value>
+        <value name="ADD7"><shadow type="math_number"><field name="NUM">8</field></shadow></value>
+        <value name="ADD8"><shadow type="math_number"><field name="NUM">9</field></shadow></value>
+        <value name="ADD9"><shadow type="math_number"><field name="NUM">10</field></shadow></value>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="var_count">count</field>
+        <value name="VALUE"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+        <next>
+          <block type="variables_set">
+            <field name="VAR" id="var_evens">evens</field>
+            <value name="VALUE">
+              <block type="lists_create_with"><mutation items="0"></mutation></block>
+            </value>
+            <next>
+              <block type="controls_forEach">
+                <field name="VAR" id="var_item">item</field>
+                <value name="LIST">
+                  <block type="variables_get"><field name="VAR" id="var_numbers">numbers</field></block>
+                </value>
+                <statement name="DO">
+                  <block type="controls_if">
+                    <value name="IF0">
+                      <block type="logic_compare">
+                        <field name="OP">EQ</field>
+                        <value name="A">
+                          <block type="math_modulo">
+                            <value name="DIVIDEND">
+                              <block type="variables_get"><field name="VAR" id="var_item">item</field></block>
+                            </value>
+                            <value name="DIVISOR">
+                              <shadow type="math_number"><field name="NUM">2</field></shadow>
+                            </value>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <shadow type="math_number"><field name="NUM">0</field></shadow>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="math_change">
+                        <field name="VAR" id="var_count">count</field>
+                        <value name="DELTA">
+                          <shadow type="math_number"><field name="NUM">1</field></shadow>
+                        </value>
+                        <next>
+                          <block type="lists_setIndex">
+                            <mutation at="false"></mutation>
+                            <field name="MODE">INSERT</field>
+                            <field name="WHERE">LAST</field>
+                            <value name="LIST">
+                              <block type="variables_get"><field name="VAR" id="var_evens">evens</field></block>
+                            </value>
+                            <value name="TO">
+                              <block type="variables_get"><field name="VAR" id="var_item">item</field></block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                  </block>
+                </statement>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="text_join">
+                        <mutation items="2"></mutation>
+                        <value name="ADD0"><shadow type="text"><field name="TEXT">count: </field></shadow></value>
+                        <value name="ADD1">
+                          <block type="variables_get"><field name="VAR" id="var_count">count</field></block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="add_text">
+                        <value name="TEXT">
+                          <block type="text_join">
+                            <mutation items="2"></mutation>
+                            <value name="ADD0"><shadow type="text"><field name="TEXT">median: </field></shadow></value>
+                            <value name="ADD1">
+                              <block type="lists_getIndex">
+                                <mutation at="true" statement="false"></mutation>
+                                <field name="MODE">GET</field>
+                                <field name="WHERE">FROM_START</field>
+                                <value name="VALUE">
+                                  <block type="variables_get"><field name="VAR" id="var_evens">evens</field></block>
+                                </value>
+                                <value name="AT">
+                                  <block type="math_arithmetic">
+                                    <field name="OP">DIVIDE</field>
+                                    <value name="A">
+                                      <block type="math_arithmetic">
+                                        <field name="OP">ADD</field>
+                                        <value name="A">
+                                          <block type="lists_length">
+                                            <value name="VALUE">
+                                              <block type="variables_get"><field name="VAR" id="var_evens">evens</field></block>
+                                            </value>
+                                          </block>
+                                        </value>
+                                        <value name="B">
+                                          <shadow type="math_number"><field name="NUM">1</field></shadow>
+                                        </value>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <shadow type="math_number"><field name="NUM">2</field></shadow>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

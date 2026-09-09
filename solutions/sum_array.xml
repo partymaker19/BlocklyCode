@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_numbers">numbers</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_numbers">numbers</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="5"></mutation>
+        <value name="ADD0"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+        <value name="ADD1"><shadow type="math_number"><field name="NUM">2</field></shadow></value>
+        <value name="ADD2"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+        <value name="ADD3"><shadow type="math_number"><field name="NUM">4</field></shadow></value>
+        <value name="ADD4"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="math_on_list">
+            <field name="OP">SUM</field>
+            <value name="LIST">
+              <block type="variables_get"><field name="VAR" id="var_numbers">numbers</field></block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </next>
+  </block>
+</xml>

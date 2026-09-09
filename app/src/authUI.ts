@@ -93,31 +93,68 @@ export function initAuthUI() {
   });
 
   // Действия (вход/регистрация/выход)
+  const EMAIL_RE = /^\S+@\S+\.\S+$/;
+
+  const showAuthError = (message: string) => {
+    const el = byId<HTMLDivElement>("authError");
+    if (el) {
+      el.textContent = message;
+      el.style.display = "block";
+    } else {
+      alert(message);
+    }
+  };
+  const clearAuthError = () => {
+    const el = byId<HTMLDivElement>("authError");
+    if (el) {
+      el.textContent = "";
+      el.style.display = "none";
+    }
+  };
+
   loginBtn?.addEventListener("click", async () => {
+    clearAuthError();
     const email = emailInput?.value?.trim() || "";
     const password = passInput?.value || "";
+    if (!EMAIL_RE.test(email)) {
+      showAuthError("Введите корректный email (например: user@mail.com)");
+      return;
+    }
+    if (!password) {
+      showAuthError("Введите пароль");
+      return;
+    }
     try {
       await loginWithEmail(email, password);
       closeAuthModal();
       if (emailInput) emailInput.value = "";
       if (passInput) passInput.value = "";
     } catch (e) {
-      alert(
+      showAuthError(
         "Не удалось войти: " + (e instanceof Error ? e.message : String(e)),
       );
     }
   });
 
   registerBtn?.addEventListener("click", async () => {
+    clearAuthError();
     const email = emailInput?.value?.trim() || "";
     const password = passInput?.value || "";
+    if (!EMAIL_RE.test(email)) {
+      showAuthError("Введите корректный email (например: user@mail.com)");
+      return;
+    }
+    if (password.length < 6) {
+      showAuthError("Пароль должен быть не короче 6 символов");
+      return;
+    }
     try {
       await registerWithEmail(email, password);
       closeAuthModal();
       if (emailInput) emailInput.value = "";
       if (passInput) passInput.value = "";
     } catch (e) {
-      alert(
+      showAuthError(
         "Не удалось зарегистрироваться: " +
           (e instanceof Error ? e.message : String(e)),
       );

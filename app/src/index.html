@@ -1072,6 +1072,22 @@
       margin-top: 8px;
     }
 
+    #authModal .auth-error {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: #b91c1c;
+      background: rgba(220, 38, 38, 0.08);
+      border: 1px solid rgba(220, 38, 38, 0.35);
+    }
+
+    html[data-theme='dark'] #authModal .auth-error {
+      color: #fca5a5;
+      background: rgba(220, 38, 38, 0.15);
+      border-color: rgba(248, 113, 113, 0.4);
+    }
+
     html[data-theme='dark'] #authModal .auth-provider-btn {
       background: var(--provider-bg, #1f2937);
       color: var(--provider-color, #e5e7eb);
@@ -3609,7 +3625,8 @@ end</code></pre>
         <div class="email-separator" style="display:none">или по email</div>
         <div class="form-row">
           <input id="authEmail" type="email" placeholder="Email" />
-          <input id="authPassword" type="password" placeholder="Пароль" />
+          <input id="authPassword" type="password" placeholder="Пароль (мин. 6 символов)" />
+          <div id="authError" class="auth-error" style="display:none" role="alert"></div>
           <div class="auth-actions">
             <button id="authLoginBtn" class="import-button">Войти</button>
             <button id="authRegisterBtn" class="import-button">Регистрация</button>

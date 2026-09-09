@@ -105,7 +105,10 @@ export async function loginWithEmail(
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    throw new Error("Login failed");
+    const payload = (await res.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new Error(payload?.error || "Login failed");
   }
   const payload: unknown = await res.json().catch(() => ({}) as unknown);
   currentUser = mapUser(payload);
@@ -124,7 +127,10 @@ export async function registerWithEmail(
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    throw new Error("Registration failed");
+    const payload = (await res.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new Error(payload?.error || "Registration failed");
   }
   const payload: unknown = await res.json().catch(() => ({}) as unknown);
   currentUser = mapUser(payload);

@@ -14,16 +14,18 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: |
             package-lock.json
             app/package-lock.json
 
-      # npm ci в корне запускает lifecycle-скрипт "install",
-      # который ставит зависимости и для app/
+      # Явная установка зависимостей корня и app/
+      # (lifecycle-скрипт "install" удалён из package.json)
       - name: Install dependencies (root + app)
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix app
 
       - name: Typecheck
         run: npm run typecheck
@@ -31,8 +33,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Tests
+      - name: Tests (frontend + validators)
         run: npm test
+
+      - name: Tests (API server)
+        run: npm run test:server
 
       - name: Build
         run: npm run build

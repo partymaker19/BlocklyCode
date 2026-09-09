@@ -140,6 +140,19 @@ export function initStudentTasksUI(): void {
             setActiveTask(taskId as TaskId);
           } catch {}
           modal.style.display = "none";
+          // Показываем панель задач с назначенной задачей:
+          // открываем сайдбар и выходим из режима выбора сложности
+          const sidebar = document.getElementById("taskSidebar");
+          if (sidebar) {
+            sidebar.classList.remove("mode-select");
+            if (!sidebar.classList.contains("open")) {
+              sidebar.classList.add("open");
+            }
+            const pageContainer = document.getElementById("pageContainer");
+            if (pageContainer && !document.body.classList.contains("mobile")) {
+              pageContainer.classList.add("sidebar-open");
+            }
+          }
         });
       })
       .catch(() => {

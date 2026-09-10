@@ -1072,6 +1072,34 @@
       margin-top: 8px;
     }
 
+    /* Кнопки «Войти»/«Регистрация»: базовый .import-button рассчитан на тёмный
+       хедер (белый текст на полупрозрачном белом фоне) и на светлой модалке
+       не читается — задаём читаемые цвета. */
+    #authModal .auth-actions .import-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      flex: 1;
+      justify-content: center;
+    }
+
+    #authModal .auth-actions .import-button:hover {
+      background: linear-gradient(135deg, #5a6fd5 0%, #6a4192 100%);
+      transform: translateY(-1px);
+    }
+
+    html[data-theme='dark'] #authModal .auth-actions .import-button {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #ffffff;
+    }
+
+    html[data-theme='dark'] #authModal .auth-actions .import-button:hover {
+      background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+    }
+
     #authModal .auth-error {
       margin-top: 8px;
       padding: 8px 12px;

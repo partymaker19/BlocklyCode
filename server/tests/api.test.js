@@ -110,6 +110,32 @@ describe("Auth API", () => {
     expect(res.status).toBe(400);
   });
 
+  it("регистрирует с именем и отдаёт его в /me", async () => {
+    const { a } = await registerUser();
+    // registerUser без имени; проверим отдельной регистрацией
+    const a2 = agent();
+    const res = await a2.post("/api/auth/register", {
+      email: randomEmail(),
+      password: "secret123",
+      name: "Иван",
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.user.name).toBe("Иван");
+    const me = await a2.get("/api/auth/me");
+    expect(me.body.user.name).toBe("Иван");
+  });
+
+  it("отклоняет имя длиннее 30 символов (400)", async () => {
+    const a = agent();
+    const res = await a.post("/api/auth/register", {
+      email: randomEmail(),
+      password: "secret123",
+      name: "А".repeat(31),
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("30");
+  });
+
   it("логинит по email+пароль, неверный пароль → 401", async () => {
     const email = randomEmail();
     await registerUser(email, "secret123");

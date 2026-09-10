@@ -19,8 +19,13 @@ function updateAuthUI() {
   const authed = !!user?.id;
   if (openBtn) openBtn.style.display = authed ? "none" : "inline-flex";
   if (userInfo) userInfo.style.display = authed ? "inline-flex" : "none";
-  if (userEmail)
-    userEmail.textContent = user?.email || user?.name || user?.id || "";
+  if (userEmail) {
+    // Показываем имя, если есть; иначе — короткую форму email (до @),
+    // полный email — в тултипе. Хедер остаётся компактным.
+    const label = user?.name?.trim() || user?.email?.split("@")[0] || user?.id || "";
+    userEmail.textContent = label;
+    userEmail.title = user?.email || "";
+  }
 }
 
 /**
@@ -83,6 +88,7 @@ export function initAuthUI() {
   const logoutBtn = byId<HTMLButtonElement>("logoutBtn");
   const emailInput = byId<HTMLInputElement>("authEmail");
   const passInput = byId<HTMLInputElement>("authPassword");
+  const nameInput = byId<HTMLInputElement>("authName");
   const modal = byId<HTMLDivElement>("authModal");
 
   // Открыть/закрыть
@@ -127,6 +133,7 @@ export function initAuthUI() {
     try {
       await loginWithEmail(email, password);
       closeAuthModal();
+      if (nameInput) nameInput.value = "";
       if (emailInput) emailInput.value = "";
       if (passInput) passInput.value = "";
     } catch (e) {
@@ -140,6 +147,7 @@ export function initAuthUI() {
     clearAuthError();
     const email = emailInput?.value?.trim() || "";
     const password = passInput?.value || "";
+    const name = nameInput?.value?.trim() || "";
     if (!EMAIL_RE.test(email)) {
       showAuthError("Введите корректный email (например: user@mail.com)");
       return;
@@ -148,9 +156,14 @@ export function initAuthUI() {
       showAuthError("Пароль должен быть не короче 6 символов");
       return;
     }
+    if (name.length > 30) {
+      showAuthError("Имя не может быть длиннее 30 символов");
+      return;
+    }
     try {
-      await registerWithEmail(email, password);
+      await registerWithEmail(email, password, name);
       closeAuthModal();
+      if (nameInput) nameInput.value = "";
       if (emailInput) emailInput.value = "";
       if (passInput) passInput.value = "";
     } catch (e) {

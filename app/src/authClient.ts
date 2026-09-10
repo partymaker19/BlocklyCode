@@ -119,12 +119,19 @@ export async function loginWithEmail(
 export async function registerWithEmail(
   email: string,
   password: string,
+  name?: string,
 ): Promise<AuthUser | null> {
+  const body: { email: string; password: string; name?: string } = {
+    email,
+    password,
+  };
+  const trimmed = name?.trim();
+  if (trimmed) body.name = trimmed;
   const res = await fetch("/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const payload = (await res.json().catch(() => ({}))) as {

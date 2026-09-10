@@ -101,6 +101,13 @@ app.post("/api/auth/register", async (req, res) => {
         .status(400)
         .json({ error: "Пароль должен быть не короче 6 символов" });
     }
+    if (name !== undefined && name !== null && name !== "") {
+      if (typeof name !== "string" || name.trim().length > 30) {
+        return res
+          .status(400)
+          .json({ error: "Имя не может быть длиннее 30 символов" });
+      }
+    }
     const existing = store.getUserByEmail(email);
     if (existing) {
       return res.status(409).json({ error: "Пользователь уже существует" });

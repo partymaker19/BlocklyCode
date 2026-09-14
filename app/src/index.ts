@@ -1140,6 +1140,25 @@ if (langSwitchInput) {
   }
 }
 
+// "Ещё" dropdown in header — secondary buttons
+{
+  const moreBtn = document.getElementById("headerMoreBtn");
+  const morePanel = document.getElementById("headerMorePanel");
+  if (moreBtn && morePanel) {
+    moreBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = morePanel.classList.toggle("open");
+      moreBtn.setAttribute("aria-expanded", String(open));
+    });
+    document.addEventListener("click", (e) => {
+      if (!morePanel.contains(e.target as Node) && e.target !== moreBtn) {
+        morePanel.classList.remove("open");
+        moreBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+}
+
 // Инициализация Ace Editor
 setupAceEditor(() => selectedGeneratorLanguage);
 

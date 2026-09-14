@@ -1683,6 +1683,63 @@
     .icon-buttons {
       display: flex;
       gap: 10px;
+      align-items: center;
+    }
+
+    /* --- "More" dropdown in header --- */
+    .header-more {
+      position: relative;
+    }
+    .header-more-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.2s;
+    }
+    .header-more-btn:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    .header-more-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      min-width: 200px;
+      z-index: 3000;
+      padding: 6px 0;
+    }
+    .header-more-panel.open { display: block; }
+    .header-more-panel .import-button {
+      width: 100%;
+      justify-content: flex-start;
+      border-radius: 0;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      color: #1f2937;
+      background: transparent;
+    }
+    .header-more-panel .import-button:hover {
+      background: #f3f4f6;
+    }
+    html[data-theme='dark'] .header-more-panel {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    html[data-theme='dark'] .header-more-panel .import-button {
+      color: #e5e7eb;
+    }
+    html[data-theme='dark'] .header-more-panel .import-button:hover {
+      background: #2a3650;
     }
 
     .icon-btn:hover {
@@ -2459,53 +2516,49 @@
         <h1 class="header-title">BlocklyCode</h1>
       </div>
     </div>
-    <div class="editor-controls-block">
-      <div class="icon-buttons" style="gap: 12px;">
+      <div class="editor-controls-block">
+      <div class="icon-buttons" style="gap: 10px;">
         <button id="saveXmlBtn" class="icon-button" title="Сохранить (XML)" aria-label="Сохранить (XML)">💾</button>
         <button id="loadXmlBtn" class="icon-button" title="Загрузить (XML)" aria-label="Загрузить (XML)">📂</button>
-        <button id="importBlockBtn" class="import-button">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-          </svg>
-          <span id="importBtnText">Импорт блоков</span>
-        </button>
-        <button id="blockHelpBtn" class="import-button" title="Руководство по созданию блоков"
-          aria-label="Руководство по созданию блоков">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
-          </svg>
-          <span id="blockHelpBtnText">Справка</span>
-        </button>
-        <!-- New: Task solution button -->
-        <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи"
-          style="margin-right: 12px;">
+        <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
         </button>
-        <!-- Support button -->
-        <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
-          <span id="supportBtnText">💙 Поддержка</span>
-        </button>
-        <!-- Feedback button -->
-        <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь"
-          style="margin-right: 12px;">
-          <span id="feedbackBtnText">✉️ Обратная связь</span>
-        </button>
-        <!-- Stats button (progress, stars, streak, badges) -->
-        <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика"
-          style="margin-right: 12px;">
-          <span id="statsBtnText">📊 Статистика</span>
-        </button>
-        <!-- Classes dashboard (teacher mode) -->
         <button id="classesBtn" class="import-button" title="Мои классы" aria-label="Мои классы"
-          style="display:none; margin-right: 12px;">
+          style="display:none;">
           <span id="classesBtnText">🎓 Классы</span>
         </button>
-        <!-- Student tasks (assigned by teacher) -->
         <button id="studentTasksBtn" class="import-button" title="Мои задания" aria-label="Мои задания"
-          style="display:none; margin-right: 12px;">
+          style="display:none;">
           <span id="studentTasksBtnText">📋 Задания</span>
         </button>
+        <!-- More menu: secondary buttons -->
+        <div class="header-more">
+          <button id="headerMoreBtn" class="header-more-btn" title="Ещё" aria-label="Ещё" aria-expanded="false">⋯</button>
+          <div class="header-more-panel" id="headerMorePanel">
+            <button id="importBlockBtn" class="import-button">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+              </svg>
+              <span id="importBtnText">Импорт блоков</span>
+            </button>
+            <button id="blockHelpBtn" class="import-button" title="Руководство по созданию блоков"
+              aria-label="Руководство по созданию блоков">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
+              </svg>
+              <span id="blockHelpBtnText">Справка</span>
+            </button>
+            <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
+              <span id="supportBtnText">💙 Поддержка</span>
+            </button>
+            <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь">
+              <span id="feedbackBtnText">✉️ Обратная связь</span>
+            </button>
+            <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика">
+              <span id="statsBtnText">📊 Статистика</span>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="header-right">
         <input id="loadXmlInput" type="file" accept=".xml" style="display:none" />

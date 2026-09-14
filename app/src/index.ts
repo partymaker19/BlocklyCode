@@ -53,6 +53,7 @@ import {
   localizeHelpUI,
   localizeSupportUI,
   localizeClassesUI,
+  localizeStudentTasksUI,
   localizeFeedbackUI,
   localizeStatsUI,
 } from "./localization";
@@ -1027,6 +1028,8 @@ localizeHelpUI(defaultLang);
 localizeSupportUI(defaultLang);
 // Локализуем кнопку и модалку классов (дашборд учителя)
 localizeClassesUI(defaultLang);
+// Локализуем кнопку заданий ученика
+localizeStudentTasksUI(defaultLang);
 // Локализуем кнопку и модалку обратной связи
 localizeFeedbackUI(defaultLang);
 // Локализуем кнопку и модалку статистики
@@ -1107,6 +1110,8 @@ if (langSwitchInput) {
       localizeSupportUI(newLang);
       // Локализуем кнопку и модалку классов
       localizeClassesUI(newLang);
+      // Локализуем кнопку заданий ученика
+      localizeStudentTasksUI(newLang);
       // Локализуем кнопку и модалку обратной связи
       localizeFeedbackUI(newLang);
       // Локализуем кнопку и модалку статистики

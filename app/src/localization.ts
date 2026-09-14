@@ -1021,6 +1021,19 @@ export function localizeClassesUI(lang: AppLang): void {
   if (closeIcon) closeIcon.setAttribute("aria-label", t.closeLabel);
 }
 
+export function localizeStudentTasksUI(lang: AppLang): void {
+  const t = lang === "ru" ? stringsRu.studentTasksUi : stringsEn.studentTasksUi;
+
+  const btn = document.getElementById("studentTasksBtn");
+  const btnText = document.getElementById("studentTasksBtnText");
+
+  if (btn) {
+    btn.setAttribute("title", t.buttonLabel);
+    btn.setAttribute("aria-label", t.buttonLabel);
+  }
+  if (btnText) (btnText as HTMLElement).textContent = `📋 ${t.buttonText}`;
+}
+
 export function localizeFeedbackUI(lang: AppLang): void {
   const t = lang === "ru" ? stringsRu.feedbackUi : stringsEn.feedbackUi;
 

@@ -153,6 +153,13 @@ export const classesUi: typeof ClassesUiEn = {
   closeLabel: "Закрыть",
 };
 
+export const studentTasksUi: typeof ClassesUiEn = {
+  buttonText: "Задания",
+  buttonLabel: "Задания от учителя",
+  modalTitle: "Мои задания",
+  closeLabel: "Закрыть",
+};
+
 export const feedbackUi: typeof FeedbackUiEn = {
   buttonText: "Обратная связь",
   buttonLabel: "Обратная связь — сообщить о баге или поделиться идеей",

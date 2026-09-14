@@ -142,6 +142,13 @@ export const classesUi = {
   closeLabel: "Close",
 };
 
+export const studentTasksUi = {
+  buttonText: "My tasks",
+  buttonLabel: "Tasks assigned by teacher",
+  modalTitle: "My tasks",
+  closeLabel: "Close",
+};
+
 export const feedbackUi = {
   buttonText: "Feedback",
   buttonLabel: "Feedback — report a bug or share an idea",

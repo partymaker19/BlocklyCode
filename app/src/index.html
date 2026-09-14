@@ -2536,8 +2536,15 @@
           </svg>
           <span id="blockHelpBtnText">Справка</span>
         </button>
-        <!-- More menu: secondary buttons -->
-        <div class="header-more">
+        <!-- Visible before login; moved to dropdown after login -->
+        <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь">
+          <span id="feedbackBtnText">✉️ Обратная связь</span>
+        </button>
+        <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика">
+          <span id="statsBtnText">📊 Статистика</span>
+        </button>
+        <!-- More menu: always present, initially hidden until login -->
+        <div class="header-more" style="display:none;" id="headerMoreWrap">
           <button id="headerMoreBtn" class="header-more-btn" title="Ещё" aria-label="Ещё" aria-expanded="false">⋯</button>
           <div class="header-more-panel" id="headerMorePanel">
             <button id="classesBtn" class="import-button" title="Мои классы" aria-label="Мои классы"
@@ -2551,12 +2558,7 @@
             <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
               <span id="supportBtnText">💙 Поддержка</span>
             </button>
-            <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь">
-              <span id="feedbackBtnText">✉️ Обратная связь</span>
-            </button>
-            <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика">
-              <span id="statsBtnText">📊 Статистика</span>
-            </button>
+            <!-- feedbackBtn and statsBtn are appended here after login -->
           </div>
         </div>
       </div>

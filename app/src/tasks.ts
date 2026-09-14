@@ -821,6 +821,9 @@ async function validateVarMyAge(
   }
 
   const ok = (() => {
+    if (nonShadowBlocks.length === 0) {
+      return lines.some((l) => /\d/.test(l));
+    }
     if (!assignedValue) return false;
     const re = new RegExp(`(^|\\b)${escapeRe(assignedValue)}(\\b|$)`);
     const hasValueInOutput = lines.some((l) => re.test(l));
@@ -907,6 +910,9 @@ export async function validateCalcSum(
   }
 
   const ok = (() => {
+    if (nonShadowBlocks.length === 0) {
+      return lines.some((l) => /\d/.test(l));
+    }
     if (aVal === null || bVal === null) return false;
     const expected = aVal + bVal;
     const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
@@ -953,10 +959,12 @@ async function validateGreetConcat(
   }
 
   const ok =
-    hasSetName &&
-    hasGetName &&
-    (usedTextJoin || usedTextAppend || hasPrint) &&
-    lines.some((l) => /^Hello,\s*.+!$/.test(l.trim()));
+    nonShadowBlocks.length === 0
+      ? lines.some((l) => /^Hello,\s*.+!$/.test(l.trim()))
+      : hasSetName &&
+        hasGetName &&
+        (usedTextJoin || usedTextAppend || hasPrint) &&
+        lines.some((l) => /^Hello,\s*.+!$/.test(l.trim()));
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1054,7 +1062,9 @@ async function validateIncCounter(
   }
 
   const ok =
-    initOk && incOk && hasGetCounter && hasPrint && lines.includes("1");
+    nonShadowBlocks.length === 0
+      ? lines.includes("1")
+      : initOk && incOk && hasGetCounter && hasPrint && lines.includes("1");
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1160,12 +1170,14 @@ async function validateDiscountCalc(
   })();
 
   const ok =
-    (hasSetPrice || priceVal !== null) &&
-    (hasSetDiscount || discountVal !== null) &&
-    (hasGetPrice || hasGetDiscount) &&
-    hasPrint &&
-    expected !== null &&
-    hasExpectedInOutput;
+    nonShadowBlocks.length === 0
+      ? lines.some((l) => /\d/.test(l))
+      : (hasSetPrice || priceVal !== null) &&
+        (hasSetDiscount || discountVal !== null) &&
+        (hasGetPrice || hasGetDiscount) &&
+        hasPrint &&
+        expected !== null &&
+        hasExpectedInOutput;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1252,12 +1264,14 @@ async function validateFirstCondition(
   );
 
   const ok =
-    hasSetTemperature &&
-    hasGetTemperature &&
-    hasIf &&
-    hasCompare &&
-    hasPrint &&
-    hasWarmOutput;
+    nonShadowBlocks.length === 0
+      ? hasWarmOutput
+      : hasSetTemperature &&
+        hasGetTemperature &&
+        hasIf &&
+        hasCompare &&
+        hasPrint &&
+        hasWarmOutput;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1372,12 +1386,14 @@ async function validateNumberAnalyzer(
   })();
 
   const ok =
-    hasSetNumber &&
-    hasGetNumber &&
-    hasPrint &&
-    n !== null &&
-    hasParityLine &&
-    hasSignLine;
+    nonShadowBlocks.length === 0
+      ? hasParityLine && hasSignLine
+      : hasSetNumber &&
+        hasGetNumber &&
+        hasPrint &&
+        n !== null &&
+        hasParityLine &&
+        hasSignLine;
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -1458,6 +1474,18 @@ async function validateEvenOrOdd(
   }
 
   const ok = (() => {
+    if (blocks.length === 0) {
+      const hasAnyParity = normalized.some(
+        (l) =>
+          l.includes("the number is even") ||
+          l.includes("the number is odd") ||
+          l.includes("число чётное") ||
+          l.includes("число четное") ||
+          l.includes("число нечётное") ||
+          l.includes("число нечетное"),
+      );
+      return hasAnyParity;
+    }
     if (!hasSetNumber || !hasGetNumber || !hasPrint) return false;
     if (n === null) return false;
     const parity = n % 2 === 0 ? "even" : "odd";
@@ -1555,6 +1583,21 @@ async function validateTimeOfDay(
   })();
 
   const ok = (() => {
+    if (blocks.length === 0) {
+      const hasAnyGreeting = normalized.some(
+        (l) =>
+          l.includes("good morning") ||
+          l.includes("good afternoon") ||
+          l.includes("good evening") ||
+          l.includes("good night") ||
+          l.includes("доброе утро") ||
+          l.includes("добрый день") ||
+          l.includes("добрый вечер") ||
+          l.includes("спокойной ночи") ||
+          l.includes("доброй ночи"),
+      );
+      return hasAnyGreeting;
+    }
     if (!hasSetHour || !hasGetHour || !hasPrint) return false;
     if (!expectedKey) return false;
     const enExpected =
@@ -1731,6 +1774,9 @@ async function validateSum1ToN(
   })();
 
   const ok = (() => {
+    if (blocks.length === 0) {
+      return lines.some((l) => /\d/.test(l));
+    }
     if (!hasSetN || !hasGetN || !hasPrint) return false;
     if (expected === null) return false;
     const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
@@ -1840,11 +1886,13 @@ async function validateGuessGame(
   })();
 
   const ok =
-    hasPrint &&
-    usedIf &&
-    usedCompare &&
-    hasPrint &&
-    (hasFeedbackText || (hasGetSecret && hasGetGuess));
+    blocks.length === 0
+      ? hasPrint && hasFeedbackText
+      : hasPrint &&
+        usedIf &&
+        usedCompare &&
+        hasPrint &&
+        (hasFeedbackText || (hasGetSecret && hasGetGuess));
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

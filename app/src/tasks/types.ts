@@ -43,13 +43,27 @@ export type TaskId =
   | "a1_number_analyzer"
   | "sum_array"
   | "min_max"
-  | "char_freq";
+  | "char_freq"
+  | "fb_area"
+  | "fb_join"
+  | "fb_parity"
+  | "fb_loop"
+  | "fb_list"
+  | "fb_double";
 
 export type TaskDifficulty = "basic" | "advanced";
+
+// «build» — собрать программу с нуля; «fix» — дана готовая программа
+// с ошибкой (starterXml), её нужно найти и исправить.
+export type TaskKind = "build" | "fix";
 
 export type TaskDef = {
   id: TaskId;
   difficulty: TaskDifficulty;
+  // По умолчанию «build»
+  kind?: TaskKind;
+  // XML «сломанной» программы для kind="fix"
+  starterXml?: string;
   title: (lang: "ru" | "en") => string;
   description: (lang: "ru" | "en") => string; // может содержать HTML
   hint: (lang: "ru" | "en") => string;

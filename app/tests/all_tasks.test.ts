@@ -356,6 +356,139 @@ const rows: Row[] = [
     output: ["a:3", "b:4", "c:1"],
     blocks: [printB()],
   },
+  {
+    id: "fb_area",
+    output: ["42"],
+    blocks: [
+      {
+        type: "add_text",
+        inputs: {
+          TEXT: {
+            block: {
+              type: "math_arithmetic",
+              fields: { OP: "MULTIPLY" },
+              inputs: { A: num(6), B: num(7) },
+            },
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "fb_join",
+    output: ["Hello, World!"],
+    blocks: [
+      {
+        type: "add_text",
+        inputs: {
+          TEXT: {
+            block: {
+              type: "text_join",
+              extraState: { itemCount: 2 },
+              inputs: {
+                ADD0: { shadow: { type: "text", fields: { TEXT: "Hello, " } } },
+                ADD1: { shadow: { type: "text", fields: { TEXT: "World!" } } },
+              },
+            },
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "fb_parity",
+    output: ["even"],
+    blocks: [
+      setNum("number", 8),
+      {
+        type: "controls_if",
+        inputs: {
+          IF0: {
+            block: {
+              type: "logic_compare",
+              fields: { OP: "EQ" },
+              inputs: {
+                A: {
+                  block: {
+                    type: "math_modulo",
+                    inputs: {
+                      DIVIDEND: getV("number"),
+                      DIVISOR: num(2),
+                    },
+                  },
+                },
+                B: num(0),
+              },
+            },
+          },
+        },
+      },
+      printB(),
+    ],
+  },
+  {
+    id: "fb_loop",
+    output: Array.from({ length: 10 }, (_, i) => String(i + 1)),
+    blocks: [
+      {
+        type: "controls_for",
+        fields: { VAR: { name: "i" } },
+        inputs: { FROM: num(1), TO: num(10), BY: num(1) },
+      },
+      printB(),
+    ],
+  },
+  {
+    id: "fb_list",
+    output: ["2", "4", "6"],
+    blocks: [
+      {
+        type: "controls_forEach",
+        fields: { VAR: { name: "item" } },
+        inputs: {
+          LIST: {
+            block: { type: "lists_create_with", extraState: { itemCount: 3 } },
+          },
+        },
+      },
+      printB(),
+    ],
+  },
+  {
+    id: "fb_double",
+    output: ["10"],
+    blocks: [
+      {
+        type: "procedures_defreturn",
+        fields: { NAME: "double" },
+        extraState: { params: [{ name: "x", id: "fb-x" }] },
+        inputs: {
+          RETURN: {
+            block: {
+              type: "math_arithmetic",
+              fields: { OP: "MULTIPLY" },
+              inputs: {
+                A: { block: { type: "variables_get", fields: { VAR: { name: "x" } } } },
+                B: num(2),
+              },
+            },
+          },
+        },
+      },
+      {
+        type: "add_text",
+        inputs: {
+          TEXT: {
+            block: {
+              type: "procedures_callreturn",
+              extraState: { name: "double", params: ["x"] },
+              inputs: { ARG0: num(5) },
+            },
+          },
+        },
+      },
+    ],
+  },
 ];
 
 beforeAll(() => {
@@ -390,8 +523,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 30 задач", () => {
-    expect(Object.keys(tasks).length).toBe(30);
+  it("в реестре 36 задач", () => {
+    expect(Object.keys(tasks).length).toBe(36);
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {

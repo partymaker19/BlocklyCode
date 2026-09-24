@@ -3,6 +3,7 @@
 import * as Blockly from "blockly";
 import { getAppLang } from "../localization";
 import { syncProgress } from "../progressSync";
+import { countNonShadowBlocks } from "../workspaceUtils";
 import { mountHintSteps } from "../ui/hintSteps";
 import { mountSolutionOffer } from "../ui/solutions";
 import { tasks } from "./registry";
@@ -16,7 +17,7 @@ import {
   setActiveDifficulty,
   setActiveTaskId,
 } from "./state";
-import type { InitTaskValidationOptions, TaskId } from "./types";
+import type { InitTaskValidationOptions, TaskDef, TaskId } from "./types";
 import { getVisibleOutputLines } from "./utils";
 
 function renderResult(
@@ -135,6 +136,24 @@ export function setActiveTask(taskId: TaskId) {
   if (incDecInfo) incDecInfo.style.display = showIncDecInfo ? "" : "none";
   if (conditionInfo) conditionInfo.style.display = showConditionInfo ? "" : "none";
   if (logicalOpsInfo) logicalOpsInfo.style.display = showLogicalOpsInfo ? "" : "none";
+  // «Найди ошибку»: в пустое поле подкладываем сломанную программу
+  if (tdef.kind === "fix") loadStarter(tdef);
+}
+
+/**
+ * Загружает starterXml fix-задачи, только если поле пустое — так
+ * переход «вперёд» (после ws.clear) и старт гостя получают сломанную
+ * программу, а смена языка/синхронизация не затирают правки ученика.
+ */
+function loadStarter(tdef: TaskDef): void {
+  if (!tdef.starterXml) return;
+  const ws = Blockly.getMainWorkspace() as Blockly.WorkspaceSvg | null;
+  if (!ws || countNonShadowBlocks(ws) > 0) return;
+  try {
+    Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(tdef.starterXml), ws);
+  } catch (e) {
+    console.error("Не удалось загрузить стартовую программу задачи:", e);
+  }
 }
 
 /**

@@ -1,4 +1,4 @@
-// Реестр всех задач: объединяет группы. Полнота покрытие TaskId
+// Реестр всех задач: объединяет группы. Полнота покрытия TaskId
 // проверяется компилятором: не хватится любой id — ошибка типов.
 import type { TaskRegistry } from "./types";
 import { outputTasks } from "./output";
@@ -7,6 +7,7 @@ import { conditionsTasks } from "./conditions";
 import { loopsTasks } from "./loops";
 import { listsTasks } from "./lists";
 import { functionsTasks } from "./functions";
+import { fixbugsTasks } from "./fixbugs";
 import { advancedTasks } from "./advanced";
 
 export const tasks: TaskRegistry = {
@@ -16,5 +17,6 @@ export const tasks: TaskRegistry = {
   ...loopsTasks,
   ...listsTasks,
   ...functionsTasks,
+  ...fixbugsTasks,
   ...advancedTasks,
 };

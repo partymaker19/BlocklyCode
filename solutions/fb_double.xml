@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Задача 32 (fb_double): исправленная программа.
+  Баг был в теле функции: return x + 1 вместо return x * 2.
+  Вывод: 10 (double(5)).
+-->
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="fb-x">x</variable>
+  </variables>
+  <block type="procedures_defreturn" x="40" y="40">
+    <mutation>
+      <arg name="x" varid="fb-x"></arg>
+    </mutation>
+    <field name="NAME">double</field>
+    <value name="RETURN">
+      <block type="math_arithmetic">
+        <field name="OP">MULTIPLY</field>
+        <value name="A">
+          <block type="variables_get"><field name="VAR" id="fb-x">x</field></block>
+        </value>
+        <value name="B">
+          <shadow type="math_number"><field name="NUM">2</field></shadow>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="add_text" x="40" y="220">
+    <value name="TEXT">
+      <block type="procedures_callreturn">
+        <mutation name="double">
+          <arg name="x"></arg>
+        </mutation>
+        <value name="ARG0">
+          <shadow type="math_number"><field name="NUM">5</field></shadow>
+        </value>
+      </block>
+    </value>
+  </block>
+</xml>

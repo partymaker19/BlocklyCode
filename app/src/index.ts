@@ -105,6 +105,11 @@ import {
 } from "./ui/mobile";
 import { updateToolboxBlockCounterLabel } from "./ui/toolboxCounter";
 import { initDebugger } from "./ui/debugger";
+import {
+  initOnboardingReplay,
+  localizeOnboardingUI,
+  maybeStartOnboarding,
+} from "./ui/onboarding";
 
 // Добавлено: регистрация плагина угла
 import { registerFieldAngle } from "@blockly/field-angle";
@@ -1119,6 +1124,7 @@ if (langSwitchInput) {
       // ACE строки (кнопка Save, статус-бар)
       refreshAceUILanguage();
       localizeTaskSidebarStaticUI(newLang);
+      localizeOnboardingUI();
       try {
         setActiveTask(getActiveTask());
       } catch {}
@@ -2029,3 +2035,6 @@ window.addEventListener("beforeunload", handleBeforeUnload);
 // Вызываем инициализацию модального окна справки
 initHelpModalLocal();
 initSupportModalLocal();
+// Онбординг-тур: кнопка повторного запуска + автопоказ первому визиту
+initOnboardingReplay();
+maybeStartOnboarding();

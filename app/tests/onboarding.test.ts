@@ -32,6 +32,7 @@ const TARGET_HTML = `
   <div id="output"></div>
   <button id="taskSolutionBtn"></button>
   <div id="genLangHeaderSelect"></div>
+  <button id="importBlockBtn"></button>
 `;
 
 const allVisible: VisibilityCheck = () => true;

@@ -106,6 +106,16 @@ export const TOUR_STEPS: TourStep[] = [
       ),
   },
   {
+    id: "customBlocks",
+    target: "#importBlockBtn",
+    title: () => t("Создай свой блок", "Create your own block"),
+    body: () =>
+      t(
+        "Кнопка «Создать блок» открывает редактор: опиши новый блок JSON-определением и добавь генератор кода — блок появится в категории «Кастомные блоки» в тулбоксе.",
+        "The 'Create block' button opens an editor: describe a new block with a JSON definition and a code generator — it appears in the 'Custom blocks' toolbox category.",
+      ),
+  },
+  {
     id: "finish",
     target: null,
     title: () => t("Готово — начни решать!", "You're set — start solving!"),

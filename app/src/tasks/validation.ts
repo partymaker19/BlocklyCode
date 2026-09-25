@@ -78,6 +78,10 @@ export function setActiveTask(taskId: TaskId) {
   }
   if (feedbackEl) feedbackEl.textContent = "";
   if (starsEl) starsEl.innerHTML = "";
+  // Кнопка «Сравнить с оптимальным» относится к конкретной задаче —
+  // при переходе скрываем, иначе она «переезжает» на следующие задачи
+  const offerEl = document.getElementById("taskSolutionOffer");
+  if (offerEl) offerEl.innerHTML = "";
   const nextId = getNextTaskId(getActiveTask());
   if (nextButton)
     nextButton.disabled = nextId === null ? true : !FREE_TASK_NAV && !isSolved(getActiveTask());

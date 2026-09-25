@@ -20,7 +20,15 @@ import {
 } from "../src/ui/glossary";
 import { setActiveTask, tasks } from "../src/tasks";
 
-const ALL_TOPICS: GlossaryTopicId[] = ["functions", "nested_loops", "break_continue", "sorting"];
+const ALL_TOPICS: GlossaryTopicId[] = [
+  "functions",
+  "nested_loops",
+  "break_continue",
+  "sorting",
+  "repeat_n_times",
+  "random_numbers",
+  "user_input",
+];
 const LANGS = ["JavaScript", "Python", "Lua", "PHP"];
 
 const SIDEBAR_HTML = `
@@ -75,6 +83,9 @@ describe("привязка тем к задачам", () => {
     ["mult_table", "nested_loops"],
     ["first_even_break", "break_continue"],
     ["list_sort_min_max", "sorting"],
+    ["dice_rolls", "repeat_n_times"],
+    ["dice_rolls", "random_numbers"],
+    ["chatterbox", "user_input"],
   ];
   for (const [taskId, topic] of expected) {
     it(`${taskId} → ${topic}`, () => {

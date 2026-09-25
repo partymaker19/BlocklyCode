@@ -337,6 +337,40 @@ const rows: Row[] = [
     ],
   },
   {
+    id: "dice_rolls",
+    output: ["3", "1", "6", "2", "4", "5", "6", "1", "2", "4"],
+    blocks: [
+      {
+        type: "controls_repeat_ext",
+        inputs: {
+          TIMES: num(10),
+          DO: {
+            block: {
+              type: "add_text",
+              inputs: {
+                TEXT: {
+                  block: {
+                    type: "math_random_int",
+                    inputs: { FROM: num(1), TO: num(6) },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "chatterbox",
+    output: ["Привет, Аня! Через год тебе будет 11."],
+    blocks: [
+      setV("name", { block: { type: "py_input" } }),
+      setV("age", { block: { type: "py_input_number" } }),
+      printB(),
+    ],
+  },
+  {
     id: "a1_number_analyzer",
     output: ["The number is odd", "The number is positive"],
     blocks: [setNum("number", 7), getTop("number"), printB()],
@@ -523,8 +557,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 36 задач", () => {
-    expect(Object.keys(tasks).length).toBe(36);
+  it("в реестре 38 задач", () => {
+    expect(Object.keys(tasks).length).toBe(38);
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {

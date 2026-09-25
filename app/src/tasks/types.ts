@@ -41,6 +41,8 @@ export type TaskId =
   | "function_with_param"
   | "function_return"
   | "first_condition"
+  | "dice_rolls"
+  | "chatterbox"
   | "a1_number_analyzer"
   | "sum_array"
   | "min_max"

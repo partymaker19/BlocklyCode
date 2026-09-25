@@ -428,9 +428,52 @@ async function validateFirstEvenBreak(
   return { ok, stars };
 }
 
+async function validateDiceRolls(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+  const nums = lines.map((l) => Number(l));
+  // Ровно 10 бросков, каждый — целое 1…6 (значения случайны,
+  // поэтому проверяем форму и диапазон, а не конкретные числа)
+  const rollsOk =
+    lines.length === 10 && nums.every((n) => Number.isInteger(n) && n >= 1 && n <= 6);
+
+  let usedRepeat = false;
+  let usedAnyLoop = false;
+  let usedRandomInt = false;
+  let usedPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "controls_repeat_ext" || t === "controls_repeat") {
+      usedRepeat = true;
+      usedAnyLoop = true;
+    }
+    if (t === "controls_for" || t === "controls_whileUntil" || t === "controls_forEach") {
+      usedAnyLoop = true;
+    }
+    if (t === "math_random_int") usedRandomInt = true;
+    if (t === "text_print" || t === "add_text") usedPrint = true;
+  }
+
+  const ok = blocks.length === 0 ? rollsOk : usedAnyLoop && usedRandomInt && usedPrint && rollsOk;
+
+  const count = blocks.length;
+  let stars = 0;
+  if (ok) {
+    if (usedRepeat && usedRandomInt && usedPrint && count <= 8) stars = 3;
+    else if (usedAnyLoop && count <= 14) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 export const loopsTasks: Pick<
   TaskRegistry,
-  "first_loop" | "sum_1_to_n" | "guess_game" | "mult_table" | "first_even_break"
+  "first_loop" | "sum_1_to_n" | "guess_game" | "mult_table" | "first_even_break" | "dice_rolls"
 > = {
   first_loop: {
     id: "first_loop",
@@ -506,5 +549,20 @@ export const loopsTasks: Pick<
         : "Step by step:\n1. Create a variable list and set it to “create list with 7 3 8 5 2 9” (a Lists block).\n2. In Loops take the “for each item n in list …” block and put variable list into its field.\n3. Inside the loop place an “if” from Logic with the condition “is even”: the Math block (choose “even” in the dropdown) with variable n in its field. Alternative: “remainder of n ÷ 2 = 0”.\n4. In the if branch add “Add text … color …” with variable n.\n5. Right after the print, in the same if branch, put the “break out of loop” block from Loops — after the first even number the loop stops, so 2 is never printed.\n6. Run the code: the output shows only 8. Press “Check solution”.",
     infoTopics: ["break_continue"],
     validate: validateFirstEvenBreak,
+  },
+  dice_rolls: {
+    id: "dice_rolls",
+    difficulty: "basic",
+    title: (lang) => lang === "ru" ? "Задача 33: Кубик" : "Task 33: The Dice",
+    description: (lang) =>
+      lang === "ru"
+        ? "Напишите программу-«кубик»: <strong>повторите 10 раз</strong> бросок игральной кости, то есть выведите в окно вывода <strong>10 случайных целых чисел от 1 до 6</strong> (каждое с новой строки).<br><br>Используйте блок <strong>«повторить … раз»</strong> (Циклы) и блок <strong>«выдать случайное от … до …»</strong> (Математика).<br><br><strong>Поэкспериментируйте:</strong> запустите программу несколько раз — каждый раз выпадают новые числа. Предсказать их заранее нельзя, и проверка это учитывает: ей важно, чтобы было ровно 10 чисел и все от 1 до 6."
+        : "Write a “dice” program: <strong>repeat 10 times</strong> a die roll, i.e. print <strong>10 random whole numbers from 1 to 6</strong> (one per line).<br><br>Use the <strong>“repeat … times”</strong> block (Loops) and the <strong>“random integer from … to …”</strong> block (Math).<br><br><strong>Experiment:</strong> run the program a few times — every run rolls new numbers. They can't be predicted, and the check knows it: it only requires exactly 10 numbers, each from 1 to 6.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Пошаговое решение:\n1. В категории «Циклы» возьмите блок «повторить … раз» и впишите 10.\n2. В категории «Математика» возьмите «выдать случайное от … до …» и впишите 1 и 6.\n3. Внутрь цикла вложите «Добавить текст … цвет …», а в него — блок случайного числа.\n4. Нажмите «▶» — в выводе появится 10 чисел от 1 до 6.\n5. Нажмите «Проверить решение»."
+        : "Step by step:\n1. In the Loops category take the “repeat … times” block and set it to 10.\n2. In the Math category take “random integer from … to …” and set 1 and 6.\n3. Inside the loop put “Add text … color …”, and into it the random number block.\n4. Press “▶” — the output shows 10 numbers from 1 to 6.\n5. Press “Check solution”.",
+    infoTopics: ["repeat_n_times", "random_numbers"],
+    validate: validateDiceRolls,
   },
 };

@@ -99,6 +99,7 @@ const RUNNABLE = new Set<string>([
   "fb_loop",
   "fb_list",
   "fb_double",
+  "dice_rolls",
   "a1_number_analyzer",
   "sum_array",
   "min_max",
@@ -114,6 +115,7 @@ const MANUAL_OUTPUT: Partial<Record<TaskId, string[]>> = {
     "Загаданное число меньше!",
     "Поздравляем! Вы угадали число!",
   ],
+  chatterbox: ["Привет, Аня! Через год тебе будет 11."],
 };
 
 describe("Эталонные решения (solutions/*.xml)", () => {

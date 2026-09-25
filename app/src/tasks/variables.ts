@@ -370,9 +370,67 @@ async function validateDiscountCalc(
   return { ok, stars };
 }
 
+// Ответ «болталки» зависит от того, что ввёл пользователь, поэтому
+// проверяем форму фразы (имя — любое, число — любое), а не конкретный вывод
+async function validateChatterbox(
+  ws: Blockly.WorkspaceSvg
+): Promise<{ ok: boolean; stars: number }> {
+  const lines = getVisibleOutputLines()
+    .map((l) => l.trim().replace(/\s+/g, " "))
+    .filter(Boolean)
+    .map((l) => l.toLowerCase().replace(/[.!]+$/, ""));
+
+  const greetingOk = lines.some(
+    (l) =>
+      /^привет\s*,?\s*.+ через год тебе будет \d+$/.test(l) ||
+      /^hello\s*,?\s*.+ next year you (will be|are) \d+$/.test(l)
+  );
+
+  let usedTextInput = false;
+  let usedNumInput = false;
+  let setVarsCount = 0;
+  let usedPrint = false;
+  let usedJoin = false;
+  let usedAddOne = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "py_input") usedTextInput = true;
+    if (t === "py_input_number") usedNumInput = true;
+    if (t === "variables_set") setVarsCount += 1;
+    if (t === "text_print" || t === "add_text") usedPrint = true;
+    if (t === "text_join" || t === "text_append") usedJoin = true;
+    if (t === "math_arithmetic") {
+      try {
+        const op =
+          typeof (b as any).getFieldValue === "function"
+            ? (b as any).getFieldValue("OP")
+            : undefined;
+        if (op === "ADD") usedAddOne = true;
+      } catch {}
+    }
+  }
+
+  const ok =
+    blocks.length === 0
+      ? greetingOk
+      : usedTextInput && usedNumInput && setVarsCount >= 2 && usedPrint && greetingOk;
+
+  const count = blocks.length;
+  let stars = 0;
+  if (ok) {
+    if (usedJoin && usedAddOne && count <= 16) stars = 3;
+    else if (count <= 22) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 export const variablesTasks: Pick<
   TaskRegistry,
-  "var_my_age" | "calc_sum" | "inc_counter" | "discount_calc"
+  "var_my_age" | "calc_sum" | "inc_counter" | "discount_calc" | "chatterbox"
 > = {
   var_my_age: {
     id: "var_my_age",
@@ -432,5 +490,21 @@ export const variablesTasks: Pick<
         ? "Пошаговое решение:\n1. Создайте переменные price и discount, присвойте им числа (например, 1000 и 15).\n2. Соберите формулу блоками из «Математика»: сначала «price × discount», затем результат «÷ 100».\n3. Итог: блок «−»: влево — price, вправо — результат деления. Присвойте его переменной или сразу вложите в «Добавить текст … цвет …».\n4. Запустите «▶» и проверьте, что вывод — 850 (для 1000 и 15). Нажмите «Проверить решение»."
         : "Step by step:\n1. Create variables price and discount and set them to numbers (e.g. 1000 and 15).\n2. Build the formula with Math blocks: first “price × discount”, then divide the result “÷ 100”.\n3. Final step: a “−” block — price on the left, the division result on the right. Print it with “Add text … color …”.\n4. Press “▶” and check that the output is 850 (for 1000 and 15). Press “Check solution”.",
     validate: validateDiscountCalc,
+  },
+  chatterbox: {
+    id: "chatterbox",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 34: Программа-болталка" : "Task 34: Chatterbox Program",
+    description: (lang) =>
+      lang === "ru"
+        ? "Научите программу разговаривать с пользователем! Спросите <strong>имя</strong> (блок <strong>«Ввод текста»</strong>) и <strong>возраст</strong> (блок <strong>«Ввод числа»</strong>), сохраните ответы в переменные <strong>name</strong> и <strong>age</strong>. Затем выведите одной строкой приветствие по шаблону:<br><strong>Привет, &lt;имя&gt;! Через год тебе будет &lt;возраст + 1&gt;.</strong><br><br>Например, при вводе «Аня» и 10 вывод: <strong>Привет, Аня! Через год тебе будет 11.</strong><br><br><strong>Как запускать:</strong> нажмите «▶» — в окне вывода появится поле ввода; впишите ответ и подтвердите — программа спросит второе число."
+        : "Teach your program to chat with the user! Ask for a <strong>name</strong> (the <strong>“text input”</strong> block) and an <strong>age</strong> (the <strong>“numeric input”</strong> block), storing the answers in <strong>name</strong> and <strong>age</strong>. Then print one greeting line:<br><strong>Hello, &lt;name&gt;! Next year you will be &lt;age + 1&gt;.</strong><br><br>For example, entering “Anya” and 10 prints: <strong>Hello, Anya! Next year you will be 11.</strong><br><br><strong>How to run:</strong> press “▶” — an input box appears in the output; type the answer and confirm — the program then asks for the second number.",
+    hint: (lang) =>
+      lang === "ru"
+        ? "Пошаговое решение:\n1. Создайте переменную name, присвойте ей блок «Ввод текста» из «Текст».\n2. Создайте переменную age, присвойте ей блок «Ввод числа».\n3. Соберите фразу блоком «создать текст из»: «Привет, », name, «! Через год тебе будет », затем «возраст + 1» (блок «+ − × ÷» с age и 1), и точка.\n4. Вложите фразу в «Добавить текст … цвет …».\n5. Нажмите «▶», введите имя и возраст в поля вывода — проверьте строку приветствия. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable name and set it to the “text input” block from Text.\n2. Create a variable age and set it to the “numeric input” block.\n3. Build the phrase with “create text with”: “Hello, ”, name, “! Next year you will be ”, then “age + 1” (the “+ − × ÷” block with age and 1).\n4. Put the phrase into “Add text … color …”.\n5. Press “▶”, type a name and an age into the input boxes — check the greeting line. Press “Check solution”.",
+    infoTopics: ["user_input"],
+    validate: validateChatterbox,
   },
 };

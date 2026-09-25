@@ -44,6 +44,8 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "fb_loop",
     "fb_list",
     "fb_double",
+    "dice_rolls",
+    "chatterbox",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };

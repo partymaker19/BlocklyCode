@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="var_name">name</variable>
+    <variable id="var_age">age</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_name">name</field>
+    <value name="VALUE">
+      <block type="py_input" />
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="var_age">age</field>
+        <value name="VALUE">
+          <block type="py_input_number" />
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_join">
+                <mutation items="4"></mutation>
+                <value name="ADD0">
+                  <shadow type="text">
+                    <field name="TEXT">Привет, </field>
+                  </shadow>
+                </value>
+                <value name="ADD1">
+                  <block type="variables_get">
+                    <field name="VAR" id="var_name">name</field>
+                  </block>
+                </value>
+                <value name="ADD2">
+                  <shadow type="text">
+                    <field name="TEXT">! Через год тебе будет </field>
+                  </shadow>
+                </value>
+                <value name="ADD3">
+                  <block type="math_arithmetic">
+                    <field name="OP">ADD</field>
+                    <value name="A">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_age">age</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <shadow type="math_number">
+                        <field name="NUM">1</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

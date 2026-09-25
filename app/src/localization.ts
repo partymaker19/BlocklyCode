@@ -1034,6 +1034,23 @@ export function localizeStudentTasksUI(lang: AppLang): void {
   if (btnText) (btnText as HTMLElement).textContent = `📋 ${t.buttonText}`;
 }
 
+export function localizeNotificationsUI(lang: AppLang): void {
+  const t = lang === "ru" ? stringsRu.notificationsUi : stringsEn.notificationsUi;
+
+  const btn = document.getElementById("notificationsBtn");
+  const btnText = document.getElementById("notificationsBtnText");
+  const titleEl = document.getElementById("notificationsModalTitle");
+  const closeIcon = document.getElementById("closeNotificationsModal");
+
+  if (btn) {
+    btn.setAttribute("title", t.buttonLabel);
+    btn.setAttribute("aria-label", t.buttonLabel);
+  }
+  if (btnText) (btnText as HTMLElement).textContent = `🔔 ${t.buttonText}`;
+  if (titleEl) (titleEl as HTMLElement).textContent = t.modalTitle;
+  if (closeIcon) closeIcon.setAttribute("aria-label", t.closeLabel);
+}
+
 export function localizeFeedbackUI(lang: AppLang): void {
   const t = lang === "ru" ? stringsRu.feedbackUi : stringsEn.feedbackUi;
 

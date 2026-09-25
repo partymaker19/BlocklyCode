@@ -2546,7 +2546,12 @@
         <!-- More menu: always present, initially hidden until login -->
         <div class="header-more" style="display:none;" id="headerMoreWrap">
           <button id="headerMoreBtn" class="header-more-btn" title="Ещё" aria-label="Ещё" aria-expanded="false">⋯</button>
+          <span id="headerMoreBadge" class="header-more-badge" hidden aria-hidden="true"></span>
           <div class="header-more-panel" id="headerMorePanel">
+            <button id="notificationsBtn" class="import-button" title="Уведомления" aria-label="Уведомления"
+              style="display:none;">
+              <span id="notificationsBtnText">🔔 Уведомления</span>
+            </button>
             <button id="classesBtn" class="import-button" title="Мои классы" aria-label="Мои классы"
               style="display:none;">
               <span id="classesBtnText">🎓 Классы</span>
@@ -2651,6 +2656,7 @@
         <div class="mobile-menu-section-title">Обучение</div>
         <button class="mobile-menu-item" data-action="classesBtn" id="mobileClassesBtn" style="display:none;">🎓 Мои классы</button>
         <button class="mobile-menu-item" data-action="studentTasksBtn" id="mobileStudentTasksBtn" style="display:none;">📋 Мои задания</button>
+        <button class="mobile-menu-item" data-action="notificationsBtn" id="mobileNotificationsBtn" style="display:none;">🔔 Уведомления</button>
       </div>
     </div>
   </div>
@@ -3812,6 +3818,20 @@ end</code></pre>
       </div>
       <div class="modal-body" id="studentTasksBody">
         <!-- Содержимое рендерится в ui/studentTasks.ts -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно уведомлений учителя -->
+  <div id="notificationsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="notificationsModalTitle"
+    style="display:none">
+    <div class="modal-content classes-modal-content">
+      <div class="modal-header modal-reg">
+        <h2 id="notificationsModalTitle">Уведомления</h2>
+        <span id="closeNotificationsModal" class="close-button" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body" id="notificationsBody">
+        <!-- Содержимое рендерится в ui/notifications.ts -->
       </div>
     </div>
   </div>

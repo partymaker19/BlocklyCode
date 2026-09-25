@@ -149,6 +149,13 @@ export const studentTasksUi = {
   closeLabel: "Close",
 };
 
+export const notificationsUi = {
+  buttonText: "Notifications",
+  buttonLabel: "Notifications — student task completions",
+  modalTitle: "Notifications",
+  closeLabel: "Close",
+};
+
 export const feedbackUi = {
   buttonText: "Feedback",
   buttonLabel: "Feedback — report a bug or share an idea",

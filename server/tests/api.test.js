@@ -300,6 +300,107 @@ describe("Classes & billing", () => {
   });
 });
 
+// ---------- notifications ----------
+describe("Notifications API", () => {
+  // Учитель с Pro (свободные назначения) + класс + именованный ученик с заданием
+  async function setupAssignment(taskId = "hello_world") {
+    const teacher = await registerUser();
+    const code = `NOTIF-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    store.createPromoCode({ code, plan: "pro", expiresInDays: 1 });
+    await teacher.a.post("/api/billing/upgrade", { promoCode: code });
+
+    const cls = await teacher.a.post("/api/classes", { name: "7А" });
+    const classId = cls.body.class.id;
+
+    const studentEmail = randomEmail();
+    const sa = agent();
+    const sres = await sa.post("/api/auth/register", {
+      email: studentEmail,
+      password: "secret123",
+      name: "Пётр",
+    });
+    expect(sres.status).toBe(201);
+
+    const add = await teacher.a.post(`/api/classes/${classId}/students`, {
+      email: studentEmail,
+    });
+    expect(add.status).toBe(201);
+    const assign = await teacher.a.post(`/api/classes/${classId}/tasks`, {
+      taskId,
+      studentId: sres.body.user.id,
+    });
+    expect(assign.status).toBe(201);
+
+    return { teacher, sa, classId, assignment: assign.body.task };
+  }
+
+  it("требует авторизацию", async () => {
+    const list = await request(server).get("/api/notifications");
+    expect(list.status).toBe(401);
+    const read = await request(server).post("/api/notifications/read");
+    expect(read.status).toBe(401);
+  });
+
+  it("решение назначенной задачи создаёт уведомление учителю", async () => {
+    const { teacher, sa } = await setupAssignment();
+    await sa.post("/api/progress/hello_world", { solved: true, stars: 3 });
+
+    const res = await teacher.a.get("/api/notifications");
+    expect(res.status).toBe(200);
+    expect(res.body.unread).toBe(1);
+    const n = res.body.notifications[0];
+    expect(n.type).toBe("task_completed");
+    expect(n.payload.student_name).toBe("Пётр");
+    expect(n.payload.class_name).toBe("7А");
+    expect(n.payload.task_id).toBe("hello_world");
+    expect(n.read_at).toBeNull();
+  });
+
+  it("повторное решение не дублирует уведомление", async () => {
+    const { teacher, sa } = await setupAssignment();
+    await sa.post("/api/progress/hello_world", { solved: true, stars: 1 });
+    await sa.post("/api/progress/hello_world", { solved: true, stars: 3 });
+
+    const res = await teacher.a.get("/api/notifications");
+    expect(res.body.unread).toBe(1);
+  });
+
+  it("ручное завершение через PUT тоже уведомляет", async () => {
+    const { teacher, sa, assignment } = await setupAssignment("variables_1");
+    const put = await sa.put(`/api/student/tasks/${assignment.id}`, {
+      status: "completed",
+    });
+    expect(put.status).toBe(200);
+
+    const res = await teacher.a.get("/api/notifications");
+    expect(res.body.unread).toBe(1);
+    expect(res.body.notifications[0].payload.task_id).toBe("variables_1");
+  });
+
+  it("отметка о прочитанном обнуляет счётчик", async () => {
+    const { teacher, sa } = await setupAssignment();
+    await sa.post("/api/progress/hello_world", { solved: true, stars: 2 });
+
+    const read = await teacher.a.post("/api/notifications/read", {});
+    expect(read.status).toBe(200);
+    const res = await teacher.a.get("/api/notifications");
+    expect(res.body.unread).toBe(0);
+    expect(res.body.notifications.length).toBe(1);
+    expect(res.body.notifications[0].read_at).toBeTruthy();
+  });
+
+  it("чужие уведомления недоступны", async () => {
+    const { sa } = await setupAssignment();
+    await sa.post("/api/progress/hello_world", { solved: true, stars: 2 });
+
+    const other = await registerUser();
+    const res = await other.a.get("/api/notifications");
+    expect(res.status).toBe(200);
+    expect(res.body.notifications).toEqual([]);
+    expect(res.body.unread).toBe(0);
+  });
+});
+
 // ---------- feedback ----------
 describe("Feedback API", () => {
   it("принимает сообщение без авторизации (201)", async () => {

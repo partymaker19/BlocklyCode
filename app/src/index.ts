@@ -54,6 +54,7 @@ import {
   localizeSupportUI,
   localizeClassesUI,
   localizeStudentTasksUI,
+  localizeNotificationsUI,
   localizeFeedbackUI,
   localizeStatsUI,
 } from "./localization";
@@ -93,6 +94,7 @@ import {
 } from "./ui/contextMenu";
 import { initClassesUI } from "./ui/classes";
 import { initStudentTasksUI } from "./ui/studentTasks";
+import { initNotificationsUI } from "./ui/notifications";
 import { initFeedbackUI } from "./ui/feedback";
 import { initStatsUI } from "./ui/stats";
 import {
@@ -1035,6 +1037,8 @@ localizeSupportUI(defaultLang);
 localizeClassesUI(defaultLang);
 // Локализуем кнопку заданий ученика
 localizeStudentTasksUI(defaultLang);
+// Локализуем кнопку и модалку уведомлений учителя
+localizeNotificationsUI(defaultLang);
 // Локализуем кнопку и модалку обратной связи
 localizeFeedbackUI(defaultLang);
 // Локализуем кнопку и модалку статистики
@@ -1044,6 +1048,8 @@ localizeStatsUI(defaultLang);
 initClassesUI();
 // Экран «Мои задания» для учеников
 initStudentTasksUI();
+// Лента уведомлений учителя + бейдж непрочитанных на кнопке «⋯»
+initNotificationsUI();
 // Обратная связь (доступна всем)
 initFeedbackUI();
 // Экран статистики: задачи, звёзды, серия дней, достижения
@@ -1117,6 +1123,8 @@ if (langSwitchInput) {
       localizeClassesUI(newLang);
       // Локализуем кнопку заданий ученика
       localizeStudentTasksUI(newLang);
+      // Локализуем кнопку и модалку уведомлений учителя
+      localizeNotificationsUI(newLang);
       // Локализуем кнопку и модалку обратной связи
       localizeFeedbackUI(newLang);
       // Локализуем кнопку и модалку статистики

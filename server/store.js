@@ -102,6 +102,16 @@ CREATE TABLE IF NOT EXISTS class_tasks (
   completed_at TEXT,
   completion_notes TEXT
 );
+CREATE TABLE IF NOT EXISTS notifications (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  class_id TEXT,
+  payload TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  read_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications (user_id, created_at);
 CREATE TABLE IF NOT EXISTS subscriptions (
   user_id TEXT PRIMARY KEY,
   plan TEXT NOT NULL DEFAULT 'free',
@@ -151,16 +161,19 @@ const CLASS_MEMBERS_JSON_FILE = path.join(DATA_DIR, "class_members.json");
 const CLASS_TASKS_JSON_FILE = path.join(DATA_DIR, "class_tasks.json");
 const SUBSCRIPTIONS_JSON_FILE = path.join(DATA_DIR, "subscriptions.json");
 const PROMO_CODES_JSON_FILE = path.join(DATA_DIR, "promo_codes.json");
+const NOTIFICATIONS_JSON_FILE = path.join(DATA_DIR, "notifications.json");
 
 let classesJson = loadJsonFile(CLASSES_JSON_FILE);
 let classMembersJson = loadJsonFile(CLASS_MEMBERS_JSON_FILE);
 let classTasksJson = loadJsonFile(CLASS_TASKS_JSON_FILE);
 let subscriptionsJson = loadJsonFile(SUBSCRIPTIONS_JSON_FILE);
 let promoCodesJson = loadJsonFile(PROMO_CODES_JSON_FILE);
+let notificationsJson = loadJsonFile(NOTIFICATIONS_JSON_FILE);
 
 // Приводим подписки из JSON-файла к Map (если сохранились как массивы)
 if (!Array.isArray(subscriptionsJson)) subscriptionsJson = [];
 if (!Array.isArray(promoCodesJson)) promoCodesJson = [];
+if (!Array.isArray(notificationsJson)) notificationsJson = [];
 
 let jsonSaveTimer = null;
 let classesSaveTimer = null;
@@ -168,6 +181,7 @@ let classMembersSaveTimer = null;
 let classTasksSaveTimer = null;
 let subscriptionsSaveTimer = null;
 let promoCodesSaveTimer = null;
+let notificationsSaveTimer = null;
 
 function persistJson() {
   if (jsonSaveTimer) return;
@@ -738,6 +752,7 @@ const store = {
       db.prepare("DELETE FROM classes WHERE id = ?").run(classId);
       db.prepare("DELETE FROM class_members WHERE class_id = ?").run(classId);
       db.prepare("DELETE FROM class_tasks WHERE class_id = ?").run(classId);
+      db.prepare("DELETE FROM notifications WHERE class_id = ?").run(classId);
     } else {
       const idx = classesJson.findIndex((c) => c.id === classId);
       if (idx >= 0) {
@@ -748,6 +763,10 @@ const store = {
       this.persistClassMembers();
       classTasksJson = classTasksJson.filter((t) => t.class_id !== classId);
       this.persistClassTasks();
+      notificationsJson = notificationsJson.filter(
+        (n) => n.class_id !== classId,
+      );
+      this.persistNotifications();
     }
   },
 
@@ -875,6 +894,81 @@ const store = {
     }
   },
 
+  // --- notifications (учителю: «ученик выполнил задание») ---
+  createNotification({ id, userId, type, classId, payload }) {
+    const t = now();
+    const notif = {
+      id,
+      user_id: userId,
+      type,
+      class_id: classId || null,
+      payload: JSON.stringify(payload || {}),
+      created_at: t,
+      read_at: null,
+    };
+    if (driver === "sqlite") {
+      db.prepare(
+        "INSERT INTO notifications (id, user_id, type, class_id, payload, created_at, read_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      ).run(notif.id, notif.user_id, notif.type, notif.class_id, notif.payload, notif.created_at, notif.read_at);
+    } else {
+      notificationsJson.push(notif);
+      this.persistNotifications();
+    }
+    return notif;
+  },
+
+  getNotifications(userId, limit = 50) {
+    let rows;
+    if (driver === "sqlite") {
+      rows = db
+        .prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ?")
+        .all(userId, limit);
+    } else {
+      rows = notificationsJson
+        .filter((n) => n.user_id === userId)
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+        .slice(0, limit);
+    }
+    return rows.map((n) => {
+      let payload = {};
+      try {
+        payload = JSON.parse(n.payload);
+      } catch {}
+      return { ...n, payload };
+    });
+  },
+
+  countUnreadNotifications(userId) {
+    if (driver === "sqlite") {
+      return (
+        db
+          .prepare("SELECT COUNT(*) AS c FROM notifications WHERE user_id = ? AND read_at IS NULL")
+          .get(userId)?.c || 0
+      );
+    }
+    return notificationsJson.filter(
+      (n) => n.user_id === userId && !n.read_at,
+    ).length;
+  },
+
+  markNotificationsRead(userId) {
+    const t = now();
+    if (driver === "sqlite") {
+      db.prepare(
+        "UPDATE notifications SET read_at = ? WHERE user_id = ? AND read_at IS NULL",
+      ).run(t, userId);
+    } else {
+      let changed = false;
+      for (const n of notificationsJson) {
+        if (n.user_id === userId && !n.read_at) {
+          n.read_at = t;
+          changed = true;
+        }
+      }
+      if (changed) this.persistNotifications();
+    }
+  },
+
   // --- persistence helpers ---
   persistClasses() {
     if (classesSaveTimer) return;
@@ -942,6 +1036,20 @@ const store = {
         fs.renameSync(tmp, PROMO_CODES_JSON_FILE);
       } catch (e) {
         console.error("[store] promo_codes persist failed:", e && e.message);
+      }
+    }, 250);
+  },
+
+  persistNotifications() {
+    if (notificationsSaveTimer) return;
+    notificationsSaveTimer = setTimeout(() => {
+      notificationsSaveTimer = null;
+      try {
+        const tmp = NOTIFICATIONS_JSON_FILE + ".tmp";
+        fs.writeFileSync(tmp, JSON.stringify(notificationsJson), "utf8");
+        fs.renameSync(tmp, NOTIFICATIONS_JSON_FILE);
+      } catch (e) {
+        console.error("[store] notifications persist failed:", e && e.message);
       }
     }, 250);
   },

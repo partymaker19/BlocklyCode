@@ -886,3 +886,45 @@ html[data-theme='dark'] .ob-skip:hover {
     width: auto !important;
   }
 }
+/* ===== Teacher notifications (ui/notifications.ts) ===== */
+.header-more-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 3001;
+}
+
+.notif-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.notif-item.unread .notif-text {
+  font-weight: 600;
+}
+
+.notif-time {
+  color: #6b7280;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+html[data-theme='dark'] .notif-item {
+  border-bottom-color: #374151;
+}
+
+html[data-theme='dark'] .notif-time {
+  color: #9ca3af;
+}

@@ -83,6 +83,27 @@ function publicUser(u) {
   };
 }
 
+// Уведомление учителю «ученик выполнил задание»: только при реальном
+// переходе в completed (повторное решение не должно плодить дубликаты).
+function notifyAssignmentCompleted(assignment, student) {
+  if (!assignment || !student) return;
+  if (assignment.status === "completed") return;
+  const cls = store.getClass(assignment.class_id);
+  store.createNotification({
+    id: generateId(),
+    userId: assignment.assigned_by,
+    type: "task_completed",
+    classId: assignment.class_id,
+    payload: {
+      student_id: student.id,
+      student_name: student.name,
+      class_id: assignment.class_id,
+      class_name: cls ? cls.name : null,
+      task_id: assignment.task_id,
+    },
+  });
+}
+
 // ---------- Auth: me ----------
 app.get("/api/auth/me", (req, res) => {
   if (!req.user) return res.status(401).json({ error: "Not authenticated" });
@@ -242,6 +263,7 @@ app.post("/api/progress/:taskId", requireAuth, (req, res) => {
     try {
       for (const t of store.getStudentTasks(req.user.id)) {
         if (t.task_id === taskId && t.status !== "completed") {
+          notifyAssignmentCompleted(t, req.user);
           store.updateTaskStatus(t.id, "completed", null);
         }
       }
@@ -717,10 +739,36 @@ app.put("/api/student/tasks/:taskId", requireAuth, (req, res) => {
       );
     }
 
+    if (status === "completed") {
+      notifyAssignmentCompleted(task, req.user);
+    }
+
     store.updateTaskStatus(taskId, status, completionNotes);
     res.json({ ok: true });
   } catch (e) {
     console.error("update task status error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
+// ---------- Notifications: лента учителя ----------
+app.get("/api/notifications", requireAuth, (req, res) => {
+  try {
+    const notifications = store.getNotifications(req.user.id);
+    const unread = store.countUnreadNotifications(req.user.id);
+    res.json({ notifications, unread });
+  } catch (e) {
+    console.error("get notifications error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
+app.post("/api/notifications/read", requireAuth, (req, res) => {
+  try {
+    store.markNotificationsRead(req.user.id);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("mark notifications read error", e);
     res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 });

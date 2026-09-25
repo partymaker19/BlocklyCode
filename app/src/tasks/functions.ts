@@ -152,6 +152,7 @@ export const functionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. В категории «Функции» нажмите кнопку создания функции — на поле появится блок-фигура «создать функцию …». Впишите вместо «выполнить что-то» имя, например greet.\n2. Внутрь фигуры (слот «выполнить») положите «Добавить текст … цвет …» и впишите Hello, world!.\n3. В «Функциях» появился блок вызова вашей функции — перетащите его на поле под фигуру (или ПКМ по фигуре → «создать вызов»).\n4. Продублируйте вызов ещё дважды — всего три вызова.\n5. Запустите код: три строки Hello, world!. Нажмите «Проверить решение»."
         : "Step by step:\n1. In the Functions category press the create-function button — a “make a function …” puzzle block appears. Replace “do something” with a name, e.g. greet.\n2. Inside the figure (the “do” slot) put “Add text … color …” and type Hello, world!.\n3. A call block for your function appeared in Functions — drag it onto the canvas below the figure (or right-click the figure → “create call”).\n4. Duplicate the call twice more — three calls in total.\n5. Run the code: three lines of Hello, world!. Press “Check solution”.",
+    infoTopics: ["functions"],
     validate: validateFirstFunction,
   },
   function_with_param: {
@@ -167,6 +168,7 @@ export const functionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте функцию greet (как в задаче 24).\n2. Нажмите шестерёнку на блоке функции и перетащите «имя параметра» в «параметры»; назовите его name.\n3. Внутрь фигуры положите «Добавить текст … цвет …», а в него — «создать текст из» с тремя элементами: текст Привет\\,  (с пробелом), переменная name, текст !\n4. Перетащите блок вызова greet и в поле параметра укажите Аня; продублируйте вызов и укажите Боря.\n5. Запустите код: две строки приветствия. Нажмите «Проверить решение»."
         : "Step by step:\n1. Create a function greet (like in task 24).\n2. Press the gear on the function block and drag “parameter name” into “parameters”; call it name.\n3. Inside the figure put “Add text … color …”, and into it a “create text with” block with three items: text Hello\\,  (with a space), the name variable, text !\n4. Drag a greet call block and set the parameter to Anya; duplicate the call and set Borya.\n5. Run the code: two greeting lines. Press “Check solution”.",
+    infoTopics: ["functions"],
     validate: validateFunctionWithParam,
   },
   function_return: {
@@ -182,6 +184,7 @@ export const functionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. В «Функциях» возьмите блок «создать функцию … вернуться» (с возвратом значения); имя — add.\n2. Через шестерёнку добавьте два параметра: a и b.\n3. В слот «вернуть» вложите «+ − × ÷» с операцией «+»; в его поля — переменные a и b.\n4. Возьмите «Добавить текст … цвет …», а в него — блок вызова add; в поля вызова — числа 3 и 4.\n5. Запустите код: в выводе 7. Нажмите «Проверить решение»."
         : "Step by step:\n1. In Functions take the “make a function … return” block (with a return value); name it add.\n2. Via the gear add two parameters: a and b.\n3. Into the “return” slot put the “+ − × ÷” block with the “+” operation; its fields are variables a and b.\n4. Take “Add text … color …”, and into it an add call block; set the call inputs to numbers 3 and 4.\n5. Run the code: the output shows 7. Press “Check solution”.",
+    infoTopics: ["functions"],
     validate: validateFunctionReturn,
   },
 };

@@ -1,5 +1,6 @@
 // Типы и контракты реестра обучающих задач.
 import * as Blockly from "blockly";
+import type { GlossaryTopicId } from "../ui/glossary";
 
 export type InitTaskValidationOptions = {
   checkButton: HTMLButtonElement | null;
@@ -64,6 +65,8 @@ export type TaskDef = {
   kind?: TaskKind;
   // XML «сломанной» программы для kind="fix"
   starterXml?: string;
+  // Темы справочника, показываемые под условием задачи (ui/glossary.ts)
+  infoTopics?: readonly GlossaryTopicId[];
   title: (lang: "ru" | "en") => string;
   description: (lang: "ru" | "en") => string; // может содержать HTML
   hint: (lang: "ru" | "en") => string;

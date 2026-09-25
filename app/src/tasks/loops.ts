@@ -488,6 +488,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. В «Циклы» возьмите блок «цикл по i от … до … с шагом …» (от 1 до 5, шаг 1) — внешний цикл, первый множитель.\n2. Внутрь внешнего цикла положите второй блок «цикл по j от … до … с шагом …» (от 1 до 5, шаг 1) — внутренний цикл, второй множитель.\n3. Внутри внутреннего цикла соберите строку примера блоком «создать текст из» (Текст): переменная i, символ ×, переменная j, знак = и результат i × j (блок «+ − × ÷» с операцией ×).\n4. Вложите эту строку в «Добавить текст … цвет …» — каждая пара (i, j) печатается с новой строки.\n5. Запустите код: в окне вывода будет 25 строк — от «1 × 1 = 1» до «5 × 5 = 25». Нажмите «Проверить решение»."
         : "Step by step:\n1. In Loops take the “count with i from … to … by …” block (1 to 5, step 1) — the outer loop, the first factor.\n2. Put a second “count with j from … to … by …” block (1 to 5, step 1) inside the outer loop — the inner loop, the second factor.\n3. Inside the inner loop build the line with the “create text with” block (Text): variable i, symbol ×, variable j, the = sign and the product i × j (the “+ − × ÷” block with the × operation).\n4. Put this line into the “Add text … color …” block — each pair (i, j) is printed on a new line.\n5. Run the code: the output shows 25 lines — from “1 × 1 = 1” to “5 × 5 = 25”. Press “Check solution”.",
+    infoTopics: ["nested_loops"],
     validate: validateMultTable,
   },
   first_even_break: {
@@ -503,6 +504,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 7 3 8 5 2 9» (блок из «Списки»).\n2. В «Циклы» возьмите блок «для каждого элемента n в списке …» и вложите в его поле переменную list.\n3. Внутрь цикла положите «если» из «Логика» с условием «чётное»: блок из «Математика» (в выпадающем списке выберите «чётное»), в его поле — переменная n. Альтернатива: «остаток от n ÷ 2 = 0».\n4. В ветку «если» добавьте «Добавить текст … цвет …» с переменной n.\n5. Сразу после печати в той же ветке «если» поставьте блок «прервать цикл» из «Циклы» — после первого чётного цикл остановится, и 2 не будет выведено.\n6. Запустите код: в окне вывода только 8. Нажмите «Проверить решение»."
         : "Step by step:\n1. Create a variable list and set it to “create list with 7 3 8 5 2 9” (a Lists block).\n2. In Loops take the “for each item n in list …” block and put variable list into its field.\n3. Inside the loop place an “if” from Logic with the condition “is even”: the Math block (choose “even” in the dropdown) with variable n in its field. Alternative: “remainder of n ÷ 2 = 0”.\n4. In the if branch add “Add text … color …” with variable n.\n5. Right after the print, in the same if branch, put the “break out of loop” block from Loops — after the first even number the loop stops, so 2 is never printed.\n6. Run the code: the output shows only 8. Press “Check solution”.",
+    infoTopics: ["break_continue"],
     validate: validateFirstEvenBreak,
   },
 };

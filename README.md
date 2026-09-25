@@ -100,7 +100,8 @@ npm run build    # собирает app/dist/
 │   │   ├── generators/     # генераторы кода кастомных блоков (js/python/lua/php)
 │   │   ├── blocks/         # определения кастомных блоков
 │   │   ├── ui/             # модули интерфейса (тема, модалки, классы, биллинг,
-│   │   │                   #  задания ученика, уведомления, обратная связь, мобильная версия)
+│   │   │                   #  задания ученика, уведомления, обратная связь,
+│   │   │                   #  справочник тем glossary.ts, мобильная версия)
 │   │   └── localization.ts # RU/EN строки интерфейса
 │   ├── tests/              # Vitest-тесты (валидаторы задач)
 │   └── webpack.config.js
@@ -124,14 +125,18 @@ cd app && npm run format   # Prettier (переписать файлы)
 
 CI (`.github/workflows/ci.yml`) на каждый push/PR в main гоняет: install → typecheck → lint → tests → build.
 
-Тесты проверяют валидаторы задач: общий раннер `tests/all_tasks.test.ts` прогоняет все 36 задач (валидатор обязан принимать корректный вывод — защита от регрессий вида «задача непроходима»), `tests/solutions.test.ts` — эталонные решения из `solutions/*.xml` (XML → генерация JS → исполнение → валидация), `tests/fixbugs.test.ts` — инвариант задач «Найди ошибку»: сломанный starter обязан НЕ проходить, исправленное решение — проходить на 3 звезды. Отдельные e2e-решения со звёздами есть для mult_table, first_even_break, first_function и char_freq. `tests/notifications.test.ts` — лента уведомлений учителя (тексты RU/EN, бейдж, отметка о прочтении, поллинг). API-сервер покрывается интеграционными тестами `npm run test:server` (supertest, временная DATA_DIR).
+Тесты проверяют валидаторы задач: общий раннер `tests/all_tasks.test.ts` прогоняет все 36 задач (валидатор обязан принимать корректный вывод — защита от регрессий вида «задача непроходима»), `tests/solutions.test.ts` — эталонные решения из `solutions/*.xml` (XML → генерация JS → исполнение → валидация), `tests/fixbugs.test.ts` — инвариант задач «Найди ошибку»: сломанный starter обязан НЕ проходить, исправленное решение — проходить на 3 звезды. Отдельные e2e-решения со звёздами есть для mult_table, first_even_break, first_function и char_freq. `tests/notifications.test.ts` — лента уведомлений учителя (тексты RU/EN, бейдж, отметка о прочтении, поллинг). `tests/glossary.test.ts` — справочник тем (содержимое на 4 языках, привязка `infoTopics` к задачам, показ/скрытие при переходе). API-сервер покрывается интеграционными тестами `npm run test:server` (supertest, временная DATA_DIR).
 
 ## Добавление новой задачи
 
 1. Добавьте id в тип `TaskId` в `app/src/tasks/types.ts`.
-2. Опишите задачу: `title`, `description`, `hint` (RU/EN) и функцию `validate(ws, outputLines, lang)` → `{ ok, stars }`.
+2. Опишите задачу: `title`, `description`, `hint` (RU/EN) и функцию `validate(ws, outputLines, lang)` → `{ ok, stars }`. Если задача вводит новый термин, укажите `infoTopics` — под условием появится справочная секция с примерами на четырёх языках (темы в `app/src/ui/glossary.ts`, при необходимости добавьте новую).
 3. Внесите id в `TASKS_ORDER_BY_DIFFICULTY` (basic/advanced).
 4. Добавьте тест валидатора в `app/tests/` и (опционально) эталонное решение в `solutions/`.
+
+## Справочник тем (`app/src/ui/glossary.ts`)
+
+Под условием задачи показывается справочная секция с объяснением новых терминов и примерами кода на JavaScript, Python, Lua и PHP. Тема привязывается к задаче через поле `infoTopics` (`TaskDef`) и рендерится в `#glossaryInfoSection` при переключении задачи. Это дополняет старые захардкоженные `#…InfoSection` в `index.html`; новые темы добавляются в `TOPIC_CONTENT` как данные, а не разметка. Текущие темы: `functions`, `nested_loops`, `break_continue`, `sorting`.
 
 ## Статус и ограничения
 

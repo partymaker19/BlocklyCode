@@ -708,6 +708,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 9 3 7 1 5» (блок из «Списки»).\n2. В «Списки» возьмите блок «сортировать числовая по возрастанию», в его поле вложите переменную list, результат присвойте переменной sorted.\n3. В «Списки» возьмите блок «№ …» (взять элемент), в поле списка — sorted, номер 1. Это min.\n4. Для max в том же блоке выберите «№ с конца» и укажите 1 — это 9.\n5. Выведите две строки через «Добавить текст … цвет …»: min=1 и max=9."
         : "Step by step:\n1. Create a variable list with “create list with 9 3 7 1 5” (a Lists block).\n2. In Lists take “sort numeric ascending”, put variable list inside, and assign the result to variable sorted.\n3. Take “get item # 1” (Lists) with sorted as the list — that's min.\n4. For max use “get item # 1 from end” on sorted.\n5. Print two lines with “Add text … color …”: min=1 and max=9.",
+    infoTopics: ["sorting"],
     validate: validateListSortMinMax,
   },
 };

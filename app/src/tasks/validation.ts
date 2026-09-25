@@ -4,6 +4,7 @@ import * as Blockly from "blockly";
 import { getAppLang } from "../localization";
 import { syncProgress } from "../progressSync";
 import { countNonShadowBlocks } from "../workspaceUtils";
+import { mountGlossaryForTask } from "../ui/glossary";
 import { mountHintSteps } from "../ui/hintSteps";
 import { mountSolutionOffer } from "../ui/solutions";
 import { tasks } from "./registry";
@@ -99,6 +100,11 @@ export function setActiveTask(taskId: TaskId) {
   const incDecInfo = document.getElementById("incDecInfoSection") as HTMLDivElement | null;
   const conditionInfo = document.getElementById("conditionInfoSection") as HTMLDivElement | null;
   const logicalOpsInfo = document.getElementById("logicalOpsInfoSection") as HTMLDivElement | null;
+  // Справочник тем (ui/glossary.ts): рендерится под условием, если у
+  // задачи заданы infoTopics; сам контейнер скрывает себя при пустом списке
+  const glossaryInfo = document.getElementById("glossaryInfoSection") as HTMLDivElement | null;
+  if (glossaryInfo) mountGlossaryForTask(glossaryInfo, getActiveTask());
+  const hasGlossary = (tdef.infoTopics?.length ?? 0) > 0;
   const showDataTypes = getActiveTask() === "add_2_7";
   const showVariableInfo = getActiveTask() === "var_my_age" || getActiveTask() === "calc_sum";
   const showConcatInfo = getActiveTask() === "greet_concat";
@@ -117,6 +123,7 @@ export function setActiveTask(taskId: TaskId) {
     getActiveTask() === "even_or_odd" || getActiveTask() === "first_condition";
   const showLogicalOpsInfo = getActiveTask() === "time_of_day";
   const showConsole =
+    !hasGlossary &&
     !showDataTypes &&
     !showVariableInfo &&
     !showConcatInfo &&

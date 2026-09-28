@@ -1360,6 +1360,22 @@
       outline-color: rgba(167, 139, 250, 0.7);
     }
 
+    /* «Продвинутый» — свой зелёный акцент, чтобы отличаться от «Основа» */
+    #taskSidebar .task-difficulty #taskDifficultyAdvanced.btn {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(17, 153, 142, 0.35);
+    }
+
+    #taskSidebar .task-difficulty #taskDifficultyAdvanced.btn:hover {
+      filter: brightness(1.05);
+    }
+
+    #taskSidebar .task-difficulty #taskDifficultyAdvanced.btn.is-active {
+      outline-color: rgba(56, 239, 125, 0.7);
+    }
+
     #taskSidebar.mode-select {
       overflow: hidden;
       padding: 0;

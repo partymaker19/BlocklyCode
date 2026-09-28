@@ -1350,6 +1350,16 @@
       width: 100%;
     }
 
+    /* Активный уровень задач: цвета кнопок фиксированы (подсветка — рамкой) */
+    #taskSidebar .task-difficulty .btn.is-active {
+      outline: 3px solid rgba(102, 126, 234, 0.65);
+      outline-offset: 2px;
+    }
+
+    html[data-theme='dark'] #taskSidebar .task-difficulty .btn.is-active {
+      outline-color: rgba(167, 139, 250, 0.7);
+    }
+
     #taskSidebar.mode-select {
       overflow: hidden;
       padding: 0;
@@ -2773,8 +2783,8 @@
     <aside id="taskSidebar" class="task-sidebar mode-select" aria-label="Панель задач">
       <div class="task-difficulty-screen" aria-label="Сложность задач">
         <div class="task-difficulty" role="tablist" aria-label="Сложность задач">
-          <button id="taskDifficultyBasic" type="button" class="btn primary">Основа</button>
-          <button id="taskDifficultyFixbugs" type="button" class="btn secondary">Найди ошибку</button>
+          <button id="taskDifficultyBasic" type="button" class="btn secondary">Основа</button>
+          <button id="taskDifficultyFixbugs" type="button" class="btn primary">Найди ошибку</button>
           <button id="taskDifficultyAdvanced" type="button" class="btn secondary">Продвинутый</button>
         </div>
       </div>

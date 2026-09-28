@@ -1887,10 +1887,11 @@ function refreshWorkspaceWithCustomToolbox() {
   });
   const setDifficultyUI = () => {
     const diff = getActiveDifficulty();
+    // Цвета кнопок фиксированы («Найди ошибку» — акцентная),
+    // активный уровень подсвечивается рамкой (is-active)
     const toggle = (btn: HTMLButtonElement | null, key: TaskDifficulty) => {
       if (!btn) return;
-      btn.classList.toggle("primary", diff === key);
-      btn.classList.toggle("secondary", diff !== key);
+      btn.classList.toggle("is-active", diff === key);
     };
     toggle(taskDifficultyBasicBtn, "basic");
     toggle(taskDifficultyFixbugsBtn, "fixbugs");

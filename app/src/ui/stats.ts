@@ -54,10 +54,16 @@ export function openStatsModal(): void {
   const basicIds = (Object.keys(tasks) as TaskId[]).filter(
     (id) => tasks[id].difficulty === "basic",
   );
+  const fixbugsIds = (Object.keys(tasks) as TaskId[]).filter(
+    (id) => tasks[id].difficulty === "fixbugs",
+  );
   const advancedIds = (Object.keys(tasks) as TaskId[]).filter(
     (id) => tasks[id].difficulty === "advanced",
   );
   const solvedBasic = basicIds.filter((id) => progress[id]?.solved).length;
+  const solvedFixbugs = fixbugsIds.filter(
+    (id) => progress[id]?.solved,
+  ).length;
   const solvedAdvanced = advancedIds.filter((id) => progress[id]?.solved).length;
 
   const streak = streakInfo();
@@ -115,6 +121,10 @@ export function openStatsModal(): void {
       <div class="stats-level">
         <span>${esc(t("Основа", "Basic"))}</span>
         ${bar(solvedBasic, basicIds.length)}
+      </div>
+      <div class="stats-level">
+        <span>${esc(t("Найди ошибку", "Find the Bug"))}</span>
+        ${bar(solvedFixbugs, fixbugsIds.length)}
       </div>
       <div class="stats-level">
         <span>${esc(t("Продвинутый", "Advanced"))}</span>

@@ -36,6 +36,11 @@ export function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
   if (diffBasic)
     (diffBasic as HTMLElement).textContent =
       t?.TaskDifficultyBasic || (lang === "ru" ? "Основа" : "Basic");
+  const diffFixbugs = document.getElementById("taskDifficultyFixbugs");
+  if (diffFixbugs)
+    (diffFixbugs as HTMLElement).textContent =
+      t?.TaskDifficultyFixbugs ||
+      (lang === "ru" ? "Найди ошибку" : "Find the Bug");
   const diffAdvanced = document.getElementById("taskDifficultyAdvanced");
   if (diffAdvanced)
     (diffAdvanced as HTMLElement).textContent =

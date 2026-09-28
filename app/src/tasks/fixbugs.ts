@@ -357,7 +357,7 @@ export const fixbugsTasks: Pick<
 > = {
   fb_area: {
     id: "fb_area",
-    difficulty: "basic",
+    difficulty: "fixbugs",
     kind: "fix",
     starterXml: FB_AREA_XML,
     title: (lang) =>
@@ -376,7 +376,7 @@ export const fixbugsTasks: Pick<
   },
   fb_join: {
     id: "fb_join",
-    difficulty: "basic",
+    difficulty: "fixbugs",
     kind: "fix",
     starterXml: FB_JOIN_XML,
     title: (lang) =>
@@ -395,7 +395,7 @@ export const fixbugsTasks: Pick<
   },
   fb_parity: {
     id: "fb_parity",
-    difficulty: "basic",
+    difficulty: "fixbugs",
     kind: "fix",
     starterXml: FB_PARITY_XML,
     title: (lang) =>
@@ -414,7 +414,7 @@ export const fixbugsTasks: Pick<
   },
   fb_loop: {
     id: "fb_loop",
-    difficulty: "basic",
+    difficulty: "fixbugs",
     kind: "fix",
     starterXml: FB_LOOP_XML,
     title: (lang) =>
@@ -433,7 +433,7 @@ export const fixbugsTasks: Pick<
   },
   fb_list: {
     id: "fb_list",
-    difficulty: "basic",
+    difficulty: "fixbugs",
     kind: "fix",
     starterXml: FB_LIST_XML,
     title: (lang) =>
@@ -452,7 +452,7 @@ export const fixbugsTasks: Pick<
   },
   fb_double: {
     id: "fb_double",
-    difficulty: "basic",
+    difficulty: "fixbugs",
     kind: "fix",
     starterXml: FB_DOUBLE_XML,
     title: (lang) =>

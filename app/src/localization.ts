@@ -484,6 +484,7 @@ export function localizeImportUI(lang: AppLang): void {
             "Если нужно “ничего не делать” — просто оставьте ветку else пустой или не добавляйте её.",
           RunFirst: "Сначала запустите код",
           TaskDifficultyBasic: "Основа",
+          TaskDifficultyFixbugs: "Найди ошибку",
           TaskDifficultyAdvanced: "Продвинутый",
         }
       : {
@@ -806,6 +807,7 @@ export function localizeImportUI(lang: AppLang): void {
             "If you need to “do nothing”, leave the else branch empty or omit it.",
           RunFirst: "Run the code first",
           TaskDifficultyBasic: "Basic",
+          TaskDifficultyFixbugs: "Find the Bug",
           TaskDifficultyAdvanced: "Advanced",
         };
   (window as any)._currentLocalizedStrings = {

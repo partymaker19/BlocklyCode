@@ -34,6 +34,7 @@ import {
   tasks,
   syncTaskProgress,
 } from "./tasks";
+import type { TaskDifficulty } from "./tasks";
 import { countNonShadowBlocks } from "./workspaceUtils";
 import { saveTextFile } from "./fileSave";
 import {
@@ -283,6 +284,9 @@ const prevTaskBtn = document.getElementById(
 ) as HTMLButtonElement | null;
 const taskDifficultyBasicBtn = document.getElementById(
   "taskDifficultyBasic",
+) as HTMLButtonElement | null;
+const taskDifficultyFixbugsBtn = document.getElementById(
+  "taskDifficultyFixbugs",
 ) as HTMLButtonElement | null;
 const taskDifficultyAdvancedBtn = document.getElementById(
   "taskDifficultyAdvanced",
@@ -1883,22 +1887,16 @@ function refreshWorkspaceWithCustomToolbox() {
   });
   const setDifficultyUI = () => {
     const diff = getActiveDifficulty();
-    if (taskDifficultyBasicBtn) {
-      taskDifficultyBasicBtn.classList.toggle("primary", diff === "basic");
-      taskDifficultyBasicBtn.classList.toggle("secondary", diff !== "basic");
-    }
-    if (taskDifficultyAdvancedBtn) {
-      taskDifficultyAdvancedBtn.classList.toggle(
-        "primary",
-        diff === "advanced",
-      );
-      taskDifficultyAdvancedBtn.classList.toggle(
-        "secondary",
-        diff !== "advanced",
-      );
-    }
+    const toggle = (btn: HTMLButtonElement | null, key: TaskDifficulty) => {
+      if (!btn) return;
+      btn.classList.toggle("primary", diff === key);
+      btn.classList.toggle("secondary", diff !== key);
+    };
+    toggle(taskDifficultyBasicBtn, "basic");
+    toggle(taskDifficultyFixbugsBtn, "fixbugs");
+    toggle(taskDifficultyAdvancedBtn, "advanced");
   };
-  const activateDifficulty = (difficulty: "basic" | "advanced") => {
+  const activateDifficulty = (difficulty: TaskDifficulty) => {
     setActiveDifficulty(difficulty);
     setActiveTask(getFirstUnsolvedTask(difficulty));
     setDifficultyUI();
@@ -1912,6 +1910,11 @@ function refreshWorkspaceWithCustomToolbox() {
       activateDifficulty("basic");
     });
   }
+  if (taskDifficultyFixbugsBtn) {
+    taskDifficultyFixbugsBtn.addEventListener("click", () => {
+      activateDifficulty("fixbugs");
+    });
+  }
   if (taskDifficultyAdvancedBtn) {
     taskDifficultyAdvancedBtn.addEventListener("click", () => {
       activateDifficulty("advanced");
@@ -1919,7 +1922,11 @@ function refreshWorkspaceWithCustomToolbox() {
   }
   try {
     const savedDifficulty = localStorage.getItem(TASK_DIFFICULTY_PREF_KEY);
-    if (savedDifficulty === "basic" || savedDifficulty === "advanced") {
+    if (
+      savedDifficulty === "basic" ||
+      savedDifficulty === "fixbugs" ||
+      savedDifficulty === "advanced"
+    ) {
       setActiveDifficulty(savedDifficulty);
       setActiveTask(getFirstUnsolvedTask(savedDifficulty));
       if (taskSidebar) taskSidebar.classList.remove("mode-select");

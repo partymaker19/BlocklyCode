@@ -54,7 +54,7 @@ export type TaskId =
   | "fb_list"
   | "fb_double";
 
-export type TaskDifficulty = "basic" | "advanced";
+export type TaskDifficulty = "basic" | "fixbugs" | "advanced";
 
 // «build» — собрать программу с нуля; «fix» — дана готовая программа
 // с ошибкой (starterXml), её нужно найти и исправить.

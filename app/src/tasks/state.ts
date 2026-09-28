@@ -38,14 +38,16 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "first_function",
     "function_with_param",
     "function_return",
+    "dice_rolls",
+    "chatterbox",
+  ],
+  fixbugs: [
     "fb_area",
     "fb_join",
     "fb_parity",
     "fb_loop",
     "fb_list",
     "fb_double",
-    "dice_rolls",
-    "chatterbox",
   ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };

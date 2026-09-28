@@ -567,7 +567,9 @@ describe("реестр задач целостен", () => {
       expect(typeof def.description, `description ${id}`).toBe("function");
       expect(typeof def.hint, `hint ${id}`).toBe("function");
       expect(typeof def.validate, `validate ${id}`).toBe("function");
-      expect(def.difficulty, `difficulty ${id}`).toMatch(/^(basic|advanced)$/);
+      expect(def.difficulty, `difficulty ${id}`).toMatch(
+        /^(basic|fixbugs|advanced)$/,
+      );
     }
   });
 

@@ -2172,6 +2172,43 @@
         padding: 9px 8px;
         font-size: 12px;
       }
+
+      /* Тулбар редактора: компактные кнопки, чтобы группы ложились в 2 ряда */
+      #editorToolbar {
+        padding: 6px;
+      }
+
+      #editorToolbar .icon-btn {
+        height: 26px;
+        min-width: 26px;
+        padding: 0 4px;
+        font-size: 12px;
+        border-radius: 7px;
+      }
+
+      #editorToolbar .toolbar-group {
+        gap: 4px;
+      }
+
+      #editorToolbar .debug-divider {
+        display: none;
+      }
+
+      /* Панель настроек редактора на узких экранах — «bottom sheet»,
+         иначе absolute-панель уезжает за нижний край и обрезается */
+      .dropdown-panel {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        top: auto;
+        bottom: 10px;
+        width: auto;
+        max-width: none;
+        max-height: 65vh;
+        max-height: 65dvh;
+        overflow-y: auto;
+        z-index: 1200;
+      }
     }
 
     @media (max-width: 380px) {

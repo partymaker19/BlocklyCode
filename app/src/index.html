@@ -2323,6 +2323,10 @@
     .mobile-menu-backdrop {
       position: fixed;
       inset: 0;
+      /* 100dvh вместо inset-высоты: layout viewport на мобильных выше
+         видимой области, низ оверлея уходит под панель инструментов браузера */
+      height: 100vh;
+      height: 100dvh;
       background: rgba(0, 0, 0, 0.45);
       z-index: 3000;
     }
@@ -2332,12 +2336,15 @@
       top: 0;
       left: 0;
       height: 100%;
+      box-sizing: border-box;
       width: min(86vw, 360px);
       background: #ffffff;
       color: #111827;
       box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
-      padding: 12px;
-      overflow: auto;
+      padding: 12px 12px calc(28px + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
     .mobile-menu-header {
@@ -2498,6 +2505,9 @@
         width: 100vw;
         max-width: 100vw;
         height: auto;
+        max-height: 100vh;
+        max-height: 100dvh;
+        padding-bottom: calc(24px + env(safe-area-inset-bottom));
         z-index: 2600;
       }
 

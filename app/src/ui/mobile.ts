@@ -25,6 +25,19 @@ type ToolboxResizeCallback = () => void;
 let onToolboxResize: ToolboxResizeCallback | null = null;
 
 /**
+ * Подгоняет высоту полноэкранных оверлеев под видимую область.
+ * Layout viewport на мобильных браузерах выше видимой (панель инструментов
+ * перекрывает низ), из-за чего последние пункты меню не доскролливаются.
+ */
+function syncOverlayHeight(): void {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const height = isMobile ? `${Math.round(vv.height)}px` : "";
+  if (mobileMenuBackdrop) mobileMenuBackdrop.style.height = height;
+  if (taskSidebar) taskSidebar.style.height = height;
+}
+
+/**
  * Инициализация: находим DOM-элементы
  */
 export function initMobileUI(options: {
@@ -67,6 +80,7 @@ export function initMobileUI(options: {
       }
     }
     onToolboxResize?.();
+    syncOverlayHeight();
   };
 
   apply();
@@ -77,6 +91,9 @@ export function initMobileUI(options: {
       (mq as any).addListener(apply);
     } catch {}
   }
+  try {
+    window.visualViewport?.addEventListener("resize", syncOverlayHeight);
+  } catch {}
 
   // Обработчики кнопок мобильного меню
   if (mobileMenuBtn) {
@@ -183,6 +200,7 @@ export function toggleTaskSidebar(force?: boolean): void {
   }
 
   onToolboxResize?.();
+  syncOverlayHeight();
   requestAnimationFrame(() => {
     onToolboxResize?.();
   });
@@ -196,6 +214,7 @@ export function setMobileMenuOpen(open: boolean): void {
   mobileMenuBackdrop.style.display = open ? "" : "none";
   mobileMenuBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
   document.body.style.overflow = open ? "hidden" : "";
+  if (open) syncOverlayHeight();
 }
 
 /**

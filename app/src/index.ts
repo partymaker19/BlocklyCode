@@ -28,6 +28,7 @@ import {
   initTaskValidation,
   setActiveTask,
   getActiveTask,
+  getEntryTask,
   getFirstUnsolvedTask,
   setActiveDifficulty,
   getActiveDifficulty,
@@ -1899,7 +1900,7 @@ function refreshWorkspaceWithCustomToolbox() {
   };
   const activateDifficulty = (difficulty: TaskDifficulty) => {
     setActiveDifficulty(difficulty);
-    setActiveTask(getFirstUnsolvedTask(difficulty));
+    setActiveTask(getEntryTask(difficulty));
     setDifficultyUI();
     if (taskSidebar) taskSidebar.classList.remove("mode-select");
     try {
@@ -1928,9 +1929,21 @@ function refreshWorkspaceWithCustomToolbox() {
       savedDifficulty === "fixbugs" ||
       savedDifficulty === "advanced"
     ) {
-      setActiveDifficulty(savedDifficulty);
-      setActiveTask(getFirstUnsolvedTask(savedDifficulty));
+      const restored: TaskDifficulty = savedDifficulty;
+      setActiveDifficulty(restored);
+      setActiveTask(getEntryTask(restored));
       if (taskSidebar) taskSidebar.classList.remove("mode-select");
+      // Статус авторизованности ещё не известен (запрос /api/auth/me в пути):
+      // как только выяснится, что пользователь зарегистрирован и всё ещё
+      // стоит на первой задаче уровня — переключаем на первую нерешённую.
+      const guestEntry = getActiveTask();
+      let entryResumed = false;
+      addAuthChangeListener((user) => {
+        if (entryResumed || !user || getActiveTask() !== guestEntry) return;
+        entryResumed = true;
+        const resume = getFirstUnsolvedTask(restored);
+        if (resume !== guestEntry) setActiveTask(resume);
+      });
     }
   } catch {}
   setDifficultyUI();

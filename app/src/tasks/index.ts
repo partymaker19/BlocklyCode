@@ -14,6 +14,7 @@ export { tasks } from "./registry";
 export {
   getActiveDifficulty,
   getActiveTask,
+  getEntryTask,
   getFirstUnsolvedTask,
   getNextTaskId,
   getPrevTaskId,

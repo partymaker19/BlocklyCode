@@ -1,4 +1,5 @@
 // Состояние: активная задача/сложность, прогресс, навигация по порядку.
+import { isAuthenticated } from "../authClient";
 import { reportSolved } from "../progressSync";
 import { tasks } from "./registry";
 import type { TaskDifficulty, TaskId } from "./types";
@@ -103,6 +104,15 @@ export function getFirstUnsolvedTask(difficulty: TaskDifficulty = activeDifficul
     if (!p[id]?.solved) return id;
   }
   return order[order.length - 1] || "hello_world";
+}
+
+/**
+ * Задача, с которой открывается уровень: гость всегда начинает с первой,
+ * авторизованный продолжает на первой нерешённой.
+ */
+export function getEntryTask(difficulty: TaskDifficulty = activeDifficulty): TaskId {
+  if (isAuthenticated()) return getFirstUnsolvedTask(difficulty);
+  return TASKS_ORDER_BY_DIFFICULTY[difficulty]?.[0] || "hello_world";
 }
 
 export function getNextTaskId(current: TaskId): TaskId | null {

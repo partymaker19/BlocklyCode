@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 40 (list_split_join): текст «10,20,30» → список → текст «10-20-30».
+    После разделения элементы — строки, поэтому печатаем их как есть.
+    Ожидаемый вывод: 10, 20, 30, 10-20-30
+  -->
+  <variables>
+    <variable id="var_parts">parts</variable>
+    <variable id="var_element">element</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_parts">parts</field>
+    <value name="VALUE">
+      <block type="lists_split">
+        <field name="MODE">SPLIT</field>
+        <value name="INPUT">
+          <shadow type="text">
+            <field name="TEXT">10,20,30</field>
+          </shadow>
+        </value>
+        <value name="DELIM">
+          <shadow type="text">
+            <field name="TEXT">,</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="controls_forEach">
+        <field name="VAR" id="var_element">element</field>
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR" id="var_parts">parts</field>
+          </block>
+        </value>
+        <statement name="DO">
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="variables_get">
+                <field name="VAR" id="var_element">element</field>
+              </block>
+            </value>
+          </block>
+        </statement>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="lists_split">
+                <mutation mode="JOIN"></mutation>
+                <field name="MODE">JOIN</field>
+                <value name="INPUT">
+                  <block type="variables_get">
+                    <field name="VAR" id="var_parts">parts</field>
+                  </block>
+                </value>
+                <value name="DELIM">
+                  <shadow type="text">
+                    <field name="TEXT">-</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

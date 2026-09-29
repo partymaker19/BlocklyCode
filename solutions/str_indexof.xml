@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 33 (str_indexof): поиск буквы в слове «banana».
+    Blockly считает позиции с 1, а «не найдено» даёт 0.
+    Ожидаемый вывод: 2, 6, 0
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="text_indexOf">
+        <field name="END">FIRST</field>
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">banana</field>
+          </shadow>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">a</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_indexOf">
+            <field name="END">LAST</field>
+            <value name="VALUE">
+              <shadow type="text">
+                <field name="TEXT">banana</field>
+              </shadow>
+            </value>
+            <value name="FIND">
+              <shadow type="text">
+                <field name="TEXT">a</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_indexOf">
+                <field name="END">FIRST</field>
+                <value name="VALUE">
+                  <shadow type="text">
+                    <field name="TEXT">banana</field>
+                  </shadow>
+                </value>
+                <value name="FIND">
+                  <shadow type="text">
+                    <field name="TEXT">z</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

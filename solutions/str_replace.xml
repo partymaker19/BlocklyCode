@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 35 (str_replace): замена букв в слове «Mississippi».
+    Блок меняет ВСЕ вхождения сразу.
+    Ожидаемый вывод: M1ss1ss1pp1, Mishishippi, Mississippi
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="text_replace">
+        <value name="FROM">
+          <shadow type="text">
+            <field name="TEXT">i</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="text">
+            <field name="TEXT">1</field>
+          </shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">Mississippi</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_replace">
+            <value name="FROM">
+              <shadow type="text">
+                <field name="TEXT">ss</field>
+              </shadow>
+            </value>
+            <value name="TO">
+              <shadow type="text">
+                <field name="TEXT">sh</field>
+              </shadow>
+            </value>
+            <value name="TEXT">
+              <shadow type="text">
+                <field name="TEXT">Mississippi</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_replace">
+                <value name="FROM">
+                  <shadow type="text">
+                    <field name="TEXT">sh</field>
+                  </shadow>
+                </value>
+                <value name="TO">
+                  <shadow type="text">
+                    <field name="TEXT">ss</field>
+                  </shadow>
+                </value>
+                <value name="TEXT">
+                  <block type="text_replace">
+                    <value name="FROM">
+                      <shadow type="text">
+                        <field name="TEXT">ss</field>
+                      </shadow>
+                    </value>
+                    <value name="TO">
+                      <shadow type="text">
+                        <field name="TEXT">sh</field>
+                      </shadow>
+                    </value>
+                    <value name="TEXT">
+                      <shadow type="text">
+                        <field name="TEXT">Mississippi</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

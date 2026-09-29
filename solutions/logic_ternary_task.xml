@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 37 (logic_ternary_task): три тернарных выбора вместо блока «если».
+    Переменная answer создана, но ничего ей не присвоено → она равна «ничто».
+    Ожидаемый вывод: MORE, EMPTY, NO VALUE
+  -->
+  <variables>
+    <variable id="var_answer">answer</variable>
+  </variables>
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="logic_ternary">
+        <value name="IF">
+          <block type="logic_compare">
+            <field name="OP">GT</field>
+            <value name="A">
+              <shadow type="math_number">
+                <field name="NUM">7</field>
+              </shadow>
+            </value>
+            <value name="B">
+              <shadow type="math_number">
+                <field name="NUM">3</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <value name="THEN">
+          <shadow type="text">
+            <field name="TEXT">MORE</field>
+          </shadow>
+        </value>
+        <value name="ELSE">
+          <shadow type="text">
+            <field name="TEXT">LESS</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="logic_ternary">
+            <value name="IF">
+              <block type="text_isEmpty">
+                <value name="VALUE">
+                  <shadow type="text">
+                    <field name="TEXT"></field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+            <value name="THEN">
+              <shadow type="text">
+                <field name="TEXT">EMPTY</field>
+              </shadow>
+            </value>
+            <value name="ELSE">
+              <shadow type="text">
+                <field name="TEXT">NOT EMPTY</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="logic_ternary">
+                <value name="IF">
+                  <block type="logic_compare">
+                    <field name="OP">EQ</field>
+                    <value name="A">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_answer">answer</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="logic_null"></block>
+                    </value>
+                  </block>
+                </value>
+                <value name="THEN">
+                  <shadow type="text">
+                    <field name="TEXT">NO VALUE</field>
+                  </shadow>
+                </value>
+                <value name="ELSE">
+                  <shadow type="text">
+                    <field name="TEXT">HAS VALUE</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

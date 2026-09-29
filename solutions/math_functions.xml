@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 38 (math_functions): корень, модуль, число π и противоположное число.
+    Округление нужно, чтобы Python не печатал 12.0 вместо 12.
+    Ожидаемый вывод: 12, 7, 3, -5
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="math_round">
+        <field name="OP">ROUND</field>
+        <value name="NUM">
+          <block type="math_single">
+            <field name="OP">ROOT</field>
+            <value name="NUM">
+              <shadow type="math_number">
+                <field name="NUM">144</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="math_round">
+            <field name="OP">ROUND</field>
+            <value name="NUM">
+              <block type="math_single">
+                <field name="OP">ABS</field>
+                <value name="NUM">
+                  <shadow type="math_number">
+                    <field name="NUM">-7</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="math_round">
+                <field name="OP">ROUND</field>
+                <value name="NUM">
+                  <block type="math_constant">
+                    <field name="CONSTANT">PI</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="add_text">
+                <value name="TEXT">
+                  <block type="math_single">
+                    <field name="OP">NEG</field>
+                    <value name="NUM">
+                      <shadow type="math_number">
+                        <field name="NUM">5</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

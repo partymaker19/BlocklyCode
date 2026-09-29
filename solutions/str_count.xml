@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 34 (str_count): сколько раз подстрока встречается в слове «banana».
+    Подсчёт без перекрытия: «ana» внутри «banana» считается один раз.
+    Ожидаемый вывод: 3, 2, 0
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="text_count">
+        <value name="SUB">
+          <shadow type="text">
+            <field name="TEXT">a</field>
+          </shadow>
+        </value>
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">banana</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_count">
+            <value name="SUB">
+              <shadow type="text">
+                <field name="TEXT">na</field>
+              </shadow>
+            </value>
+            <value name="TEXT">
+              <shadow type="text">
+                <field name="TEXT">banana</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_count">
+                <value name="SUB">
+                  <shadow type="text">
+                    <field name="TEXT">x</field>
+                  </shadow>
+                </value>
+                <value name="TEXT">
+                  <shadow type="text">
+                    <field name="TEXT">banana</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

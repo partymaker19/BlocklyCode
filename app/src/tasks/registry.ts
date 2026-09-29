@@ -8,6 +8,7 @@ import { loopsTasks } from "./loops";
 import { listsTasks } from "./lists";
 import { functionsTasks } from "./functions";
 import { textTasks } from "./text";
+import { mathTasks } from "./math";
 import { fixbugsTasks } from "./fixbugs";
 import { advancedTasks } from "./advanced";
 
@@ -19,6 +20,7 @@ export const tasks: TaskRegistry = {
   ...listsTasks,
   ...functionsTasks,
   ...textTasks,
+  ...mathTasks,
   ...fixbugsTasks,
   ...advancedTasks,
 };

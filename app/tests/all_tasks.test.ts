@@ -456,6 +456,118 @@ const rows: Row[] = [
     blocks: [printB()],
   },
   {
+    id: "str_indexof",
+    output: ["2", "6", "0"],
+    blocks: [
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_indexOf" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_indexOf" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_indexOf" } } } },
+    ],
+  },
+  {
+    id: "str_count",
+    output: ["3", "2", "0"],
+    blocks: [
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_count" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_count" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_count" } } } },
+    ],
+  },
+  {
+    id: "str_replace",
+    output: ["M1ss1ss1pp1", "Mishishippi", "Mississippi"],
+    blocks: [
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_replace" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_replace" } } } },
+    ],
+  },
+  {
+    id: "logic_and_or_not",
+    output: ["NO", "YES", "NO"],
+    blocks: [
+      { type: "logic_operation", fields: { OP: "AND" } },
+      { type: "logic_operation", fields: { OP: "OR" } },
+      { type: "logic_negate" },
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "logic_ternary_task",
+    output: ["MORE", "EMPTY", "NO VALUE"],
+    blocks: [
+      { type: "logic_ternary" },
+      { type: "logic_ternary" },
+      { type: "logic_ternary" },
+      { type: "logic_null" },
+      { type: "text_isEmpty" },
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "math_functions",
+    output: ["12", "7", "3", "-5"],
+    blocks: [
+      { type: "math_single", fields: { OP: "ROOT" } },
+      { type: "math_single", fields: { OP: "ABS" } },
+      { type: "math_single", fields: { OP: "NEG" } },
+      { type: "math_constant", fields: { CONSTANT: "PI" } },
+      { type: "math_round", fields: { OP: "ROUND" } },
+      { type: "math_round", fields: { OP: "ROUND" } },
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "math_round_clamp",
+    output: ["4", "5", "5", "4", "100", "0"],
+    blocks: [
+      { type: "math_round", fields: { OP: "ROUND" } },
+      { type: "math_round", fields: { OP: "ROUND" } },
+      { type: "math_round", fields: { OP: "ROUNDUP" } },
+      { type: "math_round", fields: { OP: "ROUNDDOWN" } },
+      { type: "math_constrain" },
+      { type: "math_constrain" },
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "list_split_join",
+    output: ["10", "20", "30", "10-20-30"],
+    blocks: [
+      { type: "lists_split", fields: { MODE: "SPLIT" } },
+      { type: "lists_split", fields: { MODE: "JOIN" } },
+      { type: "controls_forEach" },
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "list_operations",
+    output: ["3", "2", "1", "5", "2"],
+    blocks: [
+      { type: "lists_reverse" },
+      { type: "lists_repeat" },
+      { type: "lists_length" },
+      { type: "lists_indexOf" },
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
     id: "fb_area",
     output: ["42"],
     blocks: [
@@ -622,8 +734,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 42 задач", () => {
-    expect(Object.keys(tasks).length).toBe(42);
+  it("в реестре 51 задача", () => {
+    expect(Object.keys(tasks).length).toBe(51);
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {

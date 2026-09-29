@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 41 (list_operations): переворот списка, повтор элемента и позиция.
+    Blockly считает позиции с 1, поэтому двойка в списке [1, 2, 3] стоит на 2.
+    Ожидаемый вывод: 3, 2, 1, 5, 2
+  -->
+  <variables>
+    <variable id="var_item">item</variable>
+  </variables>
+  <block type="controls_forEach" x="40" y="40">
+    <field name="VAR" id="var_item">item</field>
+    <value name="LIST">
+      <block type="lists_reverse">
+        <value name="LIST">
+          <block type="lists_create_with">
+            <mutation items="3"></mutation>
+            <value name="ADD0"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+            <value name="ADD1"><shadow type="math_number"><field name="NUM">2</field></shadow></value>
+            <value name="ADD2"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+          </block>
+        </value>
+      </block>
+    </value>
+    <statement name="DO">
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="variables_get">
+            <field name="VAR" id="var_item">item</field>
+          </block>
+        </value>
+      </block>
+    </statement>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="lists_length">
+            <value name="VALUE">
+              <block type="lists_repeat">
+                <value name="ITEM">
+                  <shadow type="text">
+                    <field name="TEXT">ха</field>
+                  </shadow>
+                </value>
+                <value name="NUM">
+                  <shadow type="math_number">
+                    <field name="NUM">5</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="lists_indexOf">
+                <field name="END">FIRST</field>
+                <value name="VALUE">
+                  <block type="lists_create_with">
+                    <mutation items="3"></mutation>
+                    <value name="ADD0"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+                    <value name="ADD1"><shadow type="math_number"><field name="NUM">2</field></shadow></value>
+                    <value name="ADD2"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+                  </block>
+                </value>
+                <value name="FIND">
+                  <shadow type="math_number">
+                    <field name="NUM">2</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

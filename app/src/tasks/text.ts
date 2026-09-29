@@ -8,6 +8,11 @@ const WORD = "Blockly";
 const WORD_LEN = WORD.length; // 7
 const WORD_REV = "ylkcolB";
 
+const SEARCH_WORD = "banana";
+const PHONE_WORD = "Mississippi";
+const PHONE_DIGITS = "M1ss1ss1pp1";
+const PHONE_SH = "Mishishippi";
+
 function blockTypes(ws: Blockly.WorkspaceSvg): string[] {
   try {
     return getNonShadowBlocks(ws).map((b) => (b as any).type);
@@ -110,9 +115,85 @@ async function validateStrClean(
   return { ok, stars };
 }
 
+async function validateStrIndexOf(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines;
+  const types = blockTypes(ws);
+  const found = countOf(types, "text_indexOf");
+  const ok =
+    found >= 1 &&
+    lines.includes("2") &&
+    lines.includes("6") &&
+    lines.includes("0");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (found >= 3 && count <= 7) stars = 3; // по одному поиску на строку
+    else if (count <= 10) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateStrCount(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines;
+  const types = blockTypes(ws);
+  const counted = countOf(types, "text_count");
+  const ok =
+    counted >= 1 &&
+    lines.includes("3") &&
+    lines.includes("2") &&
+    lines.includes("0");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (counted >= 3 && count <= 7) stars = 3;
+    else if (count <= 10) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateStrReplace(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines;
+  const types = blockTypes(ws);
+  const replaced = countOf(types, "text_replace");
+  const ok =
+    replaced >= 2 &&
+    lines.includes(PHONE_DIGITS) &&
+    lines.includes(PHONE_SH) &&
+    lines.includes(PHONE_WORD);
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (replaced >= 3 && count <= 10)
+      stars = 3; // третья замена — вложенная, обратно в ss
+    else if (count <= 14) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
 export const textTasks: Pick<
   TaskRegistry,
-  "str_length" | "str_charat" | "str_substring" | "str_clean"
+  | "str_length"
+  | "str_charat"
+  | "str_substring"
+  | "str_clean"
+  | "str_indexof"
+  | "str_count"
+  | "str_replace"
 > = {
   str_length: {
     id: "str_length",
@@ -185,5 +266,59 @@ export const textTasks: Pick<
         : `Step by step:\n1. Create the variable phrase (Variables category) and a “set … to” block; its value is the text “  pri” — start it with two spaces.\n2. From the Text category take “add text to variable” and append “vet!” — phrase now holds “  privet!”.\n3. Take “trim spaces from … to …” (mode: both) and put the variable into it: the edge spaces disappear, the inside stays untouched.\n4. Wrap that in “change case” set to UPPERCASE — you get PRIVET!.\n5. Put it all into “Add text … color …”, run and check: a single line PRIVET!.\n6. Press “Check solution”.`,
     infoTopics: ["string_case_trim"],
     validate: validateStrClean,
+  },
+  str_indexof: {
+    id: "str_indexof",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 33: Где буква?"
+        : "Task 33: Where Is the Letter?",
+    description: (lang) =>
+      lang === "ru"
+        ? `Слово <strong>«${SEARCH_WORD}»</strong> — найдите в нём букву и напечатайте три строки:<br><br>1) номер <strong>первой</strong> буквы «a» — получится <strong>2</strong>;<br>2) номер <strong>последней</strong> буквы «a» — получится <strong>6</strong>;<br>3) номер буквы <strong>«z»</strong>, которой в слове нет — получится <strong>0</strong>.<br><br>Используйте блок <strong>«в тексте … найти первое вхождение текста»</strong> (категория «Текст»): в его выпадающем списке режимы «первое» и «последнее».<br><br><strong>Два важных факта о позициях:</strong> Blockly считает с единицы (первая буква — это 1), а языки программирования — с нуля; и «не найдено» Blockly показывает нулём. Подробности — в разделе «Поиск в строке» под заданием.<br><br>★★★ — все три позиции найдены блоком поиска.`
+        : `Take the word <strong>“${SEARCH_WORD}”</strong> and print three lines:<br><br>1) the position of the <strong>first</strong> letter “a” — that is <strong>2</strong>;<br>2) the position of the <strong>last</strong> letter “a” — that is <strong>6</strong>;<br>3) the position of the letter <strong>“z”</strong>, which the word does not have — that is <strong>0</strong>.<br><br>Use the <strong>“in text … find first occurrence of text …”</strong> block (Text category): its dropdown switches between “first” and “last”.<br><br><strong>Two facts about positions:</strong> Blockly counts from one (the first letter is 1) while programming languages count from zero; and “not found” is reported as 0. See the “Searching a string” note below.<br><br>★★★ — all three positions come from the search block.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. В категории «Текст» возьмите блок «в тексте … найти первое вхождение текста»: в первое поле впишите «${SEARCH_WORD}».\n2. Во второе поле (после слов «найти первое вхождение текста») — букву «a». Блок стал числом: вложите его в «Добавить текст … цвет …».\n3. Запустите: в выводе должно быть 2. Это номер первой «a» (b-a-n-a-n-a, считаем с 1).\n4. Скопируйте блок дважды: во втором переключите выпадающий список на «последнее» (получится 6), в третьем оставьте «первое», но ищите букву «z» (получится 0 — буквы нет).\n5. Проверьте три строки вывода: 2, 6, 0.\n6. Нажмите «Проверить решение».`
+        : `Step by step:\n1. In the Text category take “in text … find first occurrence of text …” and put “${SEARCH_WORD}” into its first field.\n2. Put the letter “a” into the second field. The block is now a number: drop it into “Add text … color …”.\n3. Run: the output should show 2, the position of the first “a” (b-a-n-a-n-a, counted from 1).\n4. Copy the block twice: in the second one switch the dropdown to “last” (you get 6); in the third keep “first” but search for “z” (you get 0 — the letter is absent).\n5. Check the three lines: 2, 6, 0.\n6. Press “Check solution”.`,
+    infoTopics: ["string_search"],
+    validate: validateStrIndexOf,
+  },
+  str_count: {
+    id: "str_count",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 34: Сколько раз?"
+        : "Task 34: How Many Times?",
+    description: (lang) =>
+      lang === "ru"
+        ? `Тот же вопрос, но про количество. В слове <strong>«${SEARCH_WORD}»</strong> напечатайте три строки:<br><br>1) сколько раз встречается буква <strong>«a»</strong> — ответ <strong>3</strong>;<br>2) сколько раз встречается пара букв <strong>«na»</strong> — ответ <strong>2</strong>;<br>3) сколько раз встречается буква <strong>«x»</strong> — ответ <strong>0</strong>.<br><br>Для этого есть блок <strong>«подсчитать количество … в …»</strong> (категория «Текст»).<br><br><strong>Почему «na» даёт 2, а не 3?</strong> Совпадения не перекрываются: найдя пару, компьютер сдвигается за неё целиком и с начала тот же кусок не считает. Об этом — раздел «Поиск в строке» под заданием.<br><br>★★★ — все три подсчёта сделаны блоком количества.`
+        : `Same word, but about quantity. In <strong>“${SEARCH_WORD}”</strong> print three lines:<br><br>1) how many times the letter <strong>“a”</strong> occurs — the answer is <strong>3</strong>;<br>2) how many times the pair <strong>“na”</strong> occurs — the answer is <strong>2</strong>;<br>3) how many times the letter <strong>“x”</strong> occurs — the answer is <strong>0</strong>.<br><br>Use the <strong>“count … in …”</strong> block (Text category).<br><br><strong>Why does “na” give 2 rather than 3?</strong> Matches do not overlap: after finding a pair the computer jumps past it and does not count the same piece twice. See the “Searching a string” note below.<br><br>★★★ — all three counts come from the count block.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. В категории «Текст» возьмите «подсчитать количество … в …».\n2. В первое поле — букву «a», во второе — слово «${SEARCH_WORD}». Вложите результат в «Добавить текст … цвет …».\n3. Запустите: должно получиться 3 (буква a стоит на позициях 2, 4 и 6).\n4. Скопируйте блок дважды: во втором ищите «na» (получится 2), в третьем — «x» (получится 0).\n5. Сравните вывод с эталоном: 3, 2, 0.\n6. Нажмите «Проверить решение».`
+        : `Step by step:\n1. In the Text category take “count … in …”.\n2. Put the letter “a” into the first field and “${SEARCH_WORD}” into the second, then wrap the result in “Add text … color …”.\n3. Run: you should get 3 (the letter a sits at positions 2, 4 and 6).\n4. Copy the block twice: in the second one search for “na” (you get 2), in the third for “x” (you get 0).\n5. Compare the output with the target: 3, 2, 0.\n6. Press “Check solution”.`,
+    infoTopics: ["string_search"],
+    validate: validateStrCount,
+  },
+  str_replace: {
+    id: "str_replace",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 35: Замена текста"
+        : "Task 35: Replacing Text",
+    description: (lang) =>
+      lang === "ru"
+        ? `Замена создаёт новую строку, в которой один кусок заменён другим. Возьмите слово <strong>«${PHONE_WORD}»</strong> и напечатайте три строки:<br><br>1) все буквы <strong>«i»</strong> заменить на цифру <strong>«1»</strong> → <strong>${PHONE_DIGITS}</strong>;<br>2) в исходном слове все <strong>«ss»</strong> заменить на <strong>«sh»</strong> → <strong>${PHONE_SH}</strong>;<br>3) в результате пункта 2 заменить <strong>«sh»</strong> обратно на <strong>«ss»</strong> → снова <strong>${PHONE_WORD}</strong>.<br><br>Используйте блок <strong>«заменить … на … в …»</strong> (категория «Текст»). Это блок-выражение, поэтому третью строку собирают вложением: один блок замены кладут внутрь другого, как матрёшку.<br><br><strong>Обратите внимание:</strong> блок меняет сразу ВСЕ вхождения, а строка при этом не меняется — появляется новая.<br><br>★★★ — все три строки получены блоками замены, а третья замена действительно вложена в вторую.`
+        : `Replacement builds a new string where one piece is swapped for another. Take <strong>“${PHONE_WORD}”</strong> and print three lines:<br><br>1) replace every <strong>“i”</strong> with the digit <strong>“1”</strong> → <strong>${PHONE_DIGITS}</strong>;<br>2) in the original word replace every <strong>“ss”</strong> with <strong>“sh”</strong> → <strong>${PHONE_SH}</strong>;<br>3) in the result of step 2 replace <strong>“sh”</strong> back to <strong>“ss”</strong> → <strong>${PHONE_WORD}</strong> again.<br><br>Use the <strong>“replace … with … in …”</strong> block (Text category). It is a value block, so the third line is built by nesting: one replace block goes inside another, like a matryoshka.<br><br><strong>Note:</strong> the block changes ALL occurrences at once, and the original string stays untouched — a new one appears.<br><br>★★★ — all three lines come from replace blocks and the third one is genuinely nested.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Возьмите «заменить … на … в …»: в первое поле — «i», во второе — «1», в третье — «${PHONE_WORD}».\n2. Вложите блок в «Добавить текст … цвет …» и запустите: получится ${PHONE_DIGITS}.\n3. Второй блок: «ss» → «sh», в третье поле снова «${PHONE_WORD}» — получится ${PHONE_SH}.\n4. Третий блок: «sh» → «ss», а в его третье поле вложите ВТОРОЙ блок замены (тот, что даёт ${PHONE_SH}). Тогда третья строка вернёт ${PHONE_WORD}.\n5. Проверьте вывод: три строки ${PHONE_DIGITS}, ${PHONE_SH}, ${PHONE_WORD}.\n6. Нажмите «Проверить решение».`
+        : `Step by step:\n1. Take “replace … with … in …”: put “i” in the first field, “1” in the second and “${PHONE_WORD}” in the third.\n2. Wrap that block in “Add text … color …” and run: you get ${PHONE_DIGITS}.\n3. Second block: “ss” → “sh”, with “${PHONE_WORD}” in the third field again — you get ${PHONE_SH}.\n4. Third block: “sh” → “ss”, and into its third field put the SECOND replace block (the one producing ${PHONE_SH}). The third line then returns ${PHONE_WORD}.\n5. Check the output: three lines ${PHONE_DIGITS}, ${PHONE_SH}, ${PHONE_WORD}.\n6. Press “Check solution”.`,
+    infoTopics: ["string_replace"],
+    validate: validateStrReplace,
   },
 };

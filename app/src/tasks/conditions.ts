@@ -3,7 +3,7 @@ import * as Blockly from "blockly";
 import { getAppLang } from "../localization";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
 import { getVisibleOutputLines, getVarFieldText, tryGetAssignedNumber } from "./utils";
-import type { TaskRegistry } from "./types";
+import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateFirstCondition(
   ws: Blockly.WorkspaceSvg
@@ -313,9 +313,73 @@ async function validateTimeOfDay(
   return { ok, stars };
 }
 
+function logicBlockTypes(ws: Blockly.WorkspaceSvg): string[] {
+  try {
+    return getNonShadowBlocks(ws).map((b) => (b as any).type);
+  } catch {
+    return [];
+  }
+}
+
+function logicCountOf(types: string[], type: string): number {
+  return types.filter((t) => t === type).length;
+}
+
+async function validateLogicAndOrNot(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const types = logicBlockTypes(ws);
+  const yes = outputLines.filter((l) => l.trim() === "YES").length;
+  const no = outputLines.filter((l) => l.trim() === "NO").length;
+  const ok =
+    logicCountOf(types, "logic_operation") >= 2 &&
+    logicCountOf(types, "logic_negate") >= 1 &&
+    yes === 1 &&
+    no === 2;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 20) stars = 3; // 3 × (если + две печати) + логика + сравнения
+    else if (count <= 26) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateLogicTernary(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const types = logicBlockTypes(ws);
+  const ternary = logicCountOf(types, "logic_ternary");
+  const ok =
+    ternary >= 2 &&
+    logicCountOf(types, "logic_null") >= 1 &&
+    logicCountOf(types, "text_isEmpty") >= 1 &&
+    outputLines.includes("MORE") &&
+    outputLines.includes("EMPTY") &&
+    outputLines.includes("NO VALUE");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (ternary >= 3 && count <= 13)
+      stars = 3; // три печати + три тернарных + их условия
+    else if (count <= 18) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
 export const conditionsTasks: Pick<
   TaskRegistry,
-  "first_condition" | "even_or_odd" | "time_of_day"
+  | "first_condition"
+  | "even_or_odd"
+  | "time_of_day"
+  | "logic_and_or_not"
+  | "logic_ternary_task"
 > = {
   first_condition: {
     id: "first_condition",
@@ -358,5 +422,41 @@ export const conditionsTasks: Pick<
         ? "Пошаговое решение:\n1. Создайте переменную hour и присвойте ей число от 0 до 23 (например, 9).\n2. Возьмите блок «если» из «Логика», нажмите шестерёнку и добавьте два «иначе если» и один «иначе».\n3. Проверка диапазона: блок «и» из «Логика» объединяет два сравнения — «hour ≥ 6» и «hour ≤ 11». Аналогично для 12..17 и 18..22.\n4. В каждую ветку вставьте «Добавить текст … цвет …»: «Good morning!», «Good afternoon!», «Good evening!», в «иначе» — «Good night!».\n5. Запустите код и проверьте вывод."
         : "Step by step:\n1. Create a variable hour and set it to a number from 0 to 23 (e.g. 9).\n2. Take the “if” block from Logic, click the gear and add two “else if” and one “else”.\n3. Range check: the “and” block from Logic combines two comparisons — “hour ≥ 6” and “hour ≤ 11”. The same for 12..17 and 18..22.\n4. Put “Add text … color …” in each branch: “Good morning!”, “Good afternoon!”, “Good evening!”, and “Good night!” in else.\n5. Run the code and check the output.",
     validate: validateTimeOfDay,
+  },
+  logic_and_or_not: {
+    id: "logic_and_or_not",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 36: И, ИЛИ, НЕ"
+        : "Task 36: AND, OR, NOT",
+    description: (lang) =>
+      lang === "ru"
+        ? `Условия можно объединять. Число <strong>14</strong> уже «знает» компьютер — проверьте три утверждения и напечатайте по строке на каждое: <strong>YES</strong>, если утверждение верно, и <strong>NO</strong>, если неверно.<br><br>1) «14 больше 10 <strong>И</strong> 14 меньше 12» — блок «… и …»;<br>2) «14 больше 20 <strong>ИЛИ</strong> 14 меньше 15» — блок «… или …»;<br>3) <strong>НЕ</strong> «14 больше 13» — блок «не …».<br><br>Правильный вывод — три строки: <strong>NO</strong>, <strong>YES</strong>, <strong>NO</strong>.<br><br>«И» требует, чтобы выполнились <strong>обе</strong> части; «ИЛИ» довольствуется <strong>одной</strong>; «НЕ» переворачивает ответ. Про слова YES и NO: их печатают буквами, чтобы вывод не зависел от языка интерфейса.<br><br>★★★ — три проверки собраны блоками «и», «или» и «не».`
+        : `Conditions combine. The computer already knows the number <strong>14</strong> — check three statements and print one line each: <strong>YES</strong> when the statement holds, <strong>NO</strong> when it does not.<br><br>1) “14 is greater than 10 <strong>AND</strong> 14 is less than 12” — the “… and …” block;<br>2) “14 is greater than 20 <strong>OR</strong> 14 is less than 15” — the “… or …” block;<br>3) <strong>NOT</strong> “14 is greater than 13” — the “not …” block.<br><br>The correct output is three lines: <strong>NO</strong>, <strong>YES</strong>, <strong>NO</strong>.<br><br>AND needs <strong>both</strong> parts to hold; OR is happy with <strong>one</strong>; NOT flips the answer. YES and NO are printed in capital letters so the output does not depend on the interface language.<br><br>★★★ — all three checks are built with the and, or and not blocks.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Строка 1. Возьмите «если … иначе» (в «Логика» нажмите шестерёнку блока «если» и включите «иначе»). Условие соберите блоком «… и …»: в левую часть — сравнение «14 > 10», в правую — «14 < 12». Сравнения — блок «= … > …» из «Логика», числа в него вставляются серыми подсказками.\n2. В ветку «если» положите печать текста YES, в ветку «иначе» — печать NO. Запустите: 14 не меньше 12, значит правильная ветка — «иначе», вывод NO.\n3. Строка 2. То же самое с блоком «… или …»: «14 > 20» или «14 < 15». Первая часть ложна, вторая истинна → ИЛИ даёт истину → YES.\n4. Строка 3. Возьмите «не …» и вложите в него сравнение «14 > 13» (оно истинно). «не» переворачивает → NO.\n5. Проверьте вывод: NO, YES, NO — ровно три строки, именно в таком порядке.\n6. Нажмите «Проверить решение».`
+        : `Step by step:\n1. Line 1. Take “if … else” (in Logic click the gear of the “if” block and enable “else”). Build the condition with the “… and …” block: left side the comparison “14 > 10”, right side “14 < 12”. Comparisons come from the “= … > …” block in Logic; the numbers drop in as grey shadow fields.\n2. Put a print of YES into the if branch and a print of NO into the else branch. Run: 14 is not less than 12, so the else branch wins and the output is NO.\n3. Line 2. Same shape with the “… or …” block: “14 > 20” or “14 < 15”. The first part is false, the second true → OR is true → YES.\n4. Line 3. Take “not …” and put the comparison “14 > 13” (true) inside it. NOT flips it → NO.\n5. Check the output: NO, YES, NO — exactly three lines in that order.\n6. Press “Check solution”.`,
+    infoTopics: ["boolean_logic"],
+    validate: validateLogicAndOrNot,
+  },
+  logic_ternary_task: {
+    id: "logic_ternary_task",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 37: Выбор без «если»"
+        : "Task 37: Choosing without if",
+    description: (lang) =>
+      lang === "ru"
+        ? `Блок «если» занимает место и просит ветки. Часто вместо него хватает <strong>тернарного выбора</strong> — блока, который сам является значением: «выбрать по условию: если истина — одно, если ложь — другое». Напечатайте три строки:<br><br>1) «7 больше 3» → выбрать <strong>MORE</strong>, иначе LESS;<br>2) блок <strong>«… пуст»</strong> для пустого текста «» → выбрать <strong>EMPTY</strong>, иначе NOT EMPTY;<br>3) создайте переменную <strong>answer</strong> и <strong>не присваивайте</strong> ей ничего; сравните её с блоком <strong>«ничто»</strong> (null) → выбрать <strong>NO VALUE</strong>, иначе HAS VALUE.<br><br>Правильный вывод: <strong>MORE</strong>, <strong>EMPTY</strong>, <strong>NO VALUE</strong> — и ни одного блока «если».<br><br>★★★ — все три строки собраны блоками «выбрать по», без «если».`
+        : `The “if” block takes space and demands branches. Often a <strong>ternary choice</strong> is enough — a block that is itself a value: “test a condition: if true take one thing, if false take the other”. Print three lines:<br><br>1) “7 is greater than 3” → pick <strong>MORE</strong>, otherwise LESS;<br>2) the <strong>“… is empty”</strong> block applied to the empty text “” → pick <strong>EMPTY</strong>, otherwise NOT EMPTY;<br>3) create a variable <strong>answer</strong> and <strong>do not assign</strong> it anything; compare it with the <strong>“null”</strong> block → pick <strong>NO VALUE</strong>, otherwise HAS VALUE.<br><br>The correct output: <strong>MORE</strong>, <strong>EMPTY</strong>, <strong>NO VALUE</strong> — and not a single “if” block.<br><br>★★★ — all three lines use the “test … if true … if false …” block, no “if”.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. В категории «Логика» найдите блок «выбрать по … | если истина … | если ложь …» — это тернарный выбор. Он короче блока «если» и вставляется внутрь других блоков, потому что сам является значением.\n2. Строка 1: в поле «выбрать по» — сравнение «7 > 3», в «если истина» — текст MORE, в «если ложь» — LESS. Вложите весь блок в «Добавить текст … цвет …». Запустите: MORE.\n3. Строка 2: условие — блок «… пуст» из «Текст» с пустым текстом внутри, «если истина» — EMPTY, «если ложь» — NOT EMPTY.\n4. Строка 3: создайте переменную answer (категория «Переменные») и больше ничего ей не присваивайте. Условие — сравнение «answer = ничто»: блок «= … > …» из «Логика», слева переменная, справа блок «ничто».\n5. «если истина» — NO VALUE, «если ложь» — HAS VALUE. Запустите: сравнение истинно, потому что значения у переменной нет.\n6. Проверьте вывод (MORE, EMPTY, NO VALUE) и нажмите «Проверить решение».`
+        : `Step by step:\n1. In the Logic category find the “test … | if true … | if false …” block — that is the ternary choice. It is shorter than the “if” command and it fits inside other blocks because it is itself a value.\n2. Line 1: the “test” field takes the comparison “7 > 3”, “if true” takes the text MORE, “if false” takes LESS. Wrap the whole block in “Add text … color …”. Run: MORE.\n3. Line 2: the condition is the “… is empty” block from Text with an empty text inside, “if true” EMPTY, “if false” NOT EMPTY.\n4. Line 3: create the variable answer (Variables category) and never assign it anything. The condition is “answer = null”: the “= … > …” block from Logic, the variable on the left, the “null” block on the right.\n5. “if true” NO VALUE, “if false” HAS VALUE. Run: the comparison is true because the variable holds no value.\n6. Check the output (MORE, EMPTY, NO VALUE) and press “Check solution”.`,
+    infoTopics: ["ternary_null"],
+    validate: validateLogicTernary,
   },
 };

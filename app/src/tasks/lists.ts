@@ -2,7 +2,7 @@
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
 import { getVisibleOutputLines, getVarFieldText } from "./utils";
-import type { TaskRegistry } from "./types";
+import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateListForEach(
   ws: Blockly.WorkspaceSvg
@@ -581,6 +581,67 @@ async function validateListSortMinMax(
   return { ok, stars };
 }
 
+function listBlockTypes(ws: Blockly.WorkspaceSvg): string[] {
+  try {
+    return getNonShadowBlocks(ws).map((b) => (b as any).type);
+  } catch {
+    return [];
+  }
+}
+
+function listCountOf(types: string[], type: string): number {
+  return types.filter((t) => t === type).length;
+}
+
+async function validateListSplitJoin(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const types = listBlockTypes(ws);
+  const ok =
+    listCountOf(types, "lists_split") >= 2 &&
+    listCountOf(types, "controls_forEach") >= 1 &&
+    outputLines.includes("10") &&
+    outputLines.includes("20") &&
+    outputLines.includes("30") &&
+    outputLines.includes("10-20-30");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 10)
+      stars = 3; // список в переменной + цикл + обратная склейка
+    else if (count <= 14) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateListOperations(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const types = listBlockTypes(ws);
+  const ok =
+    listCountOf(types, "lists_reverse") >= 1 &&
+    listCountOf(types, "lists_repeat") >= 1 &&
+    listCountOf(types, "lists_length") >= 1 &&
+    listCountOf(types, "lists_indexOf") >= 1 &&
+    outputLines.includes("3") &&
+    outputLines.includes("2") &&
+    outputLines.includes("1") &&
+    outputLines.includes("5");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 13) stars = 3;
+    else if (count <= 17) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
 export const listsTasks: Pick<
   TaskRegistry,
   | "list_foreach"
@@ -591,6 +652,8 @@ export const listsTasks: Pick<
   | "list_filter_even_median"
   | "list_sum_even_positions"
   | "list_sort_min_max"
+  | "list_split_join"
+  | "list_operations"
 > = {
   list_foreach: {
     id: "list_foreach",
@@ -710,5 +773,39 @@ export const listsTasks: Pick<
         : "Step by step:\n1. Create a variable list with “create list with 9 3 7 1 5” (a Lists block).\n2. In Lists take “sort numeric ascending”, put variable list inside, and assign the result to variable sorted.\n3. Take “get item # 1” (Lists) with sorted as the list — that's min.\n4. For max use “get item # 1 from end” on sorted.\n5. Print two lines with “Add text … color …”: min=1 and max=9.",
     infoTopics: ["sorting"],
     validate: validateListSortMinMax,
+  },
+  list_split_join: {
+    id: "list_split_join",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 40: Разделить и склеить" : "Task 40: Split and Join",
+    description: (lang) =>
+      lang === "ru"
+        ? `Одна строка может хранить несколько значений — их разделяют запятыми (так устроены CSV-файлы и таблицы). Научитесь превращать текст в список и обратно.<br><br>1. Создайте переменную <strong>parts</strong> и присвойте её результат блока <strong>«сделать список из текста … с разделителем …»</strong>: текст — <code>10,20,30</code>, разделитель — <code>,</code><br>2. Блоком <strong>«для каждого элемента … в …»</strong> пройдите по списку parts и напечатайте каждый элемент — получится три строки: <strong>10</strong>, <strong>20</strong>, <strong>30</strong>.<br>3. Тем же блоком, но в режиме <strong>«собрать текст из списка …»</strong> со разделителем <code>-</code>, напечатайте четвёртую строку: <strong>10-20-30</strong>.<br><br>Слово <strong>split</strong> значит «разделять», <strong>join</strong> — «соединять». После разделения элементы — это ТЕКСТ, даже если выглядят как числа: «10» + 1 даст «101», а не 11.<br><br>★★★ — список создан один раз и лежит в переменной, его используют и для цикла, и для склейки.`
+        : `One line of text can hold several values, separated by commas (that is how CSV files and spreadsheets work). Learn to turn text into a list and back.<br><br>1. Create a variable <strong>parts</strong> and set it to the result of the <strong>“make list from text … with delimiter …”</strong> block: text <code>10,20,30</code>, delimiter <code>,</code><br>2. Use <strong>“for each item … in …”</strong> to walk the list parts and print every item — three lines: <strong>10</strong>, <strong>20</strong>, <strong>30</strong>.<br>3. With the same block in mode <strong>“make text from list …”</strong> and the delimiter <code>-</code>, print a fourth line: <strong>10-20-30</strong>.<br><br><strong>Split</strong> means “cut apart”, <strong>join</strong> means “connect”. After splitting the items are TEXT even when they look like numbers: “10” + 1 gives “101”, not 11.<br><br>★★★ — the list is built once, kept in a variable, and reused for both the loop and the join.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную parts («Переменные») и блок «присвоить parts …».\n2. Из «Списки» возьмите «сделать список из текста … с разделителем …»: в первое поле — текст 10,20,30, во второе — запятая. Вложите его в «присвоить».\n3. Из «Циклы» возьмите «для каждого element … в …», а в поле списка поставьте переменную parts (создайте её через меню «Создать переменную» или из категории «Переменные»).\n4. Внутрь цикла положите «Добавить текст … цвет …» с переменной element. Запустите: три строки 10, 20, 30.\n5. Для четвёртой строки возьмите ещё один блок «сделать список из текста …», переключите его выпадающий список в режим «собрать текст из списка …», в поле списка — переменная parts, разделитель — дефис. Вложите в блок печати.\n6. Проверьте вывод: 10, 20, 30, 10-20-30 — и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable parts (Variables) and a “set parts to …” block.\n2. From Lists take “make list from text … with delimiter …”: put the text 10,20,30 in the first field and a comma in the second. Drop it into the “set” block.\n3. From Loops take “for each element … in …” and put the variable parts into its list field (create the loop variable in the same dropdown).\n4. Inside the loop place “Add text … color …” with the loop variable. Run: three lines 10, 20, 30.\n5. For the fourth line take another “make list from text …” block, switch its dropdown to “make text from list …”, put variable parts in the list field and a hyphen as the delimiter. Wrap it in a print block.\n6. Check the output: 10, 20, 30, 10-20-30 — then press “Check solution”.`,
+    infoTopics: ["split_join"],
+    validate: validateListSplitJoin,
+  },
+  list_operations: {
+    id: "list_operations",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 41: Переворот, повтор и позиция"
+        : "Task 41: Reverse, Repeat and Position",
+    description: (lang) =>
+      lang === "ru"
+        ? `Список можно развернуть, собрать из одного элемента и обыскать. Напечатайте пять строк:<br><br>1) элементы списка <code>[1, 2, 3]</code> <strong>в обратном порядке</strong>, по одному на строку → <strong>3</strong>, <strong>2</strong>, <strong>1</strong> (блок «изменить порядок на обратный …» + «для каждого элемента …»);<br>2) <strong>длина</strong> списка, который блок «создать список из элемента …, повторяющегося … раз» собрал из текста <code>ха</code> и числа <strong>5</strong> → <strong>5</strong>;<br>3) <strong>позиция</strong> числа 2 в списке <code>[1, 2, 3]</code> — блок «в списке … найти первое вхождение элемента …» → <strong>2</strong>.<br><br>Блоки — в категории «Списки». И переворот, и «повторить» создают <strong>новый</strong> список: исходный остаётся целым.<br><br><strong>Про позиции:</strong> Blockly считает с 1 (первый элемент — это 1), а если элемента нет — возвращает 0. Языки программирования считают с 0. Об этом — раздел «Операции со списками» под заданием.<br><br>★★★ — все три приёма выполнены своими блоками.`
+        : `A list can be reversed, built from a single item, and searched. Print five lines:<br><br>1) the items of <code>[1, 2, 3]</code> <strong>in reverse order</strong>, one per line → <strong>3</strong>, <strong>2</strong>, <strong>1</strong> (the “reverse …” block plus “for each item …”);<br>2) the <strong>length</strong> of the list that “create list with item … repeated … times” built from the text <code>ха</code> and the number <strong>5</strong> → <strong>5</strong>;<br>3) the <strong>position</strong> of the number 2 in <code>[1, 2, 3]</code> — the “in list … find first occurrence of item …” block → <strong>2</strong>.<br><br>All these blocks are in the Lists category. Both reverse and repeat build a <strong>new</strong> list, leaving the original intact.<br><br><strong>About positions:</strong> Blockly counts from 1 (the first item is 1) and returns 0 when the item is absent. Programming languages count from 0 — see the “List operations” note below.<br><br>★★★ — all three tricks use their own block.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Строки 1–3. Из «Списки» возьмите «изменить порядок на обратный …» и вложите в него «создать список из …» с элементами 1, 2, 3.\n2. Полученный список поставьте в поле блока «для каждого element … в …» (Циклы), а внутрь цикла положите «Добавить текст … цвет …» с переменной element. Запустите: 3, 2, 1.\n3. Строка 4. Возьмите «создать список из элемента …, повторяющегося … раз»: элемент — текст ха, количество — 5. Оберните его блоком «длина …» (Списки) и напечатайте: получится 5.\n4. Строка 5. Возьмите «в списке … найти первое вхождение элемента …»: в поле списка — «создать список из 1 2 3», в поле элемента — 2. Напечатайте: получится 2, потому что Blockly считает с 1.\n5. Проверьте вывод: 3, 2, 1, 5, 2 — и нажмите «Проверить решение».`
+        : `Step by step:\n1. Lines 1–3. From Lists take “reverse …” and put a “create list with …” block inside it holding the items 1, 2, 3.\n2. Place that list into the field of a “for each element … in …” block (Loops) and put “Add text … color …” with the loop variable inside the loop. Run: 3, 2, 1.\n3. Line 4. Take “create list with item … repeated … times”: the item is the text ха, the count is 5. Wrap it in “length of …” (Lists) and print it: you get 5.\n4. Line 5. Take “in list … find first occurrence of item …”: the list field gets “create list with 1 2 3”, the item field gets 2. Print it: you get 2, because Blockly counts from 1.\n5. Check the output: 3, 2, 1, 5, 2 — then press “Check solution”.`,
+    infoTopics: ["list_operations"],
+    validate: validateListOperations,
   },
 };

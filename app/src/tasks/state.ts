@@ -42,8 +42,8 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "chatterbox",
   ],
   fixbugs: [
-    "fb_area",
     "fb_join",
+    "fb_area",
     "fb_parity",
     "fb_loop",
     "fb_list",

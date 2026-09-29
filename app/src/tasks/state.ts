@@ -40,6 +40,10 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "function_return",
     "dice_rolls",
     "chatterbox",
+    "str_length",
+    "str_charat",
+    "str_substring",
+    "str_clean",
   ],
   fixbugs: [
     "fb_join",

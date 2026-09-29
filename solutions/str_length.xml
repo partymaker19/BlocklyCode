@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 29 (str_length): исправленная программа.
+    Печатаем длину слова и это же слово задом наперёд.
+    Ожидаемый вывод: 7, ylkcolB
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">Blockly</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_reverse">
+            <value name="TEXT">
+              <shadow type="text">
+                <field name="TEXT">Blockly</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+      </block>
+    </next>
+  </block>
+</xml>

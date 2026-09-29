@@ -371,6 +371,71 @@ const rows: Row[] = [
     ],
   },
   {
+    id: "str_length",
+    output: ["7", "ylkcolB"],
+    blocks: [
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_length" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_reverse" } } } },
+    ],
+  },
+  {
+    id: "str_charat",
+    output: ["B", "y", "o"],
+    blocks: [
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_charAt" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_charAt" } } } },
+      { type: "add_text", inputs: { TEXT: { block: { type: "text_charAt" } } } },
+    ],
+  },
+  {
+    id: "str_substring",
+    output: ["Blo", "kly", "lockl"],
+    blocks: [
+      {
+        type: "add_text",
+        inputs: { TEXT: { block: { type: "text_getSubstring" } } },
+      },
+      {
+        type: "add_text",
+        inputs: { TEXT: { block: { type: "text_getSubstring" } } },
+      },
+      {
+        type: "add_text",
+        inputs: { TEXT: { block: { type: "text_getSubstring" } } },
+      },
+    ],
+  },
+  {
+    id: "str_clean",
+    output: ["PRIVET!"],
+    blocks: [
+      setV("phrase", { block: { type: "text", fields: { TEXT: "  pri" } } }),
+      {
+        type: "text_append",
+        fields: { VAR: { name: "phrase" } },
+        inputs: { TEXT: { block: { type: "text", fields: { TEXT: "vet!" } } } },
+      },
+      {
+        type: "add_text",
+        inputs: {
+          TEXT: {
+            block: {
+              type: "text_changeCase",
+              inputs: {
+                TEXT: {
+                  block: {
+                    type: "text_trim",
+                    inputs: { TEXT: getV("phrase") },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
+  },
+  {
     id: "a1_number_analyzer",
     output: ["The number is odd", "The number is positive"],
     blocks: [setNum("number", 7), getTop("number"), printB()],
@@ -557,8 +622,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 38 задач", () => {
-    expect(Object.keys(tasks).length).toBe(38);
+  it("в реестре 42 задач", () => {
+    expect(Object.keys(tasks).length).toBe(42);
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {

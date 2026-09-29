@@ -19,7 +19,11 @@ export type GlossaryTopicId =
   | "sorting"
   | "repeat_n_times"
   | "random_numbers"
-  | "user_input";
+  | "user_input"
+  | "string_length"
+  | "string_indexing"
+  | "string_slice"
+  | "string_case_trim";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -253,6 +257,119 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
     blocklyNote(t(
       "В Blockly: категория «Текст» — блоки «Ввод текста» и «Ввод числа»; они возвращают значение, которое присваивают переменной.",
       "In Blockly: the Text category — the “text input” and “numeric input” blocks; they return a value you assign to a variable."
+    )),
+
+  string_length: () =>
+    `<h4>${t("Длина строки и разворот", "String length and reverse")}</h4>` +
+    `<p>${t(
+      "Длина строки — это сколько символов в ней хранится. Символом считается всё: буквы, цифры, знаки препинания и пробелы. Разворот строки — то же самое чтение символов, но с конца.",
+      "A string's length is how many characters it holds. Every character counts: letters, digits, punctuation and spaces. Reversing a string means reading those characters from the end."
+    )}</p>` +
+    partsList([
+      [t("длина", "length"), t("число символов в строке, у \"\" она равна 0", "the number of characters, an empty string has 0")],
+      [t("пробел — символ", "a space is a character"), t("\"привет \" длиннее, чем \"привет\"", "\"hello \" is longer than \"hello\"")],
+      [t("разворот", "reverse"), t("строка наоборот: \"abc\" → \"cba\"", "the string backwards: \"abc\" → \"cba\"")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: длина и разворот слова «Blockly»", "Example: length and reverse of “Blockly”")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const s = "Blockly";\nconsole.log(s.length); // 7\nconsole.log(s.split("").reverse().join("")); // ylkcolB' },
+      { label: "Python", code: 's = "Blockly"\nprint(len(s))      # 7\nprint(s[::-1])     # ylkcolB' },
+      { label: "Lua", code: 'local s = "Blockly"\nprint(#s)                  -- 7\nprint(string.reverse(s))   -- ylkcolB' },
+      { label: "PHP", code: '<?php\n$s = "Blockly";\necho strlen($s) . PHP_EOL; // 7\necho strrev($s) . PHP_EOL; // ylkcolB' },
+    ]) +
+    mistakesList([
+      t("Длина — не последний индекс: у строки из 7 символов последний индекс 6, потому что счёт символов начинается с нуля.", "Length is not the last index: a 7-character string ends at index 6 because counting starts at zero."),
+      t("В JavaScript разворота строки нет — сначала split(''), затем reverse(), потом join('').", "JavaScript has no string reverse — split('') first, then reverse(), then join('')."),
+      t("Путают длину текста и длину списка: блоки «длина текста» и «длина списка» разные.", "Confusing text length with list length — they are different blocks."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: категория «Текст» — блоки «длина текста» и «развернуть».",
+      "In Blockly: the Text category — the “length of text” and “reverse” blocks."
+    )),
+
+  string_indexing: () =>
+    `<h4>${t("Символ по номеру: как считают индексы", "Character by position: how indexes work")}</h4>` +
+    `<p>${t(
+      "Чтобы взять один символ строки, указывают его позицию — индекс. В большинстве языков первый символ имеет индекс 0, а не 1, и это главный источник ошибок. В Blockly можно выбрать удобный способ: первый, последний, «с начала» и «с конца».",
+      "To take a single character you give its position — the index. In most languages the first character has index 0, not 1, which is the main source of bugs. Blockly lets you pick a mode: first, last, from the start, from the end."
+    )}</p>` +
+    partsList([
+      [t("индекс", "index"), t("номер символа в строке", "the number of a character inside the string")],
+      [t("с нуля", "zero-based"), t("JavaScript, Python, PHP: первый символ — 0", "JavaScript, Python, PHP: the first character is 0")],
+      [t("с единицы", "one-based"), t("Lua и блоки Blockly «с начала»: первый символ — 1", "Lua and the Blockly “from start” mode: the first character is 1")],
+      [t("с конца", "from the end"), t("отрицательный индекс: -1 — последний символ", "a negative index: -1 is the last character")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: первый и последний символ", "Example: first and last character")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const s = "Blockly";\nconsole.log(s.charAt(0)); // B\nconsole.log(s.charAt(s.length - 1)); // y' },
+      { label: "Python", code: 's = "Blockly"\nprint(s[0])   # B\nprint(s[-1])  # y' },
+      { label: "Lua", code: 'local s = "Blockly"\nprint(string.sub(s, 1, 1))  -- B\nprint(string.sub(s, -1))    -- y' },
+      { label: "PHP", code: '<?php\n$s = "Blockly";\necho $s[0] . PHP_EOL;            // B\necho substr($s, -1) . PHP_EOL;   // y' },
+    ]) +
+    mistakesList([
+      t("Спрашивают «первый символ» под индексом 1 и получают второй. В JS/Python/PHP первый — это 0.", "Asking for index 1 to get the first character and getting the second one. In JS/Python/PHP the first is 0."),
+      t("Индекс равный длине уже вне строки: у \"Blockly\" индексы 0…6, а 7 — пусто.", "An index equal to the length is out of range: \"Blockly\" has indexes 0…6, index 7 is empty."),
+      t("Режим «с начала» в Blockly считает с 1 — не путайте его с индексом языка.", "Blockly's “from start” mode counts from 1 — don't mix it up with the language index."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: категория «Текст» — блок «в тексте получить …», в выпадающем списке: первый, последний, с начала, с конца.",
+      "In Blockly: the Text category — the “in text get …” block; the dropdown offers first, last, from start, from end."
+    )),
+
+  string_slice: () =>
+    `<h4>${t("Подстрока и срез (slice)", "Substring and slicing")}</h4>` +
+    `<p>${t(
+      "Подстрока — это кусочек строки, вырезанный между двумя позициями. В JavaScript и Python такой приём называют slice («срез»): указывают начало и конец, причём символ на позиции «конец» в результат не входит. В Lua и PHP задают начало и длину или начало и конец.",
+      "A substring is a piece cut out between two positions. In JavaScript and Python this is called slicing: you give a start and an end, and the character at the end position is not included. Lua and PHP take a start and a length instead."
+    )}</p>` +
+    partsList([
+      [t("начало", "start"), t("позиция первого символа кусочка", "the position of the piece's first character")],
+      [t("конец", "end"), t("в JS/Python — позиция ПОСЛЕ последнего символа кусочка", "in JS/Python — the position AFTER the last character of the piece")],
+      [t("с конца", "from the end"), t("отрицательная позиция отсчитывает хвост строки", "a negative position counts from the tail of the string")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: три куска слова «Blockly»", "Example: three pieces of “Blockly”")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const s = "Blockly";\nconsole.log(s.slice(0, 3)); // Blo\nconsole.log(s.slice(-3));   // kly\nconsole.log(s.slice(1, 6)); // lockl' },
+      { label: "Python", code: 's = "Blockly"\nprint(s[0:3])  # Blo\nprint(s[-3:])  # kly\nprint(s[1:6])  # lockl' },
+      { label: "Lua", code: 'local s = "Blockly"\nprint(string.sub(s, 1, 3))   -- Blo\nprint(string.sub(s, -3))     -- kly\nprint(string.sub(s, 2, 6))   -- lockl' },
+      { label: "PHP", code: '<?php\n$s = "Blockly";\necho substr($s, 0, 3) . PHP_EOL;  // Blo\necho substr($s, -3) . PHP_EOL;    // kly\necho substr($s, 1, 5) . PHP_EOL;  // lockl' },
+    ]) +
+    mistakesList([
+      t("В JS/Python правая граница не включается: s.slice(0, 3) даёт 3 символа, а не 4.", "In JS/Python the right bound is exclusive: s.slice(0, 3) yields 3 characters, not 4."),
+      t("В Lua и PHP вторая цифра — часто длина, а не конечная позиция: substr(s, 0, 3) и sub(s, 1, 3) значат разное.", "In Lua and PHP the second number is often a length, not an end position: substr(s, 0, 3) and sub(s, 1, 3) differ."),
+      t("Если начало дальше конца, получается пустая строка, а не ошибка — проверьте границы.", "When the start is past the end you get an empty string, not an error — check the bounds."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: категория «Текст» — блок «в тексте получить подстроку с … по …»; границы переключаются между «с начала», «с конца», «первый» и «последний».",
+      "In Blockly: the Text category — the “in text get substring from … to …” block; each bound switches between from start, from end, first and last."
+    )),
+
+  string_case_trim: () =>
+    `<h4>${t("Регистр, пробелы и дописывание строки", "Case, trimming and appending")}</h4>` +
+    `<p>${t(
+      "Реальные данные приходят «грязными»: с лишними пробелами по краям и в разном регистре. Перед сравнением строку чистят: убирают пробелы (trim) и приводят к одному регистру. Дописывание (append) — способ собирать длинную строку по частям.",
+      "Real-world data arrives dirty: extra spaces around the text and mixed case. Before comparing, clean it up: trim the spaces and normalize the case. Appending is how you build a long string piece by piece."
+    )}</p>` +
+    partsList([
+      [t("trim", "trim"), t("удаляет пробелы только по краям строки", "removes whitespace only at the ends of the string")],
+      [t("верхний/нижний регистр", "upper/lower case"), t("PRI и pri — разные строки для компьютера", "PRI and pri are different strings for a computer")],
+      [t("append", "append"), t("дописать текст к переменной, не перезаписывая её", "add text to a variable without overwriting it")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: очистить и поднять регистр", "Example: clean up and uppercase")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'let s = "  pri";\ns += "vet!";\nconsole.log(s.trim().toUpperCase()); // PRIVET!' },
+      { label: "Python", code: 's = "  pri"\ns += "vet!"\nprint(s.strip().upper())  # PRIVET!' },
+      { label: "Lua", code: 'local s = "  pri"\ns = s .. "vet!"\nlocal t = s:match("^%s*(.-)%s*$")\nprint(t:upper())  -- PRIVET!' },
+      { label: "PHP", code: '<?php\n$s = "  pri";\n$s .= "vet!";\necho strtoupper(trim($s)) . PHP_EOL; // PRIVET!' },
+    ]) +
+    mistakesList([
+      t("trim не трогает пробелы внутри строки: \" pri vet \" останется с двойным пробелом посередине.", "trim leaves inner spaces alone: \" pri vet \" still has a double space in the middle."),
+      t("Сравнивают строки разного регистра и получают «не равно». Сначала — к одному регистру, потом сравнивать.", "Comparing strings of different case returns “not equal”. Normalize the case first, then compare."),
+      t("Функции регистра не меняют строку на месте в JS и Python — результат нужно присвоить.", "Case functions do not mutate the string in JS and Python — assign the result."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: категория «Текст» — «изменить регистр», «убрать пробелы» и «добавить к переменной текст».",
+      "In Blockly: the Text category — “change case”, “trim whitespace” and “add text to variable”."
     )),
 };
 

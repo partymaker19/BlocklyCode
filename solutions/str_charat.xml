@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 30 (str_charat): исправленная программа.
+    Первая буква, последняя буква и третья буква слова.
+    Ожидаемый вывод: B, y, o
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="text_charAt">
+        <field name="WHERE">FIRST</field>
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">Blockly</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_charAt">
+            <field name="WHERE">LAST</field>
+            <value name="VALUE">
+              <shadow type="text">
+                <field name="TEXT">Blockly</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_charAt">
+                <field name="WHERE">FROM_START</field>
+                <value name="VALUE">
+                  <shadow type="text">
+                    <field name="TEXT">Blockly</field>
+                  </shadow>
+                </value>
+                <value name="AT">
+                  <shadow type="math_number">
+                    <field name="NUM">3</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

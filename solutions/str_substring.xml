@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 31 (str_substring): исправленная программа.
+    Три куска слова: первые 3 буквы, последние 3 буквы, слово без первой и последней.
+    Ожидаемый вывод: Blo, kly, lockl
+  -->
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <block type="text_getSubstring">
+        <mutation at1="false" at2="true"></mutation>
+        <field name="WHERE1">FIRST</field>
+        <field name="WHERE2">FROM_START</field>
+        <value name="STRING">
+          <shadow type="text">
+            <field name="TEXT">Blockly</field>
+          </shadow>
+        </value>
+        <value name="AT2">
+          <shadow type="math_number">
+            <field name="NUM">3</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_getSubstring">
+            <mutation at1="true" at2="false"></mutation>
+            <field name="WHERE1">FROM_END</field>
+            <field name="WHERE2">LAST</field>
+            <value name="STRING">
+              <shadow type="text">
+                <field name="TEXT">Blockly</field>
+              </shadow>
+            </value>
+            <value name="AT1">
+              <shadow type="math_number">
+                <field name="NUM">3</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_getSubstring">
+                <mutation at1="true" at2="true"></mutation>
+                <field name="WHERE1">FROM_START</field>
+                <field name="WHERE2">FROM_END</field>
+                <value name="STRING">
+                  <shadow type="text">
+                    <field name="TEXT">Blockly</field>
+                  </shadow>
+                </value>
+                <value name="AT1">
+                  <shadow type="math_number">
+                    <field name="NUM">2</field>
+                  </shadow>
+                </value>
+                <value name="AT2">
+                  <shadow type="math_number">
+                    <field name="NUM">2</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

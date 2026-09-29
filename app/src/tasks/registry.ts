@@ -7,6 +7,7 @@ import { conditionsTasks } from "./conditions";
 import { loopsTasks } from "./loops";
 import { listsTasks } from "./lists";
 import { functionsTasks } from "./functions";
+import { textTasks } from "./text";
 import { fixbugsTasks } from "./fixbugs";
 import { advancedTasks } from "./advanced";
 
@@ -17,6 +18,7 @@ export const tasks: TaskRegistry = {
   ...loopsTasks,
   ...listsTasks,
   ...functionsTasks,
+  ...textTasks,
   ...fixbugsTasks,
   ...advancedTasks,
 };

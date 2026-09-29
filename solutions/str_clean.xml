@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 32 (str_clean): исправленная программа.
+    Собираем фразу дописыванием, убираем пробелы по краям и поднимаем регистр.
+    Ожидаемый вывод: PRIVET!
+  -->
+  <variables>
+    <variable id="var_phrase">phrase</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_phrase">phrase</field>
+    <value name="VALUE">
+      <shadow type="text">
+        <field name="TEXT">  pri</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="text_append">
+        <field name="VAR" id="var_phrase">phrase</field>
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">vet!</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_changeCase">
+                <field name="CASE">UPPERCASE</field>
+                <value name="TEXT">
+                  <block type="text_trim">
+                    <field name="MODE">BOTH</field>
+                    <value name="TEXT">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_phrase">phrase</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

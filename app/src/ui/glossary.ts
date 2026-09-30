@@ -200,10 +200,10 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
     ]) +
     `<h4 style="margin-top:12px;">${t("Пример: сказать «Привет» 3 раза", "Example: say “Hello” 3 times")}</h4>` +
     examplesBlock([
-      { label: "JavaScript", code: "for (let k = 0; k < 3; k++) {\n  console.log(\"Привет\");\n}" },
+      { label: "JavaScript", code: "for (let i = 0; i < 3; i++) {\n  console.log(\"Привет\");\n}" },
       { label: "Python", code: "for _ in range(3):\n    print(\"Привет\")" },
       { label: "Lua", code: "for _ = 1, 3 do\n  print(\"Привет\")\nend" },
-      { label: "PHP", code: "<?php\nfor ($k = 0; $k < 3; $k++) {\n  echo \"Привет\" . PHP_EOL;\n}" },
+      { label: "PHP", code: "<?php\nfor ($i = 0; $i < 3; $i++) {\n  echo \"Привет\" . PHP_EOL;\n}" },
     ]) +
     mistakesList([
       t("Ставят «повторить» там, где нужен счётчик (например, числа 1…10) — берите «цикл по i».", "Using “repeat” where a counter is needed (e.g. printing 1…10) — take “count with i” instead."),

@@ -383,7 +383,7 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoForEachHeader: "Что такое forEach",
           ListInfoForEachBefore:
             "forEach означает «для каждого элемента списка». В нашем интерфейсе этот блок называется ",
-          ListInfoForEachBlockName: "«для каждого элемента k в списке»",
+          ListInfoForEachBlockName: "«для каждого элемента i в списке»",
           ListInfoForEachAfter:
             " — это одно и то же по смыслу. Он берёт элементы списка по очереди и внутри цикла даёт вам текущий элемент (например, ",
           ListInfoForEachMid: " или ",
@@ -407,7 +407,7 @@ export function localizeImportUI(lang: AppLang): void {
           SublistInfoStep2:
             "Возьмите подсписок блоком «взять подсписок» (Lists → get sub-list) и сохраните в sub",
           SublistInfoStep3:
-            "Сделайте «для каждого элемента k в списке» по sub и выводите k",
+            "Сделайте «для каждого элемента i в списке» по sub и выводите i",
           SublistInfoNote:
             "Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.",
           SublistLangHeader: "Примеры в языках",
@@ -415,19 +415,19 @@ export function localizeImportUI(lang: AppLang): void {
             "В JavaScript метод slice(start, end) берёт часть массива и возвращает новый массив (исходный не меняется). Индексация с 0, а end не включается. Например, чтобы взять элементы со 2-го по 4-й, можно сделать slice(1, 4).",
           SublistJsHeader: "JavaScript: .slice(start, end)",
           SublistJsCode:
-            "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((k) => console.log(k));",
+            "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((i) => console.log(i));",
           SublistJsExplain: "start включается, end не включается.",
           SublistPyHeader: "Python: list[start:end]",
           SublistPyCode:
-            "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor k in sub:\n    print(k)",
+            "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor i in sub:\n    print(i)",
           SublistPyExplain: "start включается, end не включается.",
           SublistLuaHeader: "Lua: собрать подсписок вручную",
           SublistLuaCode:
-            "local list = {10,20,30,40,50,60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
+            "local list = {10,20,30,40,50,60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, i in ipairs(sub) do\n  print(i)\nend",
           SublistLuaExplain: "В Lua индексация обычно начинается с 1.",
           SublistPhpHeader: "PHP: array_slice",
           SublistPhpCode:
-            "$list = [10,20,30,40,50,60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
+            "$list = [10,20,30,40,50,60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $i) {\n  echo $i . PHP_EOL;\n}",
           SublistPhpExplain:
             "В PHP array_slice: offset с 0 и length — сколько элементов.",
           SublistAltNote:
@@ -437,40 +437,40 @@ export function localizeImportUI(lang: AppLang): void {
             "Фильтрация — это когда мы перебираем элементы списка и оставляем только те, которые подходят под условие. Например: “только чётные числа”.",
           ListFilterHowHeader: "Как сделать",
           ListFilterStep1:
-            "Переберите list блоком «для каждого элемента k в списке»",
+            "Переберите list блоком «для каждого элемента i в списке»",
           ListFilterStep2:
-            "Внутри цикла сделайте if с проверкой чётности: k % 2 == 0",
+            "Внутри цикла сделайте if с проверкой чётности: i % 2 == 0",
           ListFilterStep3:
-            "Если условие истинно — выводите k и добавляйте его в sum",
+            "Если условие истинно — выводите i и добавляйте его в sum",
           ListFilterNote:
             "Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри if.",
           ListFilterLangHeader: "Примеры в языках",
           ListFilterJsNote:
             "В JavaScript можно писать по-разному: Blockly может сгенерировать цикл for, а в примерах ниже показан вариант с forEach. Результат одинаковый. Если хотите, вы можете создать себе пользовательский блок (в «Мои блоки») с генерацией forEach.",
           ListFilterJsCode:
-            "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
+            "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((i) => {\n  if (i % 2 === 0) {\n    console.log(i);\n    sum = sum + i;\n  }\n});\nconsole.log(sum);",
           ListFilterPyCode:
-            "list = [3, 4, 7, 12, 15]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
+            "list = [3, 4, 7, 12, 15]\nsum = 0\nfor i in list:\n    if i % 2 == 0:\n        print(i)\n        sum = sum + i\nprint(sum)",
           ListFilterLuaCode:
-            "local list = {3,4,7,12,15}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
+            "local list = {3,4,7,12,15}\nlocal sum = 0\nfor _, i in ipairs(list) do\n  if i % 2 == 0 then\n    print(i)\n    sum = sum + i\n  end\nend\nprint(sum)",
           ListFilterPhpCode:
-            "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
+            "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $i) {\n  if ($i % 2 == 0) {\n    echo $i . PHP_EOL;\n    $sum = $sum + $i;\n  }\n}\necho $sum . PHP_EOL;",
           ListFilterMinMaxHeader: "Минимум и максимум среди отфильтрованных",
           ListFilterMinMaxText:
             "Частая задача: сначала отобрать элементы (например, чётные), а потом найти среди них минимум и максимум. Один удобный способ — собрать отдельный список evens, а затем найти min и max для этого списка.",
           ListFilterMinMaxNewHeader: "Новые слова в коде",
           ListFilterMinMaxPushText:
-            "evens.push(k) — добавить элемент в конец массива evens (JavaScript).",
+            "evens.push(i) — добавить элемент в конец массива evens (JavaScript).",
           ListFilterMinMaxDotText:
             "Точка в evens.push означает «взять метод у объекта/массива»: у массива evens есть метод push.",
           ListFilterMinMaxApplyText:
             "Иногда генерация Blockly в JS использует Math.min.apply(null, evens) вместо Math.min(...evens). Это два способа «передать элементы массива как аргументы функции».",
           ListFilterMinMaxAppendText:
-            "evens.append(k) — добавить элемент в конец списка evens (Python).",
+            "evens.append(i) — добавить элемент в конец списка evens (Python).",
           ListFilterMinMaxJsCode:
-            "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((k) => {\n  if (k % 2 === 0) evens.push(k);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
+            "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((i) => {\n  if (i % 2 === 0) evens.push(i);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
           ListFilterMinMaxPyCode:
-            'list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor k in list:\n    if k % 2 == 0:\n        evens.append(k)\nprint("min=" + str(min(evens)))\nprint("max=" + str(max(evens)))',
+            'list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor i in list:\n    if i % 2 == 0:\n        evens.append(i)\nprint("min=" + str(min(evens)))\nprint("max=" + str(max(evens)))',
           CondOpGtDesc: "больше",
           CondOpLtDesc: "меньше",
           CondOpGteDesc: "больше или равно",
@@ -710,7 +710,7 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoForEachHeader: "What is forEach",
           ListInfoForEachBefore:
             "forEach means “for each item in the list”. In our interface this block is called ",
-          ListInfoForEachBlockName: "“for each item k in list”",
+          ListInfoForEachBlockName: "“for each item i in list”",
           ListInfoForEachAfter:
             " — it’s the same idea. It goes through list items one by one and gives you the current item (for example, ",
           ListInfoForEachMid: " or ",
@@ -733,7 +733,7 @@ export function localizeImportUI(lang: AppLang): void {
           SublistInfoStep2:
             "Use the Lists “get sub-list” block and store the result in sub",
           SublistInfoStep3:
-            "Use “for each item k in list” over sub and print k",
+            "Use “for each item i in list” over sub and print i",
           SublistInfoNote:
             "A sublist is useful when you need only a part of the elements, so you don’t need extra conditions inside the loop.",
           SublistLangHeader: "Language examples",
@@ -741,19 +741,19 @@ export function localizeImportUI(lang: AppLang): void {
             "In JavaScript, slice(start, end) returns a new array containing a part of the array (the original is not modified). Indexing starts at 0 and end is excluded. For example, to take items 2..4 you can use slice(1, 4).",
           SublistJsHeader: "JavaScript: .slice(start, end)",
           SublistJsCode:
-            "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((k) => console.log(k));",
+            "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((i) => console.log(i));",
           SublistJsExplain: "start is included, end is excluded.",
           SublistPyHeader: "Python: list[start:end]",
           SublistPyCode:
-            "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor k in sub:\n    print(k)",
+            "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor i in sub:\n    print(i)",
           SublistPyExplain: "start is included, end is excluded.",
           SublistLuaHeader: "Lua: build a sublist manually",
           SublistLuaCode:
-            "local list = {10,20,30,40,50,60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, k in ipairs(sub) do\n  print(k)\nend",
+            "local list = {10,20,30,40,50,60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, i in ipairs(sub) do\n  print(i)\nend",
           SublistLuaExplain: "In Lua indexing usually starts at 1.",
           SublistPhpHeader: "PHP: array_slice",
           SublistPhpCode:
-            "$list = [10,20,30,40,50,60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $k) {\n  echo $k . PHP_EOL;\n}",
+            "$list = [10,20,30,40,50,60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $i) {\n  echo $i . PHP_EOL;\n}",
           SublistPhpExplain:
             "In PHP array_slice uses a 0-based offset and a length.",
           SublistAltNote:
@@ -762,38 +762,38 @@ export function localizeImportUI(lang: AppLang): void {
           ListFilterIntro:
             "Filtering is when you iterate over a list and keep only the items that match a condition. For example: “only even numbers”.",
           ListFilterHowHeader: "How to do it",
-          ListFilterStep1: "Iterate over list using “for each item k in list”",
-          ListFilterStep2: "Inside the loop, add an if: k % 2 == 0",
-          ListFilterStep3: "If true, print k and add it to sum",
+          ListFilterStep1: "Iterate over list using “for each item i in list”",
+          ListFilterStep2: "Inside the loop, add an if: i % 2 == 0",
+          ListFilterStep3: "If true, print i and add it to sum",
           ListFilterNote:
             "Note: filtering doesn’t require creating a separate sublist — you can just print matching items inside the if.",
           ListFilterLangHeader: "Language examples",
           ListFilterJsNote:
             "In JavaScript you can write it in different ways: Blockly may generate a for loop, while the examples below use forEach. The result is the same. If you want, you can create a custom block (in “My Blocks”) that generates forEach.",
           ListFilterJsCode:
-            "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((k) => {\n  if (k % 2 === 0) {\n    console.log(k);\n    sum = sum + k;\n  }\n});\nconsole.log(sum);",
+            "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((i) => {\n  if (i % 2 === 0) {\n    console.log(i);\n    sum = sum + i;\n  }\n});\nconsole.log(sum);",
           ListFilterPyCode:
-            "list = [3, 4, 7, 12, 15]\nsum = 0\nfor k in list:\n    if k % 2 == 0:\n        print(k)\n        sum = sum + k\nprint(sum)",
+            "list = [3, 4, 7, 12, 15]\nsum = 0\nfor i in list:\n    if i % 2 == 0:\n        print(i)\n        sum = sum + i\nprint(sum)",
           ListFilterLuaCode:
-            "local list = {3,4,7,12,15}\nlocal sum = 0\nfor _, k in ipairs(list) do\n  if k % 2 == 0 then\n    print(k)\n    sum = sum + k\n  end\nend\nprint(sum)",
+            "local list = {3,4,7,12,15}\nlocal sum = 0\nfor _, i in ipairs(list) do\n  if i % 2 == 0 then\n    print(i)\n    sum = sum + i\n  end\nend\nprint(sum)",
           ListFilterPhpCode:
-            "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $k) {\n  if ($k % 2 == 0) {\n    echo $k . PHP_EOL;\n    $sum = $sum + $k;\n  }\n}\necho $sum . PHP_EOL;",
+            "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $i) {\n  if ($i % 2 == 0) {\n    echo $i . PHP_EOL;\n    $sum = $sum + $i;\n  }\n}\necho $sum . PHP_EOL;",
           ListFilterMinMaxHeader: "Min and max among filtered items",
           ListFilterMinMaxText:
             "A common task: first keep only matching items (for example, evens), then find the minimum and maximum among them. A convenient approach is to build a separate evens list and then compute min and max for that list.",
           ListFilterMinMaxNewHeader: "New words in the code",
           ListFilterMinMaxPushText:
-            "evens.push(k) — add an item to the end of the evens array (JavaScript).",
+            "evens.push(i) — add an item to the end of the evens array (JavaScript).",
           ListFilterMinMaxDotText:
             "The dot in evens.push means “call a method on an object/array”: the evens array has a push method.",
           ListFilterMinMaxApplyText:
             "Sometimes Blockly’s JS generator uses Math.min.apply(null, evens) instead of Math.min(...evens). Both pass array items as function arguments.",
           ListFilterMinMaxAppendText:
-            "evens.append(k) — add an item to the end of the evens list (Python).",
+            "evens.append(i) — add an item to the end of the evens list (Python).",
           ListFilterMinMaxJsCode:
-            "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((k) => {\n  if (k % 2 === 0) evens.push(k);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
+            "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nlist.forEach((i) => {\n  if (i % 2 === 0) evens.push(i);\n});\nconst min = Math.min(...evens);\nconst max = Math.max(...evens);\nconsole.log(`min=${min}`);\nconsole.log(`max=${max}`);",
           ListFilterMinMaxPyCode:
-            'list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor k in list:\n    if k % 2 == 0:\n        evens.append(k)\nprint("min=" + str(min(evens)))\nprint("max=" + str(max(evens)))',
+            'list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor i in list:\n    if i % 2 == 0:\n        evens.append(i)\nprint("min=" + str(min(evens)))\nprint("max=" + str(max(evens)))',
           CondOpGtDesc: "greater than",
           CondOpLtDesc: "less than",
           CondOpGteDesc: "greater or equal",

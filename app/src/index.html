@@ -3081,10 +3081,10 @@ echo "Готово!" . PHP_EOL;</code></pre>
             <p>
               <span id="listInfoForEachBefore"><strong>forEach</strong> означает «для каждого элемента списка». В
                 нашем
-                интерфейсе этот блок называется </span><strong id="listInfoForEachBlockName">«для каждого элемента k в
+                интерфейсе этот блок называется </span><strong id="listInfoForEachBlockName">«для каждого элемента i в
                 списке»</strong><span id="listInfoForEachAfter"> — это одно и то же по смыслу. Он берёт элементы
                 списка
-                по очереди и внутри цикла даёт вам текущий элемент (например, </span><code>k</code><span
+                по очереди и внутри цикла даёт вам текущий элемент (например, </span><code>i</code><span
                 id="listInfoForEachMid"> или </span><code>item</code><span id="listInfoForEachEnd">).</span>
             </p>
             <p id="listInfoJsNote" style="font-size: 0.9em; font-style: italic;">
@@ -3096,35 +3096,35 @@ echo "Готово!" . PHP_EOL;</code></pre>
               <li><strong>JavaScript</strong>
                 <pre><code>const list = [1, 2, 3, 4, 5];
 let sum = 0;
-list.forEach((k) => {
-  console.log(k);
-  sum = sum + k;
+list.forEach((i) => {
+  console.log(i);
+  sum = sum + i;
 });
 console.log(sum);</code></pre>
               </li>
               <li><strong>Python</strong>
                 <pre><code>list = [1, 2, 3, 4, 5]
 sum = 0
-for k in list:
-    print(k)
-    sum = sum + k
+for i in list:
+    print(i)
+    sum = sum + i
 print(sum)</code></pre>
               </li>
               <li><strong>Lua</strong>
                 <pre><code>local list = {1, 2, 3, 4, 5}
 local sum = 0
-for _, k in ipairs(list) do
-  print(k)
-  sum = sum + k
+for _, i in ipairs(list) do
+  print(i)
+  sum = sum + i
 end
 print(sum)</code></pre>
               </li>
               <li><strong>PHP</strong>
                 <pre><code>$list = [1, 2, 3, 4, 5];
 $sum = 0;
-foreach ($list as $k) {
-  echo $k . PHP_EOL;
-  $sum = $sum + $k;
+foreach ($list as $i) {
+  echo $i . PHP_EOL;
+  $sum = $sum + $i;
 }
 echo $sum . PHP_EOL;</code></pre>
               </li>
@@ -3149,7 +3149,7 @@ echo $sum . PHP_EOL;</code></pre>
               <li id="sublistInfoStep2">Возьмите подсписок блоком «взять подсписок» (Lists → get sub-list) и сохраните
                 в
                 sub</li>
-              <li id="sublistInfoStep3">Сделайте «для каждого элемента k в списке» по sub и выводите k</li>
+              <li id="sublistInfoStep3">Сделайте «для каждого элемента i в списке» по sub и выводите i</li>
             </ul>
             <p id="sublistInfoNote" style="font-size: 0.9em; font-style: italic;">
               Подсписок удобен, когда нужна только часть элементов: тогда не приходится писать условия внутри цикла.
@@ -3165,15 +3165,15 @@ echo $sum . PHP_EOL;</code></pre>
                 <strong id="sublistJsHeader">JavaScript: .slice(start, end)</strong>
                 <pre><code id="sublistJsCode">const list = [10, 20, 30, 40, 50, 60];
 const sub = list.slice(1, 4);
-sub.forEach((k) => console.log(k));</code></pre>
+sub.forEach((i) => console.log(i));</code></pre>
                 <div id="sublistJsExplain">start включается, end не включается.</div>
               </li>
               <li>
                 <strong id="sublistPyHeader">Python: list[start:end]</strong>
                 <pre><code id="sublistPyCode">list = [10, 20, 30, 40, 50, 60]
 sub = list[1:4]
-for k in sub:
-    print(k)</code></pre>
+for i in sub:
+    print(i)</code></pre>
                 <div id="sublistPyExplain">start включается, end не включается.</div>
               </li>
               <li>
@@ -3183,8 +3183,8 @@ local sub = {}
 for i = 2, 4 do
   table.insert(sub, list[i])
 end
-for _, k in ipairs(sub) do
-  print(k)
+for _, i in ipairs(sub) do
+  print(i)
 end</code></pre>
                 <div id="sublistLuaExplain">В Lua индексация обычно начинается с 1.</div>
               </li>
@@ -3192,8 +3192,8 @@ end</code></pre>
                 <strong id="sublistPhpHeader">PHP: array_slice</strong>
                 <pre><code id="sublistPhpCode">$list = [10,20,30,40,50,60];
 $sub = array_slice($list, 1, 3);
-foreach ($sub as $k) {
-  echo $k . PHP_EOL;
+foreach ($sub as $i) {
+  echo $i . PHP_EOL;
 }</code></pre>
                 <div id="sublistPhpExplain">В PHP array_slice: offset с 0 и length — сколько элементов.</div>
               </li>
@@ -3210,9 +3210,9 @@ foreach ($sub as $k) {
               которые подходят под условие. Например: “только чётные числа”.
             <h4 id="listFilterHowHeader" style="margin-top:12px;">Как сделать</h4>
             <ul>
-              <li id="listFilterStep1">Переберите list блоком «для каждого элемента k в списке»</li>
-              <li id="listFilterStep2">Внутри цикла сделайте if с проверкой чётности: k % 2 == 0</li>
-              <li id="listFilterStep3">Если условие истинно — выводите k и добавляйте его в sum</li>
+              <li id="listFilterStep1">Переберите list блоком «для каждого элемента i в списке»</li>
+              <li id="listFilterStep2">Внутри цикла сделайте if с проверкой чётности: i % 2 == 0</li>
+              <li id="listFilterStep3">Если условие истинно — выводите i и добавляйте его в sum</li>
             </ul>
             <p id="listFilterNote" style="font-size: 0.9em; font-style: italic;">
               Важно: фильтрация не требует отдельного “подсписка” — можно просто печатать подходящие элементы внутри
@@ -3229,10 +3229,10 @@ foreach ($sub as $k) {
                 <strong>JavaScript</strong>
                 <pre><code id="listFilterJsCode">const list = [3, 4, 7, 12, 15];
 let sum = 0;
-list.forEach((k) => {
-  if (k % 2 === 0) {
-    console.log(k);
-    sum = sum + k;
+list.forEach((i) => {
+  if (i % 2 === 0) {
+    console.log(i);
+    sum = sum + i;
   }
 });
 console.log(sum);</code></pre>
@@ -3241,20 +3241,20 @@ console.log(sum);</code></pre>
                 <strong>Python</strong>
                 <pre><code id="listFilterPyCode">list = [3, 4, 7, 12, 15]
 sum = 0
-for k in list:
-    if k % 2 == 0:
-        print(k)
-        sum = sum + k
+for i in list:
+    if i % 2 == 0:
+        print(i)
+        sum = sum + i
 print(sum)</code></pre>
               </li>
               <li>
                 <strong>Lua</strong>
                 <pre><code id="listFilterLuaCode">local list = {3,4,7,12,15}
 local sum = 0
-for _, k in ipairs(list) do
-  if k % 2 == 0 then
-    print(k)
-    sum = sum + k
+for _, i in ipairs(list) do
+  if i % 2 == 0 then
+    print(i)
+    sum = sum + i
   end
 end
 print(sum)</code></pre>
@@ -3263,10 +3263,10 @@ print(sum)</code></pre>
                 <strong>PHP</strong>
                 <pre><code id="listFilterPhpCode">$list = [3, 4, 7, 12, 15];
 $sum = 0;
-foreach ($list as $k) {
-  if ($k % 2 == 0) {
-    echo $k . PHP_EOL;
-    $sum = $sum + $k;
+foreach ($list as $i) {
+  if ($i % 2 == 0) {
+    echo $i . PHP_EOL;
+    $sum = $sum + $i;
   }
 }
 echo $sum . PHP_EOL;</code></pre>
@@ -3281,7 +3281,7 @@ echo $sum . PHP_EOL;</code></pre>
             <h4 id="listFilterMinMaxNewHeader" style="margin-top:12px;">Новые слова в коде</h4>
             <ul style="margin-top:6px;">
               <li id="listFilterMinMaxPushText">
-                <code>evens.push(k)</code> — добавить элемент в конец массива <code>evens</code> (JavaScript).
+                <code>evens.push(i)</code> — добавить элемент в конец массива <code>evens</code> (JavaScript).
               </li>
               <li id="listFilterMinMaxDotText">
                 Точка в <code>evens.push</code> означает «взять метод у объекта/массива»: у массива <code>evens</code>
@@ -3292,15 +3292,15 @@ echo $sum . PHP_EOL;</code></pre>
                 <code>Math.min(...evens)</code>. Это два способа «передать элементы массива как аргументы функции».
               </li>
               <li id="listFilterMinMaxAppendText">
-                <code>evens.append(k)</code> — добавить элемент в конец списка <code>evens</code> (Python).
+                <code>evens.append(i)</code> — добавить элемент в конец списка <code>evens</code> (Python).
               </li>
             </ul>
             <ul class="code-examples">
               <li><strong>JavaScript</strong>
                 <pre><code id="listFilterMinMaxJsCode">const list = [5, 2, 9, 4, 1, 8];
 const evens = [];
-list.forEach((k) => {
-  if (k % 2 === 0) evens.push(k);
+list.forEach((i) => {
+  if (i % 2 === 0) evens.push(i);
 });
 const min = Math.min(...evens);
 const max = Math.max(...evens);
@@ -3310,9 +3310,9 @@ console.log(`max=${max}`);</code></pre>
               <li><strong>Python</strong>
                 <pre><code id="listFilterMinMaxPyCode">list = [5, 2, 9, 4, 1, 8]
 evens = []
-for k in list:
-    if k % 2 == 0:
-        evens.append(k)
+for i in list:
+    if i % 2 == 0:
+        evens.append(i)
 print("min=" + str(min(evens)))
 print("max=" + str(max(evens)))</code></pre>
               </li>

@@ -6,10 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { computeBadges, markActivityToday, streakInfo } from "../src/ui/badges";
 
 function setStreak(lastDay: string | null, current: number, best: number) {
-  localStorage.setItem(
-    "task_streak_v1",
-    JSON.stringify({ lastDay, current, best }),
-  );
+  localStorage.setItem("task_streak_v1", JSON.stringify({ lastDay, current, best }));
 }
 
 function isoDay(offsetDays: number): string {
@@ -78,6 +75,7 @@ describe("computeBadges (достижения)", () => {
     progress: {} as Record<string, { solved: boolean; stars: number }>,
     solvedBasicCount: 0,
     basicTotal: 26,
+    totalTasks: 59,
   };
 
   it("новичок: ничего не заработано", () => {
@@ -101,6 +99,15 @@ describe("computeBadges (достижения)", () => {
     });
     expect(badges.find((b) => b.id === "all_basic")!.earned).toBe(true);
     expect(badges.find((b) => b.id === "all_tasks")!.earned).toBe(false);
+  });
+
+  it("середина и полное прохождение считаются от числа задач в реестре", () => {
+    const ctx = { ...base, totalTasks: 39 };
+    const atHalf = computeBadges({ ...ctx, solvedCount: 20 });
+    expect(atHalf.find((b) => b.id === "half_way")!.earned).toBe(true);
+    expect(atHalf.find((b) => b.id === "all_tasks")!.earned).toBe(false);
+    const atEnd = computeBadges({ ...ctx, solvedCount: 39 });
+    expect(atEnd.find((b) => b.id === "all_tasks")!.earned).toBe(true);
   });
 
   it("перфекционист: 10 задач с 3 звёздами", () => {

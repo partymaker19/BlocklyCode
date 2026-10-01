@@ -341,8 +341,46 @@ async function validateLogicAndOrNot(
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (count <= 20) stars = 3; // 3 × (если + две печати) + логика + сравнения
+    if (count <= 20)
+      stars = 3; // 3 × (если + две печати) + логика + сравнения
     else if (count <= 26) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+/** Число блоков «… и …» / «… или …» с нужным режимом (OP = AND или OR). */
+function logicOperationCount(ws: Blockly.WorkspaceSvg, op: string): number {
+  try {
+    return getNonShadowBlocks(ws).filter(
+      (b: any) => b.type === "logic_operation" && String(b.getFieldValue("OP")) === op
+    ).length;
+  } catch {
+    return 0;
+  }
+}
+
+async function validateLogicGateCheck(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const types = logicBlockTypes(ws);
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+  const ok =
+    logicOperationCount(ws, "AND") >= 1 &&
+    logicOperationCount(ws, "OR") >= 1 &&
+    logicCountOf(types, "logic_negate") >= 1 &&
+    logicCountOf(types, "controls_if") >= 3 &&
+    logicCountOf(types, "logic_compare") >= 5 &&
+    logicCountOf(types, "variables_set") >= 2 &&
+    lines.slice(0, 3).join(",") === "YES,NO,YES" &&
+    lines.length === 3;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 30) stars = 3;
+    else if (count <= 38) stars = 2;
     else stars = 1;
   }
   return { ok, stars };
@@ -379,12 +417,13 @@ export const conditionsTasks: Pick<
   | "even_or_odd"
   | "time_of_day"
   | "logic_and_or_not"
+  | "logic_gate_check"
   | "logic_ternary_task"
 > = {
   first_condition: {
     id: "first_condition",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 8: Первое условие" : "Task 8: First condition"),
+    title: (lang) => (lang === "ru" ? "Задача 10: Первое условие" : "Task 10: First condition"),
     description: (lang) =>
       lang === "ru"
         ? 'Создайте переменную <strong>temperature</strong> и сохраните в неё какое-либо число. Задача: проверьте, что температура выше нуля. Если это так — выведите фразу <strong>"The weather is warm"</strong>. Если нет — не выводите ничего.'
@@ -398,7 +437,7 @@ export const conditionsTasks: Pick<
   even_or_odd: {
     id: "even_or_odd",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 9: Чётное или нечётное" : "Task 9: Even or Odd"),
+    title: (lang) => (lang === "ru" ? "Задача 11: Чётное или нечётное" : "Task 11: Even or Odd"),
     description: (lang) =>
       lang === "ru"
         ? 'Создайте переменную <strong>number</strong> и сохраните в неё любое целое число. Напишите программу, которая определяет, является ли число <strong>чётным</strong> или <strong>нечётным</strong>, и выводит сообщение:<br><br>Если число чётное, выведите <strong>"Число чётное"</strong> (или <strong>"The number is even"</strong>).<br>Если число нечётное, выведите <strong>"Число нечётное"</strong> (или <strong>"The number is odd"</strong>).'
@@ -412,7 +451,7 @@ export const conditionsTasks: Pick<
   time_of_day: {
     id: "time_of_day",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 10: Время суток" : "Task 10: Time of Day"),
+    title: (lang) => (lang === "ru" ? "Задача 15: Время суток" : "Task 15: Time of Day"),
     description: (lang) =>
       lang === "ru"
         ? 'Создайте переменную <strong>hour</strong> и сохраните в неё текущий час (число от <strong>0</strong> до <strong>23</strong>). Напишите программу, которая определяет время суток и выводит сообщение:<br><br>Если <strong>hour</strong> от <strong>6</strong> до <strong>11</strong> → <strong>"Good morning!"</strong><br>Если <strong>hour</strong> от <strong>12</strong> до <strong>17</strong> → <strong>"Good afternoon!"</strong><br>Если <strong>hour</strong> от <strong>18</strong> до <strong>22</strong> → <strong>"Good evening!"</strong><br>Иначе → <strong>"Good night!"</strong>'
@@ -426,10 +465,7 @@ export const conditionsTasks: Pick<
   logic_and_or_not: {
     id: "logic_and_or_not",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru"
-        ? "Задача 36: И, ИЛИ, НЕ"
-        : "Task 36: AND, OR, NOT",
+    title: (lang) => (lang === "ru" ? "Задача 12: И, ИЛИ, НЕ" : "Task 12: AND, OR, NOT"),
     description: (lang) =>
       lang === "ru"
         ? `Условия можно объединять. Число <strong>14</strong> уже «знает» компьютер — проверьте три утверждения и напечатайте по строке на каждое: <strong>YES</strong>, если утверждение верно, и <strong>NO</strong>, если неверно.<br><br>1) «14 больше 10 <strong>И</strong> 14 меньше 12» — блок «… и …»;<br>2) «14 больше 20 <strong>ИЛИ</strong> 14 меньше 15» — блок «… или …»;<br>3) <strong>НЕ</strong> «14 больше 13» — блок «не …».<br><br>Правильный вывод — три строки: <strong>NO</strong>, <strong>YES</strong>, <strong>NO</strong>.<br><br>«И» требует, чтобы выполнились <strong>обе</strong> части; «ИЛИ» довольствуется <strong>одной</strong>; «НЕ» переворачивает ответ. Про слова YES и NO: их печатают буквами, чтобы вывод не зависел от языка интерфейса.<br><br>★★★ — три проверки собраны блоками «и», «или» и «не».`
@@ -441,13 +477,27 @@ export const conditionsTasks: Pick<
     infoTopics: ["boolean_logic"],
     validate: validateLogicAndOrNot,
   },
+  logic_gate_check: {
+    id: "logic_gate_check",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 13: Пропуск в Гильдию" : "Task 13: Guild Entry Check",
+    description: (lang) =>
+      lang === "ru"
+        ? `Разминка следопыта: в Гильдию пускают, только если выполнены два условия сразу. Создайте переменную <strong>level</strong> со значением <strong>20</strong> и переменную <strong>reputation</strong> со значением <strong>60</strong>.<br><br>Напечатайте три строки — <strong>YES</strong>, если условие выполнено, и <strong>NO</strong>, если нет:<br>1) «уровень &ge; 15 <strong>И</strong> репутация <strong>больше</strong> 50» → <strong>YES</strong>;<br>2) «уровень &ge; 30 <strong>ИЛИ</strong> репутация &ge; 100» → <strong>NO</strong>;<br>3) <strong>НЕ</strong> «уровень меньше 10» → <strong>YES</strong>.<br><br>Каждую строку собирайте блоком «если … иначе», а условие — блоками «… и …», «… или …» и «не …» из «Логика». Сравнения берите из блока «= … &gt; …» и подставляйте в него переменные.<br><br>Правильный вывод — три строки по порядку: <strong>YES</strong>, <strong>NO</strong>, <strong>YES</strong>.<br><br><strong>Зачем переменные:</strong> в прошлой задаче числа стояли прямо в блоках, а здесь значения живут в переменных. Герой качается — и проверка сама подхватывает новые числа, стоит поменять level или reputation.<br><br>★★★ — все три условия собраны «и», «или» и «не» по переменным.`
+        : `A scout warm-up: the Guild lets you in only when two conditions hold at once. Create the variable <strong>level</strong> with the value <strong>20</strong> and the variable <strong>reputation</strong> with the value <strong>60</strong>.<br><br>Print three lines — <strong>YES</strong> when the statement holds, <strong>NO</strong> when it does not:<br>1) “level &ge; 15 <strong>AND</strong> reputation is <strong>greater than</strong> 50” → <strong>YES</strong>;<br>2) “level &ge; 30 <strong>OR</strong> reputation &ge; 100” → <strong>NO</strong>;<br>3) <strong>NOT</strong> “level is less than 10” → <strong>YES</strong>.<br><br>Build each line with the “if … else” block, and the condition with the “… and …”, “… or …” and “not …” blocks from Logic. Take the comparisons from the “= … &gt; …” block and put the variables into it.<br><br>The correct output is three lines in order: <strong>YES</strong>, <strong>NO</strong>, <strong>YES</strong>.<br><br><strong>Why variables:</strong> in the previous task the numbers sat right inside the blocks; here the values live in variables. The hero levels up and the check picks the new numbers up as soon as you change level or reputation.<br><br>★★★ — all three conditions combine variables with and, or and not.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную level и присвойте ей 20; создайте reputation и присвойте ей 60.\n2. Строка 1. Возьмите «если … иначе» (нажмите шестерёнку блока «если» и включите «иначе»). Условие — блок «… и …»: слева сравнение «level &ge; 15», справа «reputation &gt; 50». Сравнения — из блока «= … &gt; …», в левое поле переменная, в правое — число.\n3. В ветку «если» поставьте печать YES, в «иначе» — печать NO. 20 &ge; 15 и 60 &gt; 50: обе части истинны, значит «и» истинно → YES.\n4. Строка 2. Тот же каркас, но блок «… или …»: «level &ge; 30» и «reputation &ge; 100». Обе части ложны → ИЛИ ложно → NO.\n5. Строка 3. Блок «не …», а внутрь него сравнение «level &lt; 10». Оно ложно, «не» переворачивает ответ → YES.\n6. Сверьте вывод: YES, NO, YES — ровно три строки в этом порядке, и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable level and set it to 20; create reputation and set it to 60.\n2. Line 1. Take the “if … else” block (click the gear on “if” and enable “else”). The condition is the “… and …” block: on the left the comparison “level &ge; 15”, on the right “reputation &gt; 50”. Comparisons come from the “= … &gt; …” block — variable in the left slot, number in the right one.\n3. Put a print of YES into the if branch and NO into the else branch. 20 &ge; 15 and 60 &gt; 50: both parts are true, so AND is true → YES.\n4. Line 2. Same frame with the “… or …” block: “level &ge; 30” and “reputation &ge; 100”. Both parts are false → OR is false → NO.\n5. Line 3. The “not …” block with the comparison “level &lt; 10” inside it. That comparison is false, and NOT flips it → YES.\n6. Check the output: YES, NO, YES — exactly three lines in that order — then press “Check solution”.`,
+    infoTopics: ["boolean_logic"],
+    validate: validateLogicGateCheck,
+  },
   logic_ternary_task: {
     id: "logic_ternary_task",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru"
-        ? "Задача 37: Выбор без «если»"
-        : "Task 37: Choosing without if",
+      lang === "ru" ? "Задача 14: Выбор без «если»" : "Task 14: Choosing without if",
     description: (lang) =>
       lang === "ru"
         ? `Блок «если» занимает место и просит ветки. Часто вместо него хватает <strong>тернарного выбора</strong> — блока, который сам является значением: «выбрать по условию: если истина — одно, если ложь — другое». Напечатайте три строки:<br><br>1) «7 больше 3» → выбрать <strong>MORE</strong>, иначе LESS;<br>2) блок <strong>«… пуст»</strong> для пустого текста «» → выбрать <strong>EMPTY</strong>, иначе NOT EMPTY;<br>3) создайте переменную <strong>answer</strong> и <strong>не присваивайте</strong> ей ничего; сравните её с блоком <strong>«ничто»</strong> (null) → выбрать <strong>NO VALUE</strong>, иначе HAS VALUE.<br><br>Правильный вывод: <strong>MORE</strong>, <strong>EMPTY</strong>, <strong>NO VALUE</strong> — и ни одного блока «если».<br><br>★★★ — все три строки собраны блоками «выбрать по», без «если».`

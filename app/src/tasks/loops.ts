@@ -436,8 +436,7 @@ async function validateDiceRolls(
   const nums = lines.map((l) => Number(l));
   // Ровно 10 бросков, каждый — целое 1…6 (значения случайны,
   // поэтому проверяем форму и диапазон, а не конкретные числа)
-  const rollsOk =
-    lines.length === 10 && nums.every((n) => Number.isInteger(n) && n >= 1 && n <= 6);
+  const rollsOk = lines.length === 10 && nums.every((n) => Number.isInteger(n) && n >= 1 && n <= 6);
 
   let usedRepeat = false;
   let usedAnyLoop = false;
@@ -478,7 +477,7 @@ export const loopsTasks: Pick<
   first_loop: {
     id: "first_loop",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 11: Первый цикл" : "Task 11: First Loop"),
+    title: (lang) => (lang === "ru" ? "Задача 16: Первый цикл" : "Task 16: First Loop"),
     description: (lang) =>
       lang === "ru"
         ? "Напишите программу, которая выводит в консоль все числа от <strong>0</strong> до <strong>10</strong> (включительно), каждое число с новой строки."
@@ -492,7 +491,7 @@ export const loopsTasks: Pick<
   sum_1_to_n: {
     id: "sum_1_to_n",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 12: Сумма чисел" : "Task 12: Sum of Numbers"),
+    title: (lang) => (lang === "ru" ? "Задача 18: Сумма чисел" : "Task 18: Sum of Numbers"),
     description: (lang) =>
       lang === "ru"
         ? "Напишите программу, которая вычисляет сумму всех целых чисел от <strong>1</strong> до <strong>N</strong>, где <strong>N</strong> сохранено в переменной <strong>n</strong>.<br><br>Пример: при <strong>n = 5</strong> нужно вывести <strong>15</strong>, при <strong>n = 10</strong> — <strong>55</strong>."
@@ -507,7 +506,7 @@ export const loopsTasks: Pick<
     id: "guess_game",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 13: Игра «Угадай число»" : "Task 13: Number Guessing Game",
+      lang === "ru" ? "Задача 48: Игра «Угадай число»" : "Task 48: Number Guessing Game",
     description: (lang) =>
       lang === "ru"
         ? 'Создайте программу, в которой компьютер <strong>загадывает</strong> число от <strong>1</strong> до <strong>10</strong> (сохраните его в переменной <strong>secret</strong>), а пользователь пытается его угадать.<br><br>Используйте переменную <strong>guess</strong> для догадки. В цикле спрашивайте число у пользователя и сообщайте:<br>— если догадка меньше секрета: <strong>"Загаданное число больше!"</strong><br>— если догадка больше секрета: <strong>"Загаданное число меньше!"</strong><br>— если равно: <strong>"Поздравляем! Вы угадали число!"</strong>.'
@@ -522,7 +521,7 @@ export const loopsTasks: Pick<
     id: "mult_table",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 22: Таблица умножения" : "Task 22: Multiplication table",
+      lang === "ru" ? "Задача 19: Таблица умножения" : "Task 19: Multiplication table",
     description: (lang) =>
       lang === "ru"
         ? "Выведите таблицу умножения для чисел от <strong>1</strong> до <strong>5</strong>: каждая строка — один пример, например:<br><strong>2 × 3 = 6</strong><br><strong>5 × 5 = 25</strong><br><br>Для этого используйте <strong>вложенные циклы</strong>: внешний цикл перебирает первый множитель (от 1 до 5), внутренний — второй (от 1 до 5). Для каждой пары (i, j) выведите строку вида <strong>i × j = результат</strong>.<br><br><strong>Подсказка:</strong> соберите строку примера блоком <strong>«создать текст из»</strong> (Текст): переменная i, символ ×, переменная j, знак = и результат умножения (блок «+ − × ÷» из «Математика» с операцией ×)."
@@ -538,7 +537,7 @@ export const loopsTasks: Pick<
     id: "first_even_break",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 23: Найди первое чётное" : "Task 23: Find the first even",
+      lang === "ru" ? "Задача 34: Найди первое чётное" : "Task 34: Find the first even",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[7, 3, 8, 5, 2, 9]</code> и сохраните его в переменную <strong>list</strong>. Переберите элементы циклом и, как только встретится <strong>чётное</strong> число, выведите его и <strong>прервите цикл</strong>: в окне вывода должно появиться только <strong>8</strong>.<br><br><strong>Что такое «прервать цикл»:</strong> блок <strong>«прервать цикл»</strong> (категория «Циклы») немедленно останавливает цикл — программа продолжается с первого блока после цикла. Это классический паттерн «поиск с ранним выходом».<br><br>Проверить чётность можно блоком <strong>«чётное»</strong> из «Математика» (выберите «чётное» в выпадающем списке) или сравнением «остаток от n ÷ 2 = 0»."
@@ -553,7 +552,7 @@ export const loopsTasks: Pick<
   dice_rolls: {
     id: "dice_rolls",
     difficulty: "basic",
-    title: (lang) => lang === "ru" ? "Задача 27: Кубик" : "Task 27: The Dice",
+    title: (lang) => (lang === "ru" ? "Задача 17: Кубик" : "Task 17: The Dice"),
     description: (lang) =>
       lang === "ru"
         ? "Напишите программу-«кубик»: <strong>повторите 10 раз</strong> бросок игральной кости, то есть выведите в окно вывода <strong>10 случайных целых чисел от 1 до 6</strong> (каждое с новой строки).<br><br>Используйте блок <strong>«повторить … раз»</strong> (Циклы) и блок <strong>«выдать случайное от … до …»</strong> (Математика).<br><br><strong>Поэкспериментируйте:</strong> запустите программу несколько раз — каждый раз выпадают новые числа. Предсказать их заранее нельзя, и проверка это учитывает: ей важно, чтобы было ровно 10 чисел и все от 1 до 6."

@@ -50,8 +50,7 @@ function runCode(ws: Blockly.Workspace): string[] {
   const code = javascriptGenerator.workspaceToCode(ws);
   const logs: string[] = [];
   const orig = console.log;
-  console.log = (...args: unknown[]) =>
-    logs.push(args.map(String).join(" "));
+  console.log = (...args: unknown[]) => logs.push(args.map(String).join(" "));
   try {
     eval(code);
   } finally {
@@ -113,6 +112,14 @@ const RUNNABLE = new Set<string>([
   "math_round_clamp",
   "list_split_join",
   "list_operations",
+  "list_inventory_index",
+  "list_inventory_replace",
+  "list_inventory_add",
+  "list_inventory_remove",
+  "list_inventory_random",
+  "proj_inventory",
+  "logic_gate_check",
+  "str_echo",
   "a1_number_analyzer",
   "sum_array",
   "min_max",
@@ -150,9 +157,7 @@ describe("Эталонные решения (solutions/*.xml)", () => {
         lines = MANUAL_OUTPUT[id]!;
       } else if (RUNNABLE.has(id)) {
         lines = runCode(ws);
-        expect(lines.length, `${id}: решение ничего не выводит`).toBeGreaterThan(
-          0,
-        );
+        expect(lines.length, `${id}: решение ничего не выводит`).toBeGreaterThan(0);
       } else {
         // Остальные задачи прогоняем с ожидаемым выводом из валидатора,
         // блоки из XML дают структурные флаги
@@ -164,7 +169,7 @@ describe("Эталонные решения (solutions/*.xml)", () => {
       const res = await tasks[id].validate(ws as never, lines, "ru");
       expect(
         res.ok,
-        `${id}: эталонное решение не прошло валидацию (вывод: ${JSON.stringify(lines)})`,
+        `${id}: эталонное решение не прошло валидацию (вывод: ${JSON.stringify(lines)})`
       ).toBe(true);
       expect(res.stars, `${id}: эталон должен давать звёзды`).toBeGreaterThanOrEqual(1);
     });

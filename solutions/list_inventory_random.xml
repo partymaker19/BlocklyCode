@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 25 (list_inventory_random): случайный выбор элемента списка.
+    Режим RANDOM берёт значение из списка, индексы считать не нужно.
+    Ожидаемый вывод: пять строк, каждая — один из четырёх предметов loot
+  -->
+  <variables>
+    <variable id="var_loot">loot</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_loot">loot</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="4"></mutation>
+        <value name="ADD0">
+          <shadow type="text">
+            <field name="TEXT">wolf pelt</field>
+          </shadow>
+        </value>
+        <value name="ADD1">
+          <shadow type="text">
+            <field name="TEXT">rusty sword</field>
+          </shadow>
+        </value>
+        <value name="ADD2">
+          <shadow type="text">
+            <field name="TEXT">sharp fang</field>
+          </shadow>
+        </value>
+        <value name="ADD3">
+          <shadow type="text">
+            <field name="TEXT">healing root</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+        <statement name="DO">
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="lists_getIndex">
+                <field name="MODE">GET</field>
+                <field name="WHERE">RANDOM</field>
+                <value name="VALUE">
+                  <block type="variables_get">
+                    <field name="VAR" id="var_loot">loot</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>

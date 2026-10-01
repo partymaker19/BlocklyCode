@@ -31,7 +31,11 @@ export type GlossaryTopicId =
   | "math_functions"
   | "rounding"
   | "split_join"
-  | "list_operations";
+  | "list_operations"
+  | "list_indexing"
+  | "list_add_remove"
+  | "list_random_choice"
+  | "string_accumulate";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -609,7 +613,300 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       "В Blockly: категория «Списки» — «изменить порядок на обратный …», «создать список из элемента …, повторяющегося … раз», «в списке … найти первое вхождение элемента …» и «длина …».",
       "In Blockly: the Lists category — “reverse …”, “create list with item … repeated … times”, “in list … find first occurrence of item …” and “length of …”."
     )),
+
+  list_indexing: () =>
+    `<h4>${t("Список и индексы: ячейки с номерами", "Lists and indexes: numbered cells")}</h4>` +
+    `<p>${t(
+      "Список хранит много значений в одной переменной. Каждое значение сидит в своей ячейке с номером — индексом, и по индексу можно это значение прочитать. Сортировка, поиск и вывод строятся именно на обращении к ячейкам.",
+      "A list keeps many values in one variable. Every value sits in its own numbered cell — an index — and by that index you can read the value. Sorting, searching and printing all build on addressing cells."
+    )}</p>` +
+    partsList([
+      [
+        t("элемент", "item"),
+        t(
+          "одно значение внутри списка: предмет, число, строка",
+          "one value inside the list: an item, a number, a string"
+        ),
+      ],
+      [
+        t("индекс", "index"),
+        t(
+          "номер ячейки; в Blockly отсчёт с 1, в языках — почти всегда с 0",
+          "the cell number; Blockly counts from 1, languages almost always from 0"
+        ),
+      ],
+      [
+        t("длина", "length"),
+        t(
+          "сколько ячеек занято; у пустого списка это 0",
+          "how many cells are filled; an empty list has 0"
+        ),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: инвентарь по ячейкам", "Example: reading the inventory cell by cell")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'const inv = ["sword", "shield", "potion"];\nconsole.log(inv.length); // 3\nconsole.log(inv[0]);   // sword — первый элемент\nconsole.log(inv[2]);   // potion — последний',
+      },
+      {
+        label: "Python",
+        code: 'inv = ["sword", "shield", "potion"]\nprint(len(inv))  # 3\nprint(inv[0])    # sword — первый элемент\nprint(inv[-1])   # potion — последний, индекс с конца',
+      },
+      {
+        label: "Lua",
+        code: 'local inv = {"sword", "shield", "potion"}\nprint(#inv)     -- 3 — длина\nprint(inv[1])   -- sword — Lua считает с 1\nprint(inv[3])   -- potion',
+      },
+      {
+        label: "PHP",
+        code: '<?php\n$inv = ["sword", "shield", "potion"];\necho count($inv) . PHP_EOL; // 3\necho $inv[0] . PHP_EOL;     // sword\necho $inv[2] . PHP_EOL;     // potion',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Индекс вне диапазона: в списке 3 элемента, а просят четвёртый. Python выдаст IndexError, JavaScript — undefined.",
+        "Index out of range: the list has 3 items but a 4th is requested. Python raises IndexError, JavaScript gives undefined."
+      ),
+      t(
+        "Считать индексы с нуля там, где Blockly считает с 1, и наоборот: первый элемент — это № 1 в блоке и [0] в коде.",
+        "Mixing the two conventions: the first item is #1 in the block but [0] in code."
+      ),
+      t(
+        'Печатать список целиком вместо элемента: len("items") в Python считает буквы строки, а не предметы списка.',
+        'Printing the whole list instead of an item: len("items") in Python counts the letters of the quoted name, not the items.'
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Списки» — «длина …» и «в списке … взять первый / последний / № …»; режим выбирается в выпадающем списке блока.",
+        "In Blockly: the Lists category — “length of …” and “in list … get first / last / item # …”; the mode is a dropdown on the block."
+      )
+    ),
+
+  list_add_remove: () =>
+    `<h4>${t("Добавление, замена и удаление элементов", "Adding, replacing and removing items")}</h4>` +
+    `<p>${t(
+      "Список можно менять по ходу программы: заменить значение в ячейке, добавить новый элемент, удалить старый. В отличие от строк, списки изменяемые — эти действия меняют сам список, а не создают копию.",
+      "A list can change while the program runs: replace a cell, add a new item, remove one. Unlike strings, lists are mutable — these actions edit the list itself instead of building a copy."
+    )}</p>` +
+    partsList([
+      [
+        t("заменить", "set"),
+        t(
+          "новое значение в существующую ячейку, длина не меняется",
+          "a new value into an existing cell, the length stays the same"
+        ),
+      ],
+      [
+        t("добавить в конец", "append"),
+        t(
+          "новый элемент после последнего, длина растёт на 1",
+          "a new item after the last one, the length grows by 1"
+        ),
+      ],
+      [
+        t("удалить", "remove"),
+        t(
+          "ячейка исчезает, а все элементы за ней сдвигаются на позицию влево",
+          "the cell disappears and every later item shifts one position left"
+        ),
+      ],
+      [
+        t("найти вхождение", "index of"),
+        t(
+          "номер позиции элемента, 0 — если такого элемента нет",
+          "the position number of an item, 0 when the item is absent"
+        ),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: купить и продать предмет", "Example: buying and selling an item")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'const inv = ["sword", "shield"];\ninv[0] = "steel sword";     // замена\ninv.push("potion");         // добавить в конец\nconst p = inv.indexOf("shield");\ninv.splice(p, 1);           // удалить по позиции',
+      },
+      {
+        label: "Python",
+        code: 'inv = ["sword", "shield"]\ninv[0] = "steel sword"   # замена\ninv.append("potion")     # добавить в конец\ninv.remove("shield")     # удалить по значению\nprint(len(inv))          # 2',
+      },
+      {
+        label: "Lua",
+        code: 'local inv = {"sword", "shield"}\ninv[1] = "steel sword"       -- замена\ntable.insert(inv, "potion")    -- добавить в конец\ntable.remove(inv, 2)           -- удалить по позиции\nprint(#inv)                    -- 2',
+      },
+      {
+        label: "PHP",
+        code: '<?php\n$inv = ["sword", "shield"];\n$inv[0] = "steel sword";            // замена\narray_push($inv, "potion");          // добавить в конец\n$p = array_search("shield", $inv);   // найти позицию\nunset($inv[$p]);                      // удалить\necho count($inv) . PHP_EOL;          // 2',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Удалять то, чего нет: Python выдаст ValueError, Blockly просто уберёт несуществующую ячейку. Сначала проверьте поиск.",
+        "Removing something absent: Python raises ValueError. Search first and check that the item is really there."
+      ),
+      t(
+        "После удаления позиции сдвигаются: то, что было № 3, станет № 2. Удаляйте элементы, идя с конца списка.",
+        "After a removal the positions shift: what was #3 becomes #2. Remove items walking backwards through the list."
+      ),
+      t(
+        "remove() в Python убирает только первое совпадение, а не все одинаковые элементы.",
+        "Python's remove() drops only the first match, not every equal item."
+      ),
+      t(
+        "Перепутали «заменить» и «вставить»: замена не меняет длину, вставка увеличит список.",
+        "Confusing “set” with “insert”: replacing keeps the length, inserting makes the list longer."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Списки» — «в списке … присвоить № … = …» (замена), режим «вставить в …» того же блока (добавить) и «в списке … взять и удалить …» / «удалить …» (удаление).",
+        "In Blockly: the Lists category — “in list … set item # … = …” (replace), the “insert at …” mode of the same block (add), and “in list … get remove …” / “remove …” (delete)."
+      )
+    ),
+
+  list_random_choice: () =>
+    `<h4>${t("Случайный выбор элемента из списка", "Picking a random item from a list")}</h4>` +
+    `<p>${t(
+      "Случайное число само по себе бесполезно, если нужно выбрать случайный предмет, карта или противника. Тогда берут элемент списка по случайной позиции — это «random choice».",
+      "A random number is not enough when you need a random item, map or opponent. Then you take a list element at a random position — the “random choice”."
+    )}</p>` +
+    partsList([
+      [
+        t("позиция", "position"),
+        t(
+          "случайное целое от 1 до длины списка — не больше и не меньше",
+          "a random whole number from 1 to the length — never above, never below"
+        ),
+      ],
+      [
+        t("равновероятно", "uniform"),
+        t(
+          "у каждого элемента одинаковый шанс, повторение не запрещено",
+          "every item has the same chance, repeats are allowed"
+        ),
+      ],
+      [
+        t("пустой список", "empty list"),
+        t(
+          "выбирать нечего: программа падает или отдаёт пустоту",
+          "there is nothing to pick: the program crashes or returns nothing"
+        ),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: лут из монстра", "Example: loot from a monster")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'const loot = ["pelt", "sword", "fang", "root"];\nconst i = Math.floor(Math.random() * loot.length);\nconsole.log(loot[i]); // один случайный предмет',
+      },
+      {
+        label: "Python",
+        code: 'import random\n\nloot = ["pelt", "sword", "fang", "root"]\nprint(random.choice(loot))  # один случайный предмет',
+      },
+      {
+        label: "Lua",
+        code: 'local loot = {"pelt", "sword", "fang", "root"}\nmath.randomseed(os.time())\nprint(loot[math.random(#loot)]) -- один случайный предмет',
+      },
+      {
+        label: "PHP",
+        code: '<?php\n$loot = ["pelt", "sword", "fang", "root"];\n$i = array_rand($loot);\necho $loot[$i] . PHP_EOL; // один случайный предмет',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Случайное число от 0 до длины: позиции с индексом длины не существует, будет выход за диапазон.",
+        "A random number from 0 to the length: the cell at index length does not exist, so it goes out of range."
+      ),
+      t(
+        "Путать «случайное число» и «случайный элемент»: первое даёт номер, второе — значение.",
+        "Confusing a random number with a random item: the first gives a position, the second a value."
+      ),
+      t(
+        "Думать, что результат предсказуем: проверку нельзя строить на точных строках, только на правиле (каждый вывод — элемент списка).",
+        "Expecting a predictable result: the check cannot rely on exact lines, only on the rule (every printed line is an item of the list)."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: в блоке «в списке … взять …» выберите режим «произвольный»; в категории «Математика» есть «выдать случайное от … до …» для чисел.",
+        "In Blockly: set the “in list … get …” block to the “random” mode; the Math category has “pick random … to …” for numbers."
+      )
+    ),
+
+  string_accumulate: () =>
+    `<h4>${t("Накопление строки: дописать и повторить", "Building a string up: append and repeat")}</h4>` +
+    `<p>${t(
+      "Строку нельзя изменить по символу, но можно собрать новую, дописывая кусочек за кусочком. Обычно заводят переменную с пустым текстом и в цикле приклеивают к неё нужные части.",
+      "A string cannot be edited in place, but you can build a new one by gluing piece after piece. The usual pattern: a variable holding empty text, and a loop that keeps appending the parts you need."
+    )}</p>` +
+    partsList([
+      [
+        t("накопитель", "accumulator"),
+        t(
+          "переменная, которая растёт с каждым шагом цикла",
+          "a variable that grows on every step of the loop"
+        ),
+      ],
+      [
+        t("дописать", "append"),
+        t(
+          "приклеить текст справа к уже накопленному",
+          "glue text to the right of what is already stored"
+        ),
+      ],
+      [
+        t("склейка", "concatenation"),
+        t(
+          "операция, создающая новую строку из двух",
+          "the operation that builds a new string out of two"
+        ),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: эхо трижды", "Example: an echo three times")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'let echo = "";\nfor (let i = 0; i < 3; i++) {\n  echo += "ROAR" + "!";\n}\nconsole.log(echo); // ROAR!ROAR!ROAR!',
+      },
+      {
+        label: "Python",
+        code: 'echo = ""\nfor _ in range(3):\n    echo += "ROAR" + "!"\nprint(echo)  # ROAR!ROAR!ROAR!',
+      },
+      {
+        label: "Lua",
+        code: 'local echo = ""\nfor i = 1, 3 do\n  echo = echo .. "ROAR" .. "!"\nend\nprint(echo) -- ROAR!ROAR!ROAR!',
+      },
+      {
+        label: "PHP",
+        code: '<?php\n$echo = "";\nfor ($i = 0; $i < 3; $i++) {\n  $echo .= "ROAR" . "!";\n}\necho $echo . PHP_EOL; // ROAR!ROAR!ROAR!',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Забыли обнулить накопитель: к прошлому значению дописывается новое, и эхо «растёт» между запусками.",
+        "Forgetting to reset the accumulator: new text sticks to the old value and the echo keeps growing between runs."
+      ),
+      t(
+        "Путать «добавить к переменной текст» (меняет переменную) с блоком печати (показывает значение).",
+        "Confusing “append text to variable” (changes the variable) with the print block (only shows a value)."
+      ),
+      t(
+        'В JavaScript «+» с числом склеивает строку: "ROAR" + 3 даёт "ROAR3", а не четыре рыка.',
+        'In JavaScript “+” with a number concatenates: "ROAR" + 3 gives "ROAR3", not four roars.'
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Текст» — «к переменной … добавить текст …», это команда, а не значение; вложите её в «повторить … раз».",
+        "In Blockly: the Text category — “append … to variable …”; it is a command, not a value, so drop it into “repeat … times”."
+      )
+    ),
 };
+
+/**
+ * Все темы справочника в порядке объявления. Тип `Record<GlossaryTopicId, …>`
+ * гарантирует полноту, поэтому список выводим из данных, а не дублируем вручную.
+ */
+export const GLOSSARY_TOPICS = Object.keys(TOPIC_CONTENT) as GlossaryTopicId[];
 
 /**
  * Возвращает HTML-содержимое темы справочника (для тестов и переиспользования).

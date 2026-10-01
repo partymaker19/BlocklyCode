@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 23 (list_inventory_add): добавление предмета в конец списка.
+    Режим INSERT + LAST увеличивает длину на 1, старые ячейки остаются на месте.
+    Ожидаемый вывод: 2, 3, magic scroll
+  -->
+  <variables>
+    <variable id="var_inventory">inventory</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_inventory">inventory</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="2"></mutation>
+        <value name="ADD0">
+          <shadow type="text">
+            <field name="TEXT">gold coin</field>
+          </shadow>
+        </value>
+        <value name="ADD1">
+          <shadow type="text">
+            <field name="TEXT">map</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="lists_length">
+            <value name="VALUE">
+              <block type="variables_get">
+                <field name="VAR" id="var_inventory">inventory</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="lists_setIndex">
+            <field name="MODE">INSERT</field>
+            <field name="WHERE">LAST</field>
+            <value name="LIST">
+              <block type="variables_get">
+                <field name="VAR" id="var_inventory">inventory</field>
+              </block>
+            </value>
+            <value name="TO">
+              <shadow type="text">
+                <field name="TEXT">magic scroll</field>
+              </shadow>
+            </value>
+            <next>
+              <block type="add_text">
+                <value name="TEXT">
+                  <block type="lists_length">
+                    <value name="VALUE">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_inventory">inventory</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">LAST</field>
+                        <value name="VALUE">
+                          <block type="variables_get">
+                            <field name="VAR" id="var_inventory">inventory</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

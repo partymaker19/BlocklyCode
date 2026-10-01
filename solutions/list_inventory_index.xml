@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 21 (list_inventory_index): длина списка и три способа читать ячейку.
+    Blockly нумерует ячейки с 1, поэтому первый предмет — это № 1.
+    Ожидаемый вывод: 3, sword, shield, potion
+  -->
+  <variables>
+    <variable id="var_inventory">inventory</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_inventory">inventory</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="3"></mutation>
+        <value name="ADD0">
+          <shadow type="text">
+            <field name="TEXT">sword</field>
+          </shadow>
+        </value>
+        <value name="ADD1">
+          <shadow type="text">
+            <field name="TEXT">shield</field>
+          </shadow>
+        </value>
+        <value name="ADD2">
+          <shadow type="text">
+            <field name="TEXT">potion</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="lists_length">
+            <value name="VALUE">
+              <block type="variables_get">
+                <field name="VAR" id="var_inventory">inventory</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="lists_getIndex">
+                <field name="MODE">GET</field>
+                <field name="WHERE">FIRST</field>
+                <value name="VALUE">
+                  <block type="variables_get">
+                    <field name="VAR" id="var_inventory">inventory</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="add_text">
+                <value name="TEXT">
+                  <block type="lists_getIndex">
+                    <field name="MODE">GET</field>
+                    <field name="WHERE">FROM_START</field>
+                    <value name="VALUE">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_inventory">inventory</field>
+                      </block>
+                    </value>
+                    <value name="AT">
+                      <shadow type="math_number">
+                        <field name="NUM">2</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">LAST</field>
+                        <value name="VALUE">
+                          <block type="variables_get">
+                            <field name="VAR" id="var_inventory">inventory</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

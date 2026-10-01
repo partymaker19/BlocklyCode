@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import * as Blockly from "blockly";
-import { tasks } from "../src/tasks";
+import { getTaskOrder, tasks } from "../src/tasks";
 import type { TaskId } from "../src/tasks";
 
 /**
@@ -718,14 +718,14 @@ describe("все задачи: валидатор принимает корре�
     const ws = new Blockly.Workspace();
     Blockly.serialization.workspaces.load(
       { blocks: { languageVersion: 0, blocks: row.blocks } } as never,
-      ws,
+      ws
     );
     fillOutput(row.output);
     const res = await tasks[id].validate(ws as never, row.output, "ru");
     if (!res.ok) {
       throw new Error(
         `Задача ${id}: валидатор не принял корректный вывод — ` +
-          `это регрессия вида «задача непроходима»`,
+          `это регрессия вида «задача непроходима»`
       );
     }
     expect(res.ok).toBe(true);
@@ -734,8 +734,25 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 51 задача", () => {
-    expect(Object.keys(tasks).length).toBe(51);
+  it("в реестре 59 задач", () => {
+    expect(Object.keys(tasks).length).toBe(59);
+  });
+
+  it("номер в заголовке совпадает с позицией в порядке прохождения", () => {
+    for (const id of Object.keys(tasks) as TaskId[]) {
+      const order = getTaskOrder(tasks[id].difficulty);
+      expect(order, `${id}: задача вне порядка прохождения`).toContain(id);
+    }
+
+    // В уровне «Продвинутый» задачи помечены «A1…», а не сквозной нумерацией.
+    for (const difficulty of ["basic", "fixbugs"] as const) {
+      const order = getTaskOrder(difficulty);
+      order.forEach((id, i) => {
+        const n = i + 1;
+        expect(tasks[id].title("ru"), `${id}: ru заголовок`).toContain(`Задача ${n}:`);
+        expect(tasks[id].title("en"), `${id}: en заголовок`).toContain(`Task ${n}:`);
+      });
+    }
   });
 
   it("каждая задача имеет title/description/hint/validate", () => {
@@ -744,9 +761,7 @@ describe("реестр задач целостен", () => {
       expect(typeof def.description, `description ${id}`).toBe("function");
       expect(typeof def.hint, `hint ${id}`).toBe("function");
       expect(typeof def.validate, `validate ${id}`).toBe("function");
-      expect(def.difficulty, `difficulty ${id}`).toMatch(
-        /^(basic|fixbugs|advanced)$/,
-      );
+      expect(def.difficulty, `difficulty ${id}`).toMatch(/^(basic|fixbugs|advanced)$/);
     }
   });
 
@@ -763,8 +778,7 @@ describe("реестр задач целостен", () => {
     for (const [id, def] of Object.entries(tasks)) {
       fillOutput([]);
       const res = await def.validate(ws as never, [], "ru");
-      expect(res.ok, `задача ${id} не должна засчитываться с пустым выводом`)
-        .toBe(false);
+      expect(res.ok, `задача ${id} не должна засчитываться с пустым выводом`).toBe(false);
     }
   });
 });

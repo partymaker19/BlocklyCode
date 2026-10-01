@@ -1,8 +1,8 @@
 /**
  * Тесты справочника тем (ui/glossary.ts).
  *
- * Инварианты: каждая тема рендерит примеры на четырёх языках,
- * задачи 21–26 привязаны к своим темам через infoTopics,
+ * Инварианты: каждая тема рендерит примеры на четырёх языках, каждая тема
+ * привязана хотя бы к одной задаче через infoTopics,
  * setActiveTask показывает/скрывает контейнер справочника и
  * подавляет fallback-секцию «вывод в консоль» при активной теме.
  */
@@ -14,21 +14,14 @@ vi.mock("../src/localization", () => ({
 }));
 
 import {
+  GLOSSARY_TOPICS,
   glossaryTopicHtml,
   mountGlossaryForTask,
   type GlossaryTopicId,
 } from "../src/ui/glossary";
 import { setActiveTask, tasks } from "../src/tasks";
 
-const ALL_TOPICS: GlossaryTopicId[] = [
-  "functions",
-  "nested_loops",
-  "break_continue",
-  "sorting",
-  "repeat_n_times",
-  "random_numbers",
-  "user_input",
-];
+const ALL_TOPICS: GlossaryTopicId[] = GLOSSARY_TOPICS;
 const LANGS = ["JavaScript", "Python", "Lua", "PHP"];
 
 const SIDEBAR_HTML = `
@@ -86,12 +79,24 @@ describe("привязка тем к задачам", () => {
     ["dice_rolls", "repeat_n_times"],
     ["dice_rolls", "random_numbers"],
     ["chatterbox", "user_input"],
+    ["list_inventory_index", "list_indexing"],
+    ["list_inventory_remove", "list_add_remove"],
+    ["list_inventory_random", "list_random_choice"],
+    ["str_echo", "string_accumulate"],
+    ["logic_gate_check", "boolean_logic"],
   ];
   for (const [taskId, topic] of expected) {
     it(`${taskId} → ${topic}`, () => {
       expect(tasks[taskId as keyof typeof tasks].infoTopics).toContain(topic);
     });
   }
+
+  it("ни одна тема не осталась не привязанной к задаче", () => {
+    const used = new Set(Object.values(tasks).flatMap((def) => def.infoTopics ?? []));
+    for (const topic of GLOSSARY_TOPICS) {
+      expect(used.has(topic), `тема ${topic} не открыта ни одной задачей`).toBe(true);
+    }
+  });
 });
 
 describe("mountGlossaryForTask", () => {

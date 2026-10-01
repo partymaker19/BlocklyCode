@@ -10,7 +10,9 @@ let activeDifficulty: TaskDifficulty = "basic";
 
 export const FREE_TASK_NAV = true;
 
-// Порядок задач для последовательного прохождения
+// Порядок задач для последовательного прохождения.
+// Номера в заголовках задач («Задача N») соответствуют позиции в этом
+// массиве: менять порядок можно только вместе с перенумерацией заголовков.
 const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
   basic: [
     "hello_world",
@@ -20,49 +22,50 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "greet_concat",
     "inc_counter",
     "discount_calc",
+    "math_round_clamp",
+    "math_functions",
     "first_condition",
     "even_or_odd",
+    "logic_and_or_not",
+    "logic_gate_check",
+    "logic_ternary_task",
     "time_of_day",
     "first_loop",
+    "dice_rolls",
     "sum_1_to_n",
-    "guess_game",
+    "mult_table",
+    "chatterbox",
+    "list_inventory_index",
+    "list_inventory_replace",
+    "list_inventory_add",
+    "list_inventory_remove",
+    "list_inventory_random",
     "list_foreach",
     "sublist_foreach",
     "list_filter_even",
     "list_filter_even_min_max",
+    "list_sort_min_max",
     "list_filter_even_avg",
     "list_filter_even_median",
     "list_sum_even_positions",
-    "list_sort_min_max",
-    "mult_table",
     "first_even_break",
     "first_function",
     "function_with_param",
     "function_return",
-    "dice_rolls",
-    "chatterbox",
     "str_length",
     "str_charat",
+    "str_echo",
     "str_substring",
     "str_clean",
     "str_indexof",
     "str_count",
     "str_replace",
-    "logic_and_or_not",
-    "logic_ternary_task",
-    "math_functions",
-    "math_round_clamp",
     "list_split_join",
     "list_operations",
+    "guess_game",
+    "proj_inventory",
   ],
-  fixbugs: [
-    "fb_join",
-    "fb_area",
-    "fb_parity",
-    "fb_loop",
-    "fb_list",
-    "fb_double",
-  ],
+  fixbugs: ["fb_join", "fb_area", "fb_parity", "fb_loop", "fb_list", "fb_double"],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
 const PROGRESS_KEY = "task_progress_v1";
@@ -91,6 +94,14 @@ export function isSolved(taskId: TaskId): boolean {
 
 export function getActiveDifficulty(): TaskDifficulty {
   return activeDifficulty;
+}
+
+/**
+ * Порядок прохождения уровня. Номер в заголовке задачи («Задача N») равен её
+ * позиции в этом массиве, поэтому перестановка требует перенумерации заголовков.
+ */
+export function getTaskOrder(difficulty: TaskDifficulty): TaskId[] {
+  return [...(TASKS_ORDER_BY_DIFFICULTY[difficulty] || [])];
 }
 
 export function setActiveDifficulty(difficulty: TaskDifficulty) {

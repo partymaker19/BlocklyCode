@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 32 (str_clean): исправленная программа.
+    Задача 42 (str_clean): исправленная программа.
     Собираем фразу дописыванием, убираем пробелы по краям и поднимаем регистр.
     Ожидаемый вывод: PRIVET!
   -->

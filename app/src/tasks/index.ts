@@ -18,6 +18,7 @@ export {
   getFirstUnsolvedTask,
   getNextTaskId,
   getPrevTaskId,
+  getTaskOrder,
   isSolved,
   setActiveDifficulty,
 } from "./state";

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 36 (logic_and_or_not): три утверждения о числе 14.
+    Задача 12 (logic_and_or_not): три утверждения о числе 14.
     «И» требует обеих частей, «или» — одной, «не» переворачивает ответ.
     Ожидаемый вывод: NO, YES, NO
   -->

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 49 (proj_inventory): проект «Магический инвентарь» без циклов.
+    Случайный выбор из трёх пулов, вставка в конец, замена по индексу,
+    случайное золото и финальная длина списка.
+    Ожидаемый вывод: три случайных предмета, число 50…200,
+    elixir of strength и 4
+  -->
+  <variables>
+    <variable id="var_weapons">weapons</variable>
+    <variable id="var_armors">armors</variable>
+    <variable id="var_artifacts">artifacts</variable>
+    <variable id="var_inventory">inventory</variable>
+    <variable id="var_gold">gold</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_weapons">weapons</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="3"></mutation>
+        <value name="ADD0"><shadow type="text"><field name="TEXT">bow of wind</field></shadow></value>
+        <value name="ADD1"><shadow type="text"><field name="TEXT">fire staff</field></shadow></value>
+        <value name="ADD2"><shadow type="text"><field name="TEXT">titan sword</field></shadow></value>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="var_armors">armors</field>
+        <value name="VALUE">
+          <block type="lists_create_with">
+            <mutation items="3"></mutation>
+            <value name="ADD0"><shadow type="text"><field name="TEXT">leather vest</field></shadow></value>
+            <value name="ADD1"><shadow type="text"><field name="TEXT">steel plate</field></shadow></value>
+            <value name="ADD2"><shadow type="text"><field name="TEXT">wizard cloak</field></shadow></value>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set">
+            <field name="VAR" id="var_artifacts">artifacts</field>
+            <value name="VALUE">
+              <block type="lists_create_with">
+                <mutation items="3"></mutation>
+                <value name="ADD0"><shadow type="text"><field name="TEXT">dragon ring</field></shadow></value>
+                <value name="ADD1"><shadow type="text"><field name="TEXT">amulet of immortality</field></shadow></value>
+                <value name="ADD2"><shadow type="text"><field name="TEXT">mana sphere</field></shadow></value>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set">
+                <field name="VAR" id="var_inventory">inventory</field>
+                <value name="VALUE">
+                  <block type="lists_create_with">
+                    <mutation items="3"></mutation>
+                    <value name="ADD0">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">RANDOM</field>
+                        <value name="VALUE">
+                          <block type="variables_get"><field name="VAR" id="var_weapons">weapons</field></block>
+                        </value>
+                      </block>
+                    </value>
+                    <value name="ADD1">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">RANDOM</field>
+                        <value name="VALUE">
+                          <block type="variables_get"><field name="VAR" id="var_armors">armors</field></block>
+                        </value>
+                      </block>
+                    </value>
+                    <value name="ADD2">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">RANDOM</field>
+                        <value name="VALUE">
+                          <block type="variables_get"><field name="VAR" id="var_artifacts">artifacts</field></block>
+                        </value>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">FROM_START</field>
+                        <value name="VALUE">
+                          <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                        </value>
+                        <value name="AT"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="add_text">
+                        <value name="TEXT">
+                          <block type="lists_getIndex">
+                            <field name="MODE">GET</field>
+                            <field name="WHERE">FROM_START</field>
+                            <value name="VALUE">
+                              <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                            </value>
+                            <value name="AT"><shadow type="math_number"><field name="NUM">2</field></shadow></value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="add_text">
+                            <value name="TEXT">
+                              <block type="lists_getIndex">
+                                <field name="MODE">GET</field>
+                                <field name="WHERE">FROM_START</field>
+                                <value name="VALUE">
+                                  <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                                </value>
+                                <value name="AT"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="variables_set">
+                                <field name="VAR" id="var_gold">gold</field>
+                                <value name="VALUE">
+                                  <block type="math_random_int">
+                                    <value name="FROM"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+                                    <value name="TO"><shadow type="math_number"><field name="NUM">200</field></shadow></value>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="add_text">
+                                    <value name="TEXT">
+                                      <block type="variables_get"><field name="VAR" id="var_gold">gold</field></block>
+                                    </value>
+                                    <next>
+                                      <block type="lists_setIndex">
+                                        <field name="MODE">INSERT</field>
+                                        <field name="WHERE">LAST</field>
+                                        <value name="LIST">
+                                          <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                                        </value>
+                                        <value name="TO">
+                                          <block type="lists_getIndex">
+                                            <field name="MODE">GET</field>
+                                            <field name="WHERE">RANDOM</field>
+                                            <value name="VALUE">
+                                              <block type="variables_get"><field name="VAR" id="var_artifacts">artifacts</field></block>
+                                            </value>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="lists_setIndex">
+                                            <field name="MODE">SET</field>
+                                            <field name="WHERE">FROM_START</field>
+                                            <value name="LIST">
+                                              <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                                            </value>
+                                            <value name="AT"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+                                            <value name="TO"><shadow type="text"><field name="TEXT">elixir of strength</field></shadow></value>
+                                            <next>
+                                              <block type="add_text">
+                                                <value name="TEXT">
+                                                  <block type="lists_getIndex">
+                                                    <field name="MODE">GET</field>
+                                                    <field name="WHERE">FROM_START</field>
+                                                    <value name="VALUE">
+                                                      <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                                                    </value>
+                                                    <value name="AT"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+                                                  </block>
+                                                </value>
+                                                <next>
+                                                  <block type="add_text">
+                                                    <value name="TEXT">
+                                                      <block type="lists_length">
+                                                        <value name="VALUE">
+                                                          <block type="variables_get"><field name="VAR" id="var_inventory">inventory</field></block>
+                                                        </value>
+                                                      </block>
+                                                    </value>
+                                                  </block>
+                                                </next>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

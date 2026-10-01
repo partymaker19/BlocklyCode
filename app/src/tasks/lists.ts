@@ -593,6 +593,211 @@ function listCountOf(types: string[], type: string): number {
   return types.filter((t) => t === type).length;
 }
 
+/**
+ * Число блоков lists_getIndex с нужным режимом (MODE) и способом
+ * позиционирования (WHERE): GET/REMOVE/GET_REMOVE × FIRST/LAST/AT/RANDOM.
+ */
+function countGetIndexWhere(ws: Blockly.WorkspaceSvg, modes: string[], wheres: string[]): number {
+  try {
+    return getNonShadowBlocks(ws).filter((b: any) => {
+      if (b.type !== "lists_getIndex") return false;
+      return (
+        modes.includes(String(b.getFieldValue("MODE"))) &&
+        wheres.includes(String(b.getFieldValue("WHERE")))
+      );
+    }).length;
+  } catch {
+    return 0;
+  }
+}
+
+/** Число блоков lists_setIndex в нужном режиме: SET (заменить) или INSERT (вставить). */
+function countSetIndexModes(ws: Blockly.WorkspaceSvg, modes: string[]): number {
+  try {
+    return getNonShadowBlocks(ws).filter(
+      (b: any) => b.type === "lists_setIndex" && modes.includes(String(b.getFieldValue("MODE")))
+    ).length;
+  } catch {
+    return 0;
+  }
+}
+
+/** Предметы серии «Магический инвентарь»: вывод не зависит от языка интерфейса. */
+const INV_START = ["sword", "shield", "potion"];
+const INV_SMITH = ["rusty dagger", "wooden shield"];
+const INV_CHEST = ["gold coin", "map"];
+const INV_TRADE = ["mana potion", "broken helmet", "lucky amulet"];
+const INV_LOOT = ["wolf pelt", "rusty sword", "sharp fang", "healing root"];
+const POOL_WEAPONS = ["bow of wind", "fire staff", "titan sword"];
+const POOL_ARMORS = ["leather vest", "steel plate", "wizard cloak"];
+const POOL_ARTIFACTS = ["dragon ring", "amulet of immortality", "mana sphere"];
+const ELIXIR = "elixir of strength";
+
+function outputLinesTrimmed(outputLines: string[]): string[] {
+  return outputLines.map((l) => l.trim()).filter(Boolean);
+}
+
+async function validateListInventoryIndex(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLinesTrimmed(outputLines);
+  const types = listBlockTypes(ws);
+  const reads = countGetIndexWhere(ws, ["GET"], ["FIRST", "LAST", "FROM_START"]);
+  const ok =
+    listCountOf(types, "lists_create_with") >= 1 &&
+    listCountOf(types, "lists_length") >= 1 &&
+    reads >= 3 &&
+    lines.includes("3") &&
+    INV_START.every((item) => lines.includes(item));
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 20) stars = 3;
+    else if (count <= 26) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateListInventoryReplace(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLinesTrimmed(outputLines);
+  const types = listBlockTypes(ws);
+  const sets = countSetIndexModes(ws, ["SET"]);
+  const reads = countGetIndexWhere(ws, ["GET"], ["FIRST", "LAST", "FROM_START"]);
+  const ok =
+    listCountOf(types, "lists_create_with") >= 1 &&
+    sets >= 1 &&
+    reads >= 2 &&
+    lines.includes("2") &&
+    lines.includes("steel sword") &&
+    lines.includes("wooden shield");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 18) stars = 3;
+    else if (count <= 24) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateListInventoryAdd(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLinesTrimmed(outputLines);
+  const types = listBlockTypes(ws);
+  const ok =
+    countSetIndexModes(ws, ["INSERT"]) >= 1 &&
+    listCountOf(types, "lists_length") >= 2 &&
+    countGetIndexWhere(ws, ["GET"], ["LAST"]) >= 1 &&
+    lines.includes("2") &&
+    lines.includes("3") &&
+    lines.includes("magic scroll");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 18) stars = 3;
+    else if (count <= 24) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateListInventoryRemove(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLinesTrimmed(outputLines);
+  const types = listBlockTypes(ws);
+  const ok =
+    listCountOf(types, "lists_indexOf") >= 1 &&
+    countGetIndexWhere(
+      ws,
+      ["GET_REMOVE", "REMOVE"],
+      ["FIRST", "LAST", "FROM_START", "FROM_END", "RANDOM"]
+    ) >= 1 &&
+    listCountOf(types, "lists_length") >= 1 &&
+    lines.includes("broken helmet") &&
+    lines.includes("mana potion") &&
+    lines.includes("lucky amulet") &&
+    lines.includes("2");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 24) stars = 3;
+    else if (count <= 32) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateListInventoryRandom(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLinesTrimmed(outputLines);
+  const types = listBlockTypes(ws);
+  const picks = countGetIndexWhere(ws, ["GET", "GET_REMOVE"], ["RANDOM"]);
+  const allFromPool = lines.length >= 5 && lines.every((l) => INV_LOOT.includes(l));
+  const ok =
+    listCountOf(types, "controls_repeat_ext") >= 1 &&
+    picks >= 1 &&
+    listCountOf(types, "lists_create_with") >= 1 &&
+    allFromPool;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (picks >= 1 && count <= 14) stars = 3;
+    else if (count <= 20) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateProjInventory(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLinesTrimmed(outputLines);
+  const types = listBlockTypes(ws);
+  const pool = [...POOL_WEAPONS, ...POOL_ARMORS, ...POOL_ARTIFACTS];
+  const picks = countGetIndexWhere(ws, ["GET"], ["RANDOM"]);
+  const gold = lines
+    .map((l) => Number(l))
+    .filter((n) => Number.isInteger(n))
+    .some((n) => n >= 50 && n <= 200);
+  const itemLines = lines.filter((l) => pool.includes(l)).length;
+
+  const structural =
+    listCountOf(types, "lists_create_with") >= 4 &&
+    picks >= 4 &&
+    countSetIndexModes(ws, ["INSERT"]) >= 1 &&
+    countSetIndexModes(ws, ["SET"]) >= 1 &&
+    listCountOf(types, "lists_length") >= 1 &&
+    listCountOf(types, "math_random_int") >= 1;
+
+  const ok = structural && gold && itemLines >= 3 && lines.includes(ELIXIR) && lines.includes("4");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 60) stars = 3;
+    else if (count <= 76) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
 async function validateListSplitJoin(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[]
@@ -644,6 +849,12 @@ async function validateListOperations(
 
 export const listsTasks: Pick<
   TaskRegistry,
+  | "list_inventory_index"
+  | "list_inventory_replace"
+  | "list_inventory_add"
+  | "list_inventory_remove"
+  | "list_inventory_random"
+  | "proj_inventory"
   | "list_foreach"
   | "sublist_foreach"
   | "list_filter_even"
@@ -659,7 +870,7 @@ export const listsTasks: Pick<
     id: "list_foreach",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 14: Список и цикл forEach" : "Task 14: List and forEach",
+      lang === "ru" ? "Задача 26: Список и цикл forEach" : "Task 26: List and forEach",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и сохраните его в переменную <strong>list</strong> (можно <strong>numbers</strong>).<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента i в списке»</strong> — это и есть <strong>forEach</strong>. Внутри цикла:<br>1) выведите текущий элемент (каждый с новой строки)<br>2) посчитайте сумму элементов в переменной <strong>sum</strong> и выведите сумму после цикла (должно получиться <strong>15</strong>).<br><br><strong>Важно:</strong> список может хранить не только числа, но и текст (строки), а иногда даже смешанные значения. А цикл <strong>forEach</strong> удобен именно для <strong>перебора элементов списка</strong>: он «идёт по списку» и даёт вам текущий элемент, в отличие от циклов <strong>for</strong> со счётчиком (когда вы управляете индексами/границами вручную) или <strong>while</strong> (когда повторяем, пока условие истинно)."
@@ -674,7 +885,7 @@ export const listsTasks: Pick<
     id: "sublist_foreach",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 15: Подсписок и forEach" : "Task 15: Sublist and forEach",
+      lang === "ru" ? "Задача 27: Подсписок и forEach" : "Task 27: Sublist and forEach",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем возьмите из него <strong>подсписок</strong> с элементами <strong>3, 4, 5, 6, 7</strong> (то есть часть списка) и сохраните в переменную <strong>sub</strong>.<br><br>Используйте блок <strong>«для каждого элемента i в списке»</strong> (Циклы), чтобы вывести элементы подсписка <strong>sub</strong> по одному (каждый с новой строки)."
@@ -688,7 +899,7 @@ export const listsTasks: Pick<
   list_filter_even: {
     id: "list_filter_even",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 16: Фильтрация списка" : "Task 16: List filtering"),
+    title: (lang) => (lang === "ru" ? "Задача 28: Фильтрация списка" : "Task 28: List filtering"),
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента i в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
@@ -703,7 +914,7 @@ export const listsTasks: Pick<
     id: "list_filter_even_min_max",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 17: Min/Max среди чётных" : "Task 17: Min/Max among evens",
+      lang === "ru" ? "Задача 29: Min/Max среди чётных" : "Task 29: Min/Max among evens",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента i в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: используйте блок <strong>Математика → «сумма списка»</strong> и в выпадающем списке выберите MIN/MAX для списка evens."
@@ -718,7 +929,7 @@ export const listsTasks: Pick<
     id: "list_filter_even_avg",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 18: Количество и среднее" : "Task 18: Count and average",
+      lang === "ru" ? "Задача 31: Количество и среднее" : "Task 31: Count and average",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента i в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Для чётных чисел нужно посчитать:<br>— <strong>sum</strong> (сумма чётных)<br>— <strong>count</strong> (сколько чётных чисел)<br>— <strong>avg</strong> (среднее): <code>avg = sum / count</code><br><br>Выведите результат тремя строками:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>"
@@ -733,7 +944,7 @@ export const listsTasks: Pick<
     id: "list_filter_even_median",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 19: Средний элемент чётных" : "Task 19: Middle even element",
+      lang === "ru" ? "Задача 32: Средний элемент чётных" : "Task 32: Middle even element",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента i в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong>.<br><br>После цикла выведите 2 строки:<br><strong>count=5</strong> (сколько чётных чисел в evens)<br><strong>median=6</strong> (средний элемент списка evens — для 5 элементов это 3‑й)."
@@ -748,7 +959,7 @@ export const listsTasks: Pick<
     id: "list_sum_even_positions",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 20: Сумма на чётных позициях" : "Task 20: Sum at even positions",
+      lang === "ru" ? "Задача 33: Сумма на чётных позициях" : "Task 33: Sum at even positions",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[10, 1, 8, 2, 7, 3, 6, 4, 5, 9]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Посчитайте сумму элементов на <strong>чётных позициях</strong> (позиции считаем как 1‑я, 2‑я, 3‑я…). То есть нужно сложить элементы на позициях <strong>2, 4, 6, 8, 10</strong>.<br><br>Выведите результат строкой: <strong>sum=19</strong>"
@@ -762,7 +973,7 @@ export const listsTasks: Pick<
   list_sort_min_max: {
     id: "list_sort_min_max",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 21: Сортировка списка" : "Task 21: List sorting"),
+    title: (lang) => (lang === "ru" ? "Задача 30: Сортировка списка" : "Task 30: List sorting"),
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[9, 3, 7, 1, 5]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Отсортируйте список блоком <strong>«сортировать числовая по возрастанию»</strong>. После сортировки выведите две строки:<br><strong>min=1</strong><br><strong>max=9</strong>.<br><br><strong>Что значит слово sort:</strong> <code>sort</code> переводится как «сортировать». В программировании это значит «упорядочить элементы по правилу». Для сортировки по возрастанию список <code>[9, 3, 7, 1, 5]</code> превращается в <code>[1, 3, 5, 7, 9]</code>."
@@ -777,8 +988,7 @@ export const listsTasks: Pick<
   list_split_join: {
     id: "list_split_join",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru" ? "Задача 40: Разделить и склеить" : "Task 40: Split and Join",
+    title: (lang) => (lang === "ru" ? "Задача 46: Разделить и склеить" : "Task 46: Split and Join"),
     description: (lang) =>
       lang === "ru"
         ? `Одна строка может хранить несколько значений — их разделяют запятыми (так устроены CSV-файлы и таблицы). Научитесь превращать текст в список и обратно.<br><br>1. Создайте переменную <strong>parts</strong> и присвойте её результат блока <strong>«сделать список из текста … с разделителем …»</strong>: текст — <code>10,20,30</code>, разделитель — <code>,</code><br>2. Блоком <strong>«для каждого элемента … в …»</strong> пройдите по списку parts и напечатайте каждый элемент — получится три строки: <strong>10</strong>, <strong>20</strong>, <strong>30</strong>.<br>3. Тем же блоком, но в режиме <strong>«собрать текст из списка …»</strong> со разделителем <code>-</code>, напечатайте четвёртую строку: <strong>10-20-30</strong>.<br><br>Слово <strong>split</strong> значит «разделять», <strong>join</strong> — «соединять». После разделения элементы — это ТЕКСТ, даже если выглядят как числа: «10» + 1 даст «101», а не 11.<br><br>★★★ — список создан один раз и лежит в переменной, его используют и для цикла, и для склейки.`
@@ -795,8 +1005,8 @@ export const listsTasks: Pick<
     difficulty: "basic",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 41: Переворот, повтор и позиция"
-        : "Task 41: Reverse, Repeat and Position",
+        ? "Задача 47: Переворот, повтор и позиция"
+        : "Task 47: Reverse, Repeat and Position",
     description: (lang) =>
       lang === "ru"
         ? `Список можно развернуть, собрать из одного элемента и обыскать. Напечатайте пять строк:<br><br>1) элементы списка <code>[1, 2, 3]</code> <strong>в обратном порядке</strong>, по одному на строку → <strong>3</strong>, <strong>2</strong>, <strong>1</strong> (блок «изменить порядок на обратный …» + «для каждого элемента …»);<br>2) <strong>длина</strong> списка, который блок «создать список из элемента …, повторяющегося … раз» собрал из текста <code>ха</code> и числа <strong>5</strong> → <strong>5</strong>;<br>3) <strong>позиция</strong> числа 2 в списке <code>[1, 2, 3]</code> — блок «в списке … найти первое вхождение элемента …» → <strong>2</strong>.<br><br>Блоки — в категории «Списки». И переворот, и «повторить» создают <strong>новый</strong> список: исходный остаётся целым.<br><br><strong>Про позиции:</strong> Blockly считает с 1 (первый элемент — это 1), а если элемента нет — возвращает 0. Языки программирования считают с 0. Об этом — раздел «Операции со списками» под заданием.<br><br>★★★ — все три приёма выполнены своими блоками.`
@@ -807,5 +1017,99 @@ export const listsTasks: Pick<
         : `Step by step:\n1. Lines 1–3. From Lists take “reverse …” and put a “create list with …” block inside it holding the items 1, 2, 3.\n2. Place that list into the field of a “for each element … in …” block (Loops) and put “Add text … color …” with the loop variable inside the loop. Run: 3, 2, 1.\n3. Line 4. Take “create list with item … repeated … times”: the item is the text ха, the count is 5. Wrap it in “length of …” (Lists) and print it: you get 5.\n4. Line 5. Take “in list … find first occurrence of item …”: the list field gets “create list with 1 2 3”, the item field gets 2. Print it: you get 2, because Blockly counts from 1.\n5. Check the output: 3, 2, 1, 5, 2 — then press “Check solution”.`,
     infoTopics: ["list_operations"],
     validate: validateListOperations,
+  },
+  list_inventory_index: {
+    id: "list_inventory_index",
+    difficulty: "basic",
+    title: (lang) => (lang === "ru" ? "Задача 21: Ячейки инвентаря" : "Task 21: Inventory Cells"),
+    description: (lang) =>
+      lang === "ru"
+        ? `Одна переменная хранит одно значение, а список — целую горсть предметов. Создайте переменную <strong>inventory</strong> и присвойте ей блок «создать список из» трёх предметов: <code>sword</code>, <code>shield</code>, <code>potion</code>.<br><br>Напечатайте 4 строки:<br>1) <strong>длина</strong> списка → <strong>3</strong>;<br>2) <strong>первый</strong> элемент → <strong>sword</strong>;<br>3) элемент <strong>№ 2</strong> → <strong>shield</strong>;<br>4) <strong>последний</strong> элемент → <strong>potion</strong>.<br><br><strong>Как считать номера:</strong> Blockly нумерует ячейки с 1, поэтому первый предмет — это № 1. Языки программирования считают с 0, и там тот же предмет стоит под индексом 0. Обратиться к ячейке можно и по номеру, и готовым режимом «первый» / «последний».<br><br>★★★ — длина и три разных обращения к ячейкам.`
+        : `One variable holds a single value, while a list holds a whole handful of items. Create the variable <strong>inventory</strong> and set it to the “create list with” block holding three items: <code>sword</code>, <code>shield</code>, <code>potion</code>.<br><br>Print four lines:<br>1) the <strong>length</strong> of the list → <strong>3</strong>;<br>2) the <strong>first</strong> item → <strong>sword</strong>;<br>3) item <strong># 2</strong> → <strong>shield</strong>;<br>4) the <strong>last</strong> item → <strong>potion</strong>.<br><br><strong>How to count:</strong> Blockly numbers the cells from 1, so the first item is #1. Programming languages count from 0 and there the same item sits at index 0. You can address a cell by number or with the ready-made “first” / “last” modes.<br><br>★★★ — the length plus three different ways to read a cell.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную inventory («Переменные» → «Создать переменную») и блок «присвоить inventory …».\n2. В поле значения положите «создать список из» (Списки): добавьте три ячейки и впишите в них тексты sword, shield, potion.\n3. Строка 1. Возьмите «длина …» (Списки), вложите в него переменную inventory и поставьте весь блок в «Добавить текст … цвет …» → получится 3.\n4. Строка 2. Блок «в списке … взять …» (Списки): в поле списка — inventory, первый выпадающий список — «взять», второй — «первый». Напечатайте его: sword.\n5. Строка 3. Тот же блок, но во втором выпадающем списке выберите «№» и впишите 2 → shield.\n6. Строка 4. Снова тот же блок: «взять» + «последний» → potion.\n7. Сверьте вывод: 3, sword, shield, potion — и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable inventory (Variables → “Create variable”) and a “set inventory to …” block.\n2. Put the “create list with” block (Lists) into its value slot: add three fields and type the texts sword, shield, potion.\n3. Line 1. Take “length of …” (Lists), put the inventory variable inside it and wrap the whole thing in “Add text … color …” → 3.\n4. Line 2. The “in list … get …” block (Lists): list slot = inventory, first dropdown = “get”, second = “first”. Print it: sword.\n5. Line 3. Same block, but choose “item #” in the second dropdown and type 2 → shield.\n6. Line 4. Same block again: “get” + “last” → potion.\n7. Check the output: 3, sword, shield, potion — then press “Check solution”.`,
+    infoTopics: ["list_indexing"],
+    validate: validateListInventoryIndex,
+  },
+  list_inventory_replace: {
+    id: "list_inventory_replace",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 22: Модернизация оружия" : "Task 22: Upgrading the Weapon",
+    description: (lang) =>
+      lang === "ru"
+        ? `Кузнец меняет старый клинок на новый. Создайте переменную <strong>inventory</strong> со списком <code>rusty dagger</code>, <code>wooden shield</code>.<br><br>Замените <strong>первый</strong> элемент на текст <code>steel sword</code> блоком <strong>«в списке … присвоить … = …»</strong>: режим «присвоить», позиция «№ 1».<br><br>Затем напечатайте 3 строки:<br>1) <strong>длина</strong> списка → <strong>2</strong>;<br>2) элемент <strong>№ 1</strong> → <strong>steel sword</strong>;<br>3) элемент <strong>№ 2</strong> → <strong>wooden shield</strong>.<br><br><strong>Замена или вставка?</strong> «присвоить» переписывает значение уже существующей ячейки — длина не меняется. «вставить в» добавляет новый элемент и делает список длиннее. Это два режима одного и того же блока.<br><br>★★★ — замена сделана блоком «присвоить», а не пересозданием списка.`
+        : `The blacksmith swaps the old blade for a new one. Create the variable <strong>inventory</strong> holding <code>rusty dagger</code>, <code>wooden shield</code>.<br><br>Replace the <strong>first</strong> item with the text <code>steel sword</code> using the <strong>“in list … set item … = …”</strong> block: mode “set”, position “# 1”.<br><br>Then print three lines:<br>1) the <strong>length</strong> of the list → <strong>2</strong>;<br>2) item <strong># 1</strong> → <strong>steel sword</strong>;<br>3) item <strong># 2</strong> → <strong>wooden shield</strong>.<br><br><strong>Replace or insert?</strong> “set” rewrites the value of an existing cell — the length stays the same. “insert at” adds a new item and makes the list longer. Both are modes of the same block.<br><br>★★★ — the replacement uses the “set” block instead of rebuilding the list.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную inventory и присвойте ей «создать список из» двух текстов: rusty dagger, wooden shield.\n2. Из «Списки» возьмите «в списке … присвоить … = …». В поле списка — переменная inventory.\n3. Первый выпадающий список оставьте в режиме «присвоить», во втором выберите «№» и впишите 1.\n4. В поле «=» поставьте текст steel sword. Это команда, она ничего не печатает — просто стоит в ряду блоков.\n5. Напечатайте три строки блоками «Добавить текст … цвет …»: «длина …» (получится 2), «взять № 1» (steel sword) и «взять № 2» (wooden shield).\n6. Сверьте вывод: 2, steel sword, wooden shield — и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable inventory and set it to “create list with” two texts: rusty dagger, wooden shield.\n2. From Lists take “in list … set item … = …”. The list slot holds the inventory variable.\n3. Keep the first dropdown on “set”, choose “item #” in the second one and type 1.\n4. Put the text steel sword into the “=” slot. This block is a command: it prints nothing, it just sits in the stack of blocks.\n5. Print three lines with “Add text … color …”: “length of …” (2), “get item # 1” (steel sword) and “get item # 2” (wooden shield).\n6. Check the output: 2, steel sword, wooden shield — then press “Check solution”.`,
+    infoTopics: ["list_indexing", "list_add_remove"],
+    validate: validateListInventoryReplace,
+  },
+  list_inventory_add: {
+    id: "list_inventory_add",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 23: Находка в сундуке" : "Task 23: Find in the Chest",
+    description: (lang) =>
+      lang === "ru"
+        ? `Герой находит сундук — предметов становится больше. Создайте переменную <strong>inventory</strong> со списком <code>gold coin</code>, <code>map</code>.<br><br>1) Напечатайте <strong>длину</strong> списка до находки → <strong>2</strong>.<br>2) Добавьте в <strong>конец</strong> списка текст <code>magic scroll</code> блоком <strong>«в списке … вставить в … = …»</strong>: режим «вставить в», позиция «последний».<br>3) Напечатайте <strong>длину</strong> после находки → <strong>3</strong>.<br>4) Напечатайте <strong>последний</strong> элемент → <strong>magic scroll</strong>.<br><br>Длина печатается двумя разными блоками «длина …»: первый считает два предмета, второй — уже три.<br><br><strong>Что важно знать:</strong> добавление в конец не трогает существующие ячейки, поэтому gold coin остаётся под № 1. Так работает append в любом языке: список растёт, а старые элементы стоят на месте.<br><br>★★★ — длина до добавления и после напечатаны отдельными блоками.`
+        : `The hero finds a chest — the item count grows. Create the variable <strong>inventory</strong> holding <code>gold coin</code>, <code>map</code>.<br><br>1) Print the <strong>length</strong> of the list before the find → <strong>2</strong>.<br>2) Add the text <code>magic scroll</code> to the <strong>end</strong> with the <strong>“in list … insert at … = …”</strong> block: mode “insert at”, position “last”.<br>3) Print the <strong>length</strong> after the find → <strong>3</strong>.<br>4) Print the <strong>last</strong> item → <strong>magic scroll</strong>.<br><br>The length is printed with two different “length of …” blocks: the first counts two items, the second already counts three.<br><br><strong>What matters:</strong> adding to the end does not touch the existing cells, so gold coin stays at #1. Every language behaves the same way: the list grows while the old items keep their places.<br><br>★★★ — the length before and after the addition are separate print blocks.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную inventory и присвойте ей «создать список из» текстов gold coin и map.\n2. Строка 1. «Добавить текст … цвет …» с блоком «длина …» (Списки), внутри — переменная inventory. Вывод: 2.\n3. Находка. Возьмите тот же блок «в списке …», переключите первый выпадающий список на «вставить в», второй — на «последний». В поле «=» — текст magic scroll.\n4. Строка 3. Ещё один «длина …» с inventory — теперь получится 3, потому что предмет добавился.\n5. Строка 4. «в списке inventory взять последний» → magic scroll.\n6. Сверьте вывод: 2, 3, magic scroll — именно в таком порядке, и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable inventory and set it to “create list with” the texts gold coin and map.\n2. Line 1. “Add text … color …” around a “length of …” block (Lists) holding the inventory variable. Output: 2.\n3. The find. Take the same “in list …” block, switch the first dropdown to “insert at” and the second to “last”. Put the text magic scroll into the “=” slot.\n4. Line 3. Another “length of …” with inventory — this time it is 3, because one item was added.\n5. Line 4. “in list inventory get last” → magic scroll.\n6. Check the output: 2, 3, magic scroll in that order — then press “Check solution”.`,
+    infoTopics: ["list_add_remove"],
+    validate: validateListInventoryAdd,
+  },
+  list_inventory_remove: {
+    id: "list_inventory_remove",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 24: Торговля с купцом" : "Task 24: Trading with the Merchant",
+    description: (lang) =>
+      lang === "ru"
+        ? `У купца можно и купить, и продать. Создайте переменную <strong>inventory</strong> со списком <code>mana potion</code>, <code>broken helmet</code>, <code>lucky amulet</code> и продайте шлем.<br><br>1) Найдите позицию предмета <code>broken helmet</code> блоком <strong>«в списке … найти первое вхождение элемента …»</strong> и напечатайте её → <strong>2</strong>.<br>2) <strong>Удалите</strong> элемент с этой позиции блоком <strong>«в списке … взять и удалить …»</strong> и напечатайте удалённый предмет → <strong>broken helmet</strong>.<br>3) Напечатайте <strong>длину</strong> оставшегося списка → <strong>2</strong>.<br>4) Напечатайте <strong>первый</strong> и <strong>последний</strong> оставшиеся предметы → <strong>mana potion</strong> и <strong>lucky amulet</strong>.<br><br>В выводе пять строк: <strong>2</strong>, <strong>broken helmet</strong>, <strong>2</strong>, <strong>mana potion</strong>, <strong>lucky amulet</strong>.<br><br><strong>Два режима на выбор:</strong> «взять и удалить» отдаёт предмет наружу — его можно напечатать, а «удалить» просто убирает ячейку. После удаления позиции сдвигаются: то, что было № 3, становится № 2.<br><br>★★★ — позиция найдена блоком «найти вхождение», а не вписана от руки.`
+        : `A merchant both buys and sells. Create the variable <strong>inventory</strong> holding <code>mana potion</code>, <code>broken helmet</code>, <code>lucky amulet</code> and sell the helmet.<br><br>1) Find the position of <code>broken helmet</code> with the <strong>“in list … find first occurrence of item …”</strong> block and print it → <strong>2</strong>.<br>2) <strong>Remove</strong> the item at that position with <strong>“in list … get remove …”</strong> and print the removed item → <strong>broken helmet</strong>.<br>3) Print the <strong>length</strong> of what is left → <strong>2</strong>.<br>4) Print the <strong>first</strong> and the <strong>last</strong> remaining items → <strong>mana potion</strong> and <strong>lucky amulet</strong>.<br><br>The output has five lines: <strong>2</strong>, <strong>broken helmet</strong>, <strong>2</strong>, <strong>mana potion</strong>, <strong>lucky amulet</strong>.<br><br><strong>Two modes:</strong> “get remove” hands the item back so you can print it, while plain “remove” only drops the cell. After a removal the positions shift: what used to be #3 becomes #2.<br><br>★★★ — the position comes from the “find occurrence” block instead of being typed by hand.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную inventory и присвойте ей список из трёх текстов: mana potion, broken helmet, lucky amulet.\n2. Строка 1. «в списке … найти первое вхождение элемента …» (Списки): в поле списка — inventory, в поле элемента — текст broken helmet. Вложите блок в «Добавить текст … цвет …» → 2.\n3. Строка 2. Блок «в списке … взять и удалить …»: первый выпадающий список — «взять и удалить», второй — «№», а в поле номера вложите блок поиска из шага 2 (или впишите 2). Напечатайте результат → broken helmet.\n4. Строка 3. «длина …» с inventory → 2, потому что один предмет ушёл.\n5. Строки 4 и 5. «взять первый» и «взять последний» из inventory → mana potion и lucky amulet.\n6. Сверьте вывод: 2, broken helmet, 2, mana potion, lucky amulet — и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable inventory and set it to a list of three texts: mana potion, broken helmet, lucky amulet.\n2. Line 1. “in list … find first occurrence of item …” (Lists): list slot = inventory, item slot = the text broken helmet. Wrap it in “Add text … color …” → 2.\n3. Line 2. The “in list … get remove …” block: first dropdown “get remove”, second “item #”, and into the number slot drop the search block from step 2 (or just type 2). Print the result → broken helmet.\n4. Line 3. “length of …” with inventory → 2, because one item is gone.\n5. Lines 4 and 5. “get first” and “get last” of inventory → mana potion and lucky amulet.\n6. Check the output: 2, broken helmet, 2, mana potion, lucky amulet — then press “Check solution”.`,
+    infoTopics: ["list_add_remove"],
+    validate: validateListInventoryRemove,
+  },
+  list_inventory_random: {
+    id: "list_inventory_random",
+    difficulty: "basic",
+    title: (lang) => (lang === "ru" ? "Задача 25: Дроп из монстра" : "Task 25: Monster Loot"),
+    description: (lang) =>
+      lang === "ru"
+        ? `Случайность делает игру живой: из монстра выпадает разный лут. Создайте переменную <strong>loot</strong> со списком <code>wolf pelt</code>, <code>rusty sword</code>, <code>sharp fang</code>, <code>healing root</code>.<br><br>Возьмите <strong>«повторить … раз»</strong> (Циклы) с числом <strong>5</strong> и положите внутрь печать блока <strong>«в списке loot взять произвольный»</strong> — это случайный выбор одного элемента.<br><br>В окне вывода окажется 5 строк, и каждая обязана быть одним из четырёх предметов. Какой именно выпадет — предсказать нельзя.<br><br><strong>Чем это отличается от «выдать случайное от … до …»:</strong> тот блок из «Математика» даёт случайное ЧИСЛО, а «произвольный» элемент сразу берёт значение из списка — индексы считать не нужно.<br><br>★★★ — случайный выбор сделан режимом «произвольный», а не случайным числом.`
+        : `Randomness keeps a game alive: a monster drops different loot. Create the variable <strong>loot</strong> holding <code>wolf pelt</code>, <code>rusty sword</code>, <code>sharp fang</code>, <code>healing root</code>.<br><br>Take <strong>“repeat … times”</strong> (Loops) with <strong>5</strong> and put inside it a print of <strong>“in list loot get random”</strong> — that is picking one element at random.<br><br>The output shows five lines and every one of them must be one of the four items. Which exact item appears cannot be predicted.<br><br><strong>How it differs from “pick random … to …”:</strong> the Math block returns a random NUMBER, while the “random” item mode takes a value straight out of the list — no index maths needed.<br><br>★★★ — the random pick uses the “random” mode, not a random number.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную loot и присвойте ей «создать список из» четырёх текстов: wolf pelt, rusty sword, sharp fang, healing root.\n2. Из «Циклы» возьмите «повторить … раз» и впишите 5.\n3. Из «Списки» возьмите «в списке … взять …»: в поле списка — переменная loot, во втором выпадающем списке выберите «произвольный».\n4. Внутрь цикла поставьте «Добавить текст … цвет …», а в него — блок случайного выбора из шага 3.\n5. Запустите несколько раз: каждый запуск даёт новые строки, но все они — предметы из loot.\n6. Нажмите «Проверить решение»: проверка смотрит, что строк ровно пять и каждая есть в списке.`
+        : `Step by step:\n1. Create the variable loot and set it to “create list with” four texts: wolf pelt, rusty sword, sharp fang, healing root.\n2. From Loops take “repeat … times” and type 5.\n3. From Lists take “in list … get …”: put the loot variable into the list slot and choose “random” in the second dropdown.\n4. Inside the loop place “Add text … color …” and drop the random pick block from step 3 into it.\n5. Run it a few times: every run prints new lines, but all of them are items of loot.\n6. Press “Check solution”: the check only requires five lines, each one being an item of the list.`,
+    infoTopics: ["list_random_choice"],
+    validate: validateListInventoryRandom,
+  },
+  proj_inventory: {
+    id: "proj_inventory",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 49: Магический инвентарь" : "Task 49: The Magic Inventory",
+    description: (lang) =>
+      lang === "ru"
+        ? `Проект собирает всё, что вы узнали про списки, и обходится без циклов. Соберите стартовое снаряжение героя.<br><br>1) Создайте три пула: <strong>weapons</strong> = <code>bow of wind</code>, <code>fire staff</code>, <code>titan sword</code>; <strong>armors</strong> = <code>leather vest</code>, <code>steel plate</code>, <code>wizard cloak</code>; <strong>artifacts</strong> = <code>dragon ring</code>, <code>amulet of immortality</code>, <code>mana sphere</code>.<br>2) Соберите <strong>inventory</strong> блоком «создать список из» трёх ячеек, а в каждую вложите «взять произвольный» из своего пула — снаряжение выпадает случайно.<br>3) Напечатайте три предмета inventory по номерам 1, 2 и 3.<br>4) Создайте переменную <strong>gold</strong> со случайным числом от <strong>50</strong> до <strong>200</strong> (блок «выдать случайное от … до …») и напечатайте её — это четвёртая строка.<br>5) Герой нашёл сундук: добавьте в <strong>конец</strong> inventory случайный артефакт (режим «вставить в … последний»), не печатайте его.<br>6) Первый предмет устарел: замените ячейку № 1 на текст <code>elixir of strength</code> и напечатайте её — пятая строка.<br>7) Напечатайте <strong>длину</strong> финального списка — шестая строка, <strong>4</strong>.<br><br>★★★ — проект использует случайный выбор, вставку в конец и замену по индексу.`
+        : `This project pulls together everything you learned about lists and uses no loops at all. Build the starting gear of a hero.<br><br>1) Create three pools: <strong>weapons</strong> = <code>bow of wind</code>, <code>fire staff</code>, <code>titan sword</code>; <strong>armors</strong> = <code>leather vest</code>, <code>steel plate</code>, <code>wizard cloak</code>; <strong>artifacts</strong> = <code>dragon ring</code>, <code>amulet of immortality</code>, <code>mana sphere</code>.<br>2) Build <strong>inventory</strong> with the “create list with” block of three cells, and put a “get random item” from the matching pool into each cell — the gear is rolled at random.<br>3) Print the three items of inventory by numbers 1, 2 and 3.<br>4) Create the variable <strong>gold</strong> with a random whole number from <strong>50</strong> to <strong>200</strong> (the “pick random … to …” block) and print it — line four.<br>5) The hero finds a chest: append a random artifact to the <strong>end</strong> of inventory (mode “insert at … last”), without printing it.<br>6) The first item is out of date: replace cell #1 with the text <code>elixir of strength</code> and print that cell — line five.<br>7) Print the <strong>length</strong> of the final list — line six, <strong>4</strong>.<br><br>★★★ — the project uses a random pick, an append at the end and a replace by index.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Три пула. Создайте переменные weapons, armors, artifacts и присвойте каждой «создать список из» трёх текстов из условия.\n2. Inventory. Создайте переменную inventory; в поле значения — «создать список из» трёх ячеек, и каждую ячейку замените блоком «в списке … взять …» с режимом «произвольный» (в поле списка — нужный пул).\n3. Строки 1–3. Поставьте три блока «Добавить текст … цвет …» с «в списке inventory взять № 1», «№ 2» и «№ 3».\n4. Строка 4. Создайте переменную gold и присвойте ей «выдать случайное от 50 до 200» (Математика). Напечатайте gold.\n5. Сундук. Блок «в списке inventory вставить в последний = …», а в поле «=» — «в списке artifacts взять произвольный».\n6. Замена. Блок «в списке inventory присвоить № 1 = elixir of strength», сразу после него печать «взять № 1» — получится elixir of strength.\n7. Длина. Последний блок — «Добавить текст … цвет …» с «длина inventory»: предметов стало четыре, значит 4.\n8. Запустите и сверьте шесть строк: три предмета, число от 50 до 200, elixir of strength и 4. Нажмите «Проверить решение».`
+        : `Step by step:\n1. Three pools. Create the variables weapons, armors and artifacts, and set each to “create list with” the three texts from the task.\n2. Inventory. Create the variable inventory; into its value slot put “create list with” three cells and replace every cell with an “in list … get …” block set to “random” (the list slot holds the matching pool).\n3. Lines 1–3. Add three “Add text … color …” blocks with “in list inventory get item # 1”, “# 2” and “# 3”.\n4. Line 4. Create the variable gold and set it to “pick random 50 to 200” (Math). Print gold.\n5. The chest. Use “in list inventory insert at last = …” and put “in list artifacts get random” into the “=” slot.\n6. The swap. Use “in list inventory set item # 1 = elixir of strength” and right after it print “get item # 1” — the line reads elixir of strength.\n7. Length. End with “Add text … color …” around “length of inventory”: there are four items now, so it prints 4.\n8. Run it and check six lines: three items, a number from 50 to 200, elixir of strength and 4. Press “Check solution”.`,
+    infoTopics: ["list_indexing", "list_add_remove", "list_random_choice"],
+    validate: validateProjInventory,
   },
 };

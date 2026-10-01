@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 37 (logic_ternary_task): три тернарных выбора вместо блока «если».
+    Задача 14 (logic_ternary_task): три тернарных выбора вместо блока «если».
     Переменная answer создана, но ничего ей не присвоено → она равна «ничто».
     Ожидаемый вывод: MORE, EMPTY, NO VALUE
   -->

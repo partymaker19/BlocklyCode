@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 24 (list_inventory_remove): позиция найдена поиском, предмет удалён.
+    «взять и удалить» отдаёт предмет наружу, а остальные ячейки сдвигаются влево.
+    Ожидаемый вывод: 2, broken helmet, 2, mana potion, lucky amulet
+  -->
+  <variables>
+    <variable id="var_inventory">inventory</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_inventory">inventory</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="3"></mutation>
+        <value name="ADD0">
+          <shadow type="text">
+            <field name="TEXT">mana potion</field>
+          </shadow>
+        </value>
+        <value name="ADD1">
+          <shadow type="text">
+            <field name="TEXT">broken helmet</field>
+          </shadow>
+        </value>
+        <value name="ADD2">
+          <shadow type="text">
+            <field name="TEXT">lucky amulet</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="lists_indexOf">
+            <field name="END">FIRST</field>
+            <value name="VALUE">
+              <block type="variables_get">
+                <field name="VAR" id="var_inventory">inventory</field>
+              </block>
+            </value>
+            <value name="FIND">
+              <shadow type="text">
+                <field name="TEXT">broken helmet</field>
+              </shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="lists_getIndex">
+                <field name="MODE">GET_REMOVE</field>
+                <field name="WHERE">FROM_START</field>
+                <value name="VALUE">
+                  <block type="variables_get">
+                    <field name="VAR" id="var_inventory">inventory</field>
+                  </block>
+                </value>
+                <value name="AT">
+                  <block type="lists_indexOf">
+                    <field name="END">FIRST</field>
+                    <value name="VALUE">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_inventory">inventory</field>
+                      </block>
+                    </value>
+                    <value name="FIND">
+                      <shadow type="text">
+                        <field name="TEXT">broken helmet</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="add_text">
+                <value name="TEXT">
+                  <block type="lists_length">
+                    <value name="VALUE">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_inventory">inventory</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="lists_getIndex">
+                        <field name="MODE">GET</field>
+                        <field name="WHERE">FIRST</field>
+                        <value name="VALUE">
+                          <block type="variables_get">
+                            <field name="VAR" id="var_inventory">inventory</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="add_text">
+                        <value name="TEXT">
+                          <block type="lists_getIndex">
+                            <field name="MODE">GET</field>
+                            <field name="WHERE">LAST</field>
+                            <value name="VALUE">
+                              <block type="variables_get">
+                                <field name="VAR" id="var_inventory">inventory</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

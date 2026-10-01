@@ -7,12 +7,7 @@
 import { getAppLang } from "../localization";
 import { getLocalProgress } from "../progressSync";
 import { tasks, type TaskId } from "../tasks";
-import {
-  computeBadges,
-  streakInfo,
-  markActivityToday,
-  type BadgeId,
-} from "./badges";
+import { computeBadges, streakInfo, markActivityToday, type BadgeId } from "./badges";
 
 function byId<T extends HTMLElement = HTMLElement>(id: string): T | null {
   return document.getElementById(id) as T | null;
@@ -42,28 +37,22 @@ export function openStatsModal(): void {
   // Активность сегодня (открыл статистику — тоже engaged, но честнее
   // отмечать только решения; серию двигает markActivityToday из задач)
   const progress = getLocalProgress();
-  const solvedIds = (Object.keys(progress) as TaskId[]).filter(
-    (id) => progress[id]?.solved,
-  );
-  const totalStars = solvedIds.reduce(
-    (acc, id) => acc + (progress[id]?.stars || 0),
-    0,
-  );
-  const maxStars = (Object.keys(tasks) as TaskId[]).length * 3;
+  const solvedIds = (Object.keys(progress) as TaskId[]).filter((id) => progress[id]?.solved);
+  const totalStars = solvedIds.reduce((acc, id) => acc + (progress[id]?.stars || 0), 0);
+  const totalTasks = (Object.keys(tasks) as TaskId[]).length;
+  const maxStars = totalTasks * 3;
 
   const basicIds = (Object.keys(tasks) as TaskId[]).filter(
-    (id) => tasks[id].difficulty === "basic",
+    (id) => tasks[id].difficulty === "basic"
   );
   const fixbugsIds = (Object.keys(tasks) as TaskId[]).filter(
-    (id) => tasks[id].difficulty === "fixbugs",
+    (id) => tasks[id].difficulty === "fixbugs"
   );
   const advancedIds = (Object.keys(tasks) as TaskId[]).filter(
-    (id) => tasks[id].difficulty === "advanced",
+    (id) => tasks[id].difficulty === "advanced"
   );
   const solvedBasic = basicIds.filter((id) => progress[id]?.solved).length;
-  const solvedFixbugs = fixbugsIds.filter(
-    (id) => progress[id]?.solved,
-  ).length;
+  const solvedFixbugs = fixbugsIds.filter((id) => progress[id]?.solved).length;
   const solvedAdvanced = advancedIds.filter((id) => progress[id]?.solved).length;
 
   const streak = streakInfo();
@@ -74,6 +63,7 @@ export function openStatsModal(): void {
     progress: progress as Record<string, { solved: boolean; stars: number }>,
     solvedBasicCount: solvedBasic,
     basicTotal: basicIds.length,
+    totalTasks,
   });
 
   // Локализация названий значков
@@ -142,7 +132,7 @@ export function openStatsModal(): void {
             <div class="badge-icon">${b.icon}</div>
             <div class="badge-name">${esc(b.name)}</div>
             <div class="badge-state">${b.earned ? "✓" : "·"}</div>
-          </div>`,
+          </div>`
           )
           .join("")}
       </div>

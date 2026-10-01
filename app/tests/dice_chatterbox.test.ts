@@ -1,5 +1,5 @@
 /**
- * Тесты валидаторов новых задач 27 «Кубик» и 28 «Болталка»:
+ * Тесты валидаторов задач «Кубик» (dice_rolls) и «Болталка» (chatterbox):
  * форма вывода важнее значений (рандом), проверяются и негативные
  * сценарии — неверный диапазон/количество, чужая фраза.
  */
@@ -31,10 +31,7 @@ const rollSolution = {
 
 function load(blocks: unknown[]): Blockly.Workspace {
   const ws = new Blockly.Workspace();
-  Blockly.serialization.workspaces.load(
-    { blocks: { languageVersion: 0, blocks } } as never,
-    ws,
-  );
+  Blockly.serialization.workspaces.load({ blocks: { languageVersion: 0, blocks } } as never, ws);
   return ws;
 }
 
@@ -48,7 +45,7 @@ beforeAll(() => {
   document.body.innerHTML = `<div id="output"></div>`;
 });
 
-describe("dice_rolls (задача 27)", () => {
+describe("dice_rolls (задача 17)", () => {
   const good = ["3", "1", "6", "2", "4", "5", "6", "1", "2", "4"];
 
   it("принимает 10 чисел 1…6 от корректной программы", async () => {
@@ -87,7 +84,7 @@ describe("dice_rolls (задача 27)", () => {
   });
 });
 
-describe("chatterbox (задача 28)", () => {
+describe("chatterbox (задача 20)", () => {
   const solution = [
     setV("name", { block: { type: "py_input" } }),
     setV("age", { block: { type: "py_input_number" } }),

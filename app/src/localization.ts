@@ -391,7 +391,7 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoJsNote:
             "В примере JavaScript показан современный способ перебора: list.forEach(...). Blockly может сгенерировать обычный цикл for — по смыслу это то же самое. Если хотите, вы можете создать себе пользовательский блок (в «Мои блоки») с генерацией forEach.",
           ListInfoExampleHeader: "Пример: вывести элементы и посчитать сумму",
-          ListInfoNoteBefore: "В задаче 14: создайте ",
+          ListInfoNoteBefore: "В этой задаче: создайте ",
           ListInfoNoteMid: " (или ",
           ListInfoNoteAfter:
             "), затем используйте «для каждого элемента … в списке» и переменную-накопитель ",
@@ -718,7 +718,7 @@ export function localizeImportUI(lang: AppLang): void {
           ListInfoJsNote:
             "In the JavaScript example we show a modern style: list.forEach(...). Blockly may generate a plain for loop instead — the meaning is the same. If you want, you can create a custom block (in “My Blocks”) that generates forEach.",
           ListInfoExampleHeader: "Example: print items and compute sum",
-          ListInfoNoteBefore: "In task 14: create ",
+          ListInfoNoteBefore: "In this task: create ",
           ListInfoNoteMid: " (or ",
           ListInfoNoteAfter:
             "), then use “for each item … in list” and an accumulator variable ",

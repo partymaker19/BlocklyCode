@@ -143,7 +143,7 @@ export const functionsTasks: Pick<
     id: "first_function",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 24: Моя первая функция" : "Task 24: My first function",
+      lang === "ru" ? "Задача 35: Моя первая функция" : "Task 35: My first function",
     description: (lang) =>
       lang === "ru"
         ? "Создайте функцию, которая печатает <strong>Hello, world!</strong>, и вызовите её <strong>три раза</strong>: в окне вывода строка должна появиться трижды.<br><br><strong>Зачем нужны функции:</strong> функция — это «именованный кусок программы». Вы описываете действия <em>один раз</em>, а потом запускаете их сколько угодно раз по имени — не копируя блоки."
@@ -159,15 +159,15 @@ export const functionsTasks: Pick<
     id: "function_with_param",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 25: Функция с параметром" : "Task 25: Function with a parameter",
+      lang === "ru" ? "Задача 36: Функция с параметром" : "Task 36: Function with a parameter",
     description: (lang) =>
       lang === "ru"
         ? "Создайте функцию <strong>greet</strong> с параметром <strong>name</strong>, которая печатает приветствие «Привет, &lt;имя&gt;!», и вызовите её дважды: с именами <strong>Аня</strong> и <strong>Боря</strong>. Вывод:<br><strong>Привет, Аня!</strong><br><strong>Привет, Боря!</strong><br><br><strong>Параметр</strong> — это переменная внутри функции. Чтобы добавить параметр: нажмите шестерёнку на блоке функции и перетащите «имя параметра» в список. Строку приветствия соберите блоком «создать текст из»: текст «Привет, », переменная name, текст «!»."
         : "Create a function <strong>greet</strong> with a parameter <strong>name</strong> that prints a greeting “Hello, &lt;name&gt;!”, and call it twice: with <strong>Anya</strong> and <strong>Borya</strong>. Output:<br><strong>Hello, Anya!</strong><br><strong>Hello, Borya!</strong><br><br>A <strong>parameter</strong> is a variable inside the function. To add one: press the gear on the function block and drag “parameter name” into the list. Assemble the greeting with the “create text with” block: text “Hello, ”, the name variable, text “!”.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте функцию greet (как в задаче 24).\n2. Нажмите шестерёнку на блоке функции и перетащите «имя параметра» в «параметры»; назовите его name.\n3. Внутрь фигуры положите «Добавить текст … цвет …», а в него — «создать текст из» с тремя элементами: текст Привет\\,  (с пробелом), переменная name, текст !\n4. Перетащите блок вызова greet и в поле параметра укажите Аня; продублируйте вызов и укажите Боря.\n5. Запустите код: две строки приветствия. Нажмите «Проверить решение»."
-        : "Step by step:\n1. Create a function greet (like in task 24).\n2. Press the gear on the function block and drag “parameter name” into “parameters”; call it name.\n3. Inside the figure put “Add text … color …”, and into it a “create text with” block with three items: text Hello\\,  (with a space), the name variable, text !\n4. Drag a greet call block and set the parameter to Anya; duplicate the call and set Borya.\n5. Run the code: two greeting lines. Press “Check solution”.",
+        ? "Пошаговое решение:\n1. Создайте функцию greet (как в задаче 35).\n2. Нажмите шестерёнку на блоке функции и перетащите «имя параметра» в «параметры»; назовите его name.\n3. Внутрь фигуры положите «Добавить текст … цвет …», а в него — «создать текст из» с тремя элементами: текст Привет\\,  (с пробелом), переменная name, текст !\n4. Перетащите блок вызова greet и в поле параметра укажите Аня; продублируйте вызов и укажите Боря.\n5. Запустите код: две строки приветствия. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a function greet (like in task 35).\n2. Press the gear on the function block and drag “parameter name” into “parameters”; call it name.\n3. Inside the figure put “Add text … color …”, and into it a “create text with” block with three items: text Hello\\,  (with a space), the name variable, text !\n4. Drag a greet call block and set the parameter to Anya; duplicate the call and set Borya.\n5. Run the code: two greeting lines. Press “Check solution”.",
     infoTopics: ["functions"],
     validate: validateFunctionWithParam,
   },
@@ -175,7 +175,7 @@ export const functionsTasks: Pick<
     id: "function_return",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 26: Функция с возвратом" : "Task 26: Function with a return value",
+      lang === "ru" ? "Задача 37: Функция с возвратом" : "Task 37: Function with a return value",
     description: (lang) =>
       lang === "ru"
         ? "Создайте функцию <strong>add</strong> с параметрами <strong>a</strong> и <strong>b</strong>, которая <strong>возвращает</strong> их сумму (a + b). Вызовите её и выведите результат: должно получиться <strong>7</strong> (например, add(3, 4)).<br><br>Функция с возвратом — это «вычислитель»: она не просто что-то делает, а выдаёт значение, которое можно вложить прямо в печать. Используйте блок «Функции» с возвратом и блок <strong>«вернуть»</strong> внутри него."

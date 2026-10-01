@@ -54,17 +54,39 @@ async function validateStrCharAt(
   const lines = outputLines;
   const types = blockTypes(ws);
   const charAt = countOf(types, "text_charAt");
-  const ok =
-    charAt >= 1 &&
-    lines.includes("B") &&
-    lines.includes("y") &&
-    lines.includes("o");
+  const ok = charAt >= 1 && lines.includes("B") && lines.includes("y") && lines.includes("o");
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (charAt >= 3 && count <= 7) stars = 3; // по одному блоку на символ
+    if (charAt >= 3 && count <= 7)
+      stars = 3; // по одному блоку на символ
     else if (count <= 10) stars = 2;
+    else stars = 1;
+  }
+  return { ok, stars };
+}
+
+async function validateStrEcho(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+  const types = blockTypes(ws);
+  const appends = countOf(types, "text_append");
+  const ok =
+    appends >= 1 &&
+    countOf(types, "controls_repeat_ext") >= 1 &&
+    countOf(types, "text_charAt") >= 1 &&
+    lines.includes("R") &&
+    lines.includes("ROAR!ROAR!ROAR!");
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 17)
+      stars = 3; // два стартера + цикл с дописыванием + две печати
+    else if (count <= 22) stars = 2;
     else stars = 1;
   }
   return { ok, stars };
@@ -78,10 +100,7 @@ async function validateStrSubstring(
   const types = blockTypes(ws);
   const slices = countOf(types, "text_getSubstring");
   const ok =
-    slices >= 1 &&
-    lines.includes("Blo") &&
-    lines.includes("kly") &&
-    lines.includes("lockl");
+    slices >= 1 && lines.includes("Blo") && lines.includes("kly") && lines.includes("lockl");
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -122,16 +141,13 @@ async function validateStrIndexOf(
   const lines = outputLines;
   const types = blockTypes(ws);
   const found = countOf(types, "text_indexOf");
-  const ok =
-    found >= 1 &&
-    lines.includes("2") &&
-    lines.includes("6") &&
-    lines.includes("0");
+  const ok = found >= 1 && lines.includes("2") && lines.includes("6") && lines.includes("0");
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (found >= 3 && count <= 7) stars = 3; // по одному поиску на строку
+    if (found >= 3 && count <= 7)
+      stars = 3; // по одному поиску на строку
     else if (count <= 10) stars = 2;
     else stars = 1;
   }
@@ -145,11 +161,7 @@ async function validateStrCount(
   const lines = outputLines;
   const types = blockTypes(ws);
   const counted = countOf(types, "text_count");
-  const ok =
-    counted >= 1 &&
-    lines.includes("3") &&
-    lines.includes("2") &&
-    lines.includes("0");
+  const ok = counted >= 1 && lines.includes("3") && lines.includes("2") && lines.includes("0");
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -189,6 +201,7 @@ export const textTasks: Pick<
   TaskRegistry,
   | "str_length"
   | "str_charat"
+  | "str_echo"
   | "str_substring"
   | "str_clean"
   | "str_indexof"
@@ -198,10 +211,7 @@ export const textTasks: Pick<
   str_length: {
     id: "str_length",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru"
-        ? "Задача 29: Сколько букв?"
-        : "Task 29: How Many Letters?",
+    title: (lang) => (lang === "ru" ? "Задача 38: Сколько букв?" : "Task 38: How Many Letters?"),
     description: (lang) =>
       lang === "ru"
         ? `Строка — это последовательность символов, и компьютер умеет с ней работать как со списком. Возьмите слово <strong>«${WORD}»</strong> и напечатайте в окне вывода две строки:<br><br>1) <strong>сколько в нём символов</strong> — блок «длина текста» из категории «Текст»;<br>2) <strong>это же слово задом наперёд</strong> — блок «развернуть» из той же категории.<br><br>Символом считается всё: буквы, цифры и пробелы. <br><br>★★★ — оба действия сделаны блоками, лишних блоков нет.`
@@ -217,9 +227,7 @@ export const textTasks: Pick<
     id: "str_charat",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru"
-        ? "Задача 30: Буквы по номеру"
-        : "Task 30: Letters by Position",
+      lang === "ru" ? "Задача 39: Буквы по номеру" : "Task 39: Letters by Position",
     description: (lang) =>
       lang === "ru"
         ? `Возьмите слово <strong>«${WORD}»</strong> и напечатайте тремя отдельными строками:<br><br>1) <strong>первую</strong> букву;<br>2) <strong>последнюю</strong> букву;<br>3) букву под номером <strong>3</strong> (считаем от начала слова).<br><br>Используйте блок <strong>«в тексте получить …»</strong> из категории «Текст» — в его выпадающем списке есть режимы «первый», «последний», «с начала» и «с конца».<br><br><strong>Осторожно с нумерацией:</strong> режим «с начала» отсчитывает буквы с 1, а языки программирования — с 0. Об этом — раздел «Символ по номеру» под заданием.<br><br>★★★ — все три буквы получены блоком «в тексте получить …».`
@@ -231,13 +239,26 @@ export const textTasks: Pick<
     infoTopics: ["string_indexing"],
     validate: validateStrCharAt,
   },
+  str_echo: {
+    id: "str_echo",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 40: Эхо в подземелье" : "Task 40: Echo in the Dungeon",
+    description: (lang) =>
+      lang === "ru"
+        ? `Эхо в пещере повторяет боевой клич несколько раз — соберите его из кусочков.<br><br>1) Создайте переменную <strong>cry</strong> со значением <code>ROAR</code> и переменную <strong>echo</strong> с <strong>пустым текстом</strong> (блок «текст», в котором ничего не написано).<br>2) Возьмите <strong>«повторить … раз»</strong> (Циклы) с числом <strong>3</strong> и положите внутрь <strong>«к переменной echo добавить текст …»</strong> (Текст). В поле текста вложите «создать текст из» двух частей: переменная cry и <code>!</code>.<br>3) Напечатайте <strong>первую букву</strong> крика (режим «первый» блока «в тексте получить …») → <strong>R</strong>.<br>4) Напечатайте echo → <strong>ROAR!ROAR!ROAR!</strong>.<br><br><strong>Почему старт пустой:</strong> строку нельзя изменить по букве, но можно собрать новую, дописывая кусочек за кусочком. Накопитель всегда начинают с пустого значения, иначе к эху приклеится прошлый остаток.<br><br>★★★ — эхо собрано дописыванием внутри цикла, а не тремя отдельными печатями.`
+        : `An echo in a cave repeats the battle cry several times — build it piece by piece.<br><br>1) Create the variable <strong>cry</strong> holding <code>ROAR</code> and the variable <strong>echo</strong> holding <strong>empty text</strong> (a “text” block with nothing typed in it).<br>2) Take <strong>“repeat … times”</strong> (Loops) with <strong>3</strong> and put <strong>“append text to variable echo …”</strong> (Text) inside it. Into its text slot drop a “create text with” block of two parts: the cry variable and <code>!</code>.<br>3) Print the <strong>first letter</strong> of the cry (the “first” mode of the “in text get …” block) → <strong>R</strong>.<br>4) Print echo → <strong>ROAR!ROAR!ROAR!</strong>.<br><br><strong>Why start empty:</strong> a string cannot be edited letter by letter, but you can build a new one by gluing piece after piece. An accumulator always starts from an empty value, otherwise the echo picks up old leftovers.<br><br>★★★ — the echo is built by appending inside a loop, not with three separate prints.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную cry и присвойте ей текст ROAR.\n2. Создайте переменную echo и присвойте ей пустой текст: блок «текст» из категории «Текст», в котором ничего не написано.\n3. Из «Циклы» возьмите «повторить … раз» и впишите 3.\n4. Внутрь цикла положите «к переменной echo добавить текст …» и выберите в его поле переменную echo.\n5. В поле текста вложите «создать текст из» (Текст) с двумя частями: переменная cry и текст !. За один шаг к echo приклеивается ROAR!.\n6. После цикла напечатайте «в тексте получить …» с текстом cry и режимом «первый» → R.\n7. Следом напечатайте переменную echo → ROAR!ROAR!ROAR!.\n8. Сверьте вывод и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable cry and set it to the text ROAR.\n2. Create the variable echo and set it to empty text: a “text” block from the Text category with nothing typed inside.\n3. From Loops take “repeat … times” and type 3.\n4. Inside the loop place “append text to variable …” and pick the echo variable in its field.\n5. Into the text slot drop a “create text with” block (Text) with two parts: the cry variable and the text !. One step glues ROAR! onto echo.\n6. After the loop print “in text get …” with the text cry in “first” mode → R.\n7. Then print the echo variable → ROAR!ROAR!ROAR!.\n8. Check the output and press “Check solution”.`,
+    infoTopics: ["string_accumulate"],
+    validate: validateStrEcho,
+  },
   str_substring: {
     id: "str_substring",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru"
-        ? "Задача 31: Кусочки строки"
-        : "Task 31: Pieces of a String",
+    title: (lang) => (lang === "ru" ? "Задача 41: Кусочки строки" : "Task 41: Pieces of a String"),
     description: (lang) =>
       lang === "ru"
         ? `От слова <strong>«${WORD}»</strong> осталось три кусочка — напечатайте их по строке каждый:<br><br>1) <strong>первые 3 буквы</strong> — Blo;<br>2) <strong>последние 3 буквы</strong> — kly;<br>3) <strong>слово без первой и последней буквы</strong> — lockl.<br><br>Для этого есть блок <strong>«в тексте получить подстроку с … по …»</strong> (категория «Текст»): у него задают начало и конец кусочка, каждый — своим способом (первый, с начала, с конца, последний).<br><br>Такой приём называют <strong>срез (slice)</strong>, и в разных языках он считает границы по-разному — смотрите раздел «Подстрока и срез» под заданием.<br><br>★★★ — все три кусочка вырезаны блоком подстроки.`
@@ -253,9 +274,7 @@ export const textTasks: Pick<
     id: "str_clean",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru"
-        ? "Задача 32: Приводим текст в порядок"
-        : "Task 32: Cleaning Up Text",
+      lang === "ru" ? "Задача 42: Приводим текст в порядок" : "Task 42: Cleaning Up Text",
     description: (lang) =>
       lang === "ru"
         ? `Данные часто приходят «грязными»: лишние пробелы по краям, разный регистр. Соберите фразу и очистите её.<br><br>1. Создайте переменную <strong>phrase</strong> и присвойте ей текст из <strong>двух пробелов</strong> и букв <strong>«pri»</strong> (то есть «&nbsp;&nbsp;pri»).<br>2. Блоком <strong>«добавить к переменной текст»</strong> допишите к ней <strong>«vet!»</strong>.<br>3. Напечатайте значение phrase, предварительно <strong>убрав пробелы по краям</strong> («убрать пробелы») и <strong>подняв регистр</strong> («изменить регистр» → В ВЕРХНИЙ РЕГИСТР).<br><br>В окне вывода должна получиться ровно одна строка: <strong>PRIVET!</strong><br><br>★★★ — использованы и дописывание, и очистка, и смена регистра.`
@@ -270,10 +289,7 @@ export const textTasks: Pick<
   str_indexof: {
     id: "str_indexof",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru"
-        ? "Задача 33: Где буква?"
-        : "Task 33: Where Is the Letter?",
+    title: (lang) => (lang === "ru" ? "Задача 43: Где буква?" : "Task 43: Where Is the Letter?"),
     description: (lang) =>
       lang === "ru"
         ? `Слово <strong>«${SEARCH_WORD}»</strong> — найдите в нём букву и напечатайте три строки:<br><br>1) номер <strong>первой</strong> буквы «a» — получится <strong>2</strong>;<br>2) номер <strong>последней</strong> буквы «a» — получится <strong>6</strong>;<br>3) номер буквы <strong>«z»</strong>, которой в слове нет — получится <strong>0</strong>.<br><br>Используйте блок <strong>«в тексте … найти первое вхождение текста»</strong> (категория «Текст»): в его выпадающем списке режимы «первое» и «последнее».<br><br><strong>Два важных факта о позициях:</strong> Blockly считает с единицы (первая буква — это 1), а языки программирования — с нуля; и «не найдено» Blockly показывает нулём. Подробности — в разделе «Поиск в строке» под заданием.<br><br>★★★ — все три позиции найдены блоком поиска.`
@@ -288,10 +304,7 @@ export const textTasks: Pick<
   str_count: {
     id: "str_count",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru"
-        ? "Задача 34: Сколько раз?"
-        : "Task 34: How Many Times?",
+    title: (lang) => (lang === "ru" ? "Задача 44: Сколько раз?" : "Task 44: How Many Times?"),
     description: (lang) =>
       lang === "ru"
         ? `Тот же вопрос, но про количество. В слове <strong>«${SEARCH_WORD}»</strong> напечатайте три строки:<br><br>1) сколько раз встречается буква <strong>«a»</strong> — ответ <strong>3</strong>;<br>2) сколько раз встречается пара букв <strong>«na»</strong> — ответ <strong>2</strong>;<br>3) сколько раз встречается буква <strong>«x»</strong> — ответ <strong>0</strong>.<br><br>Для этого есть блок <strong>«подсчитать количество … в …»</strong> (категория «Текст»).<br><br><strong>Почему «na» даёт 2, а не 3?</strong> Совпадения не перекрываются: найдя пару, компьютер сдвигается за неё целиком и с начала тот же кусок не считает. Об этом — раздел «Поиск в строке» под заданием.<br><br>★★★ — все три подсчёта сделаны блоком количества.`
@@ -306,10 +319,7 @@ export const textTasks: Pick<
   str_replace: {
     id: "str_replace",
     difficulty: "basic",
-    title: (lang) =>
-      lang === "ru"
-        ? "Задача 35: Замена текста"
-        : "Task 35: Replacing Text",
+    title: (lang) => (lang === "ru" ? "Задача 45: Замена текста" : "Task 45: Replacing Text"),
     description: (lang) =>
       lang === "ru"
         ? `Замена создаёт новую строку, в которой один кусок заменён другим. Возьмите слово <strong>«${PHONE_WORD}»</strong> и напечатайте три строки:<br><br>1) все буквы <strong>«i»</strong> заменить на цифру <strong>«1»</strong> → <strong>${PHONE_DIGITS}</strong>;<br>2) в исходном слове все <strong>«ss»</strong> заменить на <strong>«sh»</strong> → <strong>${PHONE_SH}</strong>;<br>3) в результате пункта 2 заменить <strong>«sh»</strong> обратно на <strong>«ss»</strong> → снова <strong>${PHONE_WORD}</strong>.<br><br>Используйте блок <strong>«заменить … на … в …»</strong> (категория «Текст»). Это блок-выражение, поэтому третью строку собирают вложением: один блок замены кладут внутрь другого, как матрёшку.<br><br><strong>Обратите внимание:</strong> блок меняет сразу ВСЕ вхождения, а строка при этом не меняется — появляется новая.<br><br>★★★ — все три строки получены блоками замены, а третья замена действительно вложена в вторую.`

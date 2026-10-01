@@ -113,6 +113,8 @@ export interface BadgeContext {
   solvedBasicCount: number;
   /** Всего базовых задач. */
   basicTotal: number;
+  /** Всего задач во всех уровнях — от него зависят «середина» и «полное прохождение». */
+  totalTasks: number;
 }
 
 export interface BadgeDef {
@@ -126,6 +128,7 @@ export interface BadgeDef {
 
 /** Все достижения — чистая функция от контекста. Порядок фиксирован. */
 export function computeBadges(ctx: BadgeContext): BadgeDef[] {
+  const halfWay = Math.ceil(ctx.totalTasks / 2);
   return [
     {
       id: "first_step",
@@ -145,8 +148,8 @@ export function computeBadges(ctx: BadgeContext): BadgeDef[] {
       id: "half_way",
       icon: "🧭",
       name: "Путь до середины",
-      hint: "Решите 15 задач",
-      earned: ctx.solvedCount >= 15,
+      hint: "Пройдите половину задач",
+      earned: ctx.solvedCount >= halfWay,
     },
     {
       id: "all_basic",
@@ -159,8 +162,8 @@ export function computeBadges(ctx: BadgeContext): BadgeDef[] {
       id: "all_tasks",
       icon: "👑",
       name: "Полное прохождение",
-      hint: "Решите все 30 задач",
-      earned: ctx.solvedCount >= 30,
+      hint: "Решите задачи всех уровней",
+      earned: ctx.totalTasks > 0 && ctx.solvedCount >= ctx.totalTasks,
     },
     {
       id: "star_collector",
@@ -174,9 +177,7 @@ export function computeBadges(ctx: BadgeContext): BadgeDef[] {
       icon: "💫",
       name: "Перфекционист",
       hint: "10 задач на 3 звезды",
-      earned:
-        Object.values(ctx.progress).filter((p) => p.solved && p.stars >= 3)
-          .length >= 10,
+      earned: Object.values(ctx.progress).filter((p) => p.solved && p.stars >= 3).length >= 10,
     },
     {
       id: "week_streak",

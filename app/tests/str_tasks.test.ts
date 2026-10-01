@@ -1,5 +1,6 @@
 /**
- * E2E для задач раздела «Основа» про строки (29–32):
+ * E2E для задач раздела «Основа» про строки (str_length, str_charat,
+ * str_substring, str_clean, str_echo):
  * 1) эталонное решение из solutions/str_*.xml обязано давать 3★;
  * 2) подмена «честного» блока printing-ом константы не засчитывается;
  * 3) пустое поле и пустой вывод не проходят ни одну задачу.
@@ -81,6 +82,12 @@ describe("задачи про строки: эталоны дают максим
     expect(lines).toEqual(["PRIVET!"]);
     expect(stars).toBe(3);
   });
+
+  it("str_echo: эхо собирается дописыванием в цикле", async () => {
+    const { lines, stars } = await checkSolution("str_echo");
+    expect(lines).toEqual(["R", "ROAR!ROAR!ROAR!"]);
+    expect(stars).toBe(3);
+  });
 });
 
 describe("задачи про строки: обман печатью не засчитывается", () => {
@@ -102,6 +109,7 @@ describe("задачи про строки: обман печатью не за�
     ["str_charat", ["B", "y", "o"]],
     ["str_substring", ["Blo", "kly", "lockl"]],
     ["str_clean", ["PRIVET!"]],
+    ["str_echo", ["R", "ROAR!ROAR!ROAR!"]],
   ];
 
   for (const [id, values] of cases) {
@@ -114,7 +122,7 @@ describe("задачи про строки: обман печатью не за�
     });
   }
 
-  it("пустой вывод не проходит ни одну из четырёх задач", async () => {
+  it("пустой вывод не проходит ни одну из пяти задач", async () => {
     const ws = new Blockly.Workspace();
     fillOutput([]);
     for (const [id] of cases) {

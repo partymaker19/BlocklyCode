@@ -109,6 +109,7 @@ import {
 } from "./ui/mobile";
 import { updateToolboxBlockCounterLabel } from "./ui/toolboxCounter";
 import { initDebugger } from "./ui/debugger";
+import { setupEditorToolbarLayout } from "./ui/toolbarLayout";
 import {
   initOnboardingReplay,
   localizeOnboardingUI,
@@ -1185,6 +1186,9 @@ if (langSwitchInput) {
 
 // Инициализация Ace Editor
 setupAceEditor(() => selectedGeneratorLanguage);
+
+// Ряды кнопок над панелью кода: два плотных ряда, при сужении — три
+setupEditorToolbarLayout();
 
 // После инициализации Ace синхронизируем строки UI с текущим языком приложения
 try {

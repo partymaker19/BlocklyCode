@@ -1625,6 +1625,14 @@
       display: inline-block;
     }
 
+    /* Когда кнопок не хватает в один ряд, разделитель переезжает между рядами
+       и выглядит мусором — на узкой панели кода его не показываем */
+    @container (max-width: 600px) {
+      .debug-divider {
+        display: none;
+      }
+    }
+
     .icon-btn.active {
       background: #2563eb;
       color: #fff;
@@ -1666,10 +1674,21 @@
     /* New: compact toolbar styles */
     .editor-controls.compact {
       width: 100%;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      /* Группы превращаются в один поток (display: contents у .toolbar-group),
+         поэтому toolbarLayout.ts подбирает число колонок: сначала два
+         заполненных ряда, при дальнейшем сужении — три. */
+      display: grid;
+      grid-template-columns: repeat(var(--toolbar-cols, 7), max-content);
+      justify-content: start;
+      align-items: center;
+      gap: 4px 6px;
       min-width: 0;
-      row-gap: 4px;
+      /* Порог «влезает ли ряд» считаем по ширине панели, а не экрана */
+      container-type: inline-size;
+    }
+
+    .editor-controls.compact>.toolbar-group {
+      display: contents;
     }
 
     /* Группа кнопок внутри тулбара: тоже переносится при сужении */
@@ -2186,7 +2205,7 @@
         border-radius: 7px;
       }
 
-      #editorToolbar .toolbar-group {
+      #editorToolbar .editor-controls.compact {
         gap: 4px;
       }
 

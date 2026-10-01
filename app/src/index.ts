@@ -107,7 +107,10 @@ import {
   setMobileToolboxOpen,
   closeAllMobilePanels,
 } from "./ui/mobile";
-import { updateToolboxBlockCounterLabel } from "./ui/toolboxCounter";
+import {
+  updateToolboxBlockCounterLabel,
+  watchToolboxCounterLayout,
+} from "./ui/toolboxCounter";
 import { initDebugger } from "./ui/debugger";
 import { setupEditorToolbarLayout } from "./ui/toolbarLayout";
 import {
@@ -334,6 +337,10 @@ function scheduleAceSync() {
 
 let __uiResizeScheduled = false;
 function scheduleUIResize() {
+  // Открытие панели задач сдвигает вёрстку синхронно (padding у #blocklyDiv), а
+  // бейдж «Создано с помощью Blockly» позиционируется по прямоугольнику тулбокса,
+  // поэтому пересчитываем его сразу, не дожидаясь кадра перестройки Blockly.
+  if (ws) updateToolboxBlockCounterLabel(ws);
   if (__uiResizeScheduled) return;
   __uiResizeScheduled = true;
   requestAnimationFrame(() => {
@@ -1956,6 +1963,9 @@ function refreshWorkspaceWithCustomToolbox() {
   // Начальная отрисовка счётчика
   // На всякий случай немного отложим, чтобы DOM тулбокса гарантированно создался
   requestAnimationFrame(() => updateToolboxBlockCounterLabel(ws));
+  watchToolboxCounterLayout(() => {
+    if (ws) updateToolboxBlockCounterLabel(ws);
+  });
 }
 const saveXmlBtn = document.getElementById(
   "saveXmlBtn",

@@ -9,6 +9,21 @@ import { countNonShadowBlocks } from "../workspaceUtils";
 let wrapperEl: HTMLDivElement | null = null;
 let counterTextEl: HTMLDivElement | null = null;
 let creditTextEl: HTMLDivElement | null = null;
+let layoutWatchBound = false;
+
+/**
+ * Пересчитывает позицию бейджа «Создано с помощью Blockly» при изменении размера окна.
+ *
+ * Бейдж позиционируется по прямоугольнику тулбокса, а Blockly не рассылает событий
+ * вёрстки, поэтому без пересчёта он остаётся на прежних координатах и уезжает под
+ * панель задач. Колбэк, а не рабочая область: workspace пересоздаётся при смене
+ * тулбокса, и слушателю нужен всегда актуальный экземпляр.
+ */
+export function watchToolboxCounterLayout(refresh: () => void): void {
+  if (layoutWatchBound) return;
+  layoutWatchBound = true;
+  window.addEventListener("resize", refresh);
+}
 
 function ensureToolboxBlockCounter(): HTMLDivElement | null {
   const toolboxDiv = document.querySelector(

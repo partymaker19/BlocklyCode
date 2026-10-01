@@ -15,6 +15,21 @@ export const forBlock: Record<string, BlockGenerator> = Object.create(null);
 // Экспортируем генераторы кода для наших кастомных блоков (Python),
 // но не регистрируем их в Blockly напрямую: регистрация делается в index.ts.
 
+// Штатный генератор Blockly оборачивает прибавление в проверку
+// isinstance(..., Number) и добавляет «from numbers import Number», из-за чего
+// в коде задачи появляется две лишние строки. В JS/Lua/PHP тот же блок — одна
+// операция, здесь тоже. Цена: без «присвоить sum = 0» Python падает с явной
+// TypeError вместо молчаливого старта с нуля.
+forBlock["math_change"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const varName = generator.getVariableName(block.getFieldValue("VAR"));
+  const delta =
+    generator.valueToCode(block, "DELTA", PythonOrder.ADDITIVE) || "0";
+  return `${varName} += ${delta}\n`;
+};
+
 forBlock["add_text"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,

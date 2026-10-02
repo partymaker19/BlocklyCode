@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 54 (proj_treasure_hunt): цикл «повторять, пока» идёт по случайным
+    комнатам, пока не выпадет пляж; tries считает попытки.
+    Печать — после цикла, поэтому «sunny beach» в выводе ровно один раз.
+    Ожидаемый вывод: sunny beach, <число попыток ≥ 1>
+  -->
+  <variables>
+    <variable id="var_rooms">rooms</variable>
+    <variable id="var_tries">tries</variable>
+    <variable id="var_room">room</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="var_rooms">rooms</field>
+    <value name="VALUE">
+      <block type="lists_create_with">
+        <mutation items="4"></mutation>
+        <value name="ADD0">
+          <shadow type="text">
+            <field name="TEXT">dark cave</field>
+          </shadow>
+        </value>
+        <value name="ADD1">
+          <shadow type="text">
+            <field name="TEXT">old castle</field>
+          </shadow>
+        </value>
+        <value name="ADD2">
+          <shadow type="text">
+            <field name="TEXT">green forest</field>
+          </shadow>
+        </value>
+        <value name="ADD3">
+          <shadow type="text">
+            <field name="TEXT">sunny beach</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="var_tries">tries</field>
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <next>
+          <block type="variables_set">
+            <field name="VAR" id="var_room">room</field>
+            <value name="VALUE">
+              <shadow type="text">
+                <field name="TEXT"> </field>
+              </shadow>
+            </value>
+            <next>
+              <block type="controls_whileUntil">
+                <field name="MODE">WHILE</field>
+                <value name="BOOL">
+                  <block type="logic_compare">
+                    <field name="OP">NEQ</field>
+                    <value name="A">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_room">room</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <shadow type="text">
+                        <field name="TEXT">sunny beach</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO">
+                  <block type="math_change">
+                    <field name="VAR" id="var_tries">tries</field>
+                    <value name="DELTA">
+                      <shadow type="math_number">
+                        <field name="NUM">1</field>
+                      </shadow>
+                    </value>
+                    <next>
+                      <block type="variables_set">
+                        <field name="VAR" id="var_room">room</field>
+                        <value name="VALUE">
+                          <block type="lists_getIndex">
+                            <field name="MODE">GET</field>
+                            <field name="WHERE">RANDOM</field>
+                            <value name="VALUE">
+                              <block type="variables_get">
+                                <field name="VAR" id="var_rooms">rooms</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="variables_get">
+                        <field name="VAR" id="var_room">room</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="add_text">
+                        <value name="TEXT">
+                          <block type="variables_get">
+                            <field name="VAR" id="var_tries">tries</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

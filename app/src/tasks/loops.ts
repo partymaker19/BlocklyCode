@@ -1,7 +1,13 @@
 // Задачи группы «loops»: тексты заданий и валидаторы.
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
-import { getVisibleOutputLines, getVarFieldText, tryGetAssignedNumber, escapeRe } from "./utils";
+import {
+  getVisibleOutputLines,
+  getVarFieldText,
+  tryGetAssignedNumber,
+  escapeRe,
+  hasAncestorOfType,
+} from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateFirstLoop(
@@ -470,9 +476,154 @@ async function validateDiceRolls(
   return { ok, stars };
 }
 
+/**
+ * Цикл «пока»: счётчик шагов печатает 0, 1, 2, 3, 4 и останавливается на 5.
+ * Направление сравнения проверять не нужно — неверный знак дал бы другой вывод.
+ */
+async function validateLoopWhileCount(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+  const expected = ["0", "1", "2", "3", "4"];
+  const outputOk = lines.length === expected.length && expected.every((v, i) => lines[i] === v);
+
+  let usedWhile = false;
+  let usedCompare = false;
+  let usedChange = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "controls_whileUntil") usedWhile = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "math_change") usedChange = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok = outputOk && usedWhile && hasPrint;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (usedWhile && usedCompare && usedChange && hasPrint && count <= 14) stars = 3;
+    else if (usedWhile && hasPrint && count <= 20) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+/**
+ * Цикл «пока не» с вводом: программа спрашивает число, пока ответ не окажется
+ * в диапазоне 1…5. Засчитывается только ввод, который стоит ВНУТРИ цикла —
+ * иначе программа задаст вопрос один раз и цикл не закончится никогда.
+ */
+async function validateLoopWhileInput(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+  const last = lines.length ? Number(lines[lines.length - 1]) : NaN;
+  const acceptedOk = Number.isInteger(last) && last >= 1 && last <= 5;
+
+  let usedWhile = false;
+  let reasksInsideLoop = false;
+  let usedCompare = false;
+  let usedLogic = false;
+  let usedInputNumber = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "controls_whileUntil") usedWhile = true;
+    if (t === "py_input_number") {
+      usedInputNumber = true;
+      if (hasAncestorOfType(b, "controls_whileUntil")) reasksInsideLoop = true;
+    }
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "logic_operation" || t === "logic_negate") usedLogic = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const ok = usedWhile && usedInputNumber && reasksInsideLoop && usedCompare && hasPrint && acceptedOk;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (usedLogic && count <= 16) stars = 3;
+    else if (count <= 22) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
+/**
+ * Мини-игра «Охота за кладом»: цикл крутится, пока случайная комната — не пляж.
+ * Вывод — найденная комната и число попыток; проверка фиксирует, что пляж
+ * напечатан ровно один раз (значит печать была после цикла, а не внутри).
+ */
+async function validateTreasureHunt(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[]
+): Promise<ValidationResult> {
+  const lines = outputLines.map((l) => l.trim()).filter(Boolean);
+  const beachCount = lines.filter((l) => /^sunny beach$/i.test(l)).length;
+  const last = lines.length ? Number(lines[lines.length - 1]) : NaN;
+  const outputOk = beachCount === 1 && Number.isInteger(last) && last >= 1 && lines.length >= 2;
+
+  let usedWhile = false;
+  let usedList = false;
+  let usedRandomItem = false;
+  let usedChange = false;
+  let usedCompare = false;
+  let hasPrint = false;
+
+  const blocks = getNonShadowBlocks(ws);
+  for (const b of blocks) {
+    const t = (b as any).type;
+    if (t === "controls_whileUntil") usedWhile = true;
+    if (t === "lists_create_with") usedList = true;
+    if (t === "lists_getIndex") {
+      const where =
+        typeof (b as any).getFieldValue === "function"
+          ? (b as any).getFieldValue("WHERE")
+          : undefined;
+      if (where === "RANDOM") usedRandomItem = true;
+    }
+    if (t === "math_change") usedChange = true;
+    if (t === "logic_compare") usedCompare = true;
+    if (t === "text_print" || t === "add_text") hasPrint = true;
+  }
+
+  const usedCore = usedWhile && usedList && usedRandomItem && usedChange && usedCompare && hasPrint;
+  const ok = outputOk && usedCore;
+
+  const count = countNonShadowBlocks(ws);
+  let stars = 0;
+  if (ok) {
+    if (count <= 22) stars = 3;
+    else if (count <= 30) stars = 2;
+    else stars = 1;
+  }
+
+  return { ok, stars };
+}
+
 export const loopsTasks: Pick<
   TaskRegistry,
-  "first_loop" | "sum_1_to_n" | "guess_game" | "mult_table" | "first_even_break" | "dice_rolls"
+  | "first_loop"
+  | "sum_1_to_n"
+  | "guess_game"
+  | "mult_table"
+  | "first_even_break"
+  | "dice_rolls"
+  | "loop_while_count"
+  | "loop_while_input"
+  | "proj_treasure_hunt"
 > = {
   first_loop: {
     id: "first_loop",
@@ -506,7 +657,7 @@ export const loopsTasks: Pick<
     id: "guess_game",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 48: Игра «Угадай число»" : "Task 48: Number Guessing Game",
+      lang === "ru" ? "Задача 53: Игра «Угадай число»" : "Task 53: Number Guessing Game",
     description: (lang) =>
       lang === "ru"
         ? 'Создайте программу, в которой компьютер <strong>загадывает</strong> число от <strong>1</strong> до <strong>10</strong> (сохраните его в переменной <strong>secret</strong>), а пользователь пытается его угадать.<br><br>Используйте переменную <strong>guess</strong> для догадки. В цикле спрашивайте число у пользователя и сообщайте:<br>— если догадка меньше секрета: <strong>"Загаданное число больше!"</strong><br>— если догадка больше секрета: <strong>"Загаданное число меньше!"</strong><br>— если равно: <strong>"Поздравляем! Вы угадали число!"</strong>.'
@@ -537,7 +688,7 @@ export const loopsTasks: Pick<
     id: "first_even_break",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 34: Найди первое чётное" : "Task 34: Find the first even",
+      lang === "ru" ? "Задача 38: Найди первое чётное" : "Task 38: Find the first even",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[7, 3, 8, 5, 2, 9]</code> и сохраните его в переменную <strong>list</strong>. Переберите элементы циклом и, как только встретится <strong>чётное</strong> число, выведите его и <strong>прервите цикл</strong>: в окне вывода должно появиться только <strong>8</strong>.<br><br><strong>Что такое «прервать цикл»:</strong> блок <strong>«прервать цикл»</strong> (категория «Циклы») немедленно останавливает цикл — программа продолжается с первого блока после цикла. Это классический паттерн «поиск с ранним выходом».<br><br>Проверить чётность можно блоком <strong>«чётное»</strong> из «Математика» (выберите «чётное» в выпадающем списке) или сравнением «остаток от n ÷ 2 = 0»."
@@ -563,5 +714,53 @@ export const loopsTasks: Pick<
         : "Step by step:\n1. In the Loops category take the “repeat … times” block and set it to 10.\n2. In the Math category take “random integer from … to …” and set 1 and 6.\n3. Inside the loop put “Add text … color …”, and into it the random number block.\n4. Press “▶” — the output shows 10 numbers from 1 to 6.\n5. Press “Check solution”.",
     infoTopics: ["repeat_n_times", "random_numbers"],
     validate: validateDiceRolls,
+  },
+  loop_while_count: {
+    id: "loop_while_count",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 21: Счётчик до предела" : "Task 21: Counter to the Limit",
+    description: (lang) =>
+      lang === "ru"
+        ? `Цикл <strong>«повторять, пока …»</strong> крутится, пока условие истинно, — сколько именно раз, заранее неизвестно. Создайте переменную <strong>step</strong> со значением <strong>0</strong> и напечатайте пять строк: <strong>0</strong>, <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, <strong>4</strong>.<br><br>1) Возьмите <strong>«повторять, пока …»</strong> (Циклы) и поставьте условие <code>step &lt; 5</code> — блок «сравнить» из «Логика».<br>2) Внутрь цикла положите печать переменной <strong>step</strong>.<br>3) Сразу после печати поставьте <strong>«увеличить step на 1»</strong> (Математика). Без него условие никогда не станет ложным, и цикл замкнётся навсегда.<br><br><strong>Чем это отличается от «цикла по i»:</strong> там число повторов известно заранее, а здесь программа сама решает, когда остановиться. Так устроены игры («пока здоровье &gt; 0») и загрузка файла («пока не скачано 100 %»).<br><br>★★★ — цикл «пока», сравнение и «увеличить на 1», а не готовый цикл со счётчиком.`
+        : `The <strong>“repeat while …”</strong> loop runs as long as its condition is true — nobody knows in advance how many times. Create the variable <strong>step</strong> set to <strong>0</strong> and print five lines: <strong>0</strong>, <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, <strong>4</strong>.<br><br>1) Take <strong>“repeat while …”</strong> (Loops) and set the condition <code>step &lt; 5</code> — the “compare” block from Logic.<br>2) Put a print of the variable <strong>step</strong> inside the loop.<br>3) Right after the print place <strong>“change step by 1”</strong> (Math). Without it the condition never becomes false and the loop runs forever.<br><br><strong>How is this different from “count with i”?</strong> There the number of repeats is known upfront; here the program decides when to stop. That is how games work (“while health &gt; 0”) and file downloads (“until 100 %”).<br><br>★★★ — a “while” loop, a comparison and “change by 1” instead of a ready-made counting loop.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную step и блок «присвоить step …» со значением 0.\n2. Из «Циклы» возьмите «повторять, пока …»: это блок с выпадающим списком — оставьте режим «повторять, пока».\n3. В поле условия поставьте «сравнить» из «Логика»: слева — переменная step, справа — число 5, знак «&lt;».\n4. В слот «выполнить» положите «Добавить текст … цвет …» с переменной step внутрь.\n5. Под печать в том же слоте поставьте «увеличить step на 1» из «Математика» и впишите 1.\n6. Нажмите «▶»: в выводе 0, 1, 2, 3, 4. Убедитесь, что пятерки нет, и нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable step and a “set step to …” block holding 0.\n2. From Loops take “repeat while …” — it has a dropdown; keep the “while” mode.\n3. Into its condition slot put the “compare” block from Logic: variable step on the left, number 5 on the right, sign “&lt;”.\n4. Put “Add text … color …” with the variable step inside the “do” slot.\n5. Under the print, in the same slot, place “change step by 1” from Math and type 1.\n6. Press “▶”: the output shows 0, 1, 2, 3, 4. Make sure there is no 5, then press “Check solution”.`,
+    infoTopics: ["while_until"],
+    validate: validateLoopWhileCount,
+  },
+  loop_while_input: {
+    id: "loop_while_input",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 22: Назови число от 1 до 5" : "Task 22: Name a Number from 1 to 5",
+    description: (lang) =>
+      lang === "ru"
+        ? `Программа задаёт вопрос, пока не получит подходящий ответ. Создайте переменную <strong>guess</strong> и присвойте ей блок <strong>«Ввод числа»</strong> — это первый вопрос.<br><br>1) Возьмите <strong>«повторять, пока не …»</strong> (Циклы). Условие выхода: число подходит — «guess ≥ 1» <strong>И</strong> «guess ≤ 5»; сложите два сравнения блоком «И» из «Логика».<br>2) Внутрь цикла обязательно положите <strong>ещё один</strong> блок «присвоить guess …» с «Ввод числа» — иначе программа не спросит повторно и цикл никогда не закончится.<br>3) После цикла напечатайте значение <strong>guess</strong>.<br><br><strong>Как запустить:</strong> нажмите «▶», введите <code>9</code> и подтвердите — программа спросит снова; введите <code>4</code>. В выводе появится одна строка: <strong>4</strong>.<br><br><strong>Зачем вопрос до цикла:</strong> условие проверяется до первой попытки, поэтому переменную нужно заполнить заранее. Программисты называют это «первичный ввод» (priming read).<br><br>★★★ — «повторять, пока не», ввод внутри цикла и условие из двух сравнений, соединённых «И».`
+        : `A program that keeps asking until it gets an acceptable answer. Create the variable <strong>guess</strong> and set it to the <strong>“numeric input”</strong> block — that is the first question.<br><br>1) Take <strong>“repeat until …”</strong> (Loops). The exit condition is “the number fits”: “guess ≥ 1” <strong>AND</strong> “guess ≤ 5” — join the two comparisons with the “and” block from Logic.<br>2) Inside the loop you must place <strong>another</strong> “set guess to …” block with “numeric input” — otherwise the program never asks again and the loop never ends.<br>3) After the loop print the value of <strong>guess</strong>.<br><br><strong>How to run:</strong> press “▶”, type <code>9</code> and confirm — the program asks again; then type <code>4</code>. The output shows one line: <strong>4</strong>.<br><br><strong>Why ask before the loop:</strong> the condition is checked before the first attempt, so the variable has to hold a value already. Programmers call this a priming read.<br><br>★★★ — “repeat until”, input inside the loop, and a condition built from two comparisons joined by “and”.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную guess и блок «присвоить guess …», а в поле значения положите «Ввод числа» из «Текст».\n2. Возьмите «повторять, пока …» и переключите его выпадающий список на «повторять, пока не».\n3. Соберите условие: «сравнить» с «≥» (guess и 1), «сравнить» с «≤» (guess и 5), и соедините их блоком «И» из «Логика». Весь этот бутерброд — в поле условия цикла.\n4. Внутрь цикла поставьте второй блок «присвоить guess …» с «Ввод числа» — это повторный вопрос.\n5. После цикла — «Добавить текст … цвет …» с переменной guess.\n6. Нажмите «▶», введите 9, затем 4: вывод — одна строка 4. Нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable guess and a “set guess to …” block; put the “numeric input” block from Text into its value slot.\n2. Take “repeat while …” and switch its dropdown to “repeat until …”.\n3. Build the condition: a “compare” block with “≥” (guess and 1), another with “≤” (guess and 5), joined by the “and” block from Logic. Put the whole thing into the loop condition slot.\n4. Inside the loop place a second “set guess to …” block with “numeric input” — that is the repeated question.\n5. After the loop add “Add text … color …” with the variable guess.\n6. Press “▶”, type 9, then 4: the output is one line, 4. Press “Check solution”.`,
+    infoTopics: ["while_until", "user_input"],
+    validate: validateLoopWhileInput,
+  },
+  proj_treasure_hunt: {
+    id: "proj_treasure_hunt",
+    difficulty: "basic",
+    title: (lang) =>
+      lang === "ru" ? "Задача 54: Охота за кладом" : "Task 54: Treasure Hunt",
+    description: (lang) =>
+      lang === "ru"
+        ? `Мини-игра собирает всё вместе: список, случайность, цикл «пока» и счётчик. Герой наугад обходит комнаты, пока не найдёт клад.<br><br>1) Создайте переменную <strong>rooms</strong> со списком <code>dark cave</code>, <code>old castle</code>, <code>green forest</code>, <code>sunny beach</code>.<br>2) Создайте <strong>tries</strong> = <strong>0</strong> и <strong>room</strong> = пустой текст.<br>3) Возьмите <strong>«повторять, пока …»</strong> с условием «room НЕ равно <code>sunny beach</code>». Внутрь цикла: «увеличить tries на 1», затем «присвоить room =» и блок <strong>«в списке rooms взять произвольный»</strong>.<br>4) После цикла напечатайте две строки: <strong>room</strong>, затем <strong>tries</strong>.<br><br>Клад будет найден, как только из четырёх комнат выпадет пляж — обычно за 2–4 попытки, но сколько именно, никто не знает. Поэтому здесь и нужен цикл «пока», а не «повторить 4 раза».<br><br><strong>Что проверяет проверка:</strong> последняя строка обязана быть настоящим числом попыток, а пляж напечатан ровно один раз — значит печать стоит после цикла, а не внутри него.<br><br>★★★ — цикл «пока», случайный выбор из списка, счётчик попытки и две печати после цикла.`
+        : `This mini-game puts everything together: a list, randomness, a “while” loop and a counter. The hero wanders through rooms at random until he finds the treasure.<br><br>1) Create the variable <strong>rooms</strong> holding the list <code>dark cave</code>, <code>old castle</code>, <code>green forest</code>, <code>sunny beach</code>.<br>2) Create <strong>tries</strong> = <strong>0</strong> and <strong>room</strong> = empty text.<br>3) Take <strong>“repeat while …”</strong> with the condition “room IS NOT EQUAL TO <code>sunny beach</code>”. Inside the loop: “change tries by 1”, then “set room to” the <strong>“in list rooms get random item”</strong> block.<br>4) After the loop print two lines: <strong>room</strong>, then <strong>tries</strong>.<br><br>The treasure is found as soon as the beach comes up out of the four rooms — usually in 2 to 4 tries, but no one knows the exact number. That is why a “while” loop belongs here, not “repeat 4 times”.<br><br><strong>What the check looks at:</strong> the last line must be a real number of tries, and the beach must be printed exactly once — so the printing sits after the loop, not inside it.<br><br>★★★ — a “while” loop, a random pick from a list, an attempt counter and two prints after the loop.`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Создайте переменную rooms и присвойте ей «создать список из» четырёх текстов: dark cave, old castle, green forest, sunny beach.\n2. Создайте tries = 0 и room = пустой текст (блок «создать текст из» без частей или просто поле с пустой строкой).\n3. Возьмите «повторять, пока …» (режим «пока») и поставьте условие «сравнить» со знаком «≠»: слева переменная room, справа текст sunny beach.\n4. Внутрь цикла: «увеличить tries на 1», затем «присвоить room …», а в поле значения — «в списке … взять …» с переменной rooms и режимом «произвольный».\n5. После цикла две печати: «Добавить текст … цвет …» с room и такой же блок с tries.\n6. Нажмите «▶» и запускайте несколько раз, пока не надоест: первая строка — sunny beach, вторая — число попыток. Нажмите «Проверить решение».`
+        : `Step by step:\n1. Create the variable rooms and set it to “create list with” four texts: dark cave, old castle, green forest, sunny beach.\n2. Create tries = 0 and room = an empty text (an empty “create text with” block works too).\n3. Take “repeat while …” (the “while” mode) and set the condition to a “compare” block with “≠”: variable room on the left, the text sunny beach on the right.\n4. Inside the loop: “change tries by 1”, then “set room to …” with the “in list … get …” block, the list being rooms and the mode “random item”.\n5. After the loop two prints: “Add text … color …” with room, and the same block with tries.\n6. Press “▶” and run it a few times: the first line is sunny beach, the second is the number of tries. Press “Check solution”.`,
+    infoTopics: ["while_until", "list_random_choice", "random_numbers"],
+    validate: validateTreasureHunt,
   },
 };

@@ -35,7 +35,11 @@ export type GlossaryTopicId =
   | "list_indexing"
   | "list_add_remove"
   | "list_random_choice"
-  | "string_accumulate";
+  | "string_accumulate"
+  | "while_until"
+  | "list_is_empty"
+  | "nested_lists"
+  | "predicate_functions";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -898,6 +902,252 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       t(
         "В Blockly: категория «Текст» — «к переменной … добавить текст …», это команда, а не значение; вложите её в «повторить … раз».",
         "In Blockly: the Text category — “append … to variable …”; it is a command, not a value, so drop it into “repeat … times”."
+      )
+    ),
+
+  while_until: () =>
+    `<h4>${t("Цикл «пока» и цикл «пока не»", "The “while” and “until” loops")}</h4>` +
+    `<p>${t(
+      "Цикл «пока» выполняет тело, пока условие истинно; «пока не» — пока условие ложно, то есть до момента, когда условие станет истинным. Оба останавливаются сами: число повторов заранее неизвестно.",
+      "A “while” loop runs its body while the condition holds; an “until” loop runs while the condition is still false, that is up to the moment it becomes true. Both stop on their own: the number of repeats is not known in advance."
+    )}</p>` +
+    partsList([
+      [
+        t("условие цикла", "loop condition"),
+        t("проверяется ПЕРЕД каждой итерацией, а не после", "checked BEFORE every iteration, not after it"),
+      ],
+      [
+        t("шаг изменения", "update step"),
+        t(
+          "блок, который приближает условие к остановке («увеличить i на 1»)",
+          "the block that moves the condition toward stopping (“change i by 1”)"
+        ),
+      ],
+      [
+        t("первичный ввод", "priming read"),
+        t(
+          "первый вопрос до цикла: условие проверяется сразу, поэтому переменная уже должна быть заполнена",
+          "asking once before the loop: the condition is checked right away, so the variable must already hold a value"
+        ),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: посчитать до пяти", "Example: counting up to five")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: "let step = 0;\nwhile (step < 5) {\n  console.log(step);\n  step += 1;\n}",
+      },
+      { label: "Python", code: "step = 0\nwhile step < 5:\n    print(step)\n    step += 1" },
+      { label: "Lua", code: "local step = 0\nwhile step < 5 do\n  print(step)\n  step = step + 1\nend" },
+      {
+        label: "PHP",
+        code: "<?php\n$step = 0;\nwhile ($step < 5) {\n  echo $step . PHP_EOL;\n  $step++;\n}",
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Забыли блок «увеличить на 1»: условие никогда не станет ложным, цикл зациклится навсегда.",
+        "Forgetting the “change by 1” block: the condition never becomes false and the loop spins forever."
+      ),
+      t(
+        "Перепутали режимы «пока» и «пока не» — программа не запускается вовсе или работает наоборот.",
+        "Mixing up “while” and “until”: the program either never starts or does the opposite."
+      ),
+      t(
+        "Спрашивают число только до цикла и не спрашивают внутри — повторного ввода нет, и «пока не» крутится вечно.",
+        "Asking for input before the loop but not inside it — there is no second chance, so “repeat until” never ends."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Циклы» — блок «повторять, пока …» с выпадающим списком режимов «повторять, пока» и «повторять, пока не».",
+        "In Blockly: the Loops category — the “repeat while …” block whose dropdown switches between “while” and “until”."
+      )
+    ),
+
+  list_is_empty: () =>
+    `<h4>${t("Пустой список как условие", "An empty list as the condition")}</h4>` +
+    `<p>${t(
+      "Список можно спросить, пуст ли он. Это удобное условие для цикла, который разбирает содержимое до конца: предметов может быть сколько угодно, и программа сама решает, когда остановиться.",
+      "You can ask a list whether it is empty. That is a handy condition for a loop that consumes the content to the end: there may be any number of items, and the program decides when to stop."
+    )}</p>` +
+    partsList([
+      [
+        t("пуст", "is empty"),
+        t("истина, когда в списке ноль элементов", "true when the list holds zero items"),
+      ],
+      [
+        t("длина", "length"),
+        t("то же самое в числах: «длина = 0» означает «пуст»", "the same thing as a number: “length = 0” means empty"),
+      ],
+      [
+        t("взять и удалить", "pop"),
+        t(
+          "отдаёт элемент наружу и убирает его из списка — список укорачивается",
+          "hands an item out and removes it from the list, so the list gets shorter"
+        ),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: разобрать список до конца", "Example: emptying a list")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'const tools = ["hammer", "saw"];\nwhile (tools.length > 0) {\n  console.log(tools.shift());\n}',
+      },
+      {
+        label: "Python",
+        code: 'tools = ["hammer", "saw"]\nwhile len(tools) > 0:\n    print(tools.pop(0))',
+      },
+      {
+        label: "Lua",
+        code: 'local tools = {"hammer", "saw"}\nwhile #tools > 0 do\n  print(table.remove(tools, 1))\nend',
+      },
+      {
+        label: "PHP",
+        code: '<?php\n$tools = ["hammer", "saw"];\nwhile (count($tools) > 0) {\n  echo array_shift($tools) . PHP_EOL;\n}',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Читают элемент, но не удаляют его: список не меняется, и условие «пуст» не наступает никогда.",
+        "Reading an item without removing it: the list never changes, so the “is empty” condition never arrives."
+      ),
+      t(
+        "Сравнивают список с пустым текстом вместо того, чтобы спросить «пуст».",
+        "Comparing the list to empty text instead of asking “is it empty”."
+      ),
+      t(
+        "Печатают «длина» внутри цикла и ждут, что это остановит его — печать ничего не меняет.",
+        "Printing the “length” inside the loop and expecting that to stop it — printing changes nothing."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Списки» — блок «… пуст» в условие цикла «повторять, пока не»; укорачивает список режим «взять и удалить» блока «в списке … взять …».",
+        "In Blockly: the Lists category — the “… is empty” block goes into the “repeat until” condition; the “get and remove” mode of the “in list … get …” block shortens the list."
+      )
+    ),
+
+  nested_lists: () =>
+    `<h4>${t("Список списков: строки и столбцы", "A list of lists: rows and columns")}</h4>` +
+    `<p>${t(
+      "Если элементом списка является другой список, получается таблица: внешний список хранит строки, внутренний — ячейки внутри строки. Такой записью задают игровые поля, таблицы и расписания.",
+      "When an item of a list is itself a list, you get a table: the outer list holds the rows, the inner one the cells inside a row. Boards, spreadsheets and timetables are written this way."
+    )}</p>` +
+    partsList([
+      [
+        t("измерение", "dimension"),
+        t("сколько номеров нужно, чтобы достать ячейку: у таблицы их два", "how many numbers you need to reach a cell: a table takes two"),
+      ],
+      [
+        t("строка", "row"),
+        t("первый номер — элемент внешнего списка", "the first number, an item of the outer list"),
+      ],
+      [
+        t("столбец", "column"),
+        t("второй номер — элемент найденной строки", "the second number, an item of the row you just found"),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: ячейка E поля 3×3", "Example: the cell E of a 3×3 board")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'const grid = [["A", "B", "C"], ["D", "E", "F"], ["G", "H", "I"]];\nconsole.log(grid[1][1]); // E',
+      },
+      {
+        label: "Python",
+        code: 'grid = [["A", "B", "C"], ["D", "E", "F"], ["G", "H", "I"]]\nprint(grid[1][1])  # E',
+      },
+      {
+        label: "Lua",
+        code: 'local grid = {{"A", "B", "C"}, {"D", "E", "F"}, {"G", "H", "I"}}\nprint(grid[2][2]) -- E',
+      },
+      {
+        label: "PHP",
+        code: '<?php\n$grid = [["A", "B", "C"], ["D", "E", "F"], ["G", "H", "I"]];\necho $grid[1][1] . PHP_EOL; // E',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Ищут ячейку одним номером: «grid[4]» даёт целую строку, а не четвёртый символ.",
+        "Reaching for a cell with one number: “grid[4]” returns a whole row, not the fourth letter."
+      ),
+      t(
+        "Забыли, что в Blockly номера ячеек начинаются с 1, а в языках — с 0: строка № 2 это [1].",
+        "Forgetting that Blockly counts cells from 1 while languages count from 0: row #2 is [1]."
+      ),
+      t(
+        "Перепутали порядок номеров — сначала столбец, потом строка; для поля 3×3 это другие ячейки.",
+        "Swapping the numbers — column first, then row — which picks different cells on a 3×3 board."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: вложите блок «создать список из» в ячейку другого такого же блока; для чтения поставьте «в списке … взять № …» внутрь такого же блока.",
+        "In Blockly: put a “create list with” block into a cell of another “create list with” block; to read a cell, drop an “in list … get item # …” block inside another one."
+      )
+    ),
+
+  predicate_functions: () =>
+    `<h4>${t("Функция-проверка (предикат)", "A checking function (predicate)")}</h4>` +
+    `<p>${t(
+      "Функция-проверка возвращает истину или ложь и поэтому становится прямо в условие «если». Её имя обычно читается как вопрос: «большое?», «пустое?», «готово?».",
+      "A checking function returns true or false, so it fits right into an “if” condition. Its name usually reads like a question: “is big?”, “is empty?”, “is ready?”"
+    )}</p>` +
+    partsList([
+      [
+        t("предикат", "predicate"),
+        t("функция, отвечающая «да» или «нет»", "a function that answers yes or no"),
+      ],
+      [
+        t("возврат сравнения", "returning a comparison"),
+        t(
+          "сравнение само по себе является значением, его не нужно пересчитывать",
+          "a comparison is already a value, so there is nothing to recompute"
+        ),
+      ],
+      [
+        t("вызов в условии", "call inside a condition"),
+        t("«если big(4)» читается как «если число большое»", "“if big(4)” reads as “if the number is big”"),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: большая ли цена?", "Example: is the price big?")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code: 'function big(num) {\n  return num > 3;\n}\nconsole.log(big(4) ? "YES" : "NO"); // YES',
+      },
+      {
+        label: "Python",
+        code: 'def big(num):\n    return num > 3\nprint("YES" if big(4) else "NO")  # YES',
+      },
+      {
+        label: "Lua",
+        code: 'function big(num)\n  return num > 3\nend\nif big(4) then print("YES") else print("NO") end',
+      },
+      {
+        label: "PHP",
+        code: '<?php\nfunction big($num) {\n  return $num > 3;\n}\necho big(4) ? "YES" : "NO";',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "Функция печатает ДА/НЕТ вместо возврата: значение нельзя вложить в «если».",
+        "The function prints YES/NO instead of returning it: a printed line cannot go into an “if”."
+      ),
+      t(
+        "Возвращают текст «YES», а потом сравнивают его с истиной — проверка ломается.",
+        "Returning the text “YES” and then comparing it with truth — the check falls apart."
+      ),
+      t(
+        "Вызов функции ставят в ветку «если» вместо её условия.",
+        "Placing the function call in the “if” branch instead of in its condition."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Функции» — функция с возвратом, в слот «вернуть» вставьте «сравнить» из «Логика»; блок вызова появится в категории и подойдёт для поля условия.",
+        "In Blockly: the Functions category — a function with a return value; put the “compare” block from Logic into its “return” slot. The call block appears in the same category and fits the condition slot."
       )
     ),
 };

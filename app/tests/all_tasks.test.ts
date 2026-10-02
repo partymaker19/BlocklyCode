@@ -50,6 +50,23 @@ const getTop = (name: string) => ({
   type: "variables_get",
   fields: { VAR: { name } },
 });
+/** Строка lists_create_with — одна строка поля 3×3. */
+const gridRow = () => ({ type: "lists_create_with", extraState: { itemCount: 3 } });
+/** Двойное обращение к ячейке: внешний блок берёт строку, внутренний — элемент. */
+const gridCell = () => ({
+  type: "lists_getIndex",
+  fields: { MODE: "GET", WHERE: "FROM_START" },
+  inputs: {
+    VALUE: {
+      block: {
+        type: "lists_getIndex",
+        fields: { MODE: "GET", WHERE: "FROM_START" },
+        inputs: { VALUE: getV("grid"), AT: num(2) },
+      },
+    },
+    AT: num(2),
+  },
+});
 
 type Row = {
   id: TaskId;
@@ -367,6 +384,115 @@ const rows: Row[] = [
     blocks: [
       setV("name", { block: { type: "py_input" } }),
       setV("age", { block: { type: "py_input_number" } }),
+      printB(),
+    ],
+  },
+  {
+    id: "loop_while_count",
+    output: ["0", "1", "2", "3", "4"],
+    blocks: [{ type: "controls_whileUntil", fields: { MODE: "WHILE" } }, printB()],
+  },
+  {
+    id: "loop_while_input",
+    output: ["4"],
+    blocks: [
+      {
+        type: "controls_whileUntil",
+        fields: { MODE: "UNTIL" },
+        inputs: {
+          BOOL: { block: compareGT(getV("guess"), num(1)) },
+          DO: {
+            block: {
+              type: "variables_set",
+              fields: { VAR: { name: "guess" } },
+              inputs: { VALUE: { block: { type: "py_input_number" } } },
+            },
+          },
+        },
+      },
+      getTop("guess"),
+      printB(),
+    ],
+  },
+  {
+    id: "list_until_empty",
+    output: ["hammer", "saw", "chisel"],
+    blocks: [
+      { type: "controls_whileUntil", fields: { MODE: "UNTIL" } },
+      { type: "lists_isEmpty" },
+      { type: "lists_getIndex", fields: { MODE: "GET_REMOVE", WHERE: "FIRST" } },
+      printB(),
+    ],
+  },
+  {
+    id: "list_grid",
+    output: ["E", "C", "G"],
+    blocks: [
+      gridRow(),
+      gridRow(),
+      gridRow(),
+      gridRow(),
+      gridCell(),
+      gridCell(),
+      gridCell(),
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "function_predicate",
+    output: ["NO", "NO", "NO", "YES"],
+    blocks: [
+      {
+        type: "procedures_defreturn",
+        fields: { NAME: "big" },
+        extraState: { params: [{ name: "num", id: "ap-num" }] },
+        inputs: {
+          RETURN: {
+            block: {
+              type: "logic_compare",
+              fields: { OP: "GT" },
+              inputs: {
+                A: { block: { type: "variables_get", fields: { VAR: { name: "num" } } } },
+                B: num(3),
+              },
+            },
+          },
+        },
+      },
+      {
+        type: "controls_if",
+        inputs: {
+          IF0: {
+            block: {
+              type: "procedures_callreturn",
+              extraState: { name: "big", params: ["num"] },
+              inputs: { ARG0: num(4) },
+            },
+          },
+        },
+      },
+      printB(),
+      printB(),
+      printB(),
+      printB(),
+    ],
+  },
+  {
+    id: "proj_treasure_hunt",
+    output: ["sunny beach", "3"],
+    blocks: [
+      { type: "controls_whileUntil", fields: { MODE: "WHILE" } },
+      { type: "lists_create_with", extraState: { itemCount: 4 } },
+      {
+        type: "lists_getIndex",
+        fields: { MODE: "GET", WHERE: "RANDOM" },
+        inputs: { VALUE: getV("rooms") },
+      },
+      changeB("tries", 1),
+      { type: "logic_compare", fields: { OP: "NEQ" } },
+      printB(),
       printB(),
     ],
   },
@@ -734,8 +860,8 @@ describe("все задачи: валидатор принимает корре�
 });
 
 describe("реестр задач целостен", () => {
-  it("в реестре 59 задач", () => {
-    expect(Object.keys(tasks).length).toBe(59);
+  it("в реестре 65 задач", () => {
+    expect(Object.keys(tasks).length).toBe(65);
   });
 
   it("номер в заголовке совпадает с позицией в порядке прохождения", () => {

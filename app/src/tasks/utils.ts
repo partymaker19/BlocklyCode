@@ -53,3 +53,19 @@ export function hasAncestorOfType(block: any, type: string): boolean {
   }
   return false;
 }
+
+/**
+ * Проверяет, есть ли внутри блока (в любой вложенности, включая входы-значения)
+ * блок указанного типа. Нужен для проверок вида «условие «если» собрано вызовом
+ * функции» — там блоки связаны через value-входы, а не через родительские цепочки.
+ */
+export function containsDescendantOfType(block: any, type: string): boolean {
+  const children =
+    typeof block?.getChildBlocks === "function" ? (block.getChildBlocks() as any[]) : [];
+  for (const child of children) {
+    if (!child) continue;
+    if ((child as any).type === type) return true;
+    if (containsDescendantOfType(child, type)) return true;
+  }
+  return false;
+}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 42 (function_predicate): функция-проверка big(num) возвращает сравнение
+    num > 3, поэтому её вызов стоит прямо в условии «если».
+    Ожидаемый вывод: NO, NO, NO, YES
+  -->
+  <variables>
+    <variable id="fp-num">num</variable>
+    <variable id="fp-i">i</variable>
+  </variables>
+  <block type="procedures_defreturn" id="def-big" x="30" y="40">
+    <mutation>
+      <arg name="num" varid="fp-num"></arg>
+    </mutation>
+    <field name="NAME">big</field>
+    <value name="RETURN">
+      <block type="logic_compare" id="cmp-big">
+        <field name="OP">GT</field>
+        <value name="A">
+          <block type="variables_get" id="get-num">
+            <field name="VAR" id="fp-num">num</field>
+          </block>
+        </value>
+        <value name="B">
+          <shadow type="math_number" id="num-3">
+            <field name="NUM">3</field>
+          </shadow>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="controls_for" id="loop-i" x="30" y="220">
+    <field name="VAR" id="fp-i">i</field>
+    <value name="FROM">
+      <shadow type="math_number">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <value name="TO">
+      <shadow type="math_number">
+        <field name="NUM">4</field>
+      </shadow>
+    </value>
+    <value name="BY">
+      <shadow type="math_number">
+        <field name="NUM">1</field>
+      </shadow>
+    </value>
+    <statement name="DO">
+      <block type="controls_if" id="if-big">
+        <mutation else="1"></mutation>
+        <value name="IF0">
+          <block type="procedures_callreturn" id="call-big">
+            <mutation name="big">
+              <arg name="num"></arg>
+            </mutation>
+            <value name="ARG0">
+              <block type="variables_get" id="get-i-cond">
+                <field name="VAR" id="fp-i">i</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="add_text" id="print-yes">
+            <value name="TEXT">
+              <shadow type="text">
+                <field name="TEXT">YES</field>
+              </shadow>
+            </value>
+          </block>
+        </statement>
+        <statement name="ELSE">
+          <block type="add_text" id="print-no">
+            <value name="TEXT">
+              <shadow type="text">
+                <field name="TEXT">NO</field>
+              </shadow>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </statement>
+  </block>
+</xml>

@@ -124,6 +124,11 @@ const RUNNABLE = new Set<string>([
   "sum_array",
   "min_max",
   "char_freq",
+  "loop_while_count",
+  "list_until_empty",
+  "list_grid",
+  "function_predicate",
+  "proj_treasure_hunt",
 ]);
 
 // Ожидаемый вывод для невыполнимых через eval задач (input/рандом):
@@ -136,6 +141,8 @@ const MANUAL_OUTPUT: Partial<Record<TaskId, string[]>> = {
     "Поздравляем! Вы угадали число!",
   ],
   chatterbox: ["Привет, Аня! Через год тебе будет 11."],
+  // Цикл «пока не» с вводом: программа спрашивала 9, затем приняла 4.
+  loop_while_input: ["4"],
 };
 
 describe("Эталонные решения (solutions/*.xml)", () => {

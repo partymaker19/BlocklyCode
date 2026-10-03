@@ -477,8 +477,8 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
   ternary_null: () =>
     `<h4>${t("Тернарный выбор и пустое значение", "Ternary choice and the empty value")}</h4>` +
     `<p>${t(
-      "Тернарный выбор — это «если … то … иначе», записанное одним значением: такой блок можно вставить прямо в печать или в переменную, и громоздкое «если» не нужно. Отдельная сущность — пустое значение (null): оно означает «значения вовсе нет», и это не то же самое, что 0, false или пустая строка.",
-      "A ternary choice is “if … then … else” written as a single value: the block drops straight into a print or a variable, with no bulky “if”. A separate thing is the null value: it means “there is no value at all”, which is not the same as 0, false or an empty string."
+      "Тернарный выбор — это «если … то … иначе», записанное одним значением: такой блок можно вставить прямо в «Вывести … цвет …» или в переменную, и громоздкое «если» не нужно. Отдельная сущность — пустое значение (null): оно означает «значения вовсе нет», и это не то же самое, что 0, false или пустая строка.",
+      "A ternary choice is “if … then … else” written as a single value: the block drops straight into “Print … color …” or a variable, with no bulky “if”. A separate thing is the null value: it means “there is no value at all”, which is not the same as 0, false or an empty string."
     )}</p>` +
     partsList([
       [t("условие", "condition"), t("проверка, которая выбирает одну из двух веток", "the check that picks one of two branches")],
@@ -890,8 +890,8 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         "Forgetting to reset the accumulator: new text sticks to the old value and the echo keeps growing between runs."
       ),
       t(
-        "Путать «добавить к переменной текст» (меняет переменную) с блоком печати (показывает значение).",
-        "Confusing “append text to variable” (changes the variable) with the print block (only shows a value)."
+        "Путать «добавить к переменной текст» (меняет переменную) с блоком «Вывести … цвет …» (он только показывает значение).",
+        "Confusing “append text to variable” (changes the variable) with “Print … color …” (it only shows a value)."
       ),
       t(
         'В JavaScript «+» с числом склеивает строку: "ROAR" + 3 даёт "ROAR3", а не четыре рыка.',

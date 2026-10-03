@@ -11,7 +11,7 @@ import "@blockly/field-date";
 import "@blockly/field-slider";
 import "@blockly/field-colour-hsv-sliders";
 
-// Пример кастомного блока add_text, который выводит текст в окно вывода приложения.
+// Пример кастомного блока add_text, который выводит значение в окно вывода приложения.
 // При необходимости можно заменить/расширить этот блок своими блоками.
 const addText = {
   type: "add_text",

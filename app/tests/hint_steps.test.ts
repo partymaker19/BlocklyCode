@@ -39,17 +39,17 @@ describe("parseHintSteps", () => {
 
   it("реальный формат задачи hello_world (RU)", () => {
     const hint =
-      "Пошаговое решение:\n1. В категории «Текст» возьмите блок «Добавить текст … цвет …» и перетащите его на рабочее поле.\n2. Впишите в поле блока фразу Hello World! (цвет можно оставить пустым).\n3. Нажмите кнопку «▶» («Запустить код») в редакторе — в окне вывода появится Hello World!.\n4. Нажмите «Проверить решение» — задача будет засчитана.";
+      "Пошаговое решение:\n1. В категории «Текст» возьмите блок «Вывести … цвет …» и перетащите его на рабочее поле.\n2. Впишите в поле блока фразу Hello World! (цвет можно оставить пустым).\n3. Нажмите кнопку «▶» («Запустить код») в редакторе — в окне вывода появится Hello World!.\n4. Нажмите «Проверить решение» — задача будет засчитана.";
     const steps = parseHintSteps(hint);
     expect(steps).not.toBeNull();
     expect(steps).toHaveLength(4);
-    expect(steps![0]).toContain("Добавить текст");
+    expect(steps![0]).toContain("Вывести");
     expect(steps![3]).toContain("Проверить решение");
   });
 
   it("реальный формат задачи hello_world (EN)", () => {
     const hint =
-      "Step by step:\n1. In the Text category, take the “Add text … color …” block and drag it onto the workspace.\n2. Type the phrase Hello World! directly into the block's text field (you can leave the color empty).\n3. Press the “▶” (“Run code”) button in the editor — the output will show Hello World!.\n4. Press “Check solution” — the task will be accepted.";
+      "Step by step:\n1. In the Text category, take the “Print … color …” block and drag it onto the workspace.\n2. Type the phrase Hello World! directly into the block's text field (you can leave the color empty).\n3. Press the “▶” (“Run code”) button in the editor — the output will show Hello World!.\n4. Press “Check solution” — the task will be accepted.";
     const steps = parseHintSteps(hint);
     expect(steps).toHaveLength(4);
     expect(steps![1]).toContain("Hello World!");

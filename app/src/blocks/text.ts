@@ -40,7 +40,7 @@ const addText = {
     this.setColour(160);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setTooltip("Add text to the output area");
+    this.setTooltip("Print a value to the output area");
     this.setHelpUrl("");
 
     // Оставляем логику без дополнительных надписей, JSON уже задает поля

@@ -443,8 +443,8 @@ export const variablesTasks: Pick<
         : "Create a variable named <strong>myAge</strong> and store a number in it. Then print the value of this variable to the output.<br><br><strong>Example:</strong> you set it to <strong>10</strong>, and the output shows <strong>10</strong>.<br><br><strong>Bonus (explore):</strong> after it works, try changing the number or creating a new variable with another name (e.g. <strong>birthYear</strong>) and printing it.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. В категории «Переменные» нажмите «Создать переменную…» и введите имя myAge.\n2. Перетащите блок «присвоить myAge = …» и вставьте в него число (например, 10).\n3. Перетащите блок «Добавить текст … цвет …» (Текст) и вложите в него переменную myAge.\n4. Нажмите «▶», затем «Проверить решение»."
-        : "Step by step:\n1. In the Variables category press “Create variable…” and type myAge.\n2. Drag the “set myAge = …” block and put a number inside (e.g. 10).\n3. Drag “Add text … color …” (Text) and put the variable myAge inside.\n4. Press “▶”, then “Check solution”.",
+        ? "Пошаговое решение:\n1. В категории «Переменные» нажмите «Создать переменную…» и введите имя myAge.\n2. Перетащите блок «присвоить myAge = …» и вставьте в него число (например, 10).\n3. Перетащите блок «Вывести … цвет …» (Текст) и вложите в него переменную myAge.\n4. Нажмите «▶», затем «Проверить решение»."
+        : "Step by step:\n1. In the Variables category press “Create variable…” and type myAge.\n2. Drag the “set myAge = …” block and put a number inside (e.g. 10).\n3. Drag “Print … color …” (Text) and put the variable myAge inside.\n4. Press “▶”, then “Check solution”.",
     validate: validateVarMyAge,
   },
   calc_sum: {
@@ -458,8 +458,8 @@ export const variablesTasks: Pick<
         : "Create two variables: <strong>a</strong> and <strong>b</strong>. Assign numbers to them. Create a third variable <strong>sum</strong> and store <strong>a + b</strong> in it. Print <strong>sum</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменные a, b, sum.\n2. Присвойте a и b числа: «присвоить a = …», «присвоить b = …».\n3. Присвойте sum: вложите в него сумму a + b (блок «+ − × ÷» с переменными a и b внутри).\n4. Выведите sum: вложите переменную sum в «Добавить текст … цвет …»."
-        : "Step by step:\n1. Create variables a, b, sum.\n2. Set a and b to numbers.\n3. Set sum to a + b (use the “+ − × ÷” block with a and b inside).\n4. Print sum: put variable sum inside “Add text … color …”.",
+        ? "Пошаговое решение:\n1. Создайте переменные a, b, sum.\n2. Присвойте a и b числа: «присвоить a = …», «присвоить b = …».\n3. Присвойте sum: вложите в него сумму a + b (блок «+ − × ÷» с переменными a и b внутри).\n4. Выведите sum: вложите переменную sum в «Вывести … цвет …»."
+        : "Step by step:\n1. Create variables a, b, sum.\n2. Set a and b to numbers.\n3. Set sum to a + b (use the “+ − × ÷” block with a and b inside).\n4. Print sum: put variable sum inside “Print … color …”.",
     validate: validateCalcSum,
   },
   inc_counter: {
@@ -472,8 +472,8 @@ export const variablesTasks: Pick<
         : "Create a variable <strong><code>counter</code></strong> with the value <strong>0</strong>. Then increase it by <strong>1</strong> (use <strong>counter = counter + 1</strong>). Print the new value.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную counter и присвойте ей 0: «присвоить counter = 0».\n2. В категории «Математика» возьмите блок «увеличить counter на 1».\n3. Вложите переменную counter в «Добавить текст … цвет …» и нажмите «▶» — в выводе появится 1.\n4. Нажмите «Проверить решение»."
-        : "Step by step:\n1. Create a variable counter and set it to 0: “set counter = 0”.\n2. In the Math category take the “change counter by 1” block.\n3. Put the variable counter inside “Add text … color …” and press “▶” — the output shows 1.\n4. Press “Check solution”.",
+        ? "Пошаговое решение:\n1. Создайте переменную counter и присвойте ей 0: «присвоить counter = 0».\n2. В категории «Математика» возьмите блок «увеличить counter на 1».\n3. Вложите переменную counter в «Вывести … цвет …» и нажмите «▶» — в выводе появится 1.\n4. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable counter and set it to 0: “set counter = 0”.\n2. In the Math category take the “change counter by 1” block.\n3. Put the variable counter inside “Print … color …” and press “▶” — the output shows 1.\n4. Press “Check solution”.",
     validate: validateIncCounter,
   },
   discount_calc: {
@@ -487,8 +487,8 @@ export const variablesTasks: Pick<
         : "Create a variable <strong><code>price</code></strong> and store the item price in it (e.g. <strong>1000</strong>). Create a second variable <strong><code>discount</code></strong> and store the discount percent in it (e.g. <strong>15</strong>). Compute and print the <strong>final price</strong> using: <strong>price - (price * discount / 100)</strong>.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменные price и discount, присвойте им числа (например, 1000 и 15).\n2. Соберите формулу блоками из «Математика»: сначала «price × discount», затем результат «÷ 100».\n3. Итог: блок «−»: влево — price, вправо — результат деления. Присвойте его переменной или сразу вложите в «Добавить текст … цвет …».\n4. Запустите «▶» и проверьте, что вывод — 850 (для 1000 и 15). Нажмите «Проверить решение»."
-        : "Step by step:\n1. Create variables price and discount and set them to numbers (e.g. 1000 and 15).\n2. Build the formula with Math blocks: first “price × discount”, then divide the result “÷ 100”.\n3. Final step: a “−” block — price on the left, the division result on the right. Print it with “Add text … color …”.\n4. Press “▶” and check that the output is 850 (for 1000 and 15). Press “Check solution”.",
+        ? "Пошаговое решение:\n1. Создайте переменные price и discount, присвойте им числа (например, 1000 и 15).\n2. Соберите формулу блоками из «Математика»: сначала «price × discount», затем результат «÷ 100».\n3. Итог: блок «−»: влево — price, вправо — результат деления. Присвойте его переменной или сразу вложите в «Вывести … цвет …».\n4. Запустите «▶» и проверьте, что вывод — 850 (для 1000 и 15). Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create variables price and discount and set them to numbers (e.g. 1000 and 15).\n2. Build the formula with Math blocks: first “price × discount”, then divide the result “÷ 100”.\n3. Final step: a “−” block — price on the left, the division result on the right. Print it with “Print … color …”.\n4. Press “▶” and check that the output is 850 (for 1000 and 15). Press “Check solution”.",
     validate: validateDiscountCalc,
   },
   chatterbox: {
@@ -502,8 +502,8 @@ export const variablesTasks: Pick<
         : "Teach your program to chat with the user! Ask for a <strong>name</strong> (the <strong>“text input”</strong> block) and an <strong>age</strong> (the <strong>“numeric input”</strong> block), storing the answers in <strong>name</strong> and <strong>age</strong>. Then print one greeting line:<br><strong>Hello, &lt;name&gt;! Next year you will be &lt;age + 1&gt;.</strong><br><br>For example, entering “Anya” and 10 prints: <strong>Hello, Anya! Next year you will be 11.</strong><br><br><strong>How to run:</strong> press “▶” — an input box appears in the output; type the answer and confirm — the program then asks for the second number.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную name, присвойте ей блок «Ввод текста» из «Текст».\n2. Создайте переменную age, присвойте ей блок «Ввод числа».\n3. Соберите фразу блоком «создать текст из»: «Привет, », name, «! Через год тебе будет », затем «возраст + 1» (блок «+ − × ÷» с age и 1), и точка.\n4. Вложите фразу в «Добавить текст … цвет …».\n5. Нажмите «▶», введите имя и возраст в поля вывода — проверьте строку приветствия. Нажмите «Проверить решение»."
-        : "Step by step:\n1. Create a variable name and set it to the “text input” block from Text.\n2. Create a variable age and set it to the “numeric input” block.\n3. Build the phrase with “create text with”: “Hello, ”, name, “! Next year you will be ”, then “age + 1” (the “+ − × ÷” block with age and 1).\n4. Put the phrase into “Add text … color …”.\n5. Press “▶”, type a name and an age into the input boxes — check the greeting line. Press “Check solution”.",
+        ? "Пошаговое решение:\n1. Создайте переменную name, присвойте ей блок «Ввод текста» из «Текст».\n2. Создайте переменную age, присвойте ей блок «Ввод числа».\n3. Соберите фразу блоком «создать текст из»: «Привет, », name, «! Через год тебе будет », затем «возраст + 1» (блок «+ − × ÷» с age и 1), и точка.\n4. Вложите фразу в «Вывести … цвет …».\n5. Нажмите «▶», введите имя и возраст в поля вывода — проверьте строку приветствия. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable name and set it to the “text input” block from Text.\n2. Create a variable age and set it to the “numeric input” block.\n3. Build the phrase with “create text with”: “Hello, ”, name, “! Next year you will be ”, then “age + 1” (the “+ − × ÷” block with age and 1).\n4. Put the phrase into “Print … color …”.\n5. Press “▶”, type a name and an age into the input boxes — check the greeting line. Press “Check solution”.",
     infoTopics: ["user_input"],
     validate: validateChatterbox,
   },

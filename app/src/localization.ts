@@ -38,8 +38,7 @@ export function setAppLang(lang: AppLang): void {
   currentAppLang = lang;
   BlocklyCore.setLocale(lang === "ru" ? (RuLocale as any) : (EnLocale as any));
   if (lang === "ru") {
-    (BlocklyCore as any).Msg.ADD_TEXT = "Добавить текст %1";
-    (BlocklyCore as any).Msg.ADD_TEXT_COLOR = "Добавить текст %1 цвет %2";
+    (BlocklyCore as any).Msg.ADD_TEXT_COLOR = "Вывести %1 цвет %2";
     (BlocklyCore as any).Msg.ANGLE_DEMO = "Установить угол %1 градусов";
     (BlocklyCore as any).Msg.ANGLE_VALUE = "Угол %1 градусов";
     (BlocklyCore as any).Msg.DEGREES = "градусов";
@@ -58,8 +57,7 @@ export function setAppLang(lang: AppLang): void {
       "Введите текст для поиска блоков";
     (BlocklyCore as any).Msg.SEARCH_NO_MATCHING = "Блоки не найдены";
   } else {
-    (BlocklyCore as any).Msg.ADD_TEXT = "Add text %1";
-    (BlocklyCore as any).Msg.ADD_TEXT_COLOR = "Add text %1 color %2";
+    (BlocklyCore as any).Msg.ADD_TEXT_COLOR = "Print %1 color %2";
     (BlocklyCore as any).Msg.ANGLE_DEMO = "Set angle to %1 degrees";
     (BlocklyCore as any).Msg.ANGLE_VALUE = "Angle %1 degrees";
     (BlocklyCore as any).Msg.DEGREES = "degrees";

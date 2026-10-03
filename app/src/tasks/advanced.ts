@@ -217,8 +217,8 @@ export const advancedTasks: Pick<
         : 'Create a variable <strong>number</strong> and store any integer in it. Print two facts (each on a new line):<br>1) even or odd (e.g. <strong>"The number is even"</strong>)<br>2) positive, negative, or zero (e.g. <strong>"The number is positive"</strong>).',
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную number и присвойте ей любое целое число (например, 7 или -4).\n2. Чётность: блок «если/иначе» из «Логика» с условием «остаток от number ÷ 2 = 0» → в ветках «The number is even» / «The number is odd».\n3. Знак: второй блок «если/иначе если/иначе» — сравнение number > 0 → «The number is positive», number < 0 → «The number is negative», иначе → «The number is zero».\n4. Каждая строка выводится через «Добавить текст … цвет …»."
-        : "Step by step:\n1. Create a variable number and set it to any integer (e.g. 7 or -4).\n2. Parity: an “if/else” block from Logic with condition “remainder of number ÷ 2 = 0” → branches print “The number is even” / “The number is odd”.\n3. Sign: a second “if/else if/else” — compare number > 0 → “The number is positive”, number < 0 → “The number is negative”, else → “The number is zero”.\n4. Each line is printed with “Add text … color …”.",
+        ? "Пошаговое решение:\n1. Создайте переменную number и присвойте ей любое целое число (например, 7 или -4).\n2. Чётность: блок «если/иначе» из «Логика» с условием «остаток от number ÷ 2 = 0» → в ветках «The number is even» / «The number is odd».\n3. Знак: второй блок «если/иначе если/иначе» — сравнение number > 0 → «The number is positive», number < 0 → «The number is negative», иначе → «The number is zero».\n4. Каждая строка выводится через «Вывести … цвет …»."
+        : "Step by step:\n1. Create a variable number and set it to any integer (e.g. 7 or -4).\n2. Parity: an “if/else” block from Logic with condition “remainder of number ÷ 2 = 0” → branches print “The number is even” / “The number is odd”.\n3. Sign: a second “if/else if/else” — compare number > 0 → “The number is positive”, number < 0 → “The number is negative”, else → “The number is zero”.\n4. Each line is printed with “Print … color …”.",
     validate: validateNumberAnalyzer,
   },
   sum_array: {
@@ -231,8 +231,8 @@ export const advancedTasks: Pick<
         : "Create a list of numbers <code>[1, 2, 3, 4, 5]</code> and print their sum: <strong>15</strong>. You may use list/math blocks or a loop.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка», в его поле вложите переменную list — он сразу посчитает сумму всех элементов.\n3. Присвойте результат переменной sum.\n4. Выведите sum через «Добавить текст … цвет …» — получится 15."
-        : "Step by step:\n1. Create a variable list with “create list with 1 2 3 4 5” (a Lists block).\n2. In Math take the “sum of list” block and put variable list inside — it computes the sum of all items right away.\n3. Assign the result to variable sum.\n4. Print sum with “Add text … color …” — it becomes 15.",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка», в его поле вложите переменную list — он сразу посчитает сумму всех элементов.\n3. Присвойте результат переменной sum.\n4. Выведите sum через «Вывести … цвет …» — получится 15."
+        : "Step by step:\n1. Create a variable list with “create list with 1 2 3 4 5” (a Lists block).\n2. In Math take the “sum of list” block and put variable list inside — it computes the sum of all items right away.\n3. Assign the result to variable sum.\n4. Print sum with “Print … color …” — it becomes 15.",
     validate: validateSumArray,
   },
   min_max: {
@@ -245,8 +245,8 @@ export const advancedTasks: Pick<
         : "Create a list <code>[5, 1, 9, 3, 7]</code> and print min and max: <strong>min=1</strong> and <strong>max=9</strong>. One or two lines are fine.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 5 1 9 3 7» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка» и в выпадающем списке дважды создайте копии: выберите «наименьшее в списке» и «наибольшее в списке», вложив в обе переменную list.\n3. Присвойте результаты переменным min и max.\n4. Выведите через «Добавить текст … цвет …»: min=1 и max=9 (в одну строку или в две)."
-        : "Step by step:\n1. Create a variable list with “create list with 5 1 9 3 7” (a Lists block).\n2. In Math take the “math on list” block and make two copies via the dropdown: choose “minimum of list” and “maximum of list”, putting variable list into both.\n3. Assign the results to variables min and max.\n4. Print with “Add text … color …”: min=1 and max=9 (one or two lines).",
+        ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 5 1 9 3 7» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка» и в выпадающем списке дважды создайте копии: выберите «наименьшее в списке» и «наибольшее в списке», вложив в обе переменную list.\n3. Присвойте результаты переменным min и max.\n4. Выведите через «Вывести … цвет …»: min=1 и max=9 (в одну строку или в две)."
+        : "Step by step:\n1. Create a variable list with “create list with 5 1 9 3 7” (a Lists block).\n2. In Math take the “math on list” block and make two copies via the dropdown: choose “minimum of list” and “maximum of list”, putting variable list into both.\n3. Assign the results to variables min and max.\n4. Print with “Print … color …”: min=1 and max=9 (one or two lines).",
     validate: validateMinMax,
   },
   char_freq: {
@@ -260,8 +260,8 @@ export const advancedTasks: Pick<
         : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). The <strong>“count the number of … in …”</strong> block from Text is handy here.',
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную text и присвойте ей строку abcaabbb (блок «создать текст из» из «Текст» или просто значение).\n2. Для каждого символа (a, b, c) возьмите блок «подсчитать количество … в …» из «Текст»: в первое поле — букву, во второе — переменную text.\n3. Соберите строку вывода: «создать текст из» — например, «a:», результат подсчёта — и вложите в «Добавить текст … цвет …».\n4. Вывод может быть в свободном формате, например: a:3 b:4 c:1."
-        : "Step by step:\n1. Create a variable text and assign the string abcaabbb to it (use the “create text with” block from Text or a plain value).\n2. For each letter (a, b, c) take the “count the number of … in …” block from Text: the letter in the first field, variable text in the second.\n3. Build the output line: “create text with” — e.g. “a:”, the count result — and put it into “Add text … color …”.\n4. Any output format is fine, e.g.: a:3 b:4 c:1.",
+        ? "Пошаговое решение:\n1. Создайте переменную text и присвойте ей строку abcaabbb (блок «создать текст из» из «Текст» или просто значение).\n2. Для каждого символа (a, b, c) возьмите блок «подсчитать количество … в …» из «Текст»: в первое поле — букву, во второе — переменную text.\n3. Соберите строку вывода: «создать текст из» — например, «a:», результат подсчёта — и вложите в «Вывести … цвет …».\n4. Вывод может быть в свободном формате, например: a:3 b:4 c:1."
+        : "Step by step:\n1. Create a variable text and assign the string abcaabbb to it (use the “create text with” block from Text or a plain value).\n2. For each letter (a, b, c) take the “count the number of … in …” block from Text: the letter in the first field, variable text in the second.\n3. Build the output line: “create text with” — e.g. “a:”, the count result — and put it into “Print … color …”.\n4. Any output format is fine, e.g.: a:3 b:4 c:1.",
     validate: validateCharFreq,
   },
 };

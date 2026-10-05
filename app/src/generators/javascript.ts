@@ -6,6 +6,7 @@
 
 import { Order } from "blockly/javascript";
 import * as Blockly from "blockly/core";
+import { collectJoinParts } from "./textJoin";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -14,6 +15,22 @@ type BlockGenerator = (
 export const forBlock: Record<string, BlockGenerator> = Object.create(null);
 // Экспортируем генераторы кода для наших кастомных блоков (JavaScript),
 // но не регистрируем их в Blockly напрямую: регистрация делается в index.ts.
+
+// Штатный генератор даёт ['Hello, ',name,'!'].join('') — ученик видит join()
+// раньше, чем обычную склейку через +. Вложенные выражения запрашиваются с
+// приоритетом умножения: у «+» одинаковый приоритет с другим «+», и Blockly не
+// добавил бы скобки вокруг «age + 1» внутри склейки.
+forBlock["text_join"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator
+) {
+  const parts = collectJoinParts(block, generator, Order.MULTIPLICATION).map(
+    (part) => part.code
+  );
+  if (parts.length === 0) return ["''", Order.ATOMIC];
+  if (parts.length === 1) return [`String(${parts[0]})`, Order.ATOMIC];
+  return [parts.join(" + "), Order.ADDITION];
+};
 
 forBlock["add_text"] = function (
   block: Blockly.Block,

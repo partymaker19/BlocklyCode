@@ -399,8 +399,8 @@ export function localizeTaskSidebarStaticUI(lang: "ru" | "en") {
     "concatInfoNote",
     t?.ConcatInfoNote ||
       (lang === "ru"
-        ? "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку."
-        : "Note: when joining a string and a number, you may need to convert the number to a string first."),
+        ? "Примечание: Blockly склеивает только строки, поэтому число он оборачивает сам: в Python это str(...), в Lua — tostring(...). В JavaScript и PHP оператор превращает число в текст без помощи функции."
+        : "Note: Blockly joins only strings, so it converts numbers for you — str(...) in Python and tostring(...) in Lua. In JavaScript and PHP the operator turns the number into text by itself."),
   );
 
   setText(

@@ -6,6 +6,7 @@
 
 import { Order as PythonOrder } from "blockly/python";
 import * as Blockly from "blockly/core";
+import { collectJoinParts } from "./textJoin";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -28,6 +29,21 @@ forBlock["math_change"] = function (
   const delta =
     generator.valueToCode(block, "DELTA", PythonOrder.ADDITIVE) || "0";
   return `${varName} += ${delta}\n`;
+};
+
+// Штатный генератор даёт ''.join([str(x) for x in [...]]) — генератор
+// списка со циклом для новичка непонятен. Склеиваем через +, не-литералы
+// оборачиваем в str().
+forBlock["text_join"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const parts = collectJoinParts(block, generator, PythonOrder.NONE).map(
+    (part) => (part.isLiteral ? part.code : `str(${part.code})`),
+  );
+  if (parts.length === 0) return ["''", PythonOrder.ATOMIC];
+  if (parts.length === 1) return [parts[0], PythonOrder.ATOMIC];
+  return [parts.join(" + "), PythonOrder.ADDITIVE];
 };
 
 forBlock["add_text"] = function (

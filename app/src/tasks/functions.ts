@@ -236,7 +236,7 @@ export const functionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте функцию greet (как в задаче 39).\n2. Нажмите шестерёнку на блоке функции и перетащите «имя параметра» в «параметры»; назовите его name.\n3. Внутрь фигуры положите «Вывести … цвет …», а в него — «создать текст из» с тремя элементами: текст Привет\\,  (с пробелом), переменная name, текст !\n4. Перетащите блок вызова greet и в поле параметра укажите Аня; продублируйте вызов и укажите Боря.\n5. Запустите код: две строки приветствия. Нажмите «Проверить решение»."
         : "Step by step:\n1. Create a function greet (like in task 39).\n2. Press the gear on the function block and drag “parameter name” into “parameters”; call it name.\n3. Inside the figure put “Print … color …”, and into it a “create text with” block with three items: text Hello\\,  (with a space), the name variable, text !\n4. Drag a greet call block and set the parameter to Anya; duplicate the call and set Borya.\n5. Run the code: two greeting lines. Press “Check solution”.",
-    infoTopics: ["functions"],
+    infoTopics: ["functions", "string_concat"],
     validate: validateFunctionWithParam,
   },
   function_return: {

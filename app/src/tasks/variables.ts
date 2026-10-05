@@ -504,7 +504,7 @@ export const variablesTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную name, присвойте ей блок «Ввод текста» из «Текст».\n2. Создайте переменную age, присвойте ей блок «Ввод числа».\n3. Соберите фразу блоком «создать текст из»: «Привет, », name, «! Через год тебе будет », затем «возраст + 1» (блок «+ − × ÷» с age и 1), и точка.\n4. Вложите фразу в «Вывести … цвет …».\n5. Нажмите «▶», введите имя и возраст в поля вывода — проверьте строку приветствия. Нажмите «Проверить решение»."
         : "Step by step:\n1. Create a variable name and set it to the “text input” block from Text.\n2. Create a variable age and set it to the “numeric input” block.\n3. Build the phrase with “create text with”: “Hello, ”, name, “! Next year you will be ”, then “age + 1” (the “+ − × ÷” block with age and 1).\n4. Put the phrase into “Print … color …”.\n5. Press “▶”, type a name and an age into the input boxes — check the greeting line. Press “Check solution”.",
-    infoTopics: ["user_input"],
+    infoTopics: ["user_input", "string_concat"],
     validate: validateChatterbox,
   },
 };

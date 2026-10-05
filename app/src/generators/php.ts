@@ -129,14 +129,19 @@ forBlock["text_join"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  // Приоритет детей — как у «×»: у «+» и «.» приоритеты близки, и без
+  // запроса более сильного связывания «age + 1» внутри склейки потерял бы
+  // скобки.
   const itemCount = Number((block as any).itemCount_ ?? 0);
   const parts: string[] = [];
   for (let i = 0; i < itemCount; i++) {
-    parts.push(generator.valueToCode(block, `ADD${i}`, PhpOrder.NONE) || "''");
+    parts.push(
+      generator.valueToCode(block, `ADD${i}`, PhpOrder.MULTIPLICATION) || "''",
+    );
   }
   if (parts.length === 0) return ["''", PhpOrder.ATOMIC];
   if (parts.length === 1) return [parts[0], PhpOrder.ATOMIC];
-  return [`(${parts.join(" . ")})`, PhpOrder.ATOMIC];
+  return [parts.join(" . "), PhpOrder.STRING_CONCAT];
 };
 
 forBlock["lists_create_with"] = function (

@@ -681,7 +681,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. В «Циклы» возьмите блок «цикл по i от … до … с шагом …» (от 1 до 5, шаг 1) — внешний цикл, первый множитель.\n2. Внутрь внешнего цикла положите второй блок «цикл по j от … до … с шагом …» (от 1 до 5, шаг 1) — внутренний цикл, второй множитель.\n3. Внутри внутреннего цикла соберите строку примера блоком «создать текст из» (Текст): переменная i, символ ×, переменная j, знак = и результат i × j (блок «+ − × ÷» с операцией ×).\n4. Вложите эту строку в «Вывести … цвет …» — каждая пара (i, j) печатается с новой строки.\n5. Запустите код: в окне вывода будет 25 строк — от «1 × 1 = 1» до «5 × 5 = 25». Нажмите «Проверить решение»."
         : "Step by step:\n1. In Loops take the “count with i from … to … by …” block (1 to 5, step 1) — the outer loop, the first factor.\n2. Put a second “count with j from … to … by …” block (1 to 5, step 1) inside the outer loop — the inner loop, the second factor.\n3. Inside the inner loop build the line with the “create text with” block (Text): variable i, symbol ×, variable j, the = sign and the product i × j (the “+ − × ÷” block with the × operation).\n4. Put this line into the “Print … color …” block — each pair (i, j) is printed on a new line.\n5. Run the code: the output shows 25 lines — from “1 × 1 = 1” to “5 × 5 = 25”. Press “Check solution”.",
-    infoTopics: ["nested_loops"],
+    infoTopics: ["nested_loops", "string_concat"],
     validate: validateMultTable,
   },
   first_even_break: {

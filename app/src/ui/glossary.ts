@@ -20,6 +20,7 @@ export type GlossaryTopicId =
   | "repeat_n_times"
   | "random_numbers"
   | "user_input"
+  | "string_concat"
   | "string_length"
   | "string_indexing"
   | "string_slice"
@@ -274,6 +275,41 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
     blocklyNote(t(
       "В Blockly: категория «Текст» — блоки «Ввод текста» и «Ввод числа»; они возвращают значение, которое присваивают переменной.",
       "In Blockly: the Text category — the “text input” and “numeric input” blocks; they return a value you assign to a variable."
+    )),
+
+  string_concat: () =>
+    `<h4>${t("Конкатенация: сборка строки из кусочков", "Concatenation: building a string from parts")}</h4>` +
+    `<p>${t(
+      "Конкатенация — это склейка текста из кусочков: строк, переменных и чисел. Блок «создать текст из» делает ровно это, а в коде выглядит как один оператор.",
+      "Concatenation glues text out of pieces: strings, variables and numbers. The “create text with” block does exactly that, and in code it is a single operator."
+    )}</p>` +
+    partsList([
+      [t("оператор склейки", "join operator"), t("«+» в JavaScript и Python, «..» в Lua, «.» в PHP", "“+” in JavaScript and Python, “..” in Lua, “.” in PHP")],
+      [t("приведение к строке", "conversion to text"), t("число со строкой в Python и Lua не склеивается — Blockly сам пишет str(…) или tostring(…)", "in Python and Lua a number will not glue onto text, so Blockly writes str(…) or tostring(…) for you")],
+      [t("пробел", "space"), t("пробел — часть кусочка: «Hello, » с пробелом и «Hello,» без него дают разный результат", "the space belongs to the piece: “Hello, ” and “Hello,” give different results")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: приветствие с именем", "Example: greeting with a name")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const name = "Anna";\nconsole.log("Hello, " + name + "!"); // Hello, Anna!' },
+      { label: "Python", code: 'name = "Anna"\nprint("Hello, " + name + "!")  # Hello, Anna!' },
+      { label: "Lua", code: 'local name = "Anna"\nprint("Hello, " .. name .. "!") -- Hello, Anna!' },
+      { label: "PHP", code: '<?php\n$name = "Anna";\necho "Hello, " . $name . "!" . PHP_EOL; // Hello, Anna!' },
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: строка и число", "Example: text with a number")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const age = 10;\nconsole.log("Next year " + (age + 1) + "."); // Next year 11.' },
+      { label: "Python", code: 'age = 10\nprint("Next year " + str(age + 1) + ".")  # Next year 11.' },
+      { label: "Lua", code: 'local age = 10\nprint("Next year " .. tostring(age + 1) .. ".") -- Next year 11.' },
+      { label: "PHP", code: '<?php\n$age = 10;\necho "Next year " . ($age + 1) . "." . PHP_EOL; // Next year 11.' },
+    ]) +
+    mistakesList([
+      t("Склеить строку и число в Python без str() — программа падает с ошибкой типов.", "Joining a string and a number in Python without str() raises a type error."),
+      t("Забыть пробел между кусочками — слова слипаются в «HelloAnna».", "Forgetting the space between the pieces — the words stick together as “HelloAnna”."),
+      t("Перепутать операторы языков: в Lua строки склеивают точки .., а не «+».", "Mixing up the operators: in Lua strings are joined by .., not by “+”."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: блок «создать текст из» (категория «Текст») склеивает свои поля по порядку; кнопки «+» и «−» слева и справа добавляют или убирают части.",
+      "In Blockly: the “create text with” block (Text category) glues its fields in order; the “+” and “−” buttons on its sides add or remove parts."
     )),
 
   string_length: () =>

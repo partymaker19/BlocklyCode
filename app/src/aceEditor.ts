@@ -7,6 +7,10 @@ import type { SupportedLanguage } from "./types/messages";
 import { getAppLang, getAceUIStrings } from "./localization";
 import { saveTextFile } from "./fileSave";
 import { lintPythonCode } from "./pythonLinter";
+import {
+  annotateRenamedVariables,
+  type RenameNoteGenerator,
+} from "./variableRenameNotes";
 
 // Импорты Ace и базовая настройка путей/расширений
 import ace from "ace-builds/src-noconflict/ace";
@@ -262,14 +266,18 @@ export function updateAceEditorFromWorkspace(
   // Определяем генератор и режим подсветки
   let code = "";
   let mode: any = "ace/mode/javascript";
+  let generator: RenameNoteGenerator = javascriptGenerator;
   try {
     if (lang === "python") {
+      generator = pythonGenerator;
       code = pythonGenerator.workspaceToCode(workspace);
       mode = "ace/mode/python";
     } else if (lang === "lua") {
+      generator = luaGenerator;
       code = luaGenerator.workspaceToCode(workspace);
       mode = "ace/mode/lua";
     } else if (lang === "php") {
+      generator = phpGenerator;
       code = phpGenerator.workspaceToCode(workspace);
       mode = { path: "ace/mode/php", inline: true };
     } else {
@@ -280,6 +288,10 @@ export function updateAceEditorFromWorkspace(
     // На случай ошибок генерации — не прерываем выполнение
     code = "" + (code || "");
   }
+
+  // Поясняющие комментарии там, где Blockly изменил имя переменной
+  // (служебное слово языка или конфликт с функцией).
+  code = annotateRenamedVariables(code, workspace, generator, lang);
 
   // Сбрасываем подсветку фигурных скобок для языков без { }
   if (lang === "python" || lang === "lua") {

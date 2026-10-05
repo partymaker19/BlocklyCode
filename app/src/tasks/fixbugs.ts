@@ -389,8 +389,9 @@ export const fixbugsTasks: Pick<
         : "The program should print <strong>Hello, World!</strong>, but the parts are joined in the wrong order.<br><br><strong>What to do:</strong> run the code (“▶”), compare the output with the expected one, swap the parts and run again.<br><br>★★★ — only the bug was fixed (no blocks added).",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Запустите код: выводится «World!Hello, » — части перепутаны.\n2. Найдите блок «соединить» (зелёный, текст).\n3. Поменяйте местами его две части: «Hello, » должно быть слева, «World!» — справа. Блоки можно вытащить и вставить в обратном порядке.\n4. Запустите снова — в выводе «Hello, World!». Проверяйте."
+        ? "Пошаговое решение:\n1. Запустите код: выводится «World!Hello, » — части перепутаны.\n2. Найдите блок «создать текст из» (зелёный, категория «Текст»).\n3. Поменяйте местами его две части: «Hello, » должно быть слева, «World!» — справа. Блоки можно вытащить и вставить в обратном порядке.\n4. Запустите снова — в выводе «Hello, World!». Проверяйте."
         : "Step by step:\n1. Run the code: it prints “World!Hello, ” — the parts are swapped.\n2. Find the “create text with” (join) block.\n3. Swap its two parts: “Hello, ” first, “World!” second. Pull the blocks out and re-insert them in reverse order.\n4. Run again — the output shows “Hello, World!”. Check your solution.",
+    infoTopics: ["string_concat"],
     validate: validateFbJoin,
   },
   fb_parity: {

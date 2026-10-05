@@ -296,7 +296,7 @@ export function localizeImportUI(lang: AppLang): void {
           ConcatPhpDotsDesc: "оператор . склеивает строки",
           ConcatPhpInterpDesc: "интерполяция в двойных кавычках",
           ConcatInfoNote:
-            "Примечание: если “склеиваете” строку и число, иногда нужно сначала превратить число в строку.",
+            "Примечание: Blockly склеивает только строки, поэтому число он оборачивает сам: в Python это str(...), в Lua — tostring(...). В JavaScript и PHP оператор превращает число в текст без помощи функции.",
           IncDecInfoHeader: "Инкремент и декремент",
           IncDecInfoIntro:
             "Инкремент — это увеличение значения на 1, декремент — уменьшение на 1.",
@@ -629,7 +629,7 @@ export function localizeImportUI(lang: AppLang): void {
           ConcatPhpDotsDesc: "the . operator joins strings",
           ConcatPhpInterpDesc: "interpolation in double quotes",
           ConcatInfoNote:
-            "Note: when joining a string and a number, you may need to convert the number to a string first.",
+            "Note: Blockly joins only strings, so it converts numbers for you — str(...) in Python and tostring(...) in Lua. In JavaScript and PHP the operator turns the number into text by itself.",
           IncDecInfoHeader: "Increment and decrement",
           IncDecInfoIntro:
             "Increment means increasing a value by 1, decrement means decreasing it by 1.",
@@ -952,6 +952,16 @@ export type AceUIStrings = {
   save: string;
   saved: string;
   statusLine: (mode: string, row: number, col: number, total: number) => string;
+  renameNoteReserved: (
+    original: string,
+    generated: string,
+    language: string,
+  ) => string;
+  renameNoteCollision: (
+    original: string,
+    generated: string,
+    language: string,
+  ) => string;
 };
 
 export function getAceUIStrings(lang: AppLang): AceUIStrings {
@@ -962,6 +972,10 @@ export function getAceUIStrings(lang: AppLang): AceUIStrings {
       saved: "Saved",
       statusLine: (mode: string, row: number, col: number, total: number) =>
         `${mode}  |  Line ${row}, Column ${col}  |  Total: ${total}`,
+      renameNoteReserved: (original, generated, language) =>
+        `"${original}" is a reserved word in ${language}, so Blockly renamed your variable to ${generated}`,
+      renameNoteCollision: (original, generated, language) =>
+        `"${original}" clashes with a function or another variable in ${language}, so Blockly renamed your variable to ${generated}`,
     };
   }
   return {
@@ -970,6 +984,10 @@ export function getAceUIStrings(lang: AppLang): AceUIStrings {
     saved: "Сохранено",
     statusLine: (mode: string, row: number, col: number, total: number) =>
       `${mode}  |  Строка ${row}, Столбец ${col}  |  Всего: ${total}`,
+    renameNoteReserved: (original, generated, language) =>
+      `Имя «${original}» занято языком ${language}, поэтому Blockly переименовал переменную в ${generated}`,
+    renameNoteCollision: (original, generated, language) =>
+      `Имя «${original}» совпадает с функцией или другой переменной в ${language}, поэтому Blockly переименовал его в ${generated}`,
   };
 }
 

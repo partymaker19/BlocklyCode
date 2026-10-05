@@ -3503,9 +3503,9 @@ print("max=" + str(max(evens)))</code></pre>
                 </ul>
               </li>
             </ul>
-            <p id="concatInfoNote" style="font-size: 0.9em; font-style: italic;">Примечание: если “склеиваете” строку
-              и
-              число, иногда нужно сначала превратить число в строку.</p>
+            <p id="concatInfoNote" style="font-size: 0.9em; font-style: italic;">Примечание: Blockly склеивает
+              только строки, поэтому число он оборачивает сам: в Python это str(...), в Lua — tostring(...). В
+              JavaScript и PHP оператор превращает число в текст без помощи функции.</p>
           </div>
           <div id="incDecInfoSection" class="console-output-info" style="display:none;">
             <h4 id="incDecInfoHeader">Инкремент и декремент</h4>

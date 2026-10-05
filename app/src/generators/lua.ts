@@ -6,6 +6,7 @@
 
 import { Order as LuaOrder } from "blockly/lua";
 import * as Blockly from "blockly/core";
+import { collectJoinParts } from "./textJoin";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -14,6 +15,20 @@ type BlockGenerator = (
 export const forBlock: Record<string, BlockGenerator> = Object.create(null);
 // Экспортируем генераторы кода для наших кастомных блоков (Lua),
 // но не регистрируем их в Blockly напрямую: регистрация делается в index.ts.
+
+// Штатный генератор даёт table.concat({...}) — знакомство с concat раньше,
+// чем со склейкой через .., и таблица-обёртка вместо выражения.
+forBlock["text_join"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator
+) {
+  const parts = collectJoinParts(block, generator, LuaOrder.NONE).map((part) =>
+    part.isLiteral ? part.code : `tostring(${part.code})`
+  );
+  if (parts.length === 0) return ["''", LuaOrder.ATOMIC];
+  if (parts.length === 1) return [parts[0], LuaOrder.ATOMIC];
+  return [parts.join(" .. "), LuaOrder.CONCATENATION];
+};
 
 forBlock["add_text"] = function (
   block: Blockly.Block,

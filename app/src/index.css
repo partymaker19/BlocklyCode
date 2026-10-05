@@ -585,6 +585,21 @@ html[data-theme='dark'] .hint-steps-controls .hint-next-btn {
   opacity: 0.7;
 }
 
+/* Названия блоков и разделов в подсказках (ui/hintTerms.ts):
+   цвет --hint-term приходит из темы Blockly, см. hintTermColour() */
+.hint-term {
+  font-weight: 600;
+  color: var(--hint-term, inherit);
+}
+
+html[data-theme='light'] .hint-term {
+  color: color-mix(in srgb, var(--hint-term, #555) 78%, #111);
+}
+
+html[data-theme='dark'] .hint-term {
+  color: color-mix(in srgb, var(--hint-term, #bbb) 72%, #fff);
+}
+
 /* ===== Статистика и достижения (ui/stats.ts) ===== */
 .stats-cards {
   display: grid;

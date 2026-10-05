@@ -6,6 +6,7 @@
  */
 
 import { getAppLang } from "../localization";
+import { renderHintText } from "./hintTerms";
 
 /**
  * Разбирает hint-строку на шаги. Возвращает null, если строка не
@@ -57,7 +58,7 @@ export function renderHintSteps(container: HTMLElement, hint: string): void {
     // Fallback: старое поведение — весь текст подсказки сразу
     const div = document.createElement("div");
     div.className = "task-hint";
-    div.textContent = hint;
+    div.appendChild(renderHintText(hint));
     container.appendChild(div);
     return;
   }
@@ -84,7 +85,7 @@ export function renderHintSteps(container: HTMLElement, hint: string): void {
       ol.className = "hint-steps-list";
       for (let i = 0; i < index; i++) {
         const li = document.createElement("li");
-        li.textContent = steps[i];
+        li.appendChild(renderHintText(steps[i]));
         ol.appendChild(li);
       }
       stateEl.appendChild(ol);

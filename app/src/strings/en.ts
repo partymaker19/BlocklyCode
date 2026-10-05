@@ -9,6 +9,7 @@ export const toolbox = {
   Math: "Math",
   Text: "Text",
   Lists: "Lists",
+  Dicts: "Dicts",
   Variables: "Variables",
   Functions: "Functions",
   Custom: "Custom blocks",

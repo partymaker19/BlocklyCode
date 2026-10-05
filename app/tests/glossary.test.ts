@@ -88,6 +88,7 @@ describe("привязка тем к задачам", () => {
     ["list_until_empty", "list_is_empty"],
     ["list_grid", "nested_lists"],
     ["function_predicate", "predicate_functions"],
+    ["char_freq", "dict"],
   ];
   for (const [taskId, topic] of expected) {
     it(`${taskId} → ${topic}`, () => {

@@ -51,6 +51,17 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = "Поле выбора цвета HSV";
     (BlocklyCore as any).Msg.PY_INPUT = "Ввод текста";
     (BlocklyCore as any).Msg.PY_INPUT_NUMBER = "Ввод числа";
+    (BlocklyCore as any).Msg.DICT_CREATE = "Словарь: создать пустой";
+    (BlocklyCore as any).Msg.DICT_CREATE_TOOLTIP =
+      "Создаёт пустой словарь (набор пар «ключ → значение»)";
+    (BlocklyCore as any).Msg.DICT_SET = "Словарь: установить %1[%2] = %3";
+    (BlocklyCore as any).Msg.DICT_SET_TOOLTIP =
+      "Записать значение по ключу в словарь";
+    (BlocklyCore as any).Msg.DICT_GET = "Словарь: получить %1[%2]";
+    (BlocklyCore as any).Msg.DICT_GET_TOOLTIP = "Получить значение по ключу";
+    (BlocklyCore as any).Msg.DICT_HAS_KEY = "Словарь: есть ключ? %1 в %2";
+    (BlocklyCore as any).Msg.DICT_HAS_KEY_TOOLTIP =
+      "Проверить наличие ключа в словаре";
     // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Поиск блоков";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =
@@ -70,6 +81,17 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = "HSV color picker field";
     (BlocklyCore as any).Msg.PY_INPUT = "Text input";
     (BlocklyCore as any).Msg.PY_INPUT_NUMBER = "Number input";
+    (BlocklyCore as any).Msg.DICT_CREATE = "Dictionary: create empty";
+    (BlocklyCore as any).Msg.DICT_CREATE_TOOLTIP =
+      "Creates an empty dictionary (a set of key → value pairs)";
+    (BlocklyCore as any).Msg.DICT_SET = "Dictionary: set %1[%2] = %3";
+    (BlocklyCore as any).Msg.DICT_SET_TOOLTIP =
+      "Store a value in the dictionary under a key";
+    (BlocklyCore as any).Msg.DICT_GET = "Dictionary: get %1[%2]";
+    (BlocklyCore as any).Msg.DICT_GET_TOOLTIP = "Read the value stored under a key";
+    (BlocklyCore as any).Msg.DICT_HAS_KEY = "Dictionary: has key? %1 in %2";
+    (BlocklyCore as any).Msg.DICT_HAS_KEY_TOOLTIP =
+      "Check whether the key exists in the dictionary";
     // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Search blocks";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =

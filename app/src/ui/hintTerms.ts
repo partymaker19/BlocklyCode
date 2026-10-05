@@ -17,12 +17,16 @@ export type HintTermStyle =
   | "math_category"
   | "text_category"
   | "list_category"
+  | "dict_category"
   | "variable_category"
   | "procedure_category"
   | "custom";
 
 /** Цвет категории «Кастомные блоки» — как в toolbox.ts. */
 const CUSTOM_COLOUR = "#a55eea";
+
+/** Оттенок категории «Словари»: категория задаёт цвет hue 290, а не стиль темы. */
+const DICT_COLOUR = "#995ba5";
 
 /**
  * Цвета категорий по умолчанию, если тема их не отдаёт.
@@ -34,6 +38,7 @@ const FALLBACK_COLOUR: Record<HintTermStyle, string> = {
   math_category: "#3a68d3",
   text_category: "#5ca74c",
   list_category: "#745ca7",
+  dict_category: DICT_COLOUR,
   variable_category: "#ee7d16",
   procedure_category: "#664488",
   custom: CUSTOM_COLOUR,
@@ -296,6 +301,20 @@ const BLOCK_TERMS: Record<HintTermStyle, string[]> = {
     "parameter name",
     "call … with …",
   ],
+  dict_category: [
+    "Словарь: создать пустой",
+    "создать пустой словарь",
+    "Словарь: установить …",
+    "Словарь: получить …",
+    "Словарь: есть ключ? … в …",
+    "Словарь: есть ключ?",
+    "Dictionary: create empty",
+    "create an empty dictionary",
+    "Dictionary: set …",
+    "Dictionary: get …",
+    "Dictionary: has key? … in …",
+    "Dictionary: has key?",
+  ],
   custom: [
     "Установить угол … градусов",
     "Угол … градусов",
@@ -319,6 +338,7 @@ const CATEGORY_TERMS: Record<HintTermStyle, string[]> = {
   math_category: ["Математика", "Математики", "Математике", "Math"],
   text_category: ["Текст", "Текста", "Тексте", "Text"],
   list_category: ["Списки", "Списках", "Lists"],
+  dict_category: ["Словари", "Словарей", "Словарях", "Словаре", "Dicts"],
   variable_category: [
     "Переменные",
     "Переменной",

@@ -39,7 +39,8 @@ export type GlossaryTopicId =
   | "while_until"
   | "list_is_empty"
   | "nested_lists"
-  | "predicate_functions";
+  | "predicate_functions"
+  | "dict";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -1148,6 +1149,88 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       t(
         "В Blockly: категория «Функции» — функция с возвратом, в слот «вернуть» вставьте «сравнить» из «Логика»; блок вызова появится в категории и подойдёт для поля условия.",
         "In Blockly: the Functions category — a function with a return value; put the “compare” block from Logic into its “return” slot. The call block appears in the same category and fits the condition slot."
+      )
+    ),
+  dict: () =>
+    `<h4>${t("Словарь: пары «ключ → значение»", "Dictionary: key → value pairs")}</h4>` +
+    `<p>${t(
+      "Список хранит значения по порядку: первая ячейка, вторая, третья. Словарь хранит значения по именам — ключам. Вместо «взять № 2» вы говорите «взять a», и не следите за порядком: сколько бы букв ни встретилось, частоту буквы «a» всегда ищут по ключу «a».",
+      "A list stores values by position: first cell, second, third. A dictionary stores values by name — by key. Instead of “get item #2” you say “get a”, and you stop tracking order: whatever letters appear, the count of the letter “a” is always found under the key “a”."
+    )}</p>` +
+    partsList([
+      [
+        t("ключ", "key"),
+        t(
+          "имя ячейки — текст или число; «a» и 1 это разные ключи",
+          "the name of the cell — text or a number; “a” and 1 are different keys"
+        ),
+      ],
+      [
+        t("значение", "value"),
+        t("то, что храним под ключом: число, текст, список", "what the key holds: a number, text, a list"),
+      ],
+      [
+        t("установить", "set"),
+        t(
+          "записывает значение по ключу: новая ячейка создаётся, старая заменяется",
+          "stores a value under the key: a missing cell is created, an existing one is overwritten"
+        ),
+      ],
+      [
+        t("получить", "get"),
+        t("читает значение по ключу", "reads the value stored under the key"),
+      ],
+      [
+        t("есть ключ?", "has key?"),
+        t("истина, если такая ячейка уже есть", "true when the cell already exists"),
+      ],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: частоты букв", "Example: letter counts")}</h4>` +
+    examplesBlock([
+      {
+        label: "JavaScript",
+        code:
+          'const freq = {};\nfreq["a"] = 3;\nfreq["b"] = 4;\n' +
+          'console.log(freq["a"]);    // 3\nconsole.log("z" in freq);  // false',
+      },
+      {
+        label: "Python",
+        code:
+          'freq = {}\nfreq["a"] = 3\nfreq["b"] = 4\n' +
+          'print(freq["a"])     # 3\nprint("z" in freq)   # False',
+      },
+      {
+        label: "Lua",
+        code:
+          'local freq = {}\nfreq["a"] = 3\nfreq["b"] = 4\n' +
+          'print(freq["a"])        -- 3\nprint(freq["z"] == nil) -- true',
+      },
+      {
+        label: "PHP",
+        code:
+          '<?php\n$freq = [];\n$freq["a"] = 3;\n$freq["b"] = 4;\n' +
+          'echo $freq["a"] . PHP_EOL;           // 3\n' +
+          'var_dump(array_key_exists("z", $freq)); // false',
+      },
+    ]) +
+    mistakesList([
+      t(
+        "«Словарь: установить» подключают прямо к «Словарь: создать пустой» — запись уходит в одноразовый словарь, который тут же исчезает. Словарь сначала кладут в переменную.",
+        "Plugging “Dictionary: set” straight into “Dictionary: create empty” — the write goes into a one-shot dictionary that disappears at once. Put the dictionary into a variable first."
+      ),
+      t(
+        "Читают ключ, которого нет: JavaScript даёт пустоту, Python падает с ошибкой. Сначала проверяйте «Словарь: есть ключ?».",
+        "Reading a key that is not there: JavaScript hands back nothing, Python raises an error. Check “Dictionary: has key?” first."
+      ),
+      t(
+        "Ждут, что словарь помнит порядок добавления, как список. Он отвечает по имени, а не по позиции.",
+        "Expecting a dictionary to remember insertion order like a list. It answers by name, not by position."
+      ),
+    ]) +
+    blocklyNote(
+      t(
+        "В Blockly: категория «Словари» — «Словарь: создать пустой» вкладывается в «присвоить», а «Словарь: установить …», «Словарь: получить …» и «Словарь: есть ключ?» берут словарь из переменной.",
+        "In Blockly: the Dicts category — “Dictionary: create empty” goes into “set … to …”, while “Dictionary: set …”, “Dictionary: get …” and “Dictionary: has key?” take the dictionary from a variable."
       )
     ),
 };

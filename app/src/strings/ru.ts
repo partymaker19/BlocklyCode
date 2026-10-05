@@ -19,6 +19,7 @@ export const toolbox: typeof ToolboxEn = {
   Math: "Математика",
   Text: "Текст",
   Lists: "Списки",
+  Dicts: "Словари",
   Variables: "Переменные",
   Functions: "Функции",
   Custom: "Кастомные блоки",

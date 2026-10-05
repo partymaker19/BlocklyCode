@@ -430,6 +430,70 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
       },
       {
         kind: "category",
+        name: "Dicts",
+        colour: "290",
+        contents: [
+          {
+            kind: "block",
+            type: "dict_create",
+          },
+          {
+            kind: "block",
+            type: "dict_set",
+            inputs: {
+              KEY: {
+                shadow: {
+                  type: "text",
+                  fields: {
+                    TEXT: "a",
+                  },
+                },
+              },
+              VALUE: {
+                shadow: {
+                  type: "math_number",
+                  fields: {
+                    NUM: 1,
+                  },
+                },
+              },
+            },
+          },
+          {
+            kind: "block",
+            type: "dict_get",
+            inputs: {
+              KEY: {
+                shadow: {
+                  type: "text",
+                  fields: {
+                    TEXT: "a",
+                  },
+                },
+              },
+            },
+          },
+          {
+            kind: "block",
+            type: "dict_has_key",
+            inputs: {
+              KEY: {
+                shadow: {
+                  type: "text",
+                  fields: {
+                    TEXT: "a",
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      {
+        kind: "sep",
+      },
+      {
+        kind: "category",
         name: "Variables",
         categorystyle: "variable_category",
         custom: "VARIABLE",
@@ -452,7 +516,6 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
           { kind: "block", type: "date_value" },
           { kind: "block", type: "slider_value" },
           { kind: "block", type: "hsv_colour_value" },
-          // Удалены словарные блоки из раздела «Кастомные блоки»
         ],
       },
     ],

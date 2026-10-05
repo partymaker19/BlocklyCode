@@ -263,5 +263,6 @@ export const advancedTasks: Pick<
         ? "Пошаговое решение:\n1. Создайте переменную text и присвойте ей строку abcaabbb (блок «создать текст из» из «Текст» или просто значение).\n2. Для каждого символа (a, b, c) возьмите блок «подсчитать количество … в …» из «Текст»: в первое поле — букву, во второе — переменную text.\n3. Соберите строку вывода: «создать текст из» — например, «a:», результат подсчёта — и вложите в «Вывести … цвет …».\n4. Вывод может быть в свободном формате, например: a:3 b:4 c:1."
         : "Step by step:\n1. Create a variable text and assign the string abcaabbb to it (use the “create text with” block from Text or a plain value).\n2. For each letter (a, b, c) take the “count the number of … in …” block from Text: the letter in the first field, variable text in the second.\n3. Build the output line: “create text with” — e.g. “a:”, the count result — and put it into “Print … color …”.\n4. Any output format is fine, e.g.: a:3 b:4 c:1.",
     validate: validateCharFreq,
+    infoTopics: ["dict"],
   },
 };

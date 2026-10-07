@@ -213,12 +213,15 @@ async function executeInSandbox(
   // Очистить вывод
   outputElement.innerHTML = "";
 
-  const appendLine = (text: string, color?: string) => {
+  const appendLine = (text: string, color?: string): HTMLParagraphElement => {
     const p = document.createElement("p");
     if (color) p.style.color = color;
     p.textContent = text;
     outputElement.appendChild(p);
+    return p;
   };
+  // Строка прогресса («Загрузка Lua...») — одна, она заменяется или снимается
+  let statusLine: HTMLParagraphElement | null = null;
   let closePendingInput: (() => void) | null = null;
   const requestInputValue = (promptText: string): Promise<string> =>
     new Promise((resolve) => {
@@ -369,6 +372,11 @@ async function executeInSandbox(
   }
   const enableMainTimer =
     !opts?.noMainTimer && language !== "python" && language !== "php";
+  // Fengari загружается в воркере уже после старта отсчёта, а его внутренний
+  // лимит считается от момента загрузки. Главному таймеру нужен запас на
+  // холодный старт: прогрев fengari-web.js в воркере на проде занимает ~5 с.
+  const warmupMs = language === "lua" ? 20000 : 0;
+  const mainDeadlineMs = effectiveTimeout + warmupMs;
   const timer = enableMainTimer
     ? setTimeout(
         () => {
@@ -378,16 +386,21 @@ async function executeInSandbox(
             worker?.removeEventListener("message", onMessage);
             worker?.terminate();
           } catch {}
-          // Сообщение о прерывании показываем только для JS/TS.
-          // Для Python/Lua прерывание по времени сообщается самим рантаймом.
-          if (language === "javascript" || language === "typescript") {
+          // Для Python/PHP главного таймера нет, а их прерывание по времени
+          // сообщает сам рантайм.
+          if (language === "lua") {
+            appendLine(
+              `Рантайм Lua не успел загрузиться и выполнить программу за ${mainDeadlineMs} мс — попробуйте запустить ещё раз.`,
+              "#b58900",
+            );
+          } else if (language === "javascript" || language === "typescript") {
             appendLine(
               `Выполнение остановлено: превышен лимит времени ${effectiveTimeout} мс.`,
               "#b58900",
             );
           }
         },
-        Math.max(0, effectiveTimeout - 50),
+        Math.max(0, mainDeadlineMs - 50),
       )
     : null;
 
@@ -412,7 +425,11 @@ async function executeInSandbox(
     } else if (msg?.type === "stderr") {
       appendLine(String(msg.text ?? ""), "#b58900");
     } else if (msg?.type === "status") {
-      if (msg.text) appendLine(String(msg.text), "#666");
+      if (statusLine) {
+        statusLine.remove();
+        statusLine = null;
+      }
+      if (msg.text) statusLine = appendLine(String(msg.text), "#666");
     } else if (msg?.type === "highlight") {
       opts?.onHighlight?.(String((msg as any).id ?? ""));
     } else if (msg?.type === "input_request") {
@@ -438,6 +455,11 @@ async function executeInSandbox(
     } else if (msg?.type === "error") {
       if (closePendingInput) closePendingInput();
       appendLine(`Ошибка выполнения: ${String(msg.message ?? msg)}`, "red");
+      // "error" терминален: снимаем и главный таймер, иначе он сработает
+      // позже и напечатает лишнюю строку поверх уже показанной ошибки
+      if (timer) clearTimeout(timer as any);
+      worker?.removeEventListener("message", onMessage);
+      worker?.terminate();
       // Все рантаймы шлют "error" как терминальное — оповещаем UI отладчика
       opts?.onDone?.();
     } else if (msg?.type === "done") {

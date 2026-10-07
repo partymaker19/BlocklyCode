@@ -285,6 +285,7 @@ sys.settrace(_trace)
 // Lua через Fengari внутри воркера
 async function runLua(code: string, timeoutMs?: number) {
   try {
+    post({ type: "status", text: "Загрузка Lua..." });
     // Загружаем Fengari локально, скопированный в сборку вебпака
     // Формируем относительный URL к скопированному в сборку файлу fengari-web.js,
     // чтобы корректно работать под subpath (GitHub Pages)
@@ -304,6 +305,7 @@ async function runLua(code: string, timeoutMs?: number) {
     const { lua, lauxlib, lualib, to_luastring, to_jsstring } = fengari as any;
     const L = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(L);
+    post({ type: "status", text: "" });
 
     // Устанавливаем хук дебаггера для прерывания по времени
     const deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
